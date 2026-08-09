@@ -1,0 +1,225 @@
+/* HOY 1.3 — Mobile visual & typography polish
+   No remote font dependency: editorial serif + native UI sans stacks. */
+:root{
+  --serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;
+  --sans:"Avenir Next","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+
+html{font-size:16px;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+html,body,.app,.dialog{font-family:var(--sans);font-size:15px;line-height:1.45;font-synthesis:none;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;}
+button,input,select,textarea{font-family:var(--sans);}
+button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(239,91,11,.3);outline-offset:2px;}
+h1,h2,h3,h4{font-family:var(--serif);text-wrap:balance;}
+p{ text-wrap:pretty; }
+
+/* Bottom navigation */
+.bottom{padding:7px 6px calc(7px + env(safe-area-inset-bottom));}
+.bottom button{min-height:50px;gap:4px;padding:4px 2px;}
+.bottom svg{width:22px;height:22px;}
+.bottom small{font-size:11px;line-height:1.1;font-weight:700;letter-spacing:-.01em;}
+
+/* Home */
+.brand b{font-size:34px;line-height:.82;}
+.brand small{font-size:10px;line-height:1.1;letter-spacing:.22em;margin-top:9px;}
+.bell,.round{width:44px;height:44px;min-width:44px;min-height:44px;}
+.round svg,.bell svg{width:20px;height:20px;}
+.hero-copy h1{font-size:clamp(50px,14vw,58px);line-height:.92;font-weight:500;letter-spacing:-.052em;}
+.hero-copy p{font-size:18px;line-height:1.3;font-weight:600;max-width:310px;}
+.search-box{padding:10px 15px 15px;}
+.search-row{min-height:56px;grid-template-columns:31px 1fr 22px;gap:9px;}
+.search-row small{font-size:11px;line-height:1.2;margin-bottom:2px;}
+.search-row strong{font-size:14px;line-height:1.25;font-weight:750;}
+.go{min-height:48px;font-size:14px;line-height:1.2;font-weight:800;padding:13px 15px;}
+.quick{gap:8px;padding:17px 18px 5px;}
+.quick button{min-height:40px;font-size:12px;line-height:1.1;padding:9px 13px;font-weight:700;}
+.quick svg{width:16px;height:16px;}
+.section{padding-top:28px;}
+.section-head{margin-bottom:14px;}
+.section-head h2{font-size:28px;line-height:1.05;}
+.section-head button{font-size:12px;min-height:38px;padding:0 2px;}
+.eyebrow{font-size:10.5px;line-height:1.2;letter-spacing:.14em;}
+.card{min-width:230px;border-radius:17px;}
+.card-art{height:138px;}
+.card-body{padding:14px;}
+.card h3{font-size:21px;line-height:1.08;margin-bottom:6px;}
+.meta{font-size:12px;line-height:1.4;}
+.pill{font-size:10.5px;line-height:1.1;padding:6px 9px;}
+.media-badge,.rights-label{font-size:10px;line-height:1.15;padding:6px 8px;}
+.media-attrib{font-size:9px;line-height:1.1;padding:5px 7px;}
+.media-credit{font-size:11px;line-height:1.45;margin-top:11px;}
+.heart{width:36px;height:36px;}
+.heart svg{width:19px;height:19px;}
+.editorial{padding:22px;margin-top:25px;}
+.editorial h2{font-size:30px;line-height:1.04;margin:7px 0 10px;}
+.editorial p{font-size:14px;line-height:1.55;max-width:320px;}
+.editorial button{min-height:42px;font-size:13px;padding:10px 14px;}
+.source{font-size:11.5px;line-height:1.55;padding-top:24px;}
+
+/* Discover / map / favorites */
+.head{padding:calc(22px + env(safe-area-inset-top)) 18px 14px;}
+.head h1{font-size:42px;line-height:.98;margin:15px 0 9px;}
+.head p{font-size:14px;line-height:1.55;max-width:390px;}
+.searchline{margin-top:18px;}
+.searchline input{min-height:46px;font-size:14px;padding:12px 13px;}
+.searchline button{min-width:46px;min-height:46px;padding:0 13px;}
+.filterline{gap:8px;padding:8px 18px 14px;}
+.filterline button{min-height:40px;font-size:12px;padding:8px 13px;}
+.list-card{grid-template-columns:88px minmax(0,1fr) 44px;gap:12px;padding:14px 0;}
+.list-art{height:88px;border-radius:13px;}
+.list-art .media-badge{font-size:8.5px;padding:4px 6px;}
+.list h3{font-size:19px;line-height:1.08;margin-bottom:5px;}
+.list p{font-size:12.5px;line-height:1.45;}
+.list .service{font-size:11px;line-height:1.35;margin-top:7px;}
+.list .heart2{width:44px;height:44px;display:grid;place-items:center;padding:0;}
+.list .heart2 svg{width:21px;height:21px;}
+.empty{padding:52px 25px;}
+.empty h2{font-size:30px;line-height:1.05;}
+.empty p{font-size:14px;line-height:1.5;}
+.empty button{min-height:44px;font-size:13px;padding:11px 15px;}
+.map-fallback b{font-size:26px;line-height:1.05;}
+.map-fallback p,.map-note{font-size:13px;line-height:1.5;}
+.map-fallback button,.zone button{min-height:42px;font-size:12.5px;}
+.zone h3{font-size:19px;line-height:1.1;}
+.zone small{font-size:11.5px;}
+
+/* Restaurant detail */
+.dialog{font-size:15px;line-height:1.45;}
+.detail-art{height:300px;}
+.detail-top{padding:calc(16px + env(safe-area-inset-top)) 16px;}
+.detail-body{padding:20px 20px 38px;}
+.detail-body>.eyebrow{margin-bottom:9px;}
+.detail-body>h2{font-family:var(--serif);font-size:35px;line-height:1;letter-spacing:-.035em;font-weight:600;margin:0 0 8px;}
+.detail-body>.meta{font-size:13px;line-height:1.4;}
+.statusrow{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0 4px;}
+.actions{padding:15px 0;margin:3px 0 5px;gap:8px;}
+.actions>a,.actions>button{font-size:12px;line-height:1.2;font-weight:700;gap:7px;min-height:62px;}
+.actions .circle{width:44px;height:44px;min-width:44px;min-height:44px;}
+.actions svg,.actions .circle svg{width:20px!important;height:20px!important;max-width:20px!important;max-height:20px!important;min-width:20px!important;min-height:20px!important;}
+.service-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0;}
+.service-card{min-height:94px;padding:12px 8px!important;border-radius:13px!important;}
+.service-card .ico{min-height:24px;display:grid;place-items:center;}
+.service-card .ico svg{width:22px;height:22px;}
+.service-card b{font-size:13px;line-height:1.2;}
+.service-card small{font-size:11px;line-height:1.3;}
+.service-summary{gap:11px;padding:13px!important;border-radius:13px!important;}
+.service-summary .badge{min-width:38px;min-height:38px;}
+.service-summary b{font-size:13px;line-height:1.35;}
+.service-summary p{font-size:12px!important;line-height:1.5!important;margin-top:4px!important;}
+.tabs{gap:5px;margin-top:14px;}
+.tabs button{min-height:44px;padding:11px 8px 10px;font-size:12.5px;line-height:1.15;}
+.tab-panel{padding-top:17px;}
+.tab-panel h3{font-size:23px;line-height:1.08;}
+.tab-panel p,.desc{font-size:14px!important;line-height:1.55!important;}
+.facts{display:grid;gap:9px;}
+.fact{padding:12px 0!important;gap:5px!important;}
+.fact b{font-size:11.5px!important;line-height:1.2;letter-spacing:.04em;}
+.fact span,.fact a{font-size:13px!important;line-height:1.45;overflow-wrap:anywhere;}
+.menu-panel input.menu-search{display:block;width:100%;min-height:46px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:11px 13px;font-size:14px;line-height:1.2;margin:11px 0 15px;}
+.menu-status{padding:13px!important;border-radius:13px!important;}
+.menu-status .top b{font-size:13px!important;line-height:1.3;}
+.menu-status small,.menu-status a,.cloud-source-note{font-size:11.5px!important;line-height:1.45;}
+.menu-cat{padding-top:14px;margin-top:14px;}
+.menu-cat h4{font-size:21px;line-height:1.1;margin-bottom:7px;}
+.menu-item{padding:9px 0;gap:12px;}
+.menu-item strong,.menu-item span{font-size:13.5px!important;line-height:1.35;}
+.menu-empty{padding:17px!important;border-radius:14px!important;}
+.menu-empty h4{font-size:21px!important;line-height:1.12;}
+.menu-empty p,.menu-empty a{font-size:13px!important;line-height:1.5;}
+.claim{margin-top:20px!important;padding:17px!important;border-radius:14px!important;}
+.claim h3{font-size:22px!important;line-height:1.1;}
+.claim p{font-size:13px!important;line-height:1.5!important;}
+.claim button{min-height:44px;font-size:13px!important;padding:10px 14px!important;}
+
+/* Partner dashboard */
+.partner-hero{padding:22px!important;border-radius:18px!important;}
+.partner-hero h2{font-size:30px!important;line-height:1.04;}
+.partner-hero p,.metric-note,.plan p,.system-row small,.audit-item small,.owner-status p,.owner-draft p,.verify-panel p,.claim-card p{font-size:12.5px!important;line-height:1.5!important;}
+.partner-hero button,.plan button,.owner-tools button,.prod-actions button{min-height:44px;font-size:13px!important;}
+.real-metric strong{font-size:28px!important;line-height:1;}
+.real-metric span{font-size:11.5px!important;line-height:1.25;}
+.plan{padding:17px!important;border-radius:15px!important;}
+.plan>small{font-size:10.5px!important;letter-spacing:.12em;}
+.plan>strong{font-size:25px!important;line-height:1.1;}
+.system-card h3,.audit-card h3,.owner-status h3,.verify-panel h3,.claim-card h3{font-size:22px!important;line-height:1.1;}
+.system-row b,.audit-item b,.owner-draft h4{font-size:13px!important;line-height:1.35;}
+.backend-pill,.owner-draft .state{font-size:10px!important;line-height:1.1;}
+.cloud-strip b,.auth-box b{font-size:13px!important;}
+.cloud-strip small,.auth-box p{font-size:11.5px!important;line-height:1.4!important;}
+.cloud-strip button,.auth-box button{min-height:40px;font-size:12px!important;}
+
+/* Claim flow */
+.claim-flow{padding-bottom:calc(24px + env(safe-area-inset-bottom));}
+.claim-head{min-height:52px;}
+.claim-step{font-size:11px!important;line-height:1.2;letter-spacing:.08em;}
+.claim-flow>h2{font-size:32px!important;line-height:1.03;letter-spacing:-.03em;}
+.claim-lead{font-size:14px!important;line-height:1.55!important;}
+.claim-restaurant h3{font-size:19px!important;line-height:1.1;}
+.claim-restaurant p{font-size:12px!important;line-height:1.45!important;}
+.claim-field label,.field label{font-size:12px!important;line-height:1.2;font-weight:750;}
+.claim-field input,.claim-field select,.claim-field textarea,.field input,.field select,.field textarea,.claim-selector{min-height:46px;font-size:14px!important;line-height:1.3;padding:11px 12px!important;}
+.claim-field textarea,.field textarea{min-height:92px;}
+.claim-field small{font-size:11px!important;line-height:1.45!important;}
+.claim-check{gap:10px!important;align-items:flex-start!important;}
+.claim-check input{width:20px;height:20px;min-width:20px;margin-top:1px;}
+.claim-check span{font-size:12.5px!important;line-height:1.5!important;}
+.prototype-note{font-size:12px!important;line-height:1.5!important;padding:12px!important;}
+.claim-actions{gap:9px!important;}
+.claim-actions button{min-height:46px;font-size:13.5px!important;line-height:1.15;padding:11px 14px!important;}
+.upload-drop{min-height:130px!important;padding:18px!important;}
+.upload-drop b{font-size:14px!important;}
+.upload-drop small{font-size:12px!important;line-height:1.45!important;}
+.service-edit .row{min-height:72px;padding:12px 0!important;gap:10px!important;}
+.service-edit .row b{font-size:13px!important;}
+.service-edit .row small{font-size:11px!important;line-height:1.35!important;}
+.service-edit select{min-height:40px;font-size:12px!important;}
+.offer-preview h4{font-size:21px!important;line-height:1.12;}
+.offer-preview p,.pro-lock p,.plan-detail p,.claim-finish p,.owner-body p,.owner-offer p{font-size:13px!important;line-height:1.5!important;}
+.offer-preview .tag,.owner-hero .flag,.owner-hero .featured,.owner-offer small{font-size:10px!important;line-height:1.1;}
+.pro-lock b,.claim-finish b,.owner-offer b{font-size:13.5px!important;line-height:1.3;}
+.owner-body h3{font-size:25px!important;line-height:1.05;}
+.plan-switch button{min-height:42px;font-size:12.5px!important;}
+.plan-detail h4{font-size:20px!important;}
+.plan-detail strong{font-size:18px!important;}
+
+/* Auth */
+.auth-flow h2{font-size:32px!important;line-height:1.03;}
+.auth-flow .lead{font-size:14px!important;line-height:1.55!important;}
+.auth-tabs button{min-height:42px;font-size:13px!important;}
+.auth-field label{font-size:12px!important;font-weight:750;}
+.auth-field input{min-height:46px;font-size:14px!important;padding:11px 12px!important;}
+.auth-submit{min-height:46px;font-size:14px!important;}
+.auth-note,.auth-user small{font-size:12px!important;line-height:1.5!important;}
+.auth-user b{font-size:14px!important;}
+
+/* Reservation / pickup / delivery flow */
+.flow{padding-bottom:calc(26px + env(safe-area-inset-bottom));}
+.flow-head{min-height:52px;}
+.flow h2{font-size:32px!important;line-height:1.03;}
+.flow-lead{font-size:14px!important;line-height:1.55!important;}
+.flow-restaurant h3{font-size:20px!important;line-height:1.08;}
+.flow-restaurant p{font-size:12px!important;line-height:1.4!important;}
+.flow-status{font-size:12.5px!important;line-height:1.5!important;padding:12px!important;}
+.flow-preview h4{font-size:18px!important;line-height:1.1;}
+.flow-preview pre{font-family:var(--sans)!important;font-size:12.5px!important;line-height:1.5!important;white-space:pre-wrap;}
+.choice-row button,.flow-copy button{min-height:44px;font-size:13px!important;line-height:1.2;}
+.flow-note{font-size:11.5px!important;line-height:1.5!important;}
+
+.toast{font-size:12.5px!important;line-height:1.3;padding:11px 14px!important;}
+
+/* Narrow phones: retain readability, reduce only headline scale */
+@media(max-width:370px){
+  .hero-copy h1{font-size:48px;}
+  .head h1{font-size:39px;}
+  .detail-body>h2,.claim-flow>h2,.flow h2,.auth-flow h2{font-size:30px!important;}
+  .service-card{padding:10px 5px!important;}
+  .service-card b{font-size:12px;}
+  .service-card small{font-size:10.5px;}
+}
+
+/* Desktop preview: keep the app character while avoiding an oversized phone canvas */
+@media(min-width:700px){
+  .desktop{padding:24px;}
+  .app{border-radius:24px;height:min(900px,calc(100vh - 48px));}
+  .dialog{height:min(900px,calc(100vh - 48px));border-radius:24px;}
+}
