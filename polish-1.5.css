@@ -1,0 +1,93 @@
+/* HOY 1.5 — dynamic viewport, modal coverage and final mobile cleanup */
+
+/* Mobile browser chrome changes the usable viewport while scrolling. Use dvh everywhere
+   so Chrome cannot expose the page background above/below the app. */
+html,body{height:100%;min-height:100%;background:var(--paper);overflow:hidden;}
+.desktop{height:100dvh;min-height:100dvh;background:var(--paper);overflow:hidden;}
+.app{height:100dvh;min-height:100dvh;max-height:100dvh;background:var(--paper);}
+.view{overscroll-behavior-y:contain;}
+
+/* Full-screen dialogs must really fill the dynamic mobile viewport. */
+.dialog{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  border-radius:0!important;
+  overscroll-behavior:contain;
+  background:var(--paper)!important;
+}
+.dialog::backdrop{background:rgba(6,42,73,.16);}
+
+/* Detail page: slightly tighter, calmer rhythm. */
+.detail-art{height:278px;}
+.detail-body{padding:18px 20px 34px;}
+.detail-body>h2{font-size:30px;line-height:1.04;}
+.statusrow{margin-top:12px;}
+.actions{padding:12px 0 12px;margin-bottom:9px;}
+.actions>a,.actions>button{min-height:57px;font-size:11.5px;}
+.actions .circle{width:40px;height:40px;min-width:40px;min-height:40px;}
+
+/* Service tiles: retain clarity without looking oversized. */
+.service-grid{gap:7px!important;margin:13px 0 11px!important;}
+.service-card{min-height:98px!important;padding:10px 6px!important;border-radius:14px!important;gap:5px!important;}
+.service-card .ico{width:22px!important;height:22px!important;min-height:22px!important;}
+.service-card .ico svg{width:19px!important;height:19px!important;max-width:19px!important;max-height:19px!important;}
+.service-card b{font-size:12px!important;}
+.service-card small{font-size:10px!important;line-height:1.25!important;}
+
+/* Information banner is secondary, not a hero component. */
+.service-summary{grid-template-columns:32px minmax(0,1fr)!important;gap:10px!important;padding:11px 12px!important;margin:10px 0 12px!important;border-radius:12px!important;}
+.service-summary .badge{width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;}
+.service-summary .badge svg,.service-summary svg{width:16px!important;height:16px!important;min-width:16px!important;min-height:16px!important;max-width:16px!important;max-height:16px!important;}
+.service-summary b{font-size:12px!important;line-height:1.3!important;}
+.service-summary p{font-size:11px!important;line-height:1.42!important;}
+
+/* Tabs/facts are now the primary information area. */
+.tabs{margin-top:12px;}
+.tabs button{font-size:11.8px;}
+.facts .fact{padding:12px 0!important;}
+.facts .fact b{font-size:11px!important;}
+.facts .fact span,.facts .fact a{font-size:12px!important;line-height:1.45!important;}
+
+/* Tiny list thumbnails should show the place, not a large rights pill. Full rights detail
+   remains available in the restaurant profile. */
+.list-art .media-badge,.list-art .media-attrib,.list-art .rights-label{display:none!important;}
+.list-art{overflow:hidden;}
+.list-card{padding:14px 0;}
+.list .service{color:#8b7255;font-size:10.8px;}
+
+/* Featured cards keep a discreet context label. */
+.card-art .media-badge,.card-art .rights-label{font-size:8.5px;padding:5px 7px;background:rgba(5,31,51,.72);}
+.card-art .media-attrib{font-size:8px;opacity:.92;}
+
+/* Home/legal footer: visible but no longer visually competes with content. */
+.source{font-size:10.5px;line-height:1.52;color:#899197;padding:20px 34px 36px;max-width:460px;}
+.editorial{margin-bottom:0;}
+
+/* Discover heading can be elegant without dominating the whole first viewport. */
+.head h1{font-size:36px;}
+.head p{font-size:13.5px;}
+
+/* Claim CTA remains strong but less like a separate landing page. */
+.claim{padding:16px!important;}
+.claim h3{font-size:21px!important;}
+.claim button{min-height:44px!important;}
+
+/* Avoid visible body/background during rubber-band scrolling on Android. */
+@media(max-width:699px){
+  body,.desktop,.app{width:100%;max-width:100%;}
+  .desktop{display:block;padding:0;}
+  .app{box-shadow:none;}
+}
+
+/* Desktop/tablet preview keeps the phone-like shell. */
+@media(min-width:700px){
+  html,body{overflow:auto;background:#eae4d9;}
+  .desktop{height:100dvh;min-height:100dvh;padding:24px;background:#eae4d9;display:grid;place-items:center;}
+  .app{width:min(100%,460px);height:min(900px,calc(100dvh - 48px));min-height:0;max-height:calc(100dvh - 48px);border-radius:24px;box-shadow:0 20px 80px rgba(5,31,51,.16);}
+  .dialog{inset:50% auto auto 50%!important;transform:translate(-50%,-50%)!important;width:min(460px,calc(100vw - 48px))!important;height:min(900px,calc(100dvh - 48px))!important;max-width:460px!important;max-height:calc(100dvh - 48px)!important;border-radius:24px!important;}
+}
