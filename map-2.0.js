@@ -9,7 +9,9 @@
     'La Manga Club / Atamaría':'La Manga Club','Los Belones':'Los Belones','Mar de Cristal / Islas Menores':'Mar de Cristal · Islas Menores',
     'Los Urrutias / Estrella de Mar / Los Nietos':'Los Urrutias · Los Nietos'
   };
+  const MAP_VENUE_LABELS={restaurant:'Restaurant',bar:'Bar',chiringuito:'Chiringuito',beach_club:'Beach Club',nightlife:'Nightlife',cafe:'Café',ice_cream:'Eisdiele',ice_cream_bar:'Eisdiele & Bar',other:'Ort'};
   const areaMapLabel=a=>AREA_MAP_LABELS[a]||a||'Mar Menor';
+  const mapVenueLabel=p=>MAP_VENUE_LABELS[p?.venue_type]||'Ort';
   const locationLabel=p=>{
     const m=locationMeta.get(Number(p.id));
     if(m?.location_status==='verified')return 'Standort geprüft';
@@ -46,8 +48,8 @@
   }
   function popupHTML(group){
     const title=group.venues.length>1?`${group.venues.length} Orte an diesem Standort`:group.venues[0].name;
-    const sub=group.venues.length>1?areaMapLabel(group.venues[0].area):`${typeLabel(group.venues[0])} · ${areaMapLabel(group.venues[0].area)}`;
-    return `<div class="map-popup"><div class="map-popup-head"><b>${esc(title)}</b><span>${esc(sub)}</span></div><div class="map-popup-list">${group.venues.map(p=>`<div class="map-popup-venue"><b>${esc(p.name)}</b><small>${esc(typeLabel(p))} · ${esc(p.address||areaMapLabel(p.area))}</small><div class="map-popup-actions"><span>${esc(locationLabel(p))}</span><button data-map-open="${p.id}">Profil ansehen</button></div></div>`).join('')}</div></div>`;
+    const sub=group.venues.length>1?areaMapLabel(group.venues[0].area):`${mapVenueLabel(group.venues[0])} · ${areaMapLabel(group.venues[0].area)}`;
+    return `<div class="map-popup"><div class="map-popup-head"><b>${esc(title)}</b><span>${esc(sub)}</span></div><div class="map-popup-list">${group.venues.map(p=>`<div class="map-popup-venue"><b>${esc(p.name)}</b><small>${esc(mapVenueLabel(p))} · ${esc(p.address||areaMapLabel(p.area))}</small><div class="map-popup-actions"><span>${esc(locationLabel(p))}</span><button data-map-open="${p.id}">Profil ansehen</button></div></div>`).join('')}</div></div>`;
   }
   function mapStats(rows){
     let verified=0,complex=0,approx=0;
@@ -57,7 +59,7 @@
   mapView=function(){
     const rows=mapRows(),stats=mapStats(rows),all=state.decision==='all'&&state.service==='all'&&!(state.query||'').trim();
     const zones=[...new Map(DATA.map(p=>[p.area,p])).keys()].filter(Boolean);
-    return `<section><div class="head"><div class="head-top"><div class="eyebrow">KARTE</div><button class="round" data-nav="discover">${icons.compass}</button></div><h1>${all?'167 Orte. Eine Karte.':'Deine Auswahl auf der Karte.'}</h1><p>${all?'Alle veröffentlichten HOY-Betriebe rund ums Mar Menor – mit geprüfter Geschäftsadresse und dokumentierter Georeferenz.':'Die Karte übernimmt deine aktuelle Suche und Filter aus Entdecken.'}</p></div><div class="hoy-map-shell"><div class="hoy-map-summary"><div><div class="eyebrow">HOY · MAR MENOR</div><h2>${rows.length} ${rows.length===1?'Standort':'Standorte'} sichtbar</h2><p>${stats.verified} exakt geprüft · ${stats.complex} in bestätigten Anlagen · ${stats.approx} adressbasiert</p></div><div class="hoy-map-count"><strong>${rows.length}</strong><span>Pins</span></div></div><div id="hoyMap" class="hoy-map" aria-label="Interaktive Karte der HOY-Betriebe"></div><div class="map-legend"><span><i></i> Exakter POI / Portal</span><span><i></i> Hotel, Marina oder Anlage</span><span><i></i> Geprüfte Adresslage</span></div><div class="map-zone-strip">${zones.map(a=>`<button data-map-zone="${esc(a)}">${esc(areaMapLabel(a))}</button>`).join('')}</div></div></section>`;
+    return `<section><div class="head"><div class="head-top"><div class="eyebrow">KARTE</div><button class="round" data-nav="discover">${icons.compass}</button></div><h1>${all?`${DATA.length} Orte. Eine Karte.`:'Deine Auswahl auf der Karte.'}</h1><p>${all?'Alle veröffentlichten HOY-Betriebe rund ums Mar Menor – mit geprüfter Geschäftsadresse und dokumentierter Georeferenz.':'Die Karte übernimmt deine aktuelle Suche und Filter aus Entdecken.'}</p></div><div class="hoy-map-shell"><div class="hoy-map-summary"><div><div class="eyebrow">HOY · MAR MENOR</div><h2>${rows.length} ${rows.length===1?'Standort':'Standorte'} sichtbar</h2><p>${stats.verified} exakt geprüft · ${stats.complex} in bestätigten Anlagen · ${stats.approx} adressbasiert</p></div><div class="hoy-map-count"><strong>${rows.length}</strong><span>Orte</span></div></div><div id="hoyMap" class="hoy-map" aria-label="Interaktive Karte der HOY-Betriebe"></div><div class="map-legend"><span><i></i> Exakter POI / Portal</span><span><i></i> Hotel, Marina oder Anlage</span><span><i></i> Geprüfte Adresslage</span></div><div class="map-zone-strip">${zones.map(a=>`<button data-map-zone="${esc(a)}">${esc(areaMapLabel(a))}</button>`).join('')}</div></div></section>`;
   };
 
   function initHoyMap(){
