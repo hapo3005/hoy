@@ -2,13 +2,15 @@
 (function(){
   state.decision=state.decision||'all';
 
+  /* These filters are intentionally derived from the researched Signature corpus.
+     They are not generic cuisine claims and only appear when at least one live profile matches. */
   const DECISION_FILTERS=[
-    {key:'water',label:'Am Wasser',test:/\bwasser\b|\bmeer\b|strand|hafen|küste|beach|mar menor|meerblick/i},
-    {key:'fish',label:'Fisch & Meer',test:/fisch|meeresfr|seafood|marisco|pescad/i},
-    {key:'rice',label:'Reisgerichte',test:/reis|arroz|paella|caldero/i},
+    {key:'water',label:'Am Wasser',test:/wasser|meer|strand|hafen|küste|beach|mar menor|meerblick|marina|playa|cala reona/i},
+    {key:'fish',label:'Fisch & Seafood',test:/fisch|meeresfr|seafood|marisco|pescad/i},
+    {key:'rice',label:'Arroces',test:/\breis|arroz|arroces|paella/i},
+    {key:'caldero',label:'Caldero',test:/caldero/i},
     {key:'sunset',label:'Sunset',test:/sunset|sonnenuntergang|atardecer/i},
-    {key:'regional',label:'Regional',test:/regional|murcian|murcia|cartagena|lokal|tradition/i},
-    {key:'drinks',label:'Drinks & Musik',test:/drink|cocktail|bar\b|lounge|musik|\bdj\b|nacht|night/i},
+    {key:'chiringuito',label:'Chiringuito',test:/chiringuito/i},
     {key:'grill',label:'Grill',test:/grill|fleisch|steak|brasa|carne/i},
     {key:'japan',label:'Japanisch',test:/japan|sushi|nikkei/i}
   ];
@@ -34,7 +36,6 @@
     return DECISION_FILTERS.filter(f=>DATA.some(p=>decisionKeys(p).includes(f.key)));
   }
 
-  const baseFiltered=filtered;
   filtered=function(){
     const q=state.query.trim().toLowerCase();
     return DATA.filter(p=>{
