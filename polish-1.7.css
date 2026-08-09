@@ -1,0 +1,31 @@
+/* HOY 1.7 — decision-first discovery, deliberately compact */
+
+/* Existing service filters remain functional; the new row answers "why this place?". */
+.decision-filter{padding:2px 18px 11px;border-bottom:1px solid rgba(16,40,61,.08);}
+.decision-filter-label{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:2px 0 8px;}
+.decision-filter-label>span{font-size:9.5px;line-height:1.15;letter-spacing:.13em;font-weight:850;color:var(--navy);}
+.decision-filter-label>small{font-size:9.5px;line-height:1.25;color:#92999f;text-align:right;}
+.decisionline{display:flex;gap:7px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:1px;}
+.decisionline::-webkit-scrollbar{display:none;}
+.decisionline button{flex:0 0 auto;min-height:36px;border:1px solid rgba(16,40,61,.11);border-radius:999px;background:#fffaf2;color:#536576;padding:7px 11px;font-size:11.2px;line-height:1;font-weight:650;white-space:nowrap;}
+.decisionline button.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+
+.result-count{padding:11px 18px 9px;font-size:10.5px;line-height:1.3;color:#8b9298;}
+
+/* Restaurant rows stay calm. The new value is one short decision hint, not another card. */
+.decision-card .decision-copy{min-width:0;align-self:center;}
+.decision-card .decision-hint{margin-top:7px;color:#9a6a35;font-size:11px;line-height:1.3;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.decision-card h3{margin-bottom:3px;}
+.decision-card p{margin-bottom:0;}
+
+/* Search now covers signatures, dishes and mood — keep the placeholder readable on phones. */
+.searchline input{min-width:0;}
+
+/* Reset in the empty state should look like an escape hatch, not a primary promotion. */
+.empty [data-decision-reset]{background:var(--navy);}
+
+@media(max-width:370px){
+  .decision-filter-label>small{display:none;}
+  .decisionline button{font-size:10.7px;padding-inline:10px;}
+  .result-count{font-size:10px;}
+}
