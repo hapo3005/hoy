@@ -38,6 +38,13 @@ async function screenshot(page, testInfo, name) {
   });
 }
 
+async function viewportScreenshot(page, testInfo, name) {
+  await page.screenshot({
+    path: path.join(SCREEN_DIR, `${testInfo.project.name}-${name}.png`),
+    fullPage: false
+  });
+}
+
 test('guest journey renders on the deployed app', async ({ page }, testInfo) => {
   const errors = watchPageErrors(page);
   await page.goto('./', { waitUntil: 'domcontentloaded' });
@@ -79,12 +86,15 @@ test('Agua Sala opens as a continuous profile with an inline German menu', async
   expect(errors).toEqual([]);
 });
 
-test('restaurant profile opens with premium hero hierarchy and calm primary navigation', async ({ page }, testInfo) => {
+test('restaurant profile opens with premium hero hierarchy and honest contextual media', async ({ page }, testInfo) => {
   const errors = watchPageErrors(page);
   const dialog = await openAguaSala(page);
 
   await expect(dialog).toHaveClass(/profile-premium/);
+  await expect(dialog).toHaveClass(/profile-hero-context/);
   await expect(dialog.locator('.detail-art')).toBeVisible();
+  await expect(dialog.locator('.detail-art')).toHaveAttribute('data-media-kind', /local_area|regional/);
+  await expect(dialog.locator('.profile-media-badge')).toContainText(/UMGEBUNG/i);
   await expect(dialog.locator('.profile-identity-card')).toBeVisible();
   await expect(dialog.locator('.profile-identity-card > h2')).toContainText(/Agua Salá/i);
   await expect(dialog.locator('.profile-trust-line')).toBeVisible();
@@ -119,7 +129,42 @@ test('restaurant profile opens with premium hero hierarchy and calm primary navi
   expect(metrics.snapshotCount).toBe(3);
   expect(metrics.snapshotTopSpread).toBeLessThanOrEqual(2);
 
-  await screenshot(page, testInfo, 'premium-profile-header');
+  await viewportScreenshot(page, testInfo, 'premium-profile-header');
+  expect(errors).toEqual([]);
+});
+
+test('localized menu presents the HOY language promise and editorial browsing controls', async ({ page }, testInfo) => {
+  const errors = watchPageErrors(page);
+  const dialog = await openAguaSala(page);
+  const section = dialog.locator('#profile-menu');
+  await section.scrollIntoViewIfNeeded();
+
+  await expect(section).toHaveClass(/menu-signature/);
+  await expect(section).toHaveClass(/menu-signature-localized/);
+  await expect(section.locator('.profile-section-head h3')).toContainText(/Speisekarte auf Deutsch/i);
+  await expect(section.locator('.menu-signature-promise')).toBeVisible();
+  await expect(section.locator('.menu-signature-promise')).toContainText(/Für dich auf Deutsch/i);
+  await expect(section.locator('.menu-signature-promise')).toContainText(/Originalpreise unverändert/i);
+  await expect(section.locator('.menu-signature-review')).toContainText(/redaktionell geprüft/i);
+  await expect(section.locator('.menu-signature-search')).toBeVisible();
+  await expect(section.locator('.menu-signature-categories')).toBeVisible();
+  await expect(section.locator('.menu-signature-categories button').first()).toHaveClass(/active/);
+  await expect(section.locator('.menu-cat-count').first()).toContainText(/Position/);
+  await expect(section.locator('.localized-menu-item > span').first()).toContainText(/€|EUR/i);
+  await expect(section.locator('.menu-signature-provenance a')).toContainText(/Originalkarte öffnen/i);
+
+  const expand = section.locator('[data-menu-expand]');
+  if (await expand.count() && await expand.getAttribute('aria-expanded') === 'false') await expand.click();
+
+  const input = section.locator('[data-menu-search]');
+  await input.fill('Caldero');
+  await expect(section.locator('.menu-signature-search')).toHaveClass(/has-value/);
+  await expect(section.locator('[data-menu-item]').filter({ hasText: /Caldero/i }).first()).toBeVisible();
+  await section.locator('.menu-signature-clear').click();
+  await expect(input).toHaveValue('');
+  await expect(section.locator('.menu-signature-search')).not.toHaveClass(/has-value/);
+
+  await viewportScreenshot(page, testInfo, 'signature-menu');
   expect(errors).toEqual([]);
 });
 
@@ -185,7 +230,7 @@ test('keyboard users can open and close a restaurant profile with focus return',
   expect(errors).toEqual([]);
 });
 
-test('PWA core endpoints return real HOY 2.12.4 assets instead of an HTML fallback', async ({ request }) => {
+test('PWA core endpoints return real HOY 2.13.0 assets instead of an HTML fallback', async ({ request }) => {
   const manifest = await request.get('./manifest.webmanifest');
   expect(manifest.ok()).toBeTruthy();
   expect(manifest.headers()['content-type'] || '').toMatch(/json|manifest/i);
@@ -193,13 +238,16 @@ test('PWA core endpoints return real HOY 2.12.4 assets instead of an HTML fallba
   const worker = await request.get('./service-worker.js');
   expect(worker.ok()).toBeTruthy();
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.12.4'");
+  expect(workerText).toContain("const CACHE='hoy-v2.13.0'");
   expect(workerText).toContain('profile-flow-2.7.js');
   expect(workerText).toContain('operator-cockpit-2.10.js');
   expect(workerText).toContain('profile-design-2.11.css');
   expect(workerText).toContain('profile-design-fix-2.11.1.css');
   expect(workerText).toContain('profile-premium-2.12.css');
   expect(workerText).toContain('profile-premium-2.12.js');
+  expect(workerText).toContain('profile-media-2.13.js');
+  expect(workerText).toContain('menu-signature-2.13.css');
+  expect(workerText).toContain('menu-signature-2.13.js');
 });
 
 test('HOY Control Center login shell loads the operator review extension without script errors', async ({ page }) => {
