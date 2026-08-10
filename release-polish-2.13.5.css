@@ -3,9 +3,11 @@
 /* The general direct-child width guard is useful for content, but it must not clamp the premium sticky navigation rail. */
 #detail.showcase-detail.continuous-profile.profile-premium .detail-body>.profile-premium-nav{
   max-width:none;
+  background:#f8f3e9;
+  backdrop-filter:none;
 }
 
-/* Let the signature category rail span the menu card and make horizontal continuation visible without adding another control. */
+/* Keep the category rail on the menu's content axis while making horizontal continuation visible. */
 #detail.profile-premium .menu-signature .menu-category-nav.menu-signature-categories{
   width:calc(100% + 32px);
   max-width:none;

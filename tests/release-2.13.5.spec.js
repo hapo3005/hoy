@@ -33,7 +33,7 @@ test('home never presents zero venues while live data is connecting and settles 
   });
 });
 
-test('premium sticky rails cover their intended width while menu content scrolls underneath', async ({ page }, testInfo) => {
+test('premium sticky navigation fully covers menu content and category rail signals horizontal continuation', async ({ page }, testInfo) => {
   const dialog = await openAguaSala(page);
   const expand = dialog.locator('[data-menu-expand]');
   if (await expand.count() && await expand.getAttribute('aria-expanded') === 'false') await expand.click();
@@ -45,25 +45,28 @@ test('premium sticky rails cover their intended width while menu content scrolls
   const metrics = await dialog.evaluate(el => {
     const nav = el.querySelector('.profile-premium-nav');
     const category = el.querySelector('.menu-signature-categories');
-    const menu = el.querySelector('.menu-signature');
+    const item = el.querySelector('.localized-menu-item');
     const er = el.getBoundingClientRect();
     const nr = nav?.getBoundingClientRect();
     const cr = category?.getBoundingClientRect();
-    const mr = menu?.getBoundingClientRect();
-    const style = category ? getComputedStyle(category) : null;
+    const ir = item?.getBoundingClientRect();
+    const categoryStyle = category ? getComputedStyle(category) : null;
+    const navStyle = nav ? getComputedStyle(nav) : null;
     return {
       navLeftGap: nr ? Math.abs(nr.left - er.left) : 999,
       navRightGap: nr ? Math.abs(nr.right - er.right) : 999,
-      categoryLeftGap: cr && mr ? Math.abs(cr.left - mr.left) : 999,
-      categoryRightGap: cr && mr ? Math.abs(cr.right - mr.right) : 999,
-      categoryMask: style ? (style.maskImage || style.webkitMaskImage || 'none') : 'none'
+      navBackground: navStyle?.backgroundColor || '',
+      categoryContentLeftGap: cr && ir ? Math.abs(cr.left - ir.left) : 999,
+      categoryOwnsOverflow: category ? category.scrollWidth > category.clientWidth : false,
+      categoryMask: categoryStyle ? (categoryStyle.maskImage || categoryStyle.webkitMaskImage || 'none') : 'none'
     };
   });
 
   expect(metrics.navLeftGap).toBeLessThanOrEqual(1.5);
   expect(metrics.navRightGap).toBeLessThanOrEqual(1.5);
-  expect(metrics.categoryLeftGap).toBeLessThanOrEqual(1.5);
-  expect(metrics.categoryRightGap).toBeLessThanOrEqual(1.5);
+  expect(metrics.navBackground).toBe('rgb(248, 243, 233)');
+  expect(metrics.categoryContentLeftGap).toBeLessThanOrEqual(1.5);
+  expect(metrics.categoryOwnsOverflow).toBeTruthy();
   expect(metrics.categoryMask).not.toBe('none');
 
   await page.screenshot({
