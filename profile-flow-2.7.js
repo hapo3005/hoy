@@ -1,4 +1,4 @@
-/* HOY 2.7 — continuous restaurant profile with inline localized menu */
+/* HOY 2.8.1 — continuous restaurant profile with inline localized menu */
 (function(){
   function wireInlineMenu(root,p){
     const input=root.querySelector('[data-menu-search]');
@@ -6,6 +6,10 @@
     const items=[...root.querySelectorAll('[data-menu-item]')];
     const cats=[...root.querySelectorAll('.menu-cat')];
     if(wrap){wrap.id=`inline-menu-${Number(p?.id)||'profile'}`;}
+    const updateVisible=()=>{
+      const n=items.filter(x=>x.style.display!=='none').length;
+      root.querySelectorAll('[data-menu-visible],[data-inline-menu-visible]').forEach(out=>out.textContent=`${n} ${n===1?'Position':'Positionen'}`);
+    };
     if(input){
       input.setAttribute('aria-label',`Speisekarte von ${p?.name||'diesem Restaurant'} durchsuchen`);
       input.setAttribute('autocomplete','off');
@@ -14,15 +18,14 @@
         if(q)wrap?.classList.remove('is-collapsed');
         items.forEach(x=>x.style.display=!q||String(x.dataset.menuText||'').includes(q)?'grid':'none');
         cats.forEach(cat=>{const visible=[...cat.querySelectorAll('[data-menu-item]')].some(x=>x.style.display!=='none');cat.style.display=visible?'':'none'});
-        const out=root.querySelector('[data-inline-menu-visible]');
-        if(out){const n=items.filter(x=>x.style.display!=='none').length;out.textContent=`${n} ${n===1?'Position':'Positionen'}`;}
+        updateVisible();
       };
     }
     if(items.length&&input&&!root.querySelector('.inline-menu-result-meta')){
       const meta=document.createElement('div');
       meta.className='menu-result-meta inline-menu-result-meta';
-      meta.setAttribute('role','status');meta.setAttribute('aria-live','polite');
-      meta.innerHTML=`<span>In HOY erfasst</span><strong data-inline-menu-visible>${items.length} Positionen</strong>`;
+      meta.setAttribute('role','status');meta.setAttribute('aria-live','polite');meta.setAttribute('aria-atomic','true');
+      meta.innerHTML=`<span>In HOY erfasst</span><strong data-menu-visible data-inline-menu-visible>${items.length} Positionen</strong>`;
       input.insertAdjacentElement('afterend',meta);
       if(cats.length>1){
         const nav=document.createElement('nav');nav.className='menu-category-nav';nav.setAttribute('aria-label','Speisekarten-Kategorien');
