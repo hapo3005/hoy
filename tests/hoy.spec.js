@@ -253,15 +253,20 @@ test('keyboard users can open and close a restaurant profile with focus return',
   expect(errors).toEqual([]);
 });
 
-test('PWA core endpoints return real HOY 2.15.3 assets instead of an HTML fallback', async ({ request }) => {
+test('PWA core endpoints return real current HOY assets instead of an HTML fallback', async ({ request }) => {
   const manifest = await request.get('./manifest.webmanifest');
   expect(manifest.ok()).toBeTruthy();
   expect(manifest.headers()['content-type'] || '').toMatch(/json|manifest/i);
 
+  const pkg = await request.get('./package.json');
+  expect(pkg.ok()).toBeTruthy();
+  const { version } = await pkg.json();
+  expect(version).toMatch(/^2\.\d+\.\d+$/);
+
   const worker = await request.get('./service-worker.js');
   expect(worker.ok()).toBeTruthy();
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.15.3'");
+  expect(workerText).toContain(`const CACHE='hoy-v${version}'`);
   expect(workerText).toContain('profile-flow-2.7.js');
   expect(workerText).toContain('operator-cockpit-2.10.js');
   expect(workerText).toContain('profile-design-2.11.css');
