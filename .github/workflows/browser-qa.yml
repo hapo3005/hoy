@@ -1,0 +1,67 @@
+name: HOY Browser QA
+
+on:
+  workflow_run:
+    workflows: ["pages build and deployment"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  e2e:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PLAYWRIGHT_TEST_BASE_URL: https://hapo3005.github.io/hoy/
+      CI: 'true'
+
+    steps:
+      - name: Checkout deployed revision
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install pinned QA dependency
+        run: npm install --no-audit --no-fund
+
+      - name: Install browser engines
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Run deployed browser QA
+        run: npm run qa:e2e
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: hoy-playwright-report-${{ github.run_id }}
+          path: playwright-report/
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Upload QA screenshots
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: hoy-qa-screenshots-${{ github.run_id }}
+          path: qa-screenshots/
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Upload failure traces and videos
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: hoy-playwright-failures-${{ github.run_id }}
+          path: test-results/
+          retention-days: 30
+          if-no-files-found: warn
