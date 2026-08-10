@@ -1,4 +1,4 @@
-/* HOY 2.13 — signature localized menu experience */
+/* HOY 2.13.2 — signature localized menu experience with deterministic category navigation */
 (function(){
   const COPY={
     de:{title:'Speisekarte auf Deutsch',partial:'Auswahl auf Deutsch',promise:'Für dich auf Deutsch',proof:'Kulinarisch übersetzt · Originalpreise unverändert',body:'HOY überträgt Gerichte sinngemäß statt Wort für Wort. Spanische Eigennamen bleiben erhalten, wenn sie zum Gericht gehören.',search:'Speisekarte durchsuchen …',checked:'HOY redaktionell geprüft'},
@@ -6,7 +6,6 @@
     es:{title:'Carta en español',partial:'Selección en español',promise:'En español para ti',proof:'Adaptación culinaria · precios originales sin cambios',body:'HOY adapta los platos por su sentido culinario, no palabra por palabra. Los nombres propios se mantienen cuando forman parte del plato.',search:'Buscar en esta carta …',checked:'Revisado por HOY'}
   };
 
-  function text(v){return String(v||'').trim()}
   function copyFor(m){return COPY[m?.locale]||COPY.de}
   function itemCount(section){return section?.querySelectorAll('[data-menu-item]').length||0}
 
@@ -38,8 +37,48 @@
     sync();
   }
 
+  function categoryTitle(cat){
+    const h=cat.querySelector('h4');
+    if(!h)return '';
+    const clone=h.cloneNode(true);
+    clone.querySelectorAll('.menu-cat-count').forEach(x=>x.remove());
+    return String(clone.textContent||'').trim();
+  }
+
+  function ensureCategoryNav(section,cats){
+    let nav=section.querySelector('.menu-category-nav');
+    if(nav||cats.length<2)return nav;
+    const panel=section.querySelector('.menu-panel')||section.querySelector('.localized-menu-panel')||section;
+    nav=document.createElement('nav');
+    nav.className='menu-category-nav';
+    nav.setAttribute('aria-label','Speisekarten-Kategorien');
+    nav.dataset.hoySignatureNav='1';
+    cats.forEach(cat=>{
+      const title=categoryTitle(cat);
+      if(!title)return;
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.textContent=title;
+      btn.addEventListener('click',()=>cat.scrollIntoView({behavior:'smooth',block:'start'}));
+      nav.appendChild(btn);
+    });
+    const meta=panel.querySelector('.menu-result-meta');
+    const search=panel.querySelector('.menu-signature-search');
+    const input=panel.querySelector('[data-menu-search]');
+    if(meta)meta.insertAdjacentElement('afterend',nav);
+    else if(search)search.insertAdjacentElement('afterend',nav);
+    else if(input)input.insertAdjacentElement('afterend',nav);
+    else panel.insertBefore(nav,cats[0]||panel.firstChild);
+    return nav;
+  }
+
   function decorateCategories(section,d){
     const cats=[...section.querySelectorAll('.menu-cat')];
+    if(!cats.length)return false;
+
+    const nav=ensureCategoryNav(section,cats);
+    if(!nav)return false;
+
     cats.forEach(cat=>{
       const h=cat.querySelector('h4');
       if(!h||h.querySelector('.menu-cat-count'))return;
@@ -50,11 +89,11 @@
       h.appendChild(span);
     });
 
-    const nav=section.querySelector('.menu-category-nav');
-    if(!nav||!cats.length)return false;
     nav.classList.add('menu-signature-categories');
     const buttons=[...nav.querySelectorAll('button')];
     buttons.forEach((btn,i)=>{
+      if(btn.dataset.hoySignatureBound==='1')return;
+      btn.dataset.hoySignatureBound='1';
       btn.addEventListener('click',()=>buttons.forEach((b,j)=>b.classList.toggle('active',i===j)));
     });
     if(buttons[0]&&!buttons.some(b=>b.classList.contains('active')))buttons[0].classList.add('active');
