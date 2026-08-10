@@ -1,0 +1,69 @@
+/* HOY 2.14 — decision-first visual hierarchy for home and discovery */
+
+/* Keep the regional image present, but give the decision copy a calm reading field. */
+.journey-signature-hero:before{
+  background:
+    linear-gradient(180deg,rgba(248,243,233,.24) 0%,rgba(248,243,233,.10) 36%,rgba(248,243,233,.04) 50%,rgba(5,31,51,.13) 66%,rgba(5,31,51,.28) 82%,rgba(5,31,51,.36) 100%),
+    linear-gradient(90deg,rgba(248,243,233,.78) 0%,rgba(248,243,233,.56) 48%,rgba(248,243,233,.14) 82%,rgba(248,243,233,0) 100%);
+}
+.journey-signature-hero .hero-copy{position:relative;z-index:1;max-width:390px}
+.journey-signature-hero .hero-copy h1{max-width:330px;text-wrap:balance;text-shadow:0 1px 14px rgba(255,255,255,.52)}
+.journey-signature-hero .hero-copy p{max-width:355px;font-size:15px;line-height:1.42;font-weight:560;letter-spacing:-.012em;text-shadow:0 1px 12px rgba(255,255,255,.62)}
+.journey-signature-hero .hero-copy p strong{font-weight:780;color:var(--navy)}
+
+/* The choice panel should feel like one focused decision surface, not four competing cards. */
+.journey-home-signature .journey-intent-panel{border-radius:24px;border-color:rgba(255,255,255,.88);box-shadow:0 22px 46px rgba(5,31,51,.17)}
+.journey-home-signature .journey-intent-panel .intent-title{align-items:flex-start}
+.journey-home-signature .journey-intent-panel .intent-title b{font-size:21px;letter-spacing:-.025em}
+.journey-home-signature .journey-intent-panel .intent-title small{max-width:150px;font-size:8.5px;line-height:1.35;text-align:right}
+.journey-home-signature .journey-intent-grid button{position:relative;padding-right:28px;border-color:rgba(16,40,61,.11);box-shadow:0 5px 14px rgba(8,35,53,.025);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.journey-home-signature .journey-intent-grid button:after{content:'›';position:absolute;right:11px;top:50%;transform:translateY(-53%);font-size:18px;font-weight:500;opacity:.52}
+.journey-home-signature .journey-intent-grid button.primary:after{opacity:.84}
+.journey-home-signature .journey-intent-grid button:active{transform:scale(.985)}
+.journey-home-signature .journey-intent-grid button:focus-visible{outline:3px solid rgba(239,91,11,.24);outline-offset:2px}
+.journey-home-signature .home-search input{min-height:45px;background:#fffdf9}
+.journey-home-signature .home-search button{min-width:72px;box-shadow:0 8px 18px rgba(239,91,11,.18)}
+.journey-trust-strip{display:flex;align-items:center;justify-content:center;gap:6px;min-height:25px;margin-top:8px;color:#6d7b87;font-size:7.5px;font-weight:760;letter-spacing:.015em;white-space:nowrap}
+.journey-trust-strip i{font-style:normal;color:#c5b8a8}
+
+/* Make the transition from hero to local discovery deliberate. */
+.journey-home-signature .journey-areas{padding-top:31px}
+.journey-home-signature .journey-section-head h2{letter-spacing:-.038em}
+.journey-home-signature .journey-area-scroll button{border-color:rgba(16,40,61,.09);box-shadow:0 8px 22px rgba(8,35,53,.035)}
+
+/* Discovery should answer "why this result?" before the profile is opened. */
+.journey-discover-signature .journey-discover-head h1{font-size:44px;letter-spacing:-.052em}
+.journey-discover-signature .journey-discover-head p{max-width:370px;font-size:11.5px;line-height:1.5}
+.journey-discover-signature .journey-searchline input{border-color:rgba(16,40,61,.13);box-shadow:0 7px 20px rgba(8,35,53,.035)}
+.journey-discover-signature .journey-filter-block{padding-top:8px}
+.journey-discover-signature .consumer-filter-head small{font-size:8px;letter-spacing:.01em}
+.journey-discover-signature .journey-result-toolbar{padding-top:11px;padding-bottom:12px}
+.journey-discover-signature .journey-results{display:grid;gap:10px;padding-top:1px}
+.journey-discover-signature .journey-results .decision-card-signature{grid-template-columns:94px minmax(0,1fr) 34px;gap:11px;min-height:116px;margin:0;padding:10px;border:1px solid rgba(16,40,61,.09);border-radius:18px;background:#fffaf3;box-shadow:0 8px 24px rgba(8,35,53,.045)}
+.journey-discover-signature .journey-results .decision-card-signature .list-art{height:94px;border-radius:14px}
+.journey-discover-signature .decision-card-signature .decision-copy{min-width:0;align-self:center}
+.journey-discover-signature .decision-card-signature h3{font-size:18px;line-height:1.03;margin-bottom:5px}
+.journey-discover-signature .decision-card-signature p{font-size:8.5px;line-height:1.35}
+.journey-discover-signature .decision-card-signature .decision-hint{display:-webkit-box;margin-top:5px;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;white-space:normal;font-size:9px;line-height:1.35;color:#795b39}
+.journey-discover-signature .decision-card-signature .heart2{width:34px;height:34px;padding:0;border:1px solid rgba(16,40,61,.08);border-radius:50%;background:#fffdf8;display:grid;place-items:center;align-self:start;box-shadow:0 4px 12px rgba(8,35,53,.04)}
+.journey-discover-signature .decision-card-signature .heart2 svg{width:17px;height:17px}
+.decision-signals{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.decision-signal{display:inline-flex;align-items:center;min-height:20px;padding:4px 7px;border-radius:999px;background:#f0ece5;color:#667582;font-size:6.8px;font-weight:850;line-height:1;white-space:nowrap}
+.decision-signal.good{background:#edf7f1;color:#2f6a50}
+.decision-signal.trust{background:#edf2f6;color:#294d68}
+.decision-signal.muted{background:#f2eee8;color:#847a70}
+
+@media(max-width:380px){
+  .journey-signature-hero .hero-copy p{font-size:14px}
+  .journey-home-signature .journey-intent-panel .intent-title small{max-width:118px;font-size:8px}
+  .journey-trust-strip{gap:4px;font-size:6.8px}
+  .journey-discover-signature .journey-results .decision-card-signature{grid-template-columns:84px minmax(0,1fr) 32px;padding:9px;gap:9px}
+  .journey-discover-signature .journey-results .decision-card-signature .list-art{height:84px}
+}
+@media(hover:hover){
+  .journey-home-signature .journey-intent-grid button:hover{border-color:rgba(6,42,73,.24);box-shadow:0 8px 20px rgba(8,35,53,.055)}
+  .journey-discover-signature .journey-results .decision-card-signature:hover{border-color:rgba(6,42,73,.18);box-shadow:0 11px 28px rgba(8,35,53,.07)}
+}
+@media(prefers-reduced-motion:reduce){
+  .journey-home-signature .journey-intent-grid button{transition:none}
+}
