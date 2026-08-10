@@ -145,6 +145,7 @@ test('localized menu presents the HOY language promise and editorial browsing co
 
   await expect(section).toHaveClass(/menu-signature/);
   await expect(section).toHaveClass(/menu-signature-localized/);
+  await expect(section).toHaveAttribute('data-menu-locale', 'de');
   await expect(section.locator('.profile-section-head h3')).toContainText(/Speisekarte auf Deutsch/i);
   await expect(section.locator('.menu-signature-promise')).toBeVisible();
   await expect(section.locator('.menu-signature-promise')).toContainText(/Für dich auf Deutsch/i);
@@ -156,6 +157,21 @@ test('localized menu presents the HOY language promise and editorial browsing co
   await expect(section.locator('.menu-cat-count').first()).toContainText(/Position/);
   await expect(section.locator('.localized-menu-item > span').first()).toContainText(/€|EUR/i);
   await expect(section.locator('.menu-signature-provenance a')).toContainText(/Originalkarte öffnen/i);
+
+  // Regression probe for the real WebKit race: a ready signal must rebuild the open menu in place.
+  await page.evaluate(() => {
+    const s=document.querySelector('#detail[open] #profile-menu');
+    if(!s)return;
+    s.classList.remove('menu-signature-localized');
+    s.dataset.menuLocale='';
+    s.querySelector('.menu-signature-promise')?.remove();
+    s.querySelector('.menu-category-nav')?.remove();
+    window.dispatchEvent(new CustomEvent('hoy:menus-ready',{detail:{locale:'de',qa:true}}));
+  });
+  await expect(section).toHaveClass(/menu-signature-localized/);
+  await expect(section).toHaveAttribute('data-menu-locale', 'de');
+  await expect(section.locator('.menu-signature-promise')).toContainText(/Für dich auf Deutsch/i);
+  await expect(section.locator('.menu-signature-categories')).toBeVisible();
 
   const expand = section.locator('[data-menu-expand]');
   if (await expand.count() && await expand.getAttribute('aria-expanded') === 'false') await expand.click();
@@ -234,7 +250,7 @@ test('keyboard users can open and close a restaurant profile with focus return',
   expect(errors).toEqual([]);
 });
 
-test('PWA core endpoints return real HOY 2.13.2 assets instead of an HTML fallback', async ({ request }) => {
+test('PWA core endpoints return real HOY 2.13.3 assets instead of an HTML fallback', async ({ request }) => {
   const manifest = await request.get('./manifest.webmanifest');
   expect(manifest.ok()).toBeTruthy();
   expect(manifest.headers()['content-type'] || '').toMatch(/json|manifest/i);
@@ -242,7 +258,7 @@ test('PWA core endpoints return real HOY 2.13.2 assets instead of an HTML fallba
   const worker = await request.get('./service-worker.js');
   expect(worker.ok()).toBeTruthy();
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.13.2'");
+  expect(workerText).toContain("const CACHE='hoy-v2.13.3'");
   expect(workerText).toContain('profile-flow-2.7.js');
   expect(workerText).toContain('operator-cockpit-2.10.js');
   expect(workerText).toContain('profile-design-2.11.css');
