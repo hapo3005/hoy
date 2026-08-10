@@ -12,6 +12,8 @@ async function openMap(page) {
   const root = page.locator('.map-journey-signature');
   await expect(root).toBeVisible();
   await expect(root.locator('.map-decision-card').first()).toBeVisible({ timeout: 20_000 });
+  await expect(root.locator('#hoyMap')).toHaveClass(/leaflet-container/, { timeout: 20_000 });
+  await expect(root.locator('.map-load-error')).toHaveCount(0);
   return root;
 }
 
@@ -25,7 +27,7 @@ test('map becomes a decision surface with the same useful HOY signals as discove
   await expect(first.locator('.map-decision-signals span').first()).toBeVisible();
   await expect(first.locator('[data-map-focus]')).toHaveText(/Auf Karte zeigen/i);
   await expect(first.locator('[data-map-profile]')).toHaveText(/Profil ansehen/i);
-  await expect(root.locator('#hoyMap')).toBeVisible();
+  await expect(root.locator('.leaflet-marker-icon').first()).toBeVisible();
 
   const metrics = await page.locator('.view').evaluate(el => ({ clientWidth: el.clientWidth, scrollWidth: el.scrollWidth }));
   expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1);
