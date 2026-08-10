@@ -94,7 +94,11 @@ test('restaurant profile opens with premium hero hierarchy and honest contextual
   await expect(dialog).toHaveClass(/profile-hero-context/);
   await expect(dialog.locator('.detail-art')).toBeVisible();
   await expect(dialog.locator('.detail-art')).toHaveAttribute('data-media-kind', /local_area|regional/);
-  await expect(dialog.locator('.profile-media-badge')).toContainText(/UMGEBUNG/i);
+  await expect(dialog.locator('.detail-art > .media-badge')).toBeHidden();
+  const mediaMark = dialog.locator('.profile-media-mark');
+  await expect(mediaMark).toBeVisible();
+  await expect(mediaMark).toContainText(/UMGEBUNG/i);
+  await expect(mediaMark).toContainText(/CABO DE PALOS/i);
   await expect(dialog.locator('.profile-identity-card')).toBeVisible();
   await expect(dialog.locator('.profile-identity-card > h2')).toContainText(/Agua Salá/i);
   await expect(dialog.locator('.profile-trust-line')).toBeVisible();
@@ -230,7 +234,7 @@ test('keyboard users can open and close a restaurant profile with focus return',
   expect(errors).toEqual([]);
 });
 
-test('PWA core endpoints return real HOY 2.13.0 assets instead of an HTML fallback', async ({ request }) => {
+test('PWA core endpoints return real HOY 2.13.1 assets instead of an HTML fallback', async ({ request }) => {
   const manifest = await request.get('./manifest.webmanifest');
   expect(manifest.ok()).toBeTruthy();
   expect(manifest.headers()['content-type'] || '').toMatch(/json|manifest/i);
@@ -238,7 +242,7 @@ test('PWA core endpoints return real HOY 2.13.0 assets instead of an HTML fallba
   const worker = await request.get('./service-worker.js');
   expect(worker.ok()).toBeTruthy();
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.13.0'");
+  expect(workerText).toContain("const CACHE='hoy-v2.13.1'");
   expect(workerText).toContain('profile-flow-2.7.js');
   expect(workerText).toContain('operator-cockpit-2.10.js');
   expect(workerText).toContain('profile-design-2.11.css');
