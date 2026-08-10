@@ -8,21 +8,24 @@ HOY optimiert fehlerkritische KI-Funktionen zuerst auf Qualität und Verlässlic
 
 Für Speisekarten-Extraktion, Preis-/Gericht-Zuordnung, kulinarische Lokalisierung und andere veröffentlichungsnahe KI-Schritte gilt standardmäßig:
 
-- Modell: `gpt-5.6-sol`
-- Responses API
+- OpenAI Responses API
+- Modellwahl zur Laufzeit aus den für das HOY-API-Projekt tatsächlich verfügbaren, freigegebenen Qualitätsmodellen
+- Präferenzkette: `gpt-5.2` → `gpt-5-pro` → `gpt-5.1` → `gpt-5`
+- Reasoning ausschließlich mit API-dokumentiertem `reasoning.effort`
+- Qualitätsziel `xhigh`, soweit das gewählte Modell dies unterstützt; `gpt-5-pro` und ältere Modelle werden auf ihren dokumentierten Maximalwert begrenzt
 - Background Responses für lange Extraktionen
-- Reasoning mode: `pro`
-- Reasoning effort: `max` für die produktive Menü-Extraktion
-- Bildinput: `detail: original`
-- PDF input: `detail: high`
+- Bildinput: `detail: high`
+- PDF-Input als `input_file`; PDFs erhalten keinen erfundenen Bild-`detail`-Parameter
 - Structured Outputs mit strengem JSON-Schema
 - Keine automatische Veröffentlichung von Modellextraktionen
+
+Vor jedem neuen Hintergrundlauf fragt HOY die Models API ab. Ein optional gesetztes `OPENAI_MENU_MODEL` wird nur verwendet, wenn es im API-Projekt tatsächlich verfügbar ist. Ohne Override wird das bestplatzierte verfügbare Modell aus der Präferenzkette gewählt. Dadurch gibt es weder stille Modell-Fantasien noch ein unbemerktes Downgrade auf ein beliebiges günstigeres Modell.
 
 Die asynchrone Verarbeitung trennt die Modelllaufzeit vom Edge-Function-Zeitlimit. Ein Hintergrundlauf wird gestartet, seine Response-ID gespeichert und der Status später abgerufen; erst ein vollständig abgeschlossenes Ergebnis wird in `menu_intake_items` übernommen.
 
 ## Keine stillen Downgrades
 
-`gpt-5.6-terra`, `gpt-5.6-luna` oder spätere günstigere Modelle dürfen einen fehlerkritischen Sol-Schritt nur ersetzen, wenn ein repräsentativer HOY-Eval mindestens Gleichstand bei den relevanten Qualitätsmetriken nachweist.
+Ein günstigeres oder kleineres Modell darf einen fehlerkritischen Produktionsschritt nur ersetzen, wenn ein repräsentativer HOY-Eval mindestens Gleichstand bei den relevanten Qualitätsmetriken nachweist. Die tatsächlich verwendete Modell-ID und der Reasoning-Effort werden je Lauf gespeichert.
 
 ## HOY Menü-Goldset
 
