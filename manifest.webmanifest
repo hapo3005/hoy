@@ -1,10 +1,20 @@
 {
+  "id": "./",
   "name": "HOY La Manga",
   "short_name": "HOY",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f8f3e9",
   "theme_color": "#f8f3e9",
   "lang": "de",
-  "description": "HOY La Manga – Live-Restaurantdaten aus Supabase, Speisekarten und Betreiber-Claim."
+  "description": "Restaurants, Bars, Chiringuitos, Speisekarten und geprüfte Orte rund um La Manga und das Mar Menor.",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
