@@ -1,4 +1,4 @@
-/* HOY 2.8.1 — guest QA fixes: keyboard access, live-search stability, focus return and map copy */
+/* HOY 2.9.2 — guest QA fixes: keyboard access, live-search stability, synchronous focus return and map copy */
 (function(){
   let searchTimer=null;
   let mapObserver=null;
@@ -55,6 +55,11 @@
     if(!target||typeof target.focus!=='function')return false;
     target.focus({preventScroll:true});return document.activeElement===target;
   }
+  function restoreFocusNowThenFrame(id,root=document){
+    if(!id)return;
+    if(restoreRestaurantFocus(id,root))return;
+    requestAnimationFrame(()=>restoreRestaurantFocus(id,root));
+  }
 
   function syncDiscoverFromCurrentState(){
     if(state.view!=='discover')return;
@@ -83,7 +88,7 @@
     current.removeAttribute('aria-busy');
     bindFreshResults(current);
     enhanceNavigation();
-    if(keepFocusId)requestAnimationFrame(()=>restoreRestaurantFocus(keepFocusId,current));
+    restoreFocusNowThenFrame(keepFocusId,current);
   }
 
   function wireStableSearch(){
@@ -126,9 +131,7 @@
     const beforeView=state.view;
     const keepFocusId=focusedRestaurantId(document);
     baseRender24();
-    if(keepFocusId&&state.view===beforeView){
-      requestAnimationFrame(()=>restoreRestaurantFocus(keepFocusId,document));
-    }
+    if(keepFocusId&&state.view===beforeView)restoreFocusNowThenFrame(keepFocusId,document);
   };
 
   const baseWire24=wire;
