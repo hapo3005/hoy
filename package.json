@@ -1,6 +1,6 @@
 {
   "name": "hoy-la-manga",
-  "version": "2.9.2",
+  "version": "2.10.0",
   "private": true,
   "scripts": {
     "qa:e2e": "playwright test",
