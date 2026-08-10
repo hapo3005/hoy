@@ -1,4 +1,4 @@
-/* HOY 2.12.3 — guest QA fixes: keyboard access, pointer-aware dialog focus, live-search stability and map copy */
+/* HOY 2.12.4 — guest QA fixes: keyboard access, semantic pointer dialog focus, live-search stability and map copy */
 (function(){
   let searchTimer=null;
   let mapObserver=null;
@@ -160,9 +160,14 @@
     const p=DATA.find(x=>Number(x.id)===Number(id));
     const d=document.getElementById('detail');if(!p||!d)return;
     d.setAttribute('aria-label',`${p.name} auf HOY`);
+    d.tabIndex=-1;
     const close=d.querySelector('[data-close]');
     close?.setAttribute('aria-label','Profil schließen');
-    if(returnFocusId||returnMapEl)setTimeout(()=>close?.focus(),0);
+    if(keyboardOpen){
+      close?.focus({preventScroll:true});
+    }else{
+      d.focus({preventScroll:true});
+    }
     d.addEventListener('close',()=>{
       requestAnimationFrame(()=>{
         if(returnFocusId&&restoreRestaurantFocus(returnFocusId,document))return;

@@ -1,4 +1,4 @@
-/* HOY 2.12.2 — premium hospitality profile: emotional hero, editorial identity sheet and calm navigation */
+/* HOY 2.12.4 — premium hospitality profile: emotional hero, editorial identity sheet and calm navigation */
 
 /* Hero image gets room to sell the place before UI begins. */
 #detail.profile-premium .detail-art{
@@ -6,6 +6,7 @@
   min-height:340px;
   background:#d7e0df;
 }
+#detail.profile-premium:focus{outline:none}
 #detail.profile-premium .detail-art:after{
   background:
     linear-gradient(180deg,rgba(4,27,45,.14) 0%,rgba(4,27,45,.02) 42%,rgba(4,27,45,.08) 66%,rgba(4,27,45,.48) 100%);
