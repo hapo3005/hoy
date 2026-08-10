@@ -109,3 +109,13 @@ test('PWA core endpoints return real HOY 2.10 assets instead of an HTML fallback
   expect(workerText).toContain('operator-cockpit-2.10.js');
   expect(workerText).toContain('operator-cockpit-2.10.css');
 });
+
+test('HOY Control Center login shell loads the operator review extension without script errors', async ({ page }) => {
+  const errors = watchPageErrors(page);
+  await page.goto('./admin.html', { waitUntil: 'domcontentloaded' });
+  await expect(page).toHaveTitle(/HOY Control Center/i);
+  await expect(page.locator('#adminApp')).toBeVisible();
+  await expect(page.locator('.admin-login')).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('#loginEmail')).toBeVisible();
+  expect(errors).toEqual([]);
+});
