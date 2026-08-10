@@ -19,6 +19,18 @@ async function openDiscover(page) {
   await expect(page.locator('.list-card[data-open]').first()).toBeVisible({ timeout: 20_000 });
 }
 
+async function openAguaSala(page) {
+  await openDiscover(page);
+  const search = page.locator('#q');
+  await search.fill('Agua Salá');
+  const card = page.locator('.list-card[data-open="16"]');
+  await expect(card).toBeVisible({ timeout: 20_000 });
+  await card.click();
+  const dialog = page.locator('#detail[open]');
+  await expect(dialog).toBeVisible();
+  return dialog;
+}
+
 async function screenshot(page, testInfo, name) {
   await page.screenshot({
     path: path.join(SCREEN_DIR, `${testInfo.project.name}-${name}.png`),
@@ -41,16 +53,8 @@ test('guest journey renders on the deployed app', async ({ page }, testInfo) => 
 
 test('Agua Sala opens as a continuous profile with an inline German menu', async ({ page }, testInfo) => {
   const errors = watchPageErrors(page);
-  await openDiscover(page);
+  const dialog = await openAguaSala(page);
 
-  const search = page.locator('#q');
-  await search.fill('Agua Salá');
-  const card = page.locator('.list-card[data-open="16"]');
-  await expect(card).toBeVisible({ timeout: 20_000 });
-  await card.click();
-
-  const dialog = page.locator('#detail[open]');
-  await expect(dialog).toBeVisible();
   await expect(dialog).toHaveClass(/continuous-profile/);
   await expect(dialog.locator('#profile-about')).toBeVisible();
   await expect(dialog.locator('#profile-menu')).toBeVisible();
@@ -75,6 +79,47 @@ test('Agua Sala opens as a continuous profile with an inline German menu', async
   expect(errors).toEqual([]);
 });
 
+test('restaurant profile has no horizontal page overflow while menu categories stay contained', async ({ page }, testInfo) => {
+  const errors = watchPageErrors(page);
+  const dialog = await openAguaSala(page);
+  const expand = dialog.locator('[data-menu-expand]');
+  if (await expand.count() && await expand.getAttribute('aria-expanded') === 'false') await expand.click();
+
+  await expect(dialog.locator('.profile-anchor-nav')).toBeVisible();
+  await expect(dialog.locator('.menu-category-nav')).toBeVisible();
+  await expect(dialog.locator('.menu-cat').first()).toBeVisible();
+
+  const metrics = await dialog.evaluate(el => {
+    const body = el.querySelector('.detail-body');
+    const primary = el.querySelector('.profile-anchor-nav');
+    const category = el.querySelector('.menu-category-nav');
+    const er = el.getBoundingClientRect();
+    const pr = primary?.getBoundingClientRect();
+    const cr = category?.getBoundingClientRect();
+    return {
+      dialogClientWidth: el.clientWidth,
+      dialogScrollWidth: el.scrollWidth,
+      bodyClientWidth: body?.clientWidth || 0,
+      bodyScrollWidth: body?.scrollWidth || 0,
+      documentClientWidth: document.documentElement.clientWidth,
+      documentScrollWidth: document.documentElement.scrollWidth,
+      primaryContained: !pr || (pr.left >= er.left - 1 && pr.right <= er.right + 1),
+      categoryContained: !cr || (cr.left >= er.left - 1 && cr.right <= er.right + 1),
+      categoryOwnsOverflow: !category || category.scrollWidth >= category.clientWidth
+    };
+  });
+
+  expect(metrics.dialogScrollWidth).toBeLessThanOrEqual(metrics.dialogClientWidth + 1);
+  expect(metrics.bodyScrollWidth).toBeLessThanOrEqual(metrics.bodyClientWidth + 1);
+  expect(metrics.documentScrollWidth).toBeLessThanOrEqual(metrics.documentClientWidth + 1);
+  expect(metrics.primaryContained).toBeTruthy();
+  expect(metrics.categoryContained).toBeTruthy();
+  expect(metrics.categoryOwnsOverflow).toBeTruthy();
+
+  await screenshot(page, testInfo, 'menu-layout-stability');
+  expect(errors).toEqual([]);
+});
+
 test('keyboard users can open and close a restaurant profile with focus return', async ({ page }) => {
   const errors = watchPageErrors(page);
   await openDiscover(page);
@@ -96,7 +141,7 @@ test('keyboard users can open and close a restaurant profile with focus return',
   expect(errors).toEqual([]);
 });
 
-test('PWA core endpoints return real HOY 2.10 assets instead of an HTML fallback', async ({ request }) => {
+test('PWA core endpoints return real HOY 2.11 assets instead of an HTML fallback', async ({ request }) => {
   const manifest = await request.get('./manifest.webmanifest');
   expect(manifest.ok()).toBeTruthy();
   expect(manifest.headers()['content-type'] || '').toMatch(/json|manifest/i);
@@ -104,10 +149,10 @@ test('PWA core endpoints return real HOY 2.10 assets instead of an HTML fallback
   const worker = await request.get('./service-worker.js');
   expect(worker.ok()).toBeTruthy();
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.10.0'");
+  expect(workerText).toContain("const CACHE='hoy-v2.11.0'");
   expect(workerText).toContain('profile-flow-2.7.js');
   expect(workerText).toContain('operator-cockpit-2.10.js');
-  expect(workerText).toContain('operator-cockpit-2.10.css');
+  expect(workerText).toContain('profile-design-2.11.css');
 });
 
 test('HOY Control Center login shell loads the operator review extension without script errors', async ({ page }) => {
