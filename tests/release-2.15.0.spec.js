@@ -23,6 +23,7 @@ test('map becomes a decision surface with the same useful HOY signals as discove
 
   const first = root.locator('.map-decision-card').first();
   await expect(first.locator('.map-decision-signals span').first()).toBeVisible();
+  await expect(first.locator('[data-map-focus]')).toHaveText(/Auf Karte zeigen/i);
   await expect(first.locator('[data-map-profile]')).toHaveText(/Profil ansehen/i);
   await expect(root.locator('#hoyMap')).toBeVisible();
 
@@ -38,7 +39,7 @@ test('map becomes a decision surface with the same useful HOY signals as discove
 test('map card focuses its pin and keeps a one-tap route into the profile', async ({ page }, testInfo) => {
   const root = await openMap(page);
   const first = root.locator('.map-decision-card').first();
-  await first.locator('h3').click();
+  await first.locator('[data-map-focus]').click();
   await expect(first).toHaveClass(/active/);
   await expect(root.locator('.leaflet-popup')).toBeVisible({ timeout: 8_000 });
 
