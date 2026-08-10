@@ -1,4 +1,4 @@
-/* HOY 2.13.2 — signature localized menu experience with deterministic category navigation */
+/* HOY 2.13.3 — signature localized menu experience with live data-ready upgrades */
 (function(){
   const COPY={
     de:{title:'Speisekarte auf Deutsch',partial:'Auswahl auf Deutsch',promise:'Für dich auf Deutsch',proof:'Kulinarisch übersetzt · Originalpreise unverändert',body:'HOY überträgt Gerichte sinngemäß statt Wort für Wort. Spanische Eigennamen bleiben erhalten, wenn sie zum Gericht gehören.',search:'Speisekarte durchsuchen …',checked:'HOY redaktionell geprüft'},
@@ -130,12 +130,10 @@
     if(status)status.classList.add('menu-signature-provenance');
   }
 
-  function enhanceSignatureMenu(p,d){
-    const section=d?.querySelector('#profile-menu');
-    if(!p||!section)return;
+  function applySignatureState(section,p,d){
     const m=menuFor(p);
     section.classList.add('menu-signature');
-    if(m?.localized)section.classList.add('menu-signature-localized');
+    section.classList.toggle('menu-signature-localized',!!m?.localized);
     section.dataset.menuLocale=m?.locale||'';
 
     const head=section.querySelector(':scope > .profile-section-head');
@@ -153,12 +151,16 @@
     addPromise(section,m);
     restyleProvenance(section);
     decorateSearch(section,m);
-    if(decorateCategories(section,d))return;
+    return decorateCategories(section,d);
+  }
+
+  function enhanceSignatureMenu(p,d){
+    const section=d?.querySelector('#profile-menu');
+    if(!p||!section)return;
+    if(applySignatureState(section,p,d))return;
 
     const observer=new MutationObserver(()=>{
-      decorateSearch(section,m);
-      restyleProvenance(section);
-      if(decorateCategories(section,d))observer.disconnect();
+      if(applySignatureState(section,p,d))observer.disconnect();
     });
     observer.observe(section,{childList:true,subtree:true});
     setTimeout(()=>observer.disconnect(),5000);
@@ -171,4 +173,11 @@
     const d=document.getElementById('detail');
     if(p)enhanceSignatureMenu(p,d);
   };
+
+  window.addEventListener('hoy:profile-menu-refreshed',e=>{
+    const id=Number(e.detail?.restaurantId||0);
+    const p=DATA.find(x=>Number(x.id)===id);
+    const d=document.getElementById('detail');
+    if(p&&d?.open&&Number(d.dataset.restaurantId||0)===id)enhanceSignatureMenu(p,d);
+  });
 })();
