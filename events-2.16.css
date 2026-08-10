@@ -39,6 +39,7 @@
 .hoy-current-meta{font-size:8px;font-weight:800;color:var(--navy);margin-top:9px}
 .hoy-current-proof{display:block;margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:7px;color:#76818a}
 .profile-premium-nav a[href="#profile-current"]{color:var(--orange)}
+#detail.profile-premium .profile-premium-nav:has(a[href="#profile-current"]){grid-template-columns:repeat(4,minmax(0,1fr))}
 
 .hoy-current-manager{padding-bottom:40px}
 .hoy-current-manager-hero{padding:3px 0 18px}
