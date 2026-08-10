@@ -1,6 +1,7 @@
 /* HOY 2.4 — guest QA fixes: keyboard access, live-search stability, focus return and map copy */
 (function(){
   let searchTimer=null;
+  let mapObserver=null;
 
   function restaurantFor(el){
     const id=Number(el?.dataset?.open);
@@ -94,9 +95,12 @@
   }
 
   function observeMapCopy(){
-    const map=document.getElementById('hoyMap');if(!map||map.dataset.qaMapObserver==='1')return;
-    map.dataset.qaMapObserver='1';correctGroupedMapCopy(map);
-    new MutationObserver(()=>correctGroupedMapCopy(map)).observe(map,{childList:true,subtree:true});
+    const map=document.getElementById('hoyMap');
+    if(!map){mapObserver?.disconnect();mapObserver=null;return;}
+    mapObserver?.disconnect();
+    correctGroupedMapCopy(map);
+    mapObserver=new MutationObserver(()=>correctGroupedMapCopy(map));
+    mapObserver.observe(map,{childList:true,subtree:true});
   }
 
   const baseWire24=wire;
