@@ -1,0 +1,35 @@
+name: HOY Menu Eval
+
+on:
+  workflow_dispatch:
+    inputs:
+      case_limit:
+        description: 'Number of curated gold menus (1-10)'
+        required: true
+        default: '10'
+      enforce_gate:
+        description: 'Fail workflow when quality thresholds are missed'
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  menu-eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      SUPABASE_URL: ${{ secrets.HOY_SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.HOY_SUPABASE_SECRET_KEY }}
+      OPENAI_MENU_MODEL: gpt-5.6-sol
+      OPENAI_MENU_REASONING_EFFORT: max
+      HOY_EVAL_MIN_COVERAGE: '0.94'
+      HOY_EVAL_MIN_PRICE_EXACT: '0.97'
+      HOY_EVAL_MAX_HALLUCINATION: '0.03'
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run curated menu quality evaluation
+        run: node scripts/menu-eval.mjs --limit "${{ inputs.case_limit }}" ${{ inputs.enforce_gate && '--enforce' || '' }}
