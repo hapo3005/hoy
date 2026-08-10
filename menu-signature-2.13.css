@@ -1,4 +1,4 @@
-/* HOY 2.13.4 — signature localized menu + honest profile media hierarchy */
+/* HOY 2.13.5 — signature localized menu + honest profile media hierarchy */
 
 /* Media hierarchy: one visible label only. Exact venue/operator imagery gets premium treatment; regional fallbacks stay clearly contextual. */
 #detail.profile-premium .detail-art>.media-badge{display:none!important}
@@ -47,8 +47,9 @@
 .menu-signature .menu-category-nav button{min-height:34px;padding:7px 10px;border-color:rgba(16,40,61,.10);background:#f7f1e7;color:#596a78;font-size:9.5px;font-weight:800;transition:background .14s ease,color .14s ease,border-color .14s ease}
 .menu-signature .menu-category-nav button.active{border-color:var(--navy);background:var(--navy);color:#fff;box-shadow:0 6px 14px rgba(6,42,73,.13)}
 
-.menu-signature .menu-cat{margin-top:13px;padding-top:18px;border-top:1px solid rgba(16,40,61,.08);scroll-margin-top:126px}
-.menu-signature .menu-cat:first-child{margin-top:4px;border-top:0}
+/* Higher specificity is deliberate: profile-design-2.11 defines #detail .menu-cat at 76px. Signature menus have two stacked sticky rails and need the larger clearance. */
+#detail.profile-premium .menu-signature .menu-cat{margin-top:13px;padding-top:18px;border-top:1px solid rgba(16,40,61,.08);scroll-margin-top:126px}
+#detail.profile-premium .menu-signature .menu-cat:first-child{margin-top:4px;border-top:0}
 .menu-signature .menu-cat h4{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin:0 0 7px;font:500 22px/1.08 var(--serif);letter-spacing:-.025em;color:var(--navy)}
 .menu-cat-count{flex:0 0 auto;color:#8b949b;font:800 7.5px/1 var(--sans);letter-spacing:.02em;white-space:nowrap}
 .menu-signature .menu-item{grid-template-columns:minmax(0,1fr) auto!important;column-gap:14px;row-gap:2px;align-items:start;padding:13px 0;border-bottom:1px solid rgba(16,40,61,.07)}
