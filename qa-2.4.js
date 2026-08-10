@@ -1,4 +1,4 @@
-/* HOY 2.4 — guest QA fixes: keyboard access, live-search stability, focus return and map copy */
+/* HOY 2.8.1 — guest QA fixes: keyboard access, live-search stability, focus return and map copy */
 (function(){
   let searchTimer=null;
   let mapObserver=null;
@@ -19,7 +19,11 @@
       card.dataset.qaKeyboard='1';
       card.addEventListener('keydown',e=>{
         if(e.target!==card)return;
-        if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(Number(card.dataset.open));}
+        if(e.key==='Enter'||e.key===' '){
+          e.preventDefault();
+          const id=Number(card.dataset.open);
+          if(id)openDetail(id);
+        }
       });
     });
   }
@@ -40,9 +44,22 @@
     enhanceCards(root);
   }
 
+  function focusedRestaurantId(root=document){
+    const active=document.activeElement;
+    if(!active||!root.contains(active)||!active.matches?.('.qa-keyboard-card[data-open]'))return null;
+    const id=Number(active.dataset.open);return id||null;
+  }
+  function restoreRestaurantFocus(id,root=document){
+    if(!id)return false;
+    const target=root.querySelector?.(`.qa-keyboard-card[data-open="${id}"]`);
+    if(!target||typeof target.focus!=='function')return false;
+    target.focus({preventScroll:true});return document.activeElement===target;
+  }
+
   function syncDiscoverFromCurrentState(){
     if(state.view!=='discover')return;
     const current=document.querySelector('[data-journey-results]');if(!current)return;
+    const keepFocusId=focusedRestaurantId(current);
     const shell=document.createElement('div');shell.innerHTML=discover();
     const fresh=shell.querySelector('[data-journey-results]');if(!fresh)return;
     current.innerHTML=fresh.innerHTML;
@@ -66,6 +83,7 @@
     current.removeAttribute('aria-busy');
     bindFreshResults(current);
     enhanceNavigation();
+    if(keepFocusId)requestAnimationFrame(()=>restoreRestaurantFocus(keepFocusId,current));
   }
 
   function wireStableSearch(){
@@ -103,6 +121,16 @@
     mapObserver.observe(map,{childList:true,subtree:true});
   }
 
+  const baseRender24=render;
+  render=function(){
+    const beforeView=state.view;
+    const keepFocusId=focusedRestaurantId(document);
+    baseRender24();
+    if(keepFocusId&&state.view===beforeView){
+      requestAnimationFrame(()=>restoreRestaurantFocus(keepFocusId,document));
+    }
+  };
+
   const baseWire24=wire;
   wire=function(){
     baseWire24();
@@ -115,16 +143,20 @@
   const baseOpenDetail24=openDetail;
   openDetail=function(id){
     const trigger=document.activeElement;
-    const returnFocus=trigger?.matches?.('.qa-keyboard-card,[data-map-open]')?trigger:null;
+    const returnFocusId=trigger?.matches?.('.qa-keyboard-card[data-open]')?Number(trigger.dataset.open)||null:null;
+    const returnMapEl=trigger?.matches?.('[data-map-open]')?trigger:null;
     baseOpenDetail24(id);
     const p=DATA.find(x=>Number(x.id)===Number(id));
     const d=document.getElementById('detail');if(!p||!d)return;
     d.setAttribute('aria-label',`${p.name} auf HOY`);
     const close=d.querySelector('[data-close]');
     close?.setAttribute('aria-label','Profil schließen');
-    if(returnFocus)setTimeout(()=>close?.focus(),0);
+    if(returnFocusId||returnMapEl)setTimeout(()=>close?.focus(),0);
     d.addEventListener('close',()=>{
-      if(returnFocus&&returnFocus.isConnected&&typeof returnFocus.focus==='function')returnFocus.focus({preventScroll:true});
+      requestAnimationFrame(()=>{
+        if(returnFocusId&&restoreRestaurantFocus(returnFocusId,document))return;
+        if(returnMapEl?.isConnected&&typeof returnMapEl.focus==='function')returnMapEl.focus({preventScroll:true});
+      });
     },{once:true});
   };
 })();
