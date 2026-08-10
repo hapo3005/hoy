@@ -68,6 +68,23 @@ Deno.serve(async (req: Request) => {
     return json(data || { ok: true, claim_id: claimId, status: decision })
   }
 
+  if (action === 'review_profile_change') {
+    const requestId = String(body?.request_id || '')
+    const decision = String(body?.decision || '')
+    const rejectionReason = body?.rejection_reason ? String(body.rejection_reason).trim() : null
+    if (!requestId || !['approved', 'rejected'].includes(decision)) return json({ error: 'invalid_fields' }, 400)
+    if (decision === 'rejected' && !rejectionReason) return json({ error: 'rejection_reason_required' }, 400)
+
+    const { data, error } = await adminClient.rpc('admin_review_profile_change_internal', {
+      p_request_id: requestId,
+      p_decision: decision,
+      p_reviewer: user.id,
+      p_rejection_reason: rejectionReason,
+    })
+    if (error) return json({ error: error.message }, 400)
+    return json(data || { ok: true, request_id: requestId, status: decision })
+  }
+
   if (action === 'set_plan') {
     const restaurantId = Number(body?.restaurant_id)
     const plan = String(body?.plan || '')
