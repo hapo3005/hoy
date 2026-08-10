@@ -1,0 +1,12 @@
+/* HOY 2.11.1 — visual alignment correction discovered during real screenshot review */
+#detail .profile-section:not(.profile-menu-section) .profile-section-head{
+  display:block;
+  text-align:left;
+}
+#detail .profile-section:not(.profile-menu-section) .profile-section-head small{
+  margin-bottom:6px;
+}
+#detail .profile-section:not(.profile-menu-section) .profile-section-head h3{
+  width:100%;
+  text-align:left;
+}
