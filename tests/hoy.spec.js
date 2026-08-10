@@ -79,6 +79,42 @@ test('Agua Sala opens as a continuous profile with an inline German menu', async
   expect(errors).toEqual([]);
 });
 
+test('restaurant profile opens with premium hero hierarchy and calm primary navigation', async ({ page }, testInfo) => {
+  const errors = watchPageErrors(page);
+  const dialog = await openAguaSala(page);
+
+  await expect(dialog).toHaveClass(/profile-premium/);
+  await expect(dialog.locator('.detail-art')).toBeVisible();
+  await expect(dialog.locator('.profile-identity-card')).toBeVisible();
+  await expect(dialog.locator('.profile-identity-card > h2')).toContainText(/Agua Salá/i);
+  await expect(dialog.locator('.profile-trust-line')).toBeVisible();
+  await expect(dialog.locator('.profile-quick-snapshot')).toBeVisible();
+  await expect(dialog.locator('.profile-quick-actions')).toBeVisible();
+  await expect(dialog.locator('.profile-premium-nav')).toBeVisible();
+  await expect(dialog.locator('.profile-premium-nav a.active')).toContainText(/Überblick/i);
+  await expect(dialog.locator('#profile-about .profile-service-facts')).toBeVisible();
+  await expect(dialog.locator('.service-summary')).toHaveCount(0);
+
+  const metrics = await dialog.evaluate(el => {
+    const art = el.querySelector('.detail-art');
+    const body = el.querySelector('.detail-body');
+    const visibleActions = [...el.querySelectorAll('.profile-quick-actions > a,.profile-quick-actions > button')]
+      .filter(node => getComputedStyle(node).display !== 'none');
+    return {
+      heroHeight: art?.getBoundingClientRect().height || 0,
+      bodyMarginTop: Number.parseFloat(getComputedStyle(body).marginTop || '0'),
+      visibleActionCount: visibleActions.length
+    };
+  });
+
+  expect(metrics.heroHeight).toBeGreaterThanOrEqual(330);
+  expect(metrics.bodyMarginTop).toBeLessThan(0);
+  expect(metrics.visibleActionCount).toBe(3);
+
+  await screenshot(page, testInfo, 'premium-profile-header');
+  expect(errors).toEqual([]);
+});
+
 test('restaurant profile has no horizontal page overflow while menu categories stay contained', async ({ page }, testInfo) => {
   const errors = watchPageErrors(page);
   const dialog = await openAguaSala(page);
@@ -141,7 +177,7 @@ test('keyboard users can open and close a restaurant profile with focus return',
   expect(errors).toEqual([]);
 });
 
-test('PWA core endpoints return real HOY 2.11.1 assets instead of an HTML fallback', async ({ request }) => {
+test('PWA core endpoints return real HOY 2.12.0 assets instead of an HTML fallback', async ({ request }) => {
   const manifest = await request.get('./manifest.webmanifest');
   expect(manifest.ok()).toBeTruthy();
   expect(manifest.headers()['content-type'] || '').toMatch(/json|manifest/i);
@@ -149,11 +185,13 @@ test('PWA core endpoints return real HOY 2.11.1 assets instead of an HTML fallba
   const worker = await request.get('./service-worker.js');
   expect(worker.ok()).toBeTruthy();
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.11.1'");
+  expect(workerText).toContain("const CACHE='hoy-v2.12.0'");
   expect(workerText).toContain('profile-flow-2.7.js');
   expect(workerText).toContain('operator-cockpit-2.10.js');
   expect(workerText).toContain('profile-design-2.11.css');
   expect(workerText).toContain('profile-design-fix-2.11.1.css');
+  expect(workerText).toContain('profile-premium-2.12.css');
+  expect(workerText).toContain('profile-premium-2.12.js');
 });
 
 test('HOY Control Center login shell loads the operator review extension without script errors', async ({ page }) => {
