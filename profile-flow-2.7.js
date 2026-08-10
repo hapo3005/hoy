@@ -1,4 +1,4 @@
-/* HOY 2.8.1 — continuous restaurant profile with inline localized menu */
+/* HOY 2.13.3 — continuous restaurant profile with live localized-menu refresh */
 (function(){
   function wireInlineMenu(root,p){
     const input=root.querySelector('[data-menu-search]');
@@ -60,11 +60,50 @@
     const m=menuFor(p);const count=(m?.categories||[]).reduce((n,[,items])=>n+(items?.length||0),0);const collapse=count>14;
     return `<section class="profile-section profile-menu-section" id="profile-menu"><div class="profile-section-head"><div><small>HOY SPEISEKARTE</small><h3>${m?.localized?'In deiner Sprache':'Speisekarte'}</h3></div><span class="profile-menu-count">${count?`${count} Positionen`:menuStatusLabel(m)}</span></div><div data-inline-menu-wrap class="profile-inline-menu ${collapse?'is-collapsed':''}">${menuPanel(p)}</div>${collapse?'<button class="inline-menu-expand" type="button" data-menu-expand aria-expanded="false">Komplette Speisekarte anzeigen</button>':''}</section>`;
   }
+
+  function refreshOpenProfileMenu(){
+    const d=document.getElementById('detail');
+    if(!d?.open||!d.classList.contains('continuous-profile'))return false;
+    const id=Number(d.dataset.restaurantId||0);
+    const p=DATA.find(x=>Number(x.id)===id);
+    const old=d.querySelector('#profile-menu');
+    if(!p||!old)return false;
+
+    const oldInput=old.querySelector('[data-menu-search]');
+    const query=oldInput?.value||'';
+    const inputFocused=!!oldInput&&document.activeElement===oldInput;
+    const oldWrap=old.querySelector('[data-inline-menu-wrap]');
+    const expanded=!!oldWrap&&!oldWrap.classList.contains('is-collapsed');
+    const scrollTop=d.scrollTop;
+
+    const shell=document.createElement('div');
+    shell.innerHTML=menuInline(p);
+    const fresh=shell.firstElementChild;
+    if(!fresh)return false;
+    old.replaceWith(fresh);
+    wireInlineMenu(fresh,p);
+
+    const freshWrap=fresh.querySelector('[data-inline-menu-wrap]');
+    const freshExpand=fresh.querySelector('[data-menu-expand]');
+    if(expanded&&freshWrap){
+      freshWrap.classList.remove('is-collapsed');
+      if(freshExpand){freshExpand.textContent='Speisekarte einklappen';freshExpand.setAttribute('aria-expanded','true')}
+    }
+    const freshInput=fresh.querySelector('[data-menu-search]');
+    if(query&&freshInput){freshInput.value=query;freshInput.dispatchEvent(new Event('input',{bubbles:true}))}
+    d.scrollTop=scrollTop;
+    if(inputFocused&&freshInput)freshInput.focus({preventScroll:true});
+
+    window.dispatchEvent(new CustomEvent('hoy:profile-menu-refreshed',{detail:{restaurantId:id,localized:!!menuFor(p)?.localized}}));
+    return true;
+  }
+
   function transformProfile(p,d){
     if(!p||!d)return;
     const oldTabs=d.querySelector('.tabs');const oldContent=d.querySelector('[data-tab-content]');
     if(!oldTabs||!oldContent)return;
     d.classList.add('continuous-profile');
+    d.dataset.restaurantId=String(p.id);
     d.querySelector('.showcase-menu-preview')?.remove();
     if(window.hoyLiveHoursMeta?.(p)?.operator){
       d.querySelector('.showcase-warning')?.remove();
@@ -83,4 +122,7 @@
     const p=DATA.find(x=>Number(x.id)===Number(id));const d=document.getElementById('detail');
     if(p)transformProfile(p,d);
   };
+
+  window.hoyRefreshOpenProfileMenu=refreshOpenProfileMenu;
+  window.addEventListener('hoy:menus-ready',()=>queueMicrotask(refreshOpenProfileMenu));
 })();
