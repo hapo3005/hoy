@@ -38,9 +38,15 @@ test('premium sticky navigation fully covers menu content and category rail sign
   const expand = dialog.locator('[data-menu-expand]');
   if (await expand.count() && await expand.getAttribute('aria-expanded') === 'false') await expand.click();
 
-  const secondCat = dialog.locator('.menu-cat').nth(1);
-  await expect(secondCat).toBeVisible();
-  await secondCat.scrollIntoViewIfNeeded();
+  // The menu can be rebuilt in place when localized data finishes refreshing.
+  // Scroll the stable dialog/section instead of holding a menu-item node that may be replaced mid-action.
+  await expect(dialog.locator('.menu-cat').nth(1)).toBeVisible();
+  await expect(dialog.locator('.menu-signature-categories')).toBeVisible();
+  await dialog.evaluate(el => {
+    const menu = el.querySelector('#profile-menu');
+    if (menu) el.scrollTop = Math.max(0, menu.offsetTop + 240);
+  });
+  await page.waitForTimeout(120);
 
   const metrics = await dialog.evaluate(el => {
     const nav = el.querySelector('.profile-premium-nav');
