@@ -1,0 +1,149 @@
+/* HOY 2.3 — coherent guest journey: home → discover → map → profile */
+(function(){
+  const SHOWCASE_23=new Set([1,2,3,5,7,8,9,11,13,14,15,16,17,20,21,22]);
+  const AREA_LABELS_23={
+    'La Manga del Mar Menor':'La Manga',
+    'Cabo de Palos':'Cabo de Palos',
+    'Los Alcázares / Los Narejos':'Los Alcázares',
+    'San Pedro del Pinatar / Lo Pagán':'San Pedro · Lo Pagán',
+    'Santiago de la Ribera / San Javier':'Santiago · San Javier',
+    'La Manga Club / Atamaría':'La Manga Club',
+    'Los Belones':'Los Belones',
+    'Mar de Cristal / Islas Menores':'Mar de Cristal',
+    'Los Urrutias / Estrella de Mar / Los Nietos':'Los Urrutias · Los Nietos'
+  };
+  const area23=a=>AREA_LABELS_23[a]||a||'Mar Menor';
+  const type23=p=>({restaurant:'Restaurant',bar:'Bar',chiringuito:'Chiringuito',beach_club:'Beach Club',nightlife:'Nightlife',cafe:'Café',ice_cream:'Eisdiele',ice_cream_bar:'Eisdiele & Bar'}[p?.venue_type]||'Ort');
+  const menuReady23=p=>['structured','partial'].includes(menuFor(p)?.status);
+  const reservable23=p=>effectiveServiceState(p,'reservation')==='available';
+
+  function qualityScore23(p){
+    let n=0;
+    if(SHOWCASE_23.has(Number(p.id)))n+=50;
+    if(p.profile_quality==='premium')n+=18;
+    if(p.operator_verified||isClaimed(p))n+=8;
+    if(p.signature_title)n+=7;
+    if(menuFor(p)?.status==='structured')n+=7;else if(menuFor(p)?.status==='partial')n+=4;else if(menuFor(p)?.source)n+=2;
+    if(reservable23(p))n+=4;
+    if(p.hours)n+=2;if(p.website)n+=1;
+    return n;
+  }
+  function sorted23(rows){
+    const q=(state.query||'').trim().toLowerCase();
+    return [...rows].sort((a,b)=>{
+      if(q){
+        const an=(a.name||'').toLowerCase(),bn=(b.name||'').toLowerCase();
+        const ar=an===q?4:an.startsWith(q)?3:an.includes(q)?2:(a.area||'').toLowerCase().includes(q)?1:0;
+        const br=bn===q?4:bn.startsWith(q)?3:bn.includes(q)?2:(b.area||'').toLowerCase().includes(q)?1:0;
+        if(ar!==br)return br-ar;
+      }
+      return qualityScore23(b)-qualityScore23(a)||String(a.name).localeCompare(String(b.name),'de');
+    });
+  }
+  function featured23(){
+    const pool=sorted23(DATA.filter(p=>p.profile_quality==='premium'&&p.signature_title));
+    const out=[],areas=new Set();
+    for(const p of pool){if(out.length>=4)break;if(!areas.has(p.area)||out.length>=2){out.push(p);areas.add(p.area)}}
+    return out.slice(0,4);
+  }
+  function areas23(){
+    const preferred=['La Manga del Mar Menor','Cabo de Palos','Los Alcázares / Los Narejos','La Manga Club / Atamaría','Los Belones','San Pedro del Pinatar / Lo Pagán'];
+    return preferred.map(area=>({area,count:DATA.filter(p=>p.area===area).length})).filter(x=>x.count);
+  }
+  function intentButtons23(keys){
+    const defs={
+      water:['Am Wasser','Meer, Hafen & Strand'],restaurant:['Essen','Restaurants entdecken'],evening:['Drinks & Abend','Bars, Pubs & Nightlife'],breakfast:['Frühstück','Frühstück & Brunch'],
+      sunset:['Sunset','Zum Sonnenuntergang'],chiringuito:['Chiringuitos','Direkt am Strand'],seafood:['Fisch & Seafood','Fisch & Mariscos'],rice:['Arroces','Reis & Paella'],cocktails:['Cocktails','Drinks & Lounge'],live:['Live-Musik','Musik & Unterhaltung'],british:['British & Irish','Pubs & Pub Food']
+    };
+    return keys.filter(k=>defs[k]).map((k,i)=>`<button class="${i===0?'primary':''}" data-home-intent="${k}"><strong>${defs[k][0]}</strong><span>${defs[k][1]}</span></button>`).join('');
+  }
+
+  home=function(){
+    const featured=featured23();
+    const areas=areas23();
+    return `<section class="journey-home">
+      <div class="hero journey-hero">
+        <div class="hero-top"><div class="brand"><b>H<span>O</span><em>Y</em></b><small>LA MANGA · MAR MENOR</small></div><button class="round journey-map-shortcut" data-nav="map" aria-label="Karte öffnen">${icons.map}</button></div>
+        <div class="hero-copy"><div class="journey-kicker">${DATA.length} Orte rund ums Mar Menor</div><h1>Was passt<br>heute?</h1><p>Finde Essen, Drinks und besondere Orte, ohne dich durch zehn Tabs zu arbeiten.</p></div>
+        <div class="intent-panel journey-intent-panel"><div class="intent-title"><b>Schnell entscheiden</b><small>Nach Anlass statt endlos suchen</small></div><div class="intent-grid journey-intent-grid">${intentButtons23(['water','restaurant','evening','breakfast'])}</div><div class="home-search"><input data-home-search autocomplete="off" placeholder="Betrieb, Ort, Küche oder Stimmung …" aria-label="HOY durchsuchen"><button data-home-search-go>Suchen</button></div></div>
+      </div>
+      <section class="journey-areas"><div class="journey-section-head"><div><span>WO BIST DU?</span><h2>Direkt in deine Gegend.</h2></div><button data-nav="map">Karte</button></div><div class="journey-area-scroll">${areas.map(x=>`<button data-journey-area="${esc(x.area)}"><strong>${esc(area23(x.area))}</strong><span>${x.count} ${x.count===1?'Ort':'Orte'}</span></button>`).join('')}</div></section>
+      <section class="section journey-featured"><div class="section-head"><div><div class="eyebrow">HOY AUSWAHL</div><h2>Gute Startpunkte.</h2></div><button data-nav="discover">Alle entdecken ›</button></div><div class="cards">${featured.map(card).join('')}</div></section>
+      <section class="journey-more"><div class="journey-section-head"><div><span>NOCH KONKRETER</span><h2>Wonach ist dir?</h2></div></div><div class="journey-chip-scroll">${['sunset','chiringuito','seafood','rice','cocktails','live','british'].map(k=>{const labels={sunset:'Sunset',chiringuito:'Chiringuitos',seafood:'Fisch & Seafood',rice:'Arroces',cocktails:'Cocktails',live:'Live-Musik',british:'British & Irish'};return `<button data-home-intent="${k}">${labels[k]}</button>`}).join('')}</div></section>
+      <section class="journey-map-card"><div><span>AUF DER KARTE</span><h2>Lieber sehen, was in der Nähe liegt?</h2><p>Alle veröffentlichten HOY-Orte mit ihren geprüften Standortangaben auf einer Karte.</p></div><button data-nav="map">Karte öffnen ${icons.chev}</button></section>
+      <div class="source journey-source">HOY kennzeichnet vertieft recherchierte und betreiberbestätigte Angaben. Unbekannte oder widersprüchliche Daten bleiben bewusst als solche sichtbar.</div>
+    </section>`;
+  };
+
+  function discoverIntentChips23(){
+    const keys=['all','water','restaurant','evening','sunset','chiringuito','seafood','rice','breakfast','cocktails','live','british'];
+    const labels={all:'Alles',water:'Am Wasser',restaurant:'Essen',evening:'Drinks & Abend',sunset:'Sunset',chiringuito:'Chiringuitos',seafood:'Fisch & Seafood',rice:'Arroces',breakfast:'Frühstück',cocktails:'Cocktails',live:'Live-Musik',british:'British & Irish'};
+    return keys.map(k=>`<button class="${(state.decision||'all')===k?'active':''}" data-decision="${k}">${labels[k]}</button>`).join('');
+  }
+  function activeSummary23(){
+    const x=[];
+    const d={water:'Am Wasser',restaurant:'Essen',evening:'Drinks & Abend',sunset:'Sunset',chiringuito:'Chiringuitos',seafood:'Fisch & Seafood',rice:'Arroces',breakfast:'Frühstück',cocktails:'Cocktails',live:'Live-Musik',british:'British & Irish'};
+    if(state.decision&&state.decision!=='all')x.push(d[state.decision]||state.decision);
+    if(state.service&&state.service!=='all')x.push({reservation:'Reservierbar',pickup:'Abholung',delivery:'Lieferung'}[state.service]||state.service);
+    if((state.query||'').trim())x.push(`„${state.query.trim()}“`);
+    return x;
+  }
+  function resultMarkup23(){
+    const list=sorted23(filtered());
+    return {list,html:list.map(listCard).join('')||'<div class="empty"><h2>Hier passt gerade nichts.</h2><p>Nimm einen Filter heraus oder probiere einen anderen Suchbegriff.</p><button data-consumer-reset>Filter zurücksetzen</button></div>'};
+  }
+  discover=function(){
+    const r=resultMarkup23(),active=activeSummary23();
+    return `<section class="journey-discover"><div class="head journey-discover-head"><div class="head-top"><div class="brand" style="color:var(--navy)"><b>H<span>O</span><em>Y</em></b><small>MAR MENOR</small></div><button class="round" data-view-switch="map" aria-label="Zur Karte">${icons.map}</button></div><h1>Entdecken.</h1><p>Suche direkt oder filtere nach dem Moment, der heute zu dir passt.</p><div class="searchline journey-searchline"><input id="q" autocomplete="off" inputmode="search" aria-label="Betriebe durchsuchen" placeholder="Betrieb, Ort, Küche oder Stimmung …" value="${esc(state.query||'')}"><button type="button" data-search-clear aria-label="Suche leeren">×</button></div></div>
+      <div class="consumer-filter-block journey-filter-block"><div class="consumer-filter-head"><b>Was passt heute?</b><small>horizontal wischen</small></div><div class="consumer-chips">${discoverIntentChips23()}</div></div>
+      <div class="filterline journey-service-filter">${[['all','Alle'],['reservation','Reservierbar'],['pickup','Abholung'],['delivery','Lieferung']].map(([k,l])=>`<button class="${state.service===k?'active':''}" data-filter="${k}">${l}</button>`).join('')}</div>
+      ${active.length?`<div class="active-filter journey-active"><span>${esc(active.join(' · '))}</span><button data-consumer-reset>Zurücksetzen</button></div>`:''}
+      <div class="journey-result-toolbar"><div><strong data-result-count>${r.list.length}</strong><span>${r.list.length===1?'Ort passt':'Orte passen'}</span></div><div class="journey-view-toggle"><button class="active" aria-current="page">Liste</button><button data-view-switch="map">Karte</button></div></div>
+      <div class="list journey-results" data-journey-results>${r.html}</div></section>`;
+  };
+
+  mapView=function(){
+    const rows=filtered().filter(p=>Number.isFinite(Number(p.latitude))&&Number.isFinite(Number(p.longitude)));
+    const active=activeSummary23();
+    const zones=areas23();
+    return `<section class="journey-map-view"><div class="head journey-map-head"><div class="head-top"><div class="eyebrow">KARTE</div><button class="round" data-view-switch="discover" aria-label="Zur Liste">${icons.compass}</button></div><h1>${active.length?'Deine Auswahl.':'Rund ums Mar Menor.'}</h1><p>${active.length?`${rows.length} Kartenpunkte passen zu deinen aktuellen Filtern.`:`${rows.length} veröffentlichte Orte mit geprüfter Standortangabe.`}</p>${active.length?`<div class="journey-map-active"><span>${esc(active.join(' · '))}</span><button data-consumer-reset data-reset-to-discover>Filter löschen</button></div>`:''}</div>
+      <div class="hoy-map-shell journey-map-shell"><div class="journey-map-toolbar"><div><strong>${rows.length}</strong><span>${rows.length===1?'Ort auf der Karte':'Orte auf der Karte'}</span></div><div class="journey-view-toggle"><button data-view-switch="discover">Liste</button><button class="active" aria-current="page">Karte</button></div></div><div id="hoyMap" class="hoy-map" aria-label="Interaktive Karte der HOY-Betriebe"></div><div class="journey-map-note">Jeder Kartenpunkt basiert auf einer geprüften öffentlichen Standortangabe. Im Profil siehst du den jeweiligen Genauigkeits- und Quellenstatus.</div><div class="map-zone-strip">${zones.map(x=>`<button data-map-zone="${esc(x.area)}">${esc(area23(x.area))} · ${x.count}</button>`).join('')}</div></div></section>`;
+  };
+
+  function decorateInlineResults23(root=document){
+    root.querySelectorAll('.list-card[data-open]').forEach(card=>{
+      const id=Number(card.dataset.open);
+      if(SHOWCASE_23.has(id))card.classList.add('showcase-list-card');
+    });
+  }
+  function bindInlineResults23(root){
+    decorateInlineResults23(root);
+    root.querySelectorAll('[data-fav]').forEach(b=>b.onclick=e=>{e.stopPropagation();setFav(Number(b.dataset.fav))});
+    root.querySelectorAll('[data-open]').forEach(b=>b.onclick=e=>{if(!e.target.closest('[data-fav]'))openDetail(Number(b.dataset.open))});
+    root.querySelectorAll('[data-consumer-reset]').forEach(b=>b.onclick=()=>{state.query='';state.service='all';state.decision='all';render()});
+  }
+  function refreshDiscover23(){
+    const root=document.querySelector('[data-journey-results]');
+    if(!root||state.view!=='discover')return;
+    const r=resultMarkup23();
+    root.innerHTML=r.html;
+    const count=document.querySelector('[data-result-count]');if(count)count.textContent=r.list.length;
+    bindInlineResults23(root);
+  }
+
+  const baseWire23=wire;
+  wire=function(){
+    baseWire23();
+    document.querySelectorAll('[data-view-switch]').forEach(b=>b.onclick=()=>nav(b.dataset.viewSwitch));
+    document.querySelectorAll('[data-journey-area]').forEach(b=>b.onclick=()=>{state.query=b.dataset.journeyArea;state.service='all';state.decision='all';nav('discover')});
+    const clear=document.querySelector('[data-search-clear]');
+    if(clear)clear.onclick=()=>{state.query='';const q=document.getElementById('q');if(q){q.value='';q.focus()}refreshDiscover23()};
+    const q=document.getElementById('q');
+    if(q&&state.view==='discover'){
+      q.oninput=e=>{state.query=e.target.value;refreshDiscover23()};
+      q.onkeydown=e=>{if(e.key==='Escape'){state.query='';q.value='';refreshDiscover23()}else if(e.key==='Enter'){e.preventDefault();refreshDiscover23()}};
+    }
+    document.querySelectorAll('[data-reset-to-discover]').forEach(b=>b.onclick=()=>{state.query='';state.service='all';state.decision='all';nav('discover')});
+    bindInlineResults23(document);
+  };
+})();
