@@ -1,4 +1,4 @@
-/* HOY 2.12 — premium guest profile orchestration: emotional hero, concise identity and calm navigation */
+/* HOY 2.12.1 — premium guest profile orchestration: emotional hero, concise identity and deterministic menu navigation */
 (function(){
   const text=(v)=>String(v||'').trim();
 
@@ -32,6 +32,61 @@
     },{root:d,rootMargin:'-82px 0px -58% 0px',threshold:[0,.08,.2,.45]});
     sections.forEach(s=>observer.observe(s));
     d._hoyProfileObserver=observer;
+  }
+
+  function ensureMenuCategoryNav(d){
+    const section=d?.querySelector('#profile-menu');
+    const panel=section?.querySelector('.menu-panel');
+    if(!section||!panel)return false;
+    if(panel.querySelector('.menu-category-nav'))return true;
+    const cats=[...panel.querySelectorAll('.menu-cat')];
+    if(cats.length<2)return false;
+
+    const nav=document.createElement('nav');
+    nav.className='menu-category-nav';
+    nav.setAttribute('aria-label','Speisekarten-Kategorien');
+    for(const cat of cats){
+      const title=text(cat.querySelector('h4')?.textContent);
+      if(!title)continue;
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.textContent=title;
+      btn.addEventListener('click',()=>cat.scrollIntoView({behavior:'smooth',block:'start'}));
+      nav.appendChild(btn);
+    }
+    if(!nav.children.length)return false;
+
+    const meta=panel.querySelector('.menu-result-meta');
+    const input=panel.querySelector('input.menu-search,[data-menu-search]');
+    if(meta)meta.insertAdjacentElement('afterend',nav);
+    else if(input)input.insertAdjacentElement('afterend',nav);
+    else panel.prepend(nav);
+    return true;
+  }
+
+  function keepMenuNavigationDeterministic(d){
+    d._hoyMenuNavObserver?.disconnect?.();
+    const section=d?.querySelector('#profile-menu');
+    if(!section)return;
+    if(ensureMenuCategoryNav(d))return;
+
+    const observer=new MutationObserver(()=>{
+      if(ensureMenuCategoryNav(d)){
+        observer.disconnect();
+        if(d._hoyMenuNavObserver===observer)d._hoyMenuNavObserver=null;
+      }
+    });
+    observer.observe(section,{childList:true,subtree:true});
+    d._hoyMenuNavObserver=observer;
+
+    queueMicrotask(()=>ensureMenuCategoryNav(d));
+    requestAnimationFrame(()=>ensureMenuCategoryNav(d));
+    setTimeout(()=>ensureMenuCategoryNav(d),250);
+    setTimeout(()=>{
+      ensureMenuCategoryNav(d);
+      observer.disconnect();
+      if(d._hoyMenuNavObserver===observer)d._hoyMenuNavObserver=null;
+    },5000);
   }
 
   function enhanceProfile(p,d){
@@ -105,6 +160,7 @@
     }
 
     serviceSummary?.remove();
+    keepMenuNavigationDeterministic(d);
   }
 
   const baseOpenDetail212=openDetail;
