@@ -1,11 +1,25 @@
-/* HOY 2.13 — profile media hierarchy: approved venue imagery first, clearly labelled regional fallback otherwise */
+/* HOY 2.13.1 — profile media hierarchy: approved venue imagery first, clearly labelled regional fallback otherwise */
 (function(){
   const AUTHENTIC_KINDS=new Set(['operator','venue']);
 
-  function contextName(m){
+  function contextName(p,m){
+    const area=String(p?.area||'').trim();
+    if(area)return area;
     const label=String(m?.label||'').trim();
     const parts=label.split('·').map(x=>x.trim()).filter(Boolean);
     return parts[1]||parts[0]||'Region';
+  }
+
+  function setVisibleMark(art,kicker,label,title=''){
+    let mark=art.querySelector('.showcase-mark');
+    if(!mark){
+      mark=document.createElement('div');
+      mark.className='showcase-mark';
+      art.appendChild(mark);
+    }
+    mark.classList.add('profile-media-mark');
+    mark.innerHTML=`<span>${esc(kicker)}</span>${esc(label)}`;
+    if(title)mark.setAttribute('title',title);else mark.removeAttribute('title');
   }
 
   function enhanceProfileMedia(p,d){
@@ -19,15 +33,22 @@
     art.dataset.mediaKind=m.kind||'unknown';
 
     const badge=art.querySelector('.media-badge');
-    if(!badge)return;
-    badge.classList.add('profile-media-badge');
+    if(badge){
+      badge.classList.add('profile-media-badge');
+      badge.setAttribute('aria-hidden','true');
+    }
+
     if(m.kind==='operator'){
-      badge.textContent='BETREIBERBILD · FREIGEGEBEN';
+      if(badge)badge.textContent='BETREIBERBILD · FREIGEGEBEN';
+      setVisibleMark(art,'BETREIBERBILD','FREIGEGEBEN');
     }else if(m.kind==='venue'){
-      badge.textContent='OBJEKTFOTO · FREIE QUELLE';
+      if(badge)badge.textContent='OBJEKTFOTO · FREIE QUELLE';
+      setVisibleMark(art,'OBJEKTFOTO','FREIE QUELLE');
     }else{
-      badge.textContent=`UMGEBUNG · ${contextName(m).toUpperCase()}`;
-      badge.setAttribute('title','Dieses frei nutzbare Bild zeigt die Umgebung, nicht zwingend den konkreten Betrieb.');
+      const place=contextName(p,m).toUpperCase();
+      const title='Dieses frei nutzbare Bild zeigt die Umgebung, nicht zwingend den konkreten Betrieb.';
+      if(badge){badge.textContent=`UMGEBUNG · ${place}`;badge.setAttribute('title',title)}
+      setVisibleMark(art,'UMGEBUNG',place,title);
     }
   }
 
