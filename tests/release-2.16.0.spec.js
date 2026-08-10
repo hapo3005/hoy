@@ -82,6 +82,16 @@ test('one published event is reused across home, discover, map and profile witho
   await expect(current).toContainText('Vom Betrieb veröffentlicht');
   await expect(current).not.toContainText('Heute vom Betrieb bestätigt');
 
+  const profileNav = detail.locator('.profile-premium-nav');
+  const navLinks = profileNav.locator('a');
+  await expect(navLinks).toHaveCount(4);
+  const navTops = await navLinks.evaluateAll(links => links.map(link => Math.round(link.getBoundingClientRect().top)));
+  expect(Math.max(...navTops) - Math.min(...navTops)).toBeLessThanOrEqual(1);
+
+  await profileNav.locator('a[href="#profile-current"]').click();
+  await expect(current).toBeInViewport({ ratio: 0.35 });
+  await page.waitForTimeout(250);
+
   await page.screenshot({
     path: path.join(SCREEN_DIR, `${testInfo.project.name}-event-profile-journey.png`),
     fullPage: false
