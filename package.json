@@ -1,0 +1,12 @@
+{
+  "name": "hoy-la-manga",
+  "version": "2.8.0",
+  "private": true,
+  "scripts": {
+    "qa:e2e": "playwright test",
+    "qa:e2e:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.0"
+  }
+}
