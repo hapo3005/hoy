@@ -71,6 +71,7 @@ test('an approved paid highlight is explicitly sponsored across the guest journe
   await mockCurrent(page, [fixturePromotion()]);
   await page.goto('./', { waitUntil: 'domcontentloaded' });
 
+  await expect.poll(() => page.evaluate(() => window.hoyPromotionSummary?.().eligible ?? -1), { timeout: 20_000 }).toBe(1);
   const highlight = page.locator('.hoy-promo-highlight');
   await expect(highlight).toBeVisible({ timeout: 20_000 });
   await expect(highlight).toContainText('HOY HIGHLIGHT');
@@ -116,12 +117,14 @@ test('unpaid or not-yet-started promotion rows never become guest advertising', 
   await page.goto('./', { waitUntil: 'domcontentloaded' });
 
   await expect(page.locator('.hoy-today-strip')).toBeVisible({ timeout: 20_000 });
+  await expect.poll(() => page.evaluate(() => window.hoyPromotionSummary?.().eligible ?? -1), { timeout: 20_000 }).toBe(0);
   await expect(page.locator('.hoy-promo-highlight')).toHaveCount(0);
   await expect(page.locator('.hoy-sponsored-chip')).toHaveCount(0);
 
   await openDiscoverForVenue(page);
   const card = page.locator('.list-card[data-open="1"]');
-  await expect(card).toContainText('Sunset Session');
+  await expect(card).toContainText('Live-Musik');
+  await expect(card).toContainText('Laut Termin');
   await expect(card.locator('.hoy-sponsored-chip')).toHaveCount(0);
 });
 
@@ -129,9 +132,9 @@ test('2.17 promotion assets are real PWA resources and the Control Center loads 
   const pkg = await request.get('./package.json');
   expect(pkg.ok()).toBeTruthy();
   const { version } = await pkg.json();
-  expect(version).toBe('2.17.0');
+  expect(version).toBe('2.17.1');
 
-  for (const asset of ['./promotion-2.17.js', './promotion-2.17.css', './admin-promotion-2.17.js', './admin-promotion-2.17.css']) {
+  for (const asset of ['./promotion-2.17.1.js', './promotion-2.17.css', './admin-promotion-2.17.js', './admin-promotion-2.17.css']) {
     const res = await request.get(asset);
     expect(res.ok(), `${asset} should load`).toBeTruthy();
     expect((res.headers()['content-type'] || '')).not.toMatch(/text\/html/i);
@@ -139,8 +142,8 @@ test('2.17 promotion assets are real PWA resources and the Control Center loads 
 
   const worker = await request.get('./service-worker.js');
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.17.0'");
-  expect(workerText).toContain('./promotion-2.17.js');
+  expect(workerText).toContain("const CACHE='hoy-v2.17.1'");
+  expect(workerText).toContain('./promotion-2.17.1.js');
   expect(workerText).toContain('./promotion-2.17.css');
 
   const errors = [];
