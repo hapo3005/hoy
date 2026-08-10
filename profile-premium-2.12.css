@@ -1,4 +1,4 @@
-/* HOY 2.12 — premium hospitality profile: emotional hero, editorial identity sheet and calm navigation */
+/* HOY 2.12.2 — premium hospitality profile: emotional hero, editorial identity sheet and calm navigation */
 
 /* Hero image gets room to sell the place before UI begins. */
 #detail.profile-premium .detail-art{
@@ -110,9 +110,10 @@
   border-radius:0;
   background:transparent;
   box-shadow:none;
+  grid-column:auto;
 }
 #detail.profile-premium .profile-quick-snapshot .showcase-mini:first-child{padding-left:0;border-left:0}
-#detail.profile-premium .profile-quick-snapshot .showcase-mini:last-child{padding-right:0}
+#detail.profile-premium .profile-quick-snapshot .showcase-mini:last-child{padding-right:0;grid-column:auto}
 #detail.profile-premium .profile-quick-snapshot .showcase-mini small{
   display:block;
   margin:0 0 4px;
