@@ -1,7 +1,14 @@
-/* HOY 2.9.2 — guest QA fixes: keyboard access, live-search stability, synchronous focus return and map copy */
+/* HOY 2.12.3 — guest QA fixes: keyboard access, pointer-aware dialog focus, live-search stability and map copy */
 (function(){
   let searchTimer=null;
   let mapObserver=null;
+  let keyboardModality=false;
+
+  document.addEventListener('pointerdown',()=>{keyboardModality=false},{capture:true,passive:true});
+  document.addEventListener('keydown',e=>{
+    if(e.metaKey||e.ctrlKey||e.altKey)return;
+    keyboardModality=true;
+  },{capture:true});
 
   function restaurantFor(el){
     const id=Number(el?.dataset?.open);
@@ -146,8 +153,9 @@
   const baseOpenDetail24=openDetail;
   openDetail=function(id){
     const trigger=document.activeElement;
-    const returnFocusId=trigger?.matches?.('.qa-keyboard-card[data-open]')?Number(trigger.dataset.open)||null:null;
-    const returnMapEl=trigger?.matches?.('[data-map-open]')?trigger:null;
+    const keyboardOpen=keyboardModality;
+    const returnFocusId=keyboardOpen&&trigger?.matches?.('.qa-keyboard-card[data-open]')?Number(trigger.dataset.open)||null:null;
+    const returnMapEl=keyboardOpen&&trigger?.matches?.('[data-map-open]')?trigger:null;
     baseOpenDetail24(id);
     const p=DATA.find(x=>Number(x.id)===Number(id));
     const d=document.getElementById('detail');if(!p||!d)return;
