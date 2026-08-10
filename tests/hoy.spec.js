@@ -100,16 +100,22 @@ test('restaurant profile opens with premium hero hierarchy and calm primary navi
     const body = el.querySelector('.detail-body');
     const visibleActions = [...el.querySelectorAll('.profile-quick-actions > a,.profile-quick-actions > button')]
       .filter(node => getComputedStyle(node).display !== 'none');
+    const miniTops = [...el.querySelectorAll('.profile-quick-snapshot .showcase-mini')]
+      .map(node => node.getBoundingClientRect().top);
     return {
       heroHeight: art?.getBoundingClientRect().height || 0,
       bodyMarginTop: Number.parseFloat(getComputedStyle(body).marginTop || '0'),
-      visibleActionCount: visibleActions.length
+      visibleActionCount: visibleActions.length,
+      snapshotCount: miniTops.length,
+      snapshotTopSpread: miniTops.length ? Math.max(...miniTops) - Math.min(...miniTops) : 999
     };
   });
 
   expect(metrics.heroHeight).toBeGreaterThanOrEqual(330);
   expect(metrics.bodyMarginTop).toBeLessThan(0);
   expect(metrics.visibleActionCount).toBe(3);
+  expect(metrics.snapshotCount).toBe(3);
+  expect(metrics.snapshotTopSpread).toBeLessThanOrEqual(2);
 
   await screenshot(page, testInfo, 'premium-profile-header');
   expect(errors).toEqual([]);
@@ -177,7 +183,7 @@ test('keyboard users can open and close a restaurant profile with focus return',
   expect(errors).toEqual([]);
 });
 
-test('PWA core endpoints return real HOY 2.12.1 assets instead of an HTML fallback', async ({ request }) => {
+test('PWA core endpoints return real HOY 2.12.2 assets instead of an HTML fallback', async ({ request }) => {
   const manifest = await request.get('./manifest.webmanifest');
   expect(manifest.ok()).toBeTruthy();
   expect(manifest.headers()['content-type'] || '').toMatch(/json|manifest/i);
@@ -185,7 +191,7 @@ test('PWA core endpoints return real HOY 2.12.1 assets instead of an HTML fallba
   const worker = await request.get('./service-worker.js');
   expect(worker.ok()).toBeTruthy();
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.12.1'");
+  expect(workerText).toContain("const CACHE='hoy-v2.12.2'");
   expect(workerText).toContain('profile-flow-2.7.js');
   expect(workerText).toContain('operator-cockpit-2.10.js');
   expect(workerText).toContain('profile-design-2.11.css');
