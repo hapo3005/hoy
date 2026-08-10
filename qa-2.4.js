@@ -111,15 +111,16 @@
   const baseOpenDetail24=openDetail;
   openDetail=function(id){
     const trigger=document.activeElement;
+    const returnFocus=trigger?.matches?.('.qa-keyboard-card,[data-map-open]')?trigger:null;
     baseOpenDetail24(id);
     const p=DATA.find(x=>Number(x.id)===Number(id));
     const d=document.getElementById('detail');if(!p||!d)return;
     d.setAttribute('aria-label',`${p.name} auf HOY`);
     const close=d.querySelector('[data-close]');
     close?.setAttribute('aria-label','Profil schließen');
-    if(trigger?.matches?.('.qa-keyboard-card,[data-map-open]'))setTimeout(()=>close?.focus(),0);
+    if(returnFocus)setTimeout(()=>close?.focus(),0);
     d.addEventListener('close',()=>{
-      if(trigger&&trigger.isConnected&&typeof trigger.focus==='function')trigger.focus({preventScroll:true});
+      if(returnFocus&&returnFocus.isConnected&&typeof returnFocus.focus==='function')returnFocus.focus({preventScroll:true});
     },{once:true});
   };
 })();
