@@ -1,8 +1,11 @@
-/* HOY 2.13 — signature localized menu + honest profile media hierarchy */
+/* HOY 2.13.1 — signature localized menu + honest profile media hierarchy */
 
-/* Media hierarchy: exact venue/operator imagery gets premium treatment; regional fallbacks stay clearly contextual. */
-#detail.profile-premium .profile-media-badge{left:16px;right:auto;bottom:15px;max-width:calc(100% - 32px);padding:7px 10px;border:1px solid rgba(255,255,255,.38);border-radius:999px;background:rgba(5,31,51,.72);backdrop-filter:blur(9px);color:#fff;font-size:7.5px;font-weight:900;letter-spacing:.085em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 8px 22px rgba(4,25,43,.14)}
-#detail.profile-hero-authentic .profile-media-badge{background:rgba(28,83,63,.82)}
+/* Media hierarchy: one visible label only. Exact venue/operator imagery gets premium treatment; regional fallbacks stay clearly contextual. */
+#detail.profile-premium .detail-art>.media-badge{display:none!important}
+#detail.profile-premium .profile-media-mark{left:18px;right:auto;top:auto;bottom:20px;display:inline-flex;align-items:center;gap:8px;max-width:calc(100% - 36px);padding:6px 10px 6px 6px;border:1px solid rgba(255,255,255,.50);border-radius:999px;background:rgba(6,42,73,.62);backdrop-filter:blur(12px);color:#fff;font-size:9px;font-weight:900;letter-spacing:.055em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 8px 22px rgba(4,25,43,.14)}
+#detail.profile-premium .profile-media-mark span{flex:0 0 auto;display:inline-flex;align-items:center;min-height:26px;padding:5px 8px;border-radius:999px;background:rgba(5,31,51,.92);color:#fff;font-size:7.5px;font-weight:950;letter-spacing:.10em}
+#detail.profile-hero-authentic .profile-media-mark{background:rgba(28,83,63,.76)}
+#detail.profile-hero-authentic .profile-media-mark span{background:rgba(25,104,73,.94)}
 #detail.profile-hero-context .detail-art .media-photo{filter:saturate(.9) contrast(.97)}
 #detail.profile-hero-context .detail-art:after{background:linear-gradient(180deg,rgba(4,27,45,.12) 0%,rgba(4,27,45,.01) 42%,rgba(4,27,45,.10) 68%,rgba(4,27,45,.54) 100%)}
 
