@@ -1,4 +1,4 @@
-/* HOY 2.9 — private operator menu intake + async Sol Pro Max extraction polling */
+/* HOY 2.9.1 — private operator menu intake + API-native high-precision async extraction polling */
 (function(){
   const MAX_BYTES=25*1024*1024;
   const MIME_OK=new Set(['application/pdf','image/jpeg','image/png','image/webp']);
@@ -6,8 +6,8 @@
 
   function paidPlan(p){return ['pro','business'].includes(String(p?.active_plan||''))}
   function publicationMode(p){return paidPlan(p)?'operator_live':'hoy_review'}
-  function statusText(v){return ({uploaded:'Sicher hochgeladen',queued:'Zur Strukturierung vorgemerkt',processing:'Wird mit Sol Pro strukturiert',review_required:'HOY-Prüfung nötig',operator_review:'Zur Betreiberprüfung bereit',approved:'Freigegeben',rejected:'Abgelehnt',published:'Veröffentlicht',failed:'Verarbeitung fehlgeschlagen'})[v]||v||'Neu'}
-  function processorText(v){return ({not_started:'Noch nicht gestartet',queued:'In Warteschlange',extracting:'Sol Pro Max arbeitet',structured:'Strukturierter Entwurf',needs_review:'Prüfung erforderlich',failed:'Fehlgeschlagen'})[v]||v||''}
+  function statusText(v){return ({uploaded:'Sicher hochgeladen',queued:'Zur Strukturierung vorgemerkt',processing:'Wird hochpräzise strukturiert',review_required:'HOY-Prüfung nötig',operator_review:'Zur Betreiberprüfung bereit',approved:'Freigegeben',rejected:'Abgelehnt',published:'Veröffentlicht',failed:'Verarbeitung fehlgeschlagen'})[v]||v||'Neu'}
+  function processorText(v){return ({not_started:'Noch nicht gestartet',queued:'In Warteschlange',extracting:'Hochpräzisionsmodus arbeitet',structured:'Strukturierter Entwurf',needs_review:'Prüfung erforderlich',failed:'Fehlgeschlagen'})[v]||v||''}
   function sourceText(v){return v==='upload'?'Datei':v==='official_url'?'Offizieller Link':'Direkteingabe'}
   function dateText(v){try{return new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(v))}catch{return ''}}
   function safeName(name){
@@ -43,7 +43,7 @@
     const paid=paidPlan(p);const latest=intakeState.restaurantId===Number(p.id)?intakeState.rows[0]:null;
     return `<section class="menu-intake-owner-card ${paid?'paid':'free'}">
       <div class="menu-intake-owner-head"><div><small>SPEISEKARTE</small><h3>Aus Bild, PDF oder Link wird eine HOY-Karte.</h3></div><span>${paid?esc(String(p.active_plan).toUpperCase()):'FREE'}</span></div>
-      <p>${paid?'Du kannst neue Karten selbst einreichen. GPT-5.6 Sol Pro Max erzeugt daraus einen strukturierten Entwurf; veröffentlicht wird erst nach Prüfung und Bestätigung.':'Du kannst deine Karte kostenlos zur HOY-Prüfung einreichen. GPT-5.6 Sol Pro Max strukturiert die Quelle; Pro/Business ergänzt den laufenden Self-Service.'}</p>
+      <p>${paid?'Du kannst neue Karten selbst einreichen. Der HOY-Hochpräzisionsmodus erzeugt daraus einen strukturierten Entwurf; veröffentlicht wird erst nach Prüfung und Bestätigung.':'Du kannst deine Karte kostenlos zur HOY-Prüfung einreichen. Der HOY-Hochpräzisionsmodus strukturiert die Quelle; Pro/Business ergänzt den laufenden Self-Service.'}</p>
       ${latest?`<div class="menu-intake-latest"><b>${esc(statusText(latest.status))}</b><small>${esc(latest.processor_note||processorText(latest.processor_state))}</small></div>`:''}
       <button class="primary" type="button" data-menu-intake-open>${paid?'Speisekarte verwalten':'Speisekarte einreichen'}</button>
     </section>`;
@@ -66,8 +66,8 @@
     d.innerHTML=`<div class="menu-intake-flow">
       <div class="claim-head"><button class="round" data-menu-intake-close>${icons.back}</button><span class="claim-step">${paid?'PRO · LIVE-KARTE':'FREE · HOY-PRÜFUNG'}</span></div>
       <h2>Speisekarte von ${esc(p.name)}</h2>
-      <p class="claim-lead">Originalquelle sichern → GPT-5.6 Sol Pro Max strukturiert asynchron → Entwurf prüfen → erst dann veröffentlichen. HOY übernimmt niemals ungeprüfte Modellresultate direkt in die Gastkarte.</p>
-      ${pending?`<div class="menu-intake-latest"><b>Sol Pro Max arbeitet im Hintergrund</b><small>${esc(pending.processor_note||'Die Karte wird strukturiert. Du kannst diese Ansicht schließen; beim nächsten Öffnen wird der aktuelle Stand geladen.')}</small></div>`:''}
+      <p class="claim-lead">Originalquelle sichern → HOY strukturiert asynchron im Hochpräzisionsmodus → Entwurf prüfen → erst dann veröffentlichen. HOY übernimmt niemals ungeprüfte Modellresultate direkt in die Gastkarte.</p>
+      ${pending?`<div class="menu-intake-latest"><b>HOY strukturiert im Hintergrund</b><small>${esc(pending.processor_note||'Die Karte wird strukturiert. Du kannst diese Ansicht schließen; beim nächsten Öffnen wird der aktuelle Stand geladen.')}</small></div>`:''}
       <div class="menu-intake-methods">
         <section><small>PDF / FOTO</small><h3>Datei hochladen</h3><p>PDF, JPG, PNG oder WebP · maximal 25 MB. Die Datei bleibt privat; für die Verarbeitung wird nur ein kurzlebiger Zugriff erzeugt.</p><input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" data-menu-file><button data-menu-upload>Datei sicher einreichen</button></section>
         <section><small>BETREIBERQUELLE</small><h3>Offiziellen Link einreichen</h3><p>Für eine aktuelle Karte auf deiner eigenen Website oder deinem offiziellen Menüsystem.</p><input type="url" data-menu-url placeholder="https://…"><button data-menu-url-submit>Link prüfen lassen</button></section>
@@ -132,7 +132,7 @@
       if(uploadError)throw uploadError;
       const {data:row,error:insertError}=await sb.from('menu_intake_submissions').insert({...base,source_kind:'upload',storage_bucket:'menu-intake',storage_path:storagePath,original_filename:file.name,mime_type:file.type,byte_size:file.size,status:'uploaded',processor_state:'not_started'}).select('id').single();
       if(insertError)throw insertError;
-      await invokeProcessor(row.id);intakeState.pollDelay=2500;await loadRows(p,true);toast('Speisekarte sicher eingereicht · Sol Pro Max gestartet');openDialog(p);
+      await invokeProcessor(row.id);intakeState.pollDelay=2500;await loadRows(p,true);toast('Speisekarte sicher eingereicht · Hochpräzisionsmodus gestartet');openDialog(p);
     }catch(err){console.error(err);toast(err?.message||'Upload fehlgeschlagen');btn.disabled=false;btn.textContent='Datei sicher einreichen'}
   }
 
@@ -143,7 +143,7 @@
       if(!/^https:\/\//i.test(url))throw new Error('Bitte einen vollständigen https-Link eintragen.');
       btn.disabled=true;btn.textContent='Wird eingereicht …';
       const {data:row,error}=await sb.from('menu_intake_submissions').insert({...base,source_kind:'official_url',source_url:url,status:'uploaded',processor_state:'not_started'}).select('id').single();
-      if(error)throw error;await invokeProcessor(row.id);intakeState.pollDelay=2500;await loadRows(p,true);toast('Menülink eingereicht · Sol Pro Max gestartet');openDialog(p);
+      if(error)throw error;await invokeProcessor(row.id);intakeState.pollDelay=2500;await loadRows(p,true);toast('Menülink eingereicht · Hochpräzisionsmodus gestartet');openDialog(p);
     }catch(err){console.error(err);toast(err?.message||'Einreichung fehlgeschlagen');btn.disabled=false;btn.textContent='Link prüfen lassen'}
   }
 
