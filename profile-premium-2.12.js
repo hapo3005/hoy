@@ -1,4 +1,4 @@
-/* HOY 2.13.4 — premium guest profile orchestration: emotional hero, concise identity and refresh-safe navigation */
+/* HOY 2.13.5 — premium guest profile orchestration: emotional hero, concise identity and refresh-safe navigation */
 (function(){
   const text=(v)=>String(v||'').trim();
 
@@ -176,10 +176,9 @@
     const id=Number(e.detail?.restaurantId||0);
     if(!d?.open||!d.classList.contains('profile-premium')||Number(d.dataset.restaurantId||0)!==id)return;
     const nav=d.querySelector('.profile-premium-nav');
-    if(nav){
-      setActiveNav(nav,'#profile-menu');
-      wireSectionSpy(d,nav);
-    }
+    // A data refresh must never move the user's navigation state. Preserve the current active section and
+    // let the section spy change it only when the user's actual scroll position warrants it.
+    if(nav)wireSectionSpy(d,nav);
     keepMenuNavigationDeterministic(d);
   });
 })();

@@ -74,3 +74,19 @@ test('premium sticky navigation fully covers menu content and category rail sign
     fullPage: false
   });
 });
+
+test('background menu refresh preserves the active profile section at the top', async ({ page }) => {
+  const dialog = await openAguaSala(page);
+  await expect(dialog.locator('.profile-premium-nav a.active')).toContainText(/Überblick/i);
+
+  await page.evaluate(() => {
+    const d=document.querySelector('#detail[open]');
+    window.dispatchEvent(new CustomEvent('hoy:profile-menu-refreshed',{
+      detail:{restaurantId:Number(d?.dataset.restaurantId||0),qa:true}
+    }));
+  });
+
+  await expect(dialog.locator('.profile-premium-nav a.active')).toContainText(/Überblick/i);
+  await page.waitForTimeout(750);
+  await expect(dialog.locator('.profile-premium-nav a.active')).toContainText(/Überblick/i);
+});
