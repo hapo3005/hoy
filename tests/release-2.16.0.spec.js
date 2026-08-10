@@ -53,6 +53,10 @@ test('one published event is reused across home, discover, map and profile witho
   await expect(today).toBeVisible({ timeout: 20_000 });
   await expect(today).toContainText('Sunset Session');
   await expect(today).toContainText(/Laut Termin · jetzt/i);
+  await page.screenshot({
+    path: path.join(SCREEN_DIR, `${testInfo.project.name}-event-home-journey.png`),
+    fullPage: false
+  });
 
   await openDiscoverForVenue(page);
   const listSignal = page.locator('.list-card[data-open="1"] .hoy-current-signal');
@@ -60,7 +64,7 @@ test('one published event is reused across home, discover, map and profile witho
   await expect(listSignal).toContainText(/Live-Musik/i);
   await expect(listSignal).toContainText(/Laut Termin · jetzt/i);
 
-  await page.locator('[data-view-switch="map"]').click();
+  await page.locator('.journey-view-toggle [data-view-switch="map"]').click();
   const map = page.locator('.map-journey-signature');
   await expect(map.locator('#hoyMap')).toHaveClass(/leaflet-container/, { timeout: 20_000 });
   const mapCard = map.locator('.map-decision-card[data-map-card="1"]');
