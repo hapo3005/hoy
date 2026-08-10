@@ -172,6 +172,7 @@ test('localized menu presents the HOY language promise and editorial browsing co
   await expect(section).toHaveAttribute('data-menu-locale', 'de');
   await expect(section.locator('.menu-signature-promise')).toContainText(/Für dich auf Deutsch/i);
   await expect(section.locator('.menu-signature-categories')).toBeVisible();
+  await expect(dialog.locator('.profile-premium-nav a.active')).toContainText(/Speisekarte/i);
 
   const expand = section.locator('[data-menu-expand]');
   if (await expand.count() && await expand.getAttribute('aria-expanded') === 'false') await expand.click();
@@ -202,6 +203,7 @@ test('restaurant profile has no horizontal page overflow while menu categories s
     const body = el.querySelector('.detail-body');
     const primary = el.querySelector('.profile-anchor-nav');
     const category = el.querySelector('.menu-category-nav');
+    const firstCat = el.querySelector('.menu-signature .menu-cat');
     const er = el.getBoundingClientRect();
     const pr = primary?.getBoundingClientRect();
     const cr = category?.getBoundingClientRect();
@@ -214,7 +216,8 @@ test('restaurant profile has no horizontal page overflow while menu categories s
       documentScrollWidth: document.documentElement.scrollWidth,
       primaryContained: !pr || (pr.left >= er.left - 1 && pr.right <= er.right + 1),
       categoryContained: !cr || (cr.left >= er.left - 1 && cr.right <= er.right + 1),
-      categoryOwnsOverflow: !category || category.scrollWidth >= category.clientWidth
+      categoryOwnsOverflow: !category || category.scrollWidth >= category.clientWidth,
+      categoryScrollMarginTop: firstCat ? Number.parseFloat(getComputedStyle(firstCat).scrollMarginTop || '0') : 0
     };
   });
 
@@ -224,6 +227,7 @@ test('restaurant profile has no horizontal page overflow while menu categories s
   expect(metrics.primaryContained).toBeTruthy();
   expect(metrics.categoryContained).toBeTruthy();
   expect(metrics.categoryOwnsOverflow).toBeTruthy();
+  expect(metrics.categoryScrollMarginTop).toBeGreaterThanOrEqual(120);
 
   await screenshot(page, testInfo, 'menu-layout-stability');
   expect(errors).toEqual([]);
@@ -250,7 +254,7 @@ test('keyboard users can open and close a restaurant profile with focus return',
   expect(errors).toEqual([]);
 });
 
-test('PWA core endpoints return real HOY 2.13.3 assets instead of an HTML fallback', async ({ request }) => {
+test('PWA core endpoints return real HOY 2.13.4 assets instead of an HTML fallback', async ({ request }) => {
   const manifest = await request.get('./manifest.webmanifest');
   expect(manifest.ok()).toBeTruthy();
   expect(manifest.headers()['content-type'] || '').toMatch(/json|manifest/i);
@@ -258,7 +262,7 @@ test('PWA core endpoints return real HOY 2.13.3 assets instead of an HTML fallba
   const worker = await request.get('./service-worker.js');
   expect(worker.ok()).toBeTruthy();
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.13.3'");
+  expect(workerText).toContain("const CACHE='hoy-v2.13.4'");
   expect(workerText).toContain('profile-flow-2.7.js');
   expect(workerText).toContain('operator-cockpit-2.10.js');
   expect(workerText).toContain('profile-design-2.11.css');
