@@ -6,7 +6,8 @@
   const safeDate=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||''))?String(v):'';
   const validTime=v=>/^([01]\d|2[0-3]):[0-5]\d$/.test(String(v||''));
   const pair=(a,b)=>validTime(a)&&validTime(b)?[a,b]:null;
-  const today=()=>todayISO();
+  const madridDateISO=(date=new Date())=>{const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date);const get=t=>parts.find(x=>x.type===t)?.value||'';return `${get('year')}-${get('month')}-${get('day')}`};
+  const today=()=>madridDateISO();
 
   function normalizeIntervals(v){
     if(!Array.isArray(v))return [];
@@ -54,7 +55,7 @@
     if(!sb)return;
     const from=today();
     const until=new Date();until.setDate(until.getDate()+60);
-    const untilISO=until.toISOString().slice(0,10);
+    const untilISO=madridDateISO(until);
     const [{data:h,error:he},{data:s,error:se}]=await Promise.all([
       sb.from('restaurant_live_hours').select('restaurant_id,timezone,weekly_hours,display_text,notice,notice_until,confirmed_at,updated_at'),
       sb.from('restaurant_special_hours').select('restaurant_id,service_date,intervals,is_closed,note,updated_at').gte('service_date',from).lte('service_date',untilISO)
