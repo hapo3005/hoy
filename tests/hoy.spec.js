@@ -253,7 +253,7 @@ test('keyboard users can open and close a restaurant profile with focus return',
   expect(errors).toEqual([]);
 });
 
-test('PWA core endpoints return real HOY 2.15.1 assets instead of an HTML fallback', async ({ request }) => {
+test('PWA core endpoints return real HOY 2.15.2 assets instead of an HTML fallback', async ({ request }) => {
   const manifest = await request.get('./manifest.webmanifest');
   expect(manifest.ok()).toBeTruthy();
   expect(manifest.headers()['content-type'] || '').toMatch(/json|manifest/i);
@@ -261,7 +261,7 @@ test('PWA core endpoints return real HOY 2.15.1 assets instead of an HTML fallba
   const worker = await request.get('./service-worker.js');
   expect(worker.ok()).toBeTruthy();
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.15.1'");
+  expect(workerText).toContain("const CACHE='hoy-v2.15.2'");
   expect(workerText).toContain('profile-flow-2.7.js');
   expect(workerText).toContain('operator-cockpit-2.10.js');
   expect(workerText).toContain('profile-design-2.11.css');
@@ -277,6 +277,7 @@ test('PWA core endpoints return real HOY 2.15.1 assets instead of an HTML fallba
   expect(workerText).toContain('journey-signature-2.14.js');
   expect(workerText).toContain('map-journey-2.15.css');
   expect(workerText).toContain('map-journey-2.15.js');
+  expect(workerText).toContain('cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js');
 });
 
 test('HOY Control Center login shell loads the operator review extension without script errors', async ({ page }) => {
