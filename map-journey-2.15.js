@@ -14,10 +14,19 @@
     return out.slice(0,2);
   }
 
+  function cardMedia215(p){
+    return String(mediaMarkup(p)||'')
+      .replace(/\bmedia-photo\b/g,'map-decision-photo')
+      .replace(/\bmedia-video\b/g,'map-decision-video')
+      .replace(/\bmedia-fallback\b/g,'map-decision-fallback')
+      .replace(/\bmedia-badge\b/g,'map-decision-badge');
+  }
+
   function compactCard215(p){
     const m=meta(p);
     const signals=mapSignals215(p);
-    return `<article class="map-decision-card" data-map-card="${p.id}" data-map-lat="${Number(p.latitude)}" data-map-lng="${Number(p.longitude)}" tabindex="0" role="button" aria-label="${esc(p.name)} auf der Karte zeigen"><div class="map-decision-media">${mediaMarkup(p)}</div><div class="map-decision-copy"><div><h3>${esc(p.name)}</h3>${m?`<p>${esc(m)}</p>`:''}</div><div class="map-decision-signals">${signals.map(s=>`<span>${esc(s)}</span>`).join('')||'<span class="muted">Basisprofil</span>'}</div><button type="button" data-map-profile="${p.id}">Profil ansehen</button></div></article>`;
+    const titleId=`map-card-title-${Number(p.id)}`;
+    return `<article class="map-decision-card" data-map-card="${p.id}" data-map-lat="${Number(p.latitude)}" data-map-lng="${Number(p.longitude)}" aria-labelledby="${titleId}"><div class="map-decision-media">${cardMedia215(p)}</div><div class="map-decision-copy"><div><h3 id="${titleId}">${esc(p.name)}</h3>${m?`<p>${esc(m)}</p>`:''}</div><div class="map-decision-signals">${signals.map(s=>`<span>${esc(s)}</span>`).join('')||'<span class="muted">Basisprofil</span>'}</div><div class="map-decision-actions"><button type="button" data-map-focus="${p.id}">Auf Karte zeigen</button><button type="button" data-map-profile="${p.id}">Profil ansehen</button></div></div></article>`;
   }
 
   function filterContext215(){
@@ -41,7 +50,7 @@
     const h1=head?.querySelector('h1');
     const intro=head?.querySelector('p');
     if(h1)h1.textContent=rows.length===1?'Dieser Ort. Genau hier.':'Sieh, was hier zu dir passt.';
-    if(intro)intro.textContent='Karte und Treffer arbeiten zusammen: Ort antippen, Kartenpunkt fokussieren und direkt ins Profil wechseln.';
+    if(intro)intro.textContent='Karte und Treffer arbeiten zusammen: Ort auf der Karte zeigen und von dort direkt ins Profil wechseln.';
 
     const mapShell=root.querySelector('.hoy-map-shell');
     const map=mapShell?.querySelector('#hoyMap');
@@ -115,11 +124,8 @@
   wire=function(){
     baseWire215();
     document.querySelectorAll('[data-map-list]').forEach(b=>b.onclick=()=>nav('discover'));
-    document.querySelectorAll('[data-map-profile]').forEach(b=>b.onclick=e=>{e.stopPropagation();openDetail(Number(b.dataset.mapProfile))});
-    document.querySelectorAll('.map-decision-card').forEach(card=>{
-      card.onclick=e=>{if(e.target.closest('[data-map-profile]'))return;focusMap215(card)};
-      card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();focusMap215(card)}};
-    });
+    document.querySelectorAll('[data-map-focus]').forEach(b=>b.onclick=()=>focusMap215(b.closest('.map-decision-card')));
+    document.querySelectorAll('[data-map-profile]').forEach(b=>b.onclick=()=>openDetail(Number(b.dataset.mapProfile)));
     if(document.getElementById('hoyMap'))setTimeout(bindMap215,180);
   };
 })();
