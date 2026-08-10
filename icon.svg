@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">HOY La Manga</title>
+  <desc id="desc">HOY App-Icon in Dunkelblau, Creme und Orange</desc>
+  <rect width="512" height="512" rx="112" fill="#062a49"/>
+  <circle cx="256" cy="256" r="192" fill="none" stroke="#f8f3e9" stroke-opacity=".08" stroke-width="2"/>
+  <text x="256" y="270" text-anchor="middle" fill="#f8f3e9" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="150" font-weight="800" letter-spacing="-10">HO<tspan fill="#ef5b0b">Y</tspan></text>
+  <text x="256" y="330" text-anchor="middle" fill="#f8f3e9" fill-opacity=".78" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24" font-weight="700" letter-spacing="8">LA MANGA</text>
+</svg>
