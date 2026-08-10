@@ -1,4 +1,4 @@
-/* HOY 2.6 — localized menus + honest menu-evidence states */
+/* HOY 2.13.3 — localized menus + honest menu-evidence states + menu-ready signal */
 (function(){
   const SUPPORTED_MENU_LOCALES=new Set(['de','en','es']);
   const baseMenuStatusLabel25=menuStatusLabel;
@@ -101,6 +101,8 @@
   loadCloudMenus=async function(){
     await baseLoadCloudMenus25();
     await applyLocalizedMenus();
+    const locale=SUPPORTED_MENU_LOCALES.has(state.lang)?state.lang:'de';
+    window.dispatchEvent(new CustomEvent('hoy:menus-ready',{detail:{locale,at:Date.now()}}));
   };
 
   menuStatusLabel=function(m){
