@@ -1,4 +1,4 @@
-/* HOY 2.0 — verified/address-geocoded Mar Menor venue map */
+/* HOY 2.0.1 — audited/address-geocoded Mar Menor venue map */
 (function(){
   let locationMeta=new Map();
   let activeMap=null;
@@ -14,13 +14,22 @@
   const mapVenueLabel=p=>MAP_VENUE_LABELS[p?.venue_type]||'Ort';
   const locationLabel=p=>{
     const m=locationMeta.get(Number(p.id));
+    if(m?.location_precision==='poi')return 'Benannter POI geprüft';
+    if(m?.location_precision==='address')return 'Geschäftsadresse exakt geprüft';
+    if(m?.location_precision==='venue_complex')return 'Betrieb im bestätigten Komplex';
+    if(m?.location_precision==='street')return 'Geschäftsadresse geprüft · Straßenlage';
+    if(m?.location_precision==='approximate')return 'Geschäftsadresse geprüft · Kartenpunkt adressbasiert';
     if(m?.location_status==='verified')return 'Standort geprüft';
-    if(m?.location_precision==='venue_complex')return 'Standort im Komplex';
-    return 'Adresslage geprüft';
+    return 'Standortangabe geprüft';
+  };
+  const sourceLink=p=>{
+    const m=locationMeta.get(Number(p.id));
+    if(!m?.location_source_url)return '';
+    return `<a href="${esc(m.location_source_url)}" target="_blank" rel="noopener">Quelle ↗</a>`;
   };
   async function loadLocationMeta(){
     if(!sb)return;
-    const {data,error}=await sb.from('restaurants').select('id,location_status,location_precision,location_checked_at').eq('is_published',true);
+    const {data,error}=await sb.from('restaurants').select('id,location_status,location_precision,location_checked_at,location_source_label,location_source_url,location_geocode_source').eq('is_published',true);
     if(error){console.warn('HOY location metadata unavailable',error);return}
     locationMeta=new Map((data||[]).map(x=>[Number(x.id),x]));
   }
@@ -49,30 +58,37 @@
   function popupHTML(group){
     const title=group.venues.length>1?`${group.venues.length} Orte an diesem Standort`:group.venues[0].name;
     const sub=group.venues.length>1?areaMapLabel(group.venues[0].area):`${mapVenueLabel(group.venues[0])} · ${areaMapLabel(group.venues[0].area)}`;
-    return `<div class="map-popup"><div class="map-popup-head"><b>${esc(title)}</b><span>${esc(sub)}</span></div><div class="map-popup-list">${group.venues.map(p=>`<div class="map-popup-venue"><b>${esc(p.name)}</b><small>${esc(mapVenueLabel(p))} · ${esc(p.address||areaMapLabel(p.area))}</small><div class="map-popup-actions"><span>${esc(locationLabel(p))}</span><button data-map-open="${p.id}">Profil ansehen</button></div></div>`).join('')}</div></div>`;
+    return `<div class="map-popup"><div class="map-popup-head"><b>${esc(title)}</b><span>${esc(sub)}</span></div><div class="map-popup-list">${group.venues.map(p=>`<div class="map-popup-venue"><b>${esc(p.name)}</b><small>${esc(mapVenueLabel(p))} · ${esc(p.address||areaMapLabel(p.area))}</small><div class="map-popup-actions"><span>${esc(locationLabel(p))}</span>${sourceLink(p)}<button data-map-open="${p.id}">Profil ansehen</button></div></div>`).join('')}</div></div>`;
   }
   function mapStats(rows){
-    let verified=0,complex=0,approx=0;
-    rows.forEach(p=>{const m=locationMeta.get(Number(p.id));if(m?.location_status==='verified')verified++;else if(m?.location_precision==='venue_complex')complex++;else approx++});
-    return {verified,complex,approx};
+    let direct=0,complex=0,addressBased=0,checked=0;
+    rows.forEach(p=>{
+      const m=locationMeta.get(Number(p.id));
+      if(m?.location_checked_at)checked++;
+      if(m?.location_precision==='poi'||m?.location_precision==='address')direct++;
+      else if(m?.location_precision==='venue_complex')complex++;
+      else addressBased++;
+    });
+    return {direct,complex,addressBased,checked};
   }
   mapView=function(){
     const rows=mapRows(),stats=mapStats(rows),all=state.decision==='all'&&state.service==='all'&&!(state.query||'').trim();
     const zones=[...new Map(DATA.map(p=>[p.area,p])).keys()].filter(Boolean);
-    return `<section><div class="head"><div class="head-top"><div class="eyebrow">KARTE</div><button class="round" data-nav="discover">${icons.compass}</button></div><h1>${all?`${DATA.length} Orte. Eine Karte.`:'Deine Auswahl auf der Karte.'}</h1><p>${all?'Alle veröffentlichten HOY-Betriebe rund ums Mar Menor – mit geprüfter Geschäftsadresse und dokumentierter Georeferenz.':'Die Karte übernimmt deine aktuelle Suche und Filter aus Entdecken.'}</p></div><div class="hoy-map-shell"><div class="hoy-map-summary"><div><div class="eyebrow">HOY · MAR MENOR</div><h2>${rows.length} ${rows.length===1?'Standort':'Standorte'} sichtbar</h2><p>${stats.verified} exakt geprüft · ${stats.complex} in bestätigten Anlagen · ${stats.approx} adressbasiert</p></div><div class="hoy-map-count"><strong>${rows.length}</strong><span>Orte</span></div></div><div id="hoyMap" class="hoy-map" aria-label="Interaktive Karte der HOY-Betriebe"></div><div class="map-legend"><span><i></i> Exakter POI / Portal</span><span><i></i> Hotel, Marina oder Anlage</span><span><i></i> Geprüfte Adresslage</span></div><div class="map-zone-strip">${zones.map(a=>`<button data-map-zone="${esc(a)}">${esc(areaMapLabel(a))}</button>`).join('')}</div></div></section>`;
+    const audited=stats.checked===rows.length&&rows.length>0;
+    return `<section><div class="head"><div class="head-top"><div class="eyebrow">KARTE</div><button class="round" data-nav="discover">${icons.compass}</button></div><h1>${all?`${DATA.length} Orte. Eine Karte.`:'Deine Auswahl auf der Karte.'}</h1><p>${all?'Alle veröffentlichten HOY-Betriebe rund ums Mar Menor – jede vorhandene öffentliche Standortangabe wird geprüft, georeferenziert und als Kartenpunkt übernommen.':'Die Karte übernimmt deine aktuelle Suche und Filter aus Entdecken.'}</p></div><div class="hoy-map-shell"><div class="hoy-map-summary"><div><div class="eyebrow">HOY · MAR MENOR</div><h2>${rows.length} ${rows.length===1?'Ort':'Orte'} auf der Karte</h2><p>${audited?`${rows.length}/${rows.length} Standortdatensätze geprüft · `:''}${stats.direct} POI/exakte Adresse · ${stats.complex} bestätigte Anlagen · ${stats.addressBased} adressbasiert</p></div><div class="hoy-map-count"><strong>${rows.length}</strong><span>Orte</span></div></div><div id="hoyMap" class="hoy-map" aria-label="Interaktive Karte der HOY-Betriebe"></div><div class="map-legend"><span><i></i> POI / exakte Adresse</span><span><i></i> Hotel, Marina oder Anlage</span><span><i></i> Geprüfte Geschäftsadresse</span></div><div class="map-zone-strip">${zones.map(a=>`<button data-map-zone="${esc(a)}">${esc(areaMapLabel(a))}</button>`).join('')}</div></div></section>`;
   };
 
   function initHoyMap(){
     const el=document.getElementById('hoyMap');if(!el)return;
     if(activeMap){try{activeMap.remove()}catch{}activeMap=null}
-    if(typeof L==='undefined'){el.innerHTML='<div class="map-load-error">Die Kartenbibliothek konnte nicht geladen werden. Die geprüften Adressen bleiben in den Profilen verfügbar.</div>';return}
+    if(typeof L==='undefined'){el.innerHTML='<div class="map-load-error">Die Kartenbibliothek konnte nicht geladen werden. Die geprüften Standortangaben bleiben in den Profilen verfügbar.</div>';return}
     const rows=mapRows();if(!rows.length){el.innerHTML='<div class="map-load-error">Für diese Auswahl sind keine Kartenpunkte vorhanden.</div>';return}
     const map=L.map(el,{zoomControl:true,scrollWheelZoom:false,preferCanvas:true});activeMap=map;
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'}).addTo(map);
     const bounds=[];
     for(const group of groupedPins(rows)){
       const marker=L.marker([group.lat,group.lon],{icon:pinIcon(group.venues.length),keyboard:true,title:group.venues.length>1?`${group.venues.length} HOY-Orte`:group.venues[0].name}).addTo(map);
-      marker.bindPopup(popupHTML(group),{maxWidth:300});bounds.push([group.lat,group.lon]);
+      marker.bindPopup(popupHTML(group),{maxWidth:320});bounds.push([group.lat,group.lon]);
     }
     if(bounds.length===1)map.setView(bounds[0],15);else map.fitBounds(bounds,{padding:[24,24],maxZoom:15});
     el.addEventListener('click',e=>{const b=e.target.closest?.('[data-map-open]');if(!b)return;e.preventDefault();openDetail(Number(b.dataset.mapOpen))});
