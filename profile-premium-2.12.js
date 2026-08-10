@@ -1,4 +1,4 @@
-/* HOY 2.12.1 — premium guest profile orchestration: emotional hero, concise identity and deterministic menu navigation */
+/* HOY 2.13.4 — premium guest profile orchestration: emotional hero, concise identity and refresh-safe navigation */
 (function(){
   const text=(v)=>String(v||'').trim();
 
@@ -170,4 +170,16 @@
     const d=document.getElementById('detail');
     if(p)enhanceProfile(p,d);
   };
+
+  window.addEventListener('hoy:profile-menu-refreshed',e=>{
+    const d=document.getElementById('detail');
+    const id=Number(e.detail?.restaurantId||0);
+    if(!d?.open||!d.classList.contains('profile-premium')||Number(d.dataset.restaurantId||0)!==id)return;
+    const nav=d.querySelector('.profile-premium-nav');
+    if(nav){
+      setActiveNav(nav,'#profile-menu');
+      wireSectionSpy(d,nav);
+    }
+    keepMenuNavigationDeterministic(d);
+  });
 })();
