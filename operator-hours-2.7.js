@@ -93,6 +93,11 @@
   const baseAuthLogout27=authLogout;
   authLogout=async function(){liveState.memberships.clear();await baseAuthLogout27()};
 
+  const baseAuditLabel27=auditLabel;
+  auditLabel=function(a){return a==='live_hours_updated'?'Live-Öffnungszeiten aktualisiert':baseAuditLabel27(a)};
+  const baseClaimStepSix27=claimStepSix;
+  claimStepSix=function(p){return baseClaimStepSix27(p).replace('Alles aus Free plus aktuelle Angebote, Events, Planung, Übersetzungen und Analytics.','Alles aus Free plus Live-Öffnungszeiten, aktuelle Angebote, Events, Planung und Analytics.')};
+
   const baseEffectiveValue27=effectiveValue;
   effectiveValue=function(p,key){
     if(key==='hours'){
@@ -104,12 +109,13 @@
 
   function planCard(p){
     if(!p||!isClaimed(p))return '';
-    const paid=['pro','business'].includes(String(p.active_plan||claimDraft.activePlan||'free'));
+    const currentPlan=p.operator_verified?(p.active_plan||'free'):(claimDraft.activePlan||claimDraft.requestedPlan||'free');
+    const paid=['pro','business'].includes(String(currentPlan));
     const permitted=canManageLiveHours(p);
     const meta=liveHoursMeta(p);
     const current=liveHoursLabel(p)||baseEffectiveValue27(p,'hours')||'Noch keine Zeiten hinterlegt';
     return `<section class="live-hours-owner-card ${paid?'paid':'locked'}">
-      <div class="live-hours-owner-head"><div><small>LIVE-ÖFFNUNGSZEITEN</small><h3>Aktuell statt ungefähr.</h3></div><span class="live-hours-plan">${paid?esc(String(p.active_plan||'pro').toUpperCase()):'PRO'}</span></div>
+      <div class="live-hours-owner-head"><div><small>LIVE-ÖFFNUNGSZEITEN</small><h3>Aktuell statt ungefähr.</h3></div><span class="live-hours-plan">${paid?esc(String(currentPlan).toUpperCase()):'PRO'}</span></div>
       <p>${paid?'Wochenzeiten, Sondertage und kurzfristige Hinweise können direkt vom Betrieb bestätigt werden.':'HOY-geprüfte Zeiten bleiben kostenlos. Exakte Live-Zeiten und Sondertage pflegt der Betreiber mit Pro oder Business selbst.'}</p>
       <div class="live-hours-current"><b>${esc(current)}</b><small>${meta?.updated?`Vom Betrieb bestätigt · zuletzt ${esc(meta.updated)}`:'HOY-Basisangabe'}</small></div>
       ${permitted?'<button class="primary" data-live-hours-open>Öffnungszeiten verwalten</button>':paid?'<button data-live-hours-open>Mit Betreiberkonto prüfen</button>':'<button data-plan-demo="pro">Pro-Funktion ansehen</button>'}
@@ -118,7 +124,7 @@
 
   const basePartner27=partner;
   partner=function(){
-    const html=basePartner27();
+    const html=basePartner27().replace('Angebote, Events, Übersetzung, Planung und Analytics.','Live-Öffnungszeiten, Angebote, Events, Planung und Analytics.');
     const p=claimedRestaurant();
     if(!p||!isClaimed(p))return html;
     const card=planCard(p);
