@@ -1,7 +1,7 @@
 /* HOY Control 2.18 — launch pricing, unique-session outcomes and recent campaign proof */
 (function(){
   state.eventPromotions=[];state.promotionEvents=[];
-  const ACTION_TYPES=new Set(['route_start','service_open','website_open','reservation_start','reservation_submit','call_start','menu_open']);
+  const ACTION_TYPES=new Set(['route_start','service_open','website_open','reservation_start','reservation_submit','call_click','menu_open']);
   const LAUNCH_PRICE_EUR='29';
 
   const baseLoadData218=loadData;
@@ -15,7 +15,7 @@
       sb.from('analytics_events')
         .select('id,restaurant_id,event_type,session_id,occurred_at,metadata')
         .gte('occurred_at',since)
-        .in('event_type',['promotion_impression','promotion_open','profile_view','route_start','service_open','website_open','reservation_start','reservation_submit','call_start','menu_open'])
+        .in('event_type',['promotion_impression','promotion_open','profile_view','route_start','service_open','website_open','reservation_start','reservation_submit','call_click','menu_open'])
         .order('occurred_at',{ascending:false}).limit(10000),
     ]);
     if(promotions.error)throw promotions.error;if(events.error)throw events.error;
