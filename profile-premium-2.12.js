@@ -1,4 +1,4 @@
-/* HOY 2.18.5 — premium guest profile orchestration with refresh-safe user-owned navigation */
+/* HOY 2.20.2 — premium guest profile orchestration with WebKit-safe section tracking */
 (function(){
   const text=(v)=>String(v||'').trim();
 
@@ -21,18 +21,19 @@
     nav?.querySelectorAll('a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')===href));
   }
 
-  function activeSectionHref(d){
-    const sections=['#profile-about','#profile-menu','#profile-info']
-      .map(sel=>d?.querySelector(sel)).filter(Boolean);
+  function activeSectionHref(d,nav){
+    const sections=[...(nav?.querySelectorAll('a[href^="#profile-"]')||[])]
+      .map(a=>({href:a.getAttribute('href'),section:d?.querySelector(a.getAttribute('href'))}))
+      .filter(x=>x.section);
     if(!sections.length)return '#profile-about';
     const box=d.getBoundingClientRect();
     const threshold=box.top+Math.min(150,Math.max(96,box.height*.22));
     let chosen=sections[0];
-    for(const section of sections){
-      if(section.getBoundingClientRect().top<=threshold)chosen=section;
+    for(const item of sections){
+      if(item.section.getBoundingClientRect().top<=threshold)chosen=item;
       else break;
     }
-    return `#${chosen.id}`;
+    return chosen.href||'#profile-about';
   }
 
   function wireSectionSpy(d,nav){
@@ -40,19 +41,37 @@
     d._hoyProfileObserver=null;
     if(d._hoyProfileScrollHandler)d.removeEventListener('scroll',d._hoyProfileScrollHandler);
     if(d._hoyProfileScrollFrame)cancelAnimationFrame(d._hoyProfileScrollFrame);
+    if(d._hoyProfileSectionTimer)clearInterval(d._hoyProfileSectionTimer);
+    if(d._hoyProfileCloseHandler)d.removeEventListener('close',d._hoyProfileCloseHandler);
 
     const sync=()=>{
       d._hoyProfileScrollFrame=0;
       if(!d.open||!nav?.isConnected||d._hoyMenuRefreshing)return;
-      setActiveNav(nav,activeSectionHref(d));
+      const href=activeSectionHref(d,nav);
+      const current=nav.querySelector('a.active')?.getAttribute('href')||'';
+      if(current!==href)setActiveNav(nav,href);
     };
     const onScroll=()=>{
       if(d._hoyMenuRefreshing||d._hoyProfileScrollFrame)return;
       d._hoyProfileScrollFrame=requestAnimationFrame(sync);
     };
+    const stopTimer=()=>{
+      if(d._hoyProfileSectionTimer){clearInterval(d._hoyProfileSectionTimer);d._hoyProfileSectionTimer=0}
+    };
     d.addEventListener('scroll',onScroll,{passive:true});
+    d.addEventListener('close',stopTimer,{once:true});
     d._hoyProfileScrollHandler=onScroll;
+    d._hoyProfileCloseHandler=stopTimer;
     d._hoyProfileSyncSection=sync;
+
+    // WebKit can occasionally update a dialog's scrollTop without delivering the corresponding scroll
+    // event soon enough. While the profile is open, a low-frequency geometry check keeps the visible
+    // section and navigation deterministic without IntersectionObserver or a permanent animation loop.
+    d._hoyProfileSectionTimer=setInterval(()=>{
+      if(!d.open){stopTimer();return}
+      sync();
+    },120);
+    requestAnimationFrame(sync);
   }
 
   function ensureMenuCategoryNav(d){
@@ -179,8 +198,4 @@
     const d=document.getElementById('detail');
     if(p)enhanceProfile(p,d);
   };
-
-  // A menu-data refresh is not navigation. profile-flow preserves the active tab while replacing the menu.
-  // This notification intentionally performs no section/layout work; the existing scroll handler already
-  // queries the current DOM the next time the user actually scrolls.
 })();
