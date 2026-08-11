@@ -52,8 +52,9 @@
     const verified=clean(root.querySelector('.hub-verified')?.textContent);
     const plan=planName(root);
     const legacyNext=root.querySelector('.hub-next[data-hub-action]');
-    const legacyNextAction=legacyNext?.dataset.hubAction||modules.find(x=>x.tone==='warn')?.action||'preview';
-    const legacyNextLabel=clean(legacyNext?.textContent).replace(/\s*[→›]\s*$/,'')||'Gastansicht öffnen';
+    const fallbackWarn=modules.find(x=>x.tone==='warn'&&x.state!=='In Prüfung');
+    const legacyNextAction=legacyNext?.dataset.hubAction||fallbackWarn?.action||'preview';
+    const legacyNextLabel=clean(legacyNext?.textContent).replace(/\s*[→›]\s*$/,'')||fallbackWarn?.actionLabel||'Gastansicht öffnen';
     const urgent=modules.find(x=>x.tone==='bad');
     const nextAction=urgent?.action||legacyNextAction;
     const nextLabel=urgent?.actionLabel||legacyNextLabel;
