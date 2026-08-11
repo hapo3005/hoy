@@ -13,7 +13,7 @@ async function mockDecisionSignals(page){
     const ids=DATA.slice(0,4).map(x=>Number(x.id));
     window.hoyNowStatus219For=p=>{
       const id=Number(p?.id);
-      if(id===ids[0])return {state:'open',tone:'open',label:'Jetzt geöffnet · bis 23:30',source:'operator',operatorConfirmed:true};
+      if(id===ids[0])return {state:'open',tone:'open',label:'Jetzt geöffnet',source:'operator',operatorConfirmed:true};
       if(id===ids[1])return {state:'later',tone:'later',label:'Öffnet heute 21:00',source:'operator',operatorConfirmed:true};
       return {state:'closed',tone:'closed',label:'Heute geschlossen',source:'operator',operatorConfirmed:true};
     };
