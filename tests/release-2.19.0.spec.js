@@ -31,13 +31,19 @@ test('operator special hours may truthfully use a live label while current statu
   await page.locator('#q').fill('Agua Salá');
   const card = page.locator('.list-card[data-open="16"]');
   await expect(card).toBeVisible({ timeout: 20_000 });
+
+  // Wait for the initial cloud refresh to settle before mutating the fixture in-memory.
+  // WebKit can finish that refresh later than Chromium; without this guard the real
+  // cloud response may legitimately overwrite the test fixture between render and assertion.
+  await expect.poll(() => page.evaluate(() => cloud.status), { timeout: 20_000 }).toBe('online');
   await page.evaluate(() => {
     const p = DATA.find(x => Number(x.id) === 16);
     p.hours_text = 'Täglich 00:00–12:00 & 12:00–24:00'; p.operator_hours = null; p.operator_special_hours = null; render();
   });
-  await expect(card.locator('[data-hoy-now-status]')).toContainText('Laut Öffnungszeiten · offen bis');
+  await expect(page.locator('.list-card[data-open="16"]')).toBeVisible({ timeout: 12_000 });
+  await expect(page.locator('.list-card[data-open="16"] [data-hoy-now-status]')).toContainText('Laut Öffnungszeiten · offen bis');
 
-  await card.click();
+  await page.locator('.list-card[data-open="16"]').click();
   const detail = page.locator('#detail[open]');
   await expect(detail.locator('.profile-hours')).toBeVisible();
   await expect(detail.locator('[data-hoy-now-status]')).toHaveCount(0);
