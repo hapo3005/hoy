@@ -78,6 +78,10 @@
     else if(row&&['running','soon','today'].includes(phase)){title='Heute aktuell';tone='neutral'}
     return {title,tone,reasons,score:decisionScore(p)};
   }
+  function decisionEligibleNow(p){
+    const hours=nowStatus(p),phase=currentPhase(currentFor(p));
+    return ['open','later'].includes(hours?.state)||['running','soon','today'].includes(phase);
+  }
   function ranked(rows){return [...rows].sort((a,b)=>decisionScore(b)-decisionScore(a)||String(a.name||'').localeCompare(String(b.name||''),'de'))}
   window.hoyDecision280For=p=>({...verdictFor(p)});
   window.hoyDecision280Rank=rows=>ranked(rows||[]);
@@ -99,7 +103,7 @@
     return `<button type="button" class="decision280-card ${esc280(v.tone)}" data-decision280-open="${Number(p.id)}"><span class="decision280-rank">${index+1}</span><div class="decision280-card-copy"><small>${kicker}</small><strong>${esc280(p.name)}</strong><span>${esc280(p.area||'')}</span>${reasonPills(p)}</div><span class="decision280-arrow" aria-hidden="true">→</span></button>`;
   }
   function homeDecisionBlock(){
-    const candidates=ranked((DATA||[]).filter(p=>nowStatus(p)?.state!=='closed'||['running','soon','today'].includes(currentPhase(currentFor(p))))).slice(0,3);
+    const candidates=ranked((DATA||[]).filter(decisionEligibleNow)).slice(0,3);
     if(!candidates.length)return '';
     return `<section class="decision280-home" data-decision280-home><div class="decision280-head"><div><span>HOY NOW</span><h2>Was jetzt wirklich passt.</h2><p>Öffnungszeiten, Aktuelles, Speisekarte und Services bereits zusammengedacht.</p></div><button type="button" data-decision280-all>Alle ansehen</button></div><div class="decision280-list">${candidates.map(nowCard).join('')}</div><div class="decision280-moments"><button type="button" data-decision280-moment="now">Jetzt geöffnet</button><button type="button" data-decision280-moment="today">Heute etwas los</button><button type="button" data-nav="map">Auf der Karte</button></div></section>`;
   }
@@ -145,7 +149,7 @@
   function decorateMap(){
     const cards=[...document.querySelectorAll('.map-decision-card[data-map-card]')];if(!cards.length)return;
     cards.forEach(card=>{card.classList.remove('decision280-map-top');card.querySelector('.decision280-map-verdict')?.remove()});
-    const rankedCards=[...cards].sort((a,b)=>decisionScore((DATA||[]).find(p=>Number(p.id)===Number(b.dataset.mapCard)))-decisionScore((DATA||[]).find(p=>Number(p.id)===Number(a.dataset.mapCard))));
+    const rankedCards=cards.filter(card=>decisionEligibleNow((DATA||[]).find(p=>Number(p.id)===Number(card.dataset.mapCard)))).sort((a,b)=>decisionScore((DATA||[]).find(p=>Number(p.id)===Number(b.dataset.mapCard)))-decisionScore((DATA||[]).find(p=>Number(p.id)===Number(a.dataset.mapCard))));
     rankedCards.slice(0,3).forEach((card,i)=>{
       const p=(DATA||[]).find(x=>Number(x.id)===Number(card.dataset.mapCard));if(!p)return;
       card.classList.add('decision280-map-top');card.dataset.decisionRank=String(i+1);
@@ -177,6 +181,8 @@
     document.querySelectorAll('[data-decision280-moment]').forEach(b=>b.onclick=()=>{state.moment=b.dataset.decision280Moment||'all';state.view='discover';render()});
     document.querySelectorAll('[data-decision280-all]').forEach(b=>b.onclick=()=>{state.moment='all';state.view='discover';render()});
     document.querySelectorAll('[data-consumer-reset],[data-decision-reset]').forEach(b=>b.onclick=resetMomentAndFilters);
+    document.querySelectorAll('[data-home-intent],[data-journey-area]').forEach(b=>b.addEventListener('click',()=>{state.moment='all'},{capture:true}));
+    if(state.view==='home')document.querySelectorAll('[data-nav="map"]').forEach(b=>b.addEventListener('click',()=>{state.moment='all'},{capture:true}));
     const q=document.getElementById('q');if(q&&state.view==='discover')q.addEventListener('input',()=>setTimeout(()=>reorderDiscover(document),0));
     if(state.view==='map'){
       setTimeout(decorateMap,60);setTimeout(decorateMap,220);setTimeout(decorateMap,600);
