@@ -20,19 +20,23 @@
       const intro=note('In etwa 30 Sekunden erledigt','Reservierung, Abholung und Lieferung jeweils mit Ja, Nein oder Noch prüfen bestätigen.');
       (q(root,'.hub-services-edit')||rows[0].parentNode).before(intro);
     }
-    const summary=document.createElement('div');summary.className='op-service-summary';
+    const summary=document.createElement('div');summary.className='op-service-summary';summary.setAttribute('aria-live','polite');
     const refresh=()=>{
       const known=rows.filter(row=>q(row,'select')?.value!=='unknown').length;
       summary.textContent=known===rows.length?'Alles beantwortet':`${known} von ${rows.length} beantwortet · Unklares darf offen bleiben`;
     };
     rows.forEach(row=>{
       const select=q(row,'select');if(!select)return;
-      select.classList.add('op-native-select');
-      const choices=document.createElement('div');choices.className='op-choice-group';
+      select.classList.add('op-native-select');select.tabIndex=-1;select.setAttribute('aria-hidden','true');
+      const choices=document.createElement('div');choices.className='op-choice-group';choices.setAttribute('role','group');
       [['available','Ja'],['unavailable','Nein'],['unknown','Noch prüfen']].forEach(([value,label])=>{
         const b=btn(label,'op-choice');b.dataset.value=value;
-        const sync=()=>b.classList.toggle('active',select.value===value);sync();
-        b.onclick=()=>{select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}));qa(choices,'.op-choice').forEach(x=>x.classList.toggle('active',x.dataset.value===value));refresh()};
+        const sync=()=>{const active=select.value===value;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))};sync();
+        b.onclick=()=>{
+          select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}));
+          qa(choices,'.op-choice').forEach(x=>{const active=x.dataset.value===value;x.classList.toggle('active',active);x.setAttribute('aria-pressed',String(active))});
+          refresh();
+        };
         choices.appendChild(b);
       });
       row.appendChild(choices);
@@ -75,15 +79,18 @@
       const summary=document.createElement('summary');summary.textContent='Sondertag oder spontane Abweichung';
       const body=document.createElement('div');body.className='op-optional-body';
       special.parentNode.insertBefore(details,special);details.append(summary,body);body.appendChild(special);
-      const todayClosed=btn('Heute geschlossen','op-today-closed');
-      todayClosed.onclick=()=>{
-        details.open=true;
-        const date=q(special,'[data-special-date]');if(date)date.value=madridToday();
-        const closed=q(special,'[data-special-closed]');if(closed)closed.checked=true;
-        qa(special,'input[type="time"]').forEach(x=>x.value='');
-        q(special,'[data-special-note]')?.focus();
-      };
-      summary.after(todayClosed);
+      const hasWeeklySchedule=qa(root,'.live-day [data-day-closed]').some(x=>!x.checked);
+      if(hasWeeklySchedule){
+        const todayClosed=btn('Heute geschlossen','op-today-closed');
+        todayClosed.onclick=()=>{
+          details.open=true;
+          const date=q(special,'[data-special-date]');if(date)date.value=madridToday();
+          const closed=q(special,'[data-special-closed]');if(closed)closed.checked=true;
+          qa(special,'input[type="time"]').forEach(x=>x.value='');
+          q(special,'[data-special-note]')?.focus();
+        };
+        summary.after(todayClosed);
+      }
     }
     const save=q(root,'[data-live-save]');if(save)save.textContent='Öffnungszeiten speichern';
   }
@@ -95,14 +102,16 @@
     const methods=q(root,'.menu-intake-methods');const sections=qa(methods,':scope > section');
     if(methods&&sections.length){
       const intro=note('Ein Weg reicht','Für die meisten Betriebe ist PDF/Foto am schnellsten. Link und Direkteingabe bleiben jederzeit verfügbar.');
-      const tabs=document.createElement('div');tabs.className='op-method-tabs';
+      const tabs=document.createElement('div');tabs.className='op-method-tabs';tabs.setAttribute('role','group');tabs.setAttribute('aria-label','Quelle der Speisekarte');
       const labels=['PDF / Foto','Offizieller Link','Direkt eingeben'];
       const activate=index=>{
         sections.forEach((section,i)=>section.classList.toggle('op-method-hidden',i!==index));
-        qa(tabs,'button').forEach((b,i)=>b.classList.toggle('active',i===index));
+        qa(tabs,'button').forEach((b,i)=>{const active=i===index;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
       };
       sections.forEach((section,i)=>{const b=btn(labels[i]||`Weg ${i+1}`);b.onclick=()=>activate(i);tabs.appendChild(b)});
-      methods.before(intro,tabs);activate(0);
+      const latest=String(q(root,'.menu-intake-history-row b')?.textContent||'').toLowerCase();
+      const initial=latest.includes('link')?1:latest.includes('direkt')?2:0;
+      methods.before(intro,tabs);activate(initial);
     }
     const history=q(root,'.menu-intake-dialog-history');
     if(history){
@@ -141,7 +150,7 @@
     const title=q(root,'.media-review-title');
     if(title){
       const p=q(title,'p');if(p)p.textContent='HOY hat vorausgewählt. Du entscheidest nur noch: verwenden, nicht verwenden oder ersetzen.';
-      const steps=document.createElement('div');steps.className='op-media-steps';
+      const steps=document.createElement('div');steps.className='op-media-steps';steps.setAttribute('aria-live','polite');
       const cards=qa(root,'.media-review-card');const decided=cards.filter(card=>q(card,'.media-decisions .active')).length;
       steps.innerHTML=`<b>${decided}/${cards.length} entschieden</b><span>1 · Auswahl prüfen</span><span>2 · Nutzungsrechte bestätigen</span><span>3 · Speichern</span>`;
       title.after(steps);
