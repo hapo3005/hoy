@@ -1,4 +1,4 @@
-/* HOY 2.18.3 — premium guest profile orchestration with rerender-safe scroll navigation */
+/* HOY 2.18.4 — premium guest profile orchestration with layout-lazy rerender-safe navigation */
 (function(){
   const text=(v)=>String(v||'').trim();
 
@@ -53,7 +53,8 @@
     d.addEventListener('scroll',onScroll,{passive:true});
     d._hoyProfileScrollHandler=onScroll;
     d._hoyProfileSyncSection=sync;
-    queueMicrotask(sync);
+    // Initial state is deliberately set by enhanceProfile. Geometry is read only after an actual scroll,
+    // never during first paint or immediately after an async menu replacement.
   }
 
   function ensureMenuCategoryNav(d){
@@ -101,14 +102,13 @@
     observer.observe(section,{childList:true,subtree:true});
     d._hoyMenuNavObserver=observer;
 
-    queueMicrotask(()=>ensureMenuCategoryNav(d));
-    requestAnimationFrame(()=>ensureMenuCategoryNav(d));
-    setTimeout(()=>ensureMenuCategoryNav(d),250);
+    // MutationObserver covers the normal async menu arrival. Keep only a delayed fallback instead of
+    // stacking microtask/rAF work directly behind a large DOM replacement.
     setTimeout(()=>{
       ensureMenuCategoryNav(d);
       observer.disconnect();
       if(d._hoyMenuNavObserver===observer)d._hoyMenuNavObserver=null;
-    },5000);
+    },750);
   }
 
   function enhanceProfile(p,d){
@@ -197,12 +197,11 @@
     const id=Number(e.detail?.restaurantId||0);
     const d=document.getElementById('detail');
     if(!d?.open||!d.classList.contains('profile-premium')||Number(d.dataset.restaurantId||0)!==id)return;
-    clearTimeout(d._hoyProfileRefreshTimer2183);
-    d._hoyProfileRefreshTimer2183=setTimeout(()=>{
+    clearTimeout(d._hoyProfileRefreshTimer2184);
+    d._hoyProfileRefreshTimer2184=setTimeout(()=>{
       if(!d.open||Number(d.dataset.restaurantId||0)!==id)return;
-      // The scroll handler queries the current sections on every sync, so replacing #profile-menu needs no
-      // IntersectionObserver rebuild. Recompute from the preserved dialog scroll position instead.
-      d._hoyProfileSyncSection?.();
+      // Preserve the current top-level tab exactly. A data refresh is not user navigation and therefore
+      // must not force layout or recalculate the section until the next real dialog scroll.
       keepMenuNavigationDeterministic(d);
     },0);
   });
