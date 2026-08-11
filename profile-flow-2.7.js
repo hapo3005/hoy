@@ -1,4 +1,4 @@
-/* HOY 2.18.5 — continuous restaurant profile with navigation-safe live localized-menu refresh */
+/* HOY 2.20.1 — continuous restaurant profile with WebKit-safe navigation-preserving localized-menu refresh */
 (function(){
   function wireInlineMenu(root,p){
     const input=root.querySelector('[data-menu-search]');
@@ -61,6 +61,26 @@
     return `<section class="profile-section profile-menu-section" id="profile-menu"><div class="profile-section-head"><div><small>HOY SPEISEKARTE</small><h3>${m?.localized?'In deiner Sprache':'Speisekarte'}</h3></div><span class="profile-menu-count">${count?`${count} Positionen`:menuStatusLabel(m)}</span></div><div data-inline-menu-wrap class="profile-inline-menu ${collapse?'is-collapsed':''}">${menuPanel(p)}</div>${collapse?'<button class="inline-menu-expand" type="button" data-menu-expand aria-expanded="false">Komplette Speisekarte anzeigen</button>':''}</section>`;
   }
 
+  function visibleProfileHref(d){
+    const nav=d?.querySelector('.profile-premium-nav,.profile-anchor-nav');
+    const links=[...(nav?.querySelectorAll('a[href^="#profile-"]')||[])];
+    const sections=links.map(a=>({href:a.getAttribute('href'),section:d.querySelector(a.getAttribute('href'))})).filter(x=>x.section);
+    if(!sections.length)return '#profile-about';
+    const box=d.getBoundingClientRect();
+    const threshold=box.top+Math.min(150,Math.max(96,box.height*.22));
+    let chosen=sections[0];
+    for(const item of sections){
+      if(item.section.getBoundingClientRect().top<=threshold)chosen=item;
+      else break;
+    }
+    return chosen.href||'#profile-about';
+  }
+
+  function setProfileNavActive(d,href){
+    const nav=d?.querySelector('.profile-premium-nav,.profile-anchor-nav');
+    nav?.querySelectorAll('a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')===href));
+  }
+
   function refreshOpenProfileMenu(){
     const d=document.getElementById('detail');
     if(!d?.open||!d.classList.contains('continuous-profile'))return false;
@@ -75,7 +95,9 @@
     const oldWrap=old.querySelector('[data-inline-menu-wrap]');
     const expanded=!!oldWrap&&!oldWrap.classList.contains('is-collapsed');
     const scrollTop=d.scrollTop;
-    const activeHref=d.querySelector('.profile-premium-nav a.active')?.getAttribute('href')||'#profile-about';
+    // Geometry is the source of truth here. WebKit may defer the scroll event/rAF that normally updates
+    // the active class, so reading the class alone can preserve a stale "Überblick" state.
+    const activeHref=visibleProfileHref(d);
 
     d._hoyMenuRefreshing=true;
     const shell=document.createElement('div');
@@ -96,11 +118,15 @@
     d.scrollTop=scrollTop;
     if(inputFocused&&freshInput)freshInput.focus({preventScroll:true});
 
-    const nav=d.querySelector('.profile-premium-nav');
-    nav?.querySelectorAll('a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')===activeHref));
+    setProfileNavActive(d,activeHref);
     window.dispatchEvent(new CustomEvent('hoy:profile-menu-refreshed',{detail:{restaurantId:id,localized:!!menuFor(p)?.localized,replaced:true,activeHref}}));
     clearTimeout(d._hoyMenuRefreshReleaseTimer2185);
-    d._hoyMenuRefreshReleaseTimer2185=setTimeout(()=>{d._hoyMenuRefreshing=false},80);
+    d._hoyMenuRefreshReleaseTimer2185=setTimeout(()=>{
+      d._hoyMenuRefreshing=false;
+      // A suppressed scroll event must not leave the navigation stale after the replacement settles.
+      if(typeof d._hoyProfileSyncSection==='function')d._hoyProfileSyncSection();
+      else setProfileNavActive(d,visibleProfileHref(d));
+    },80);
     return true;
   }
 
