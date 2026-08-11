@@ -1,4 +1,4 @@
-/* HOY 2.18.2 — signature localized menu experience with async live data-ready refresh upgrades */
+/* HOY 2.18.3 — signature localized menu experience with rerender-safe scroll navigation */
 (function(){
   const COPY={
     de:{title:'Speisekarte auf Deutsch',partial:'Auswahl auf Deutsch',promise:'Für dich auf Deutsch',proof:'Kulinarisch übersetzt · Originalpreise unverändert',body:'HOY überträgt Gerichte sinngemäß statt Wort für Wort. Spanische Eigennamen bleiben erhalten, wenn sie zum Gericht gehören.',search:'Speisekarte durchsuchen …',checked:'HOY redaktionell geprüft'},
@@ -72,6 +72,43 @@
     return nav;
   }
 
+  function categoryIndexForPosition(d,cats){
+    if(!cats.length)return 0;
+    const box=d.getBoundingClientRect();
+    const threshold=box.top+Math.min(180,Math.max(120,box.height*.28));
+    let chosen=0;
+    cats.forEach((cat,i)=>{if(cat.getBoundingClientRect().top<=threshold)chosen=i});
+    return chosen;
+  }
+
+  function wireCategoryScrollSync(d,nav,cats,buttons){
+    d._hoyMenuSignatureObserver?.disconnect?.();
+    d._hoyMenuSignatureObserver=null;
+    if(d._hoyMenuSignatureScrollHandler)d.removeEventListener('scroll',d._hoyMenuSignatureScrollHandler);
+    if(d._hoyMenuSignatureScrollFrame)cancelAnimationFrame(d._hoyMenuSignatureScrollFrame);
+
+    const sync=()=>{
+      d._hoyMenuSignatureScrollFrame=0;
+      if(!d.open||!nav?.isConnected)return;
+      const idx=categoryIndexForPosition(d,cats);
+      const changed=nav.dataset.hoyActiveIndex!==String(idx);
+      buttons.forEach((b,j)=>b.classList.toggle('active',j===idx));
+      nav.dataset.hoyActiveIndex=String(idx);
+      if(changed&&nav.scrollWidth>nav.clientWidth){
+        const b=buttons[idx];
+        if(b)nav.scrollTo({left:Math.max(0,b.offsetLeft-nav.clientWidth/2+b.clientWidth/2),behavior:'auto'});
+      }
+    };
+    const onScroll=()=>{
+      if(d._hoyMenuSignatureScrollFrame)return;
+      d._hoyMenuSignatureScrollFrame=requestAnimationFrame(sync);
+    };
+    d.addEventListener('scroll',onScroll,{passive:true});
+    d._hoyMenuSignatureScrollHandler=onScroll;
+    d._hoyMenuSignatureSync=sync;
+    queueMicrotask(sync);
+  }
+
   function decorateCategories(section,d){
     const cats=[...section.querySelectorAll('.menu-cat')];
     if(!cats.length)return false;
@@ -94,23 +131,13 @@
     buttons.forEach((btn,i)=>{
       if(btn.dataset.hoySignatureBound==='1')return;
       btn.dataset.hoySignatureBound='1';
-      btn.addEventListener('click',()=>buttons.forEach((b,j)=>b.classList.toggle('active',i===j)));
+      btn.addEventListener('click',()=>{
+        buttons.forEach((b,j)=>b.classList.toggle('active',i===j));
+        nav.dataset.hoyActiveIndex=String(i);
+      });
     });
     if(buttons[0]&&!buttons.some(b=>b.classList.contains('active')))buttons[0].classList.add('active');
-
-    d._hoyMenuSignatureObserver?.disconnect?.();
-    if('IntersectionObserver' in window){
-      const observer=new IntersectionObserver(entries=>{
-        const visible=entries.filter(x=>x.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
-        if(!visible)return;
-        const idx=cats.indexOf(visible.target);
-        if(idx<0)return;
-        buttons.forEach((b,j)=>b.classList.toggle('active',j===idx));
-        buttons[idx]?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
-      },{root:d,rootMargin:'-138px 0px -64% 0px',threshold:[0,.08,.2,.4]});
-      cats.forEach(cat=>observer.observe(cat));
-      d._hoyMenuSignatureObserver=observer;
-    }
+    wireCategoryScrollSync(d,nav,cats,buttons);
     return true;
   }
 
@@ -178,8 +205,8 @@
     const id=Number(e.detail?.restaurantId||0);
     const d=document.getElementById('detail');
     if(!d?.open||Number(d.dataset.restaurantId||0)!==id)return;
-    clearTimeout(d._hoySignatureRefreshTimer2182);
-    d._hoySignatureRefreshTimer2182=setTimeout(()=>{
+    clearTimeout(d._hoySignatureRefreshTimer2183);
+    d._hoySignatureRefreshTimer2183=setTimeout(()=>{
       if(!d.open||Number(d.dataset.restaurantId||0)!==id)return;
       const p=DATA.find(x=>Number(x.id)===id);
       if(p)enhanceSignatureMenu(p,d);
