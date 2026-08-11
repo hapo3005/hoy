@@ -1,4 +1,4 @@
-/* HOY 2.18.3 — signature localized menu experience with rerender-safe scroll navigation */
+/* HOY 2.18.4 — signature localized menu experience with layout-lazy rerender-safe scroll navigation */
 (function(){
   const COPY={
     de:{title:'Speisekarte auf Deutsch',partial:'Auswahl auf Deutsch',promise:'Für dich auf Deutsch',proof:'Kulinarisch übersetzt · Originalpreise unverändert',body:'HOY überträgt Gerichte sinngemäß statt Wort für Wort. Spanische Eigennamen bleiben erhalten, wenn sie zum Gericht gehören.',search:'Speisekarte durchsuchen …',checked:'HOY redaktionell geprüft'},
@@ -106,7 +106,8 @@
     d.addEventListener('scroll',onScroll,{passive:true});
     d._hoyMenuSignatureScrollHandler=onScroll;
     d._hoyMenuSignatureSync=sync;
-    queueMicrotask(sync);
+    // No initial geometry read here. The first category is the deterministic initial state; geometry
+    // is consulted only after a real dialog scroll.
   }
 
   function decorateCategories(section,d){
@@ -136,7 +137,8 @@
         nav.dataset.hoyActiveIndex=String(i);
       });
     });
-    if(buttons[0]&&!buttons.some(b=>b.classList.contains('active')))buttons[0].classList.add('active');
+    if(!buttons.some(b=>b.classList.contains('active'))&&buttons[0])buttons[0].classList.add('active');
+    if(!nav.dataset.hoyActiveIndex)nav.dataset.hoyActiveIndex='0';
     wireCategoryScrollSync(d,nav,cats,buttons);
     return true;
   }
@@ -205,8 +207,8 @@
     const id=Number(e.detail?.restaurantId||0);
     const d=document.getElementById('detail');
     if(!d?.open||Number(d.dataset.restaurantId||0)!==id)return;
-    clearTimeout(d._hoySignatureRefreshTimer2183);
-    d._hoySignatureRefreshTimer2183=setTimeout(()=>{
+    clearTimeout(d._hoySignatureRefreshTimer2184);
+    d._hoySignatureRefreshTimer2184=setTimeout(()=>{
       if(!d.open||Number(d.dataset.restaurantId||0)!==id)return;
       const p=DATA.find(x=>Number(x.id)===id);
       if(p)enhanceSignatureMenu(p,d);
