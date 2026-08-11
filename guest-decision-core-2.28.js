@@ -79,8 +79,8 @@
     return {title,tone,reasons,score:decisionScore(p)};
   }
   function decisionEligibleNow(p){
-    const hours=nowStatus(p),phase=currentPhase(currentFor(p));
-    return ['open','later'].includes(hours?.state)||['running','soon','today'].includes(phase);
+    const hours=nowStatus(p);
+    return hours?.state==='open'||hours?.state==='later';
   }
   function ranked(rows){return [...rows].sort((a,b)=>decisionScore(b)-decisionScore(a)||String(a.name||'').localeCompare(String(b.name||''),'de'))}
   window.hoyDecision280For=p=>({...verdictFor(p)});
