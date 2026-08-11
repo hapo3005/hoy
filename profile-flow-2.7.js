@@ -1,4 +1,4 @@
-/* HOY 2.13.3 — continuous restaurant profile with live localized-menu refresh */
+/* HOY 2.18.5 — continuous restaurant profile with navigation-safe live localized-menu refresh */
 (function(){
   function wireInlineMenu(root,p){
     const input=root.querySelector('[data-menu-search]');
@@ -75,11 +75,13 @@
     const oldWrap=old.querySelector('[data-inline-menu-wrap]');
     const expanded=!!oldWrap&&!oldWrap.classList.contains('is-collapsed');
     const scrollTop=d.scrollTop;
+    const activeHref=d.querySelector('.profile-premium-nav a.active')?.getAttribute('href')||'#profile-about';
 
+    d._hoyMenuRefreshing=true;
     const shell=document.createElement('div');
     shell.innerHTML=menuInline(p);
     const fresh=shell.firstElementChild;
-    if(!fresh)return false;
+    if(!fresh){d._hoyMenuRefreshing=false;return false}
     old.replaceWith(fresh);
     wireInlineMenu(fresh,p);
 
@@ -94,7 +96,11 @@
     d.scrollTop=scrollTop;
     if(inputFocused&&freshInput)freshInput.focus({preventScroll:true});
 
-    window.dispatchEvent(new CustomEvent('hoy:profile-menu-refreshed',{detail:{restaurantId:id,localized:!!menuFor(p)?.localized}}));
+    const nav=d.querySelector('.profile-premium-nav');
+    nav?.querySelectorAll('a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')===activeHref));
+    window.dispatchEvent(new CustomEvent('hoy:profile-menu-refreshed',{detail:{restaurantId:id,localized:!!menuFor(p)?.localized,replaced:true,activeHref}}));
+    clearTimeout(d._hoyMenuRefreshReleaseTimer2185);
+    d._hoyMenuRefreshReleaseTimer2185=setTimeout(()=>{d._hoyMenuRefreshing=false},80);
     return true;
   }
 
