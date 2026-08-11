@@ -9,47 +9,27 @@ test('base opening hours answer the moment without pretending to be live-confirm
     new Date('2026-08-10T18:00:00Z')
   ));
   expect(result).toMatchObject({
-    state: 'open',
-    source: 'base',
-    operatorConfirmed: false,
-    label: 'Laut Öffnungszeiten · offen bis 23:00',
-    proof: 'Nicht live bestätigt'
+    state: 'open', source: 'base', operatorConfirmed: false,
+    label: 'Laut Öffnungszeiten · offen bis 23:00', proof: 'Nicht live bestätigt'
   });
 });
 
 test('overnight schedules work while uncertain public hours stay deliberately silent', async ({ page }) => {
   await page.goto('./', { waitUntil: 'domcontentloaded' });
   const values = await page.evaluate(() => ({
-    overnight: window.hoyNowStatus219For?.(
-      { hours_text: 'Mo–So 13:30–02:00' },
-      new Date('2026-08-11T23:00:00Z')
-    ),
-    uncertain: window.hoyNowStatus219For?.(
-      { hours_text: 'Aktuelle Betreiberprofile widersprechen sich deutlich bei den Öffnungszeiten · vor Live-Anzeige erneut prüfen' },
-      new Date('2026-08-11T18:00:00Z')
-    )
+    overnight: window.hoyNowStatus219For?.({ hours_text: 'Mo–So 13:30–02:00' }, new Date('2026-08-11T23:00:00Z')),
+    uncertain: window.hoyNowStatus219For?.({ hours_text: 'Aktuelle Betreiberprofile widersprechen sich deutlich bei den Öffnungszeiten · vor Live-Anzeige erneut prüfen' }, new Date('2026-08-11T18:00:00Z'))
   }));
   expect(values.overnight).toMatchObject({ state: 'open', label: 'Laut Öffnungszeiten · offen bis 02:00' });
   expect(values.uncertain).toBeNull();
 });
 
-test('operator special hours may truthfully use a live now label and the same status reaches list, map and existing profile hours UI', async ({ page }) => {
+test('operator special hours may truthfully use a live label while current status stays on decision surfaces', async ({ page }) => {
   await page.goto('./', { waitUntil: 'domcontentloaded' });
   const operator = await page.evaluate(() => window.hoyNowStatus219For?.({
-    operator_special_hours: {
-      service_date: '2026-08-11',
-      intervals: [['10:00','14:00']],
-      is_closed: false,
-      updated_at: '2026-08-11T07:00:00Z'
-    }
+    operator_special_hours: { service_date: '2026-08-11', intervals: [['10:00','14:00']], is_closed: false, updated_at: '2026-08-11T07:00:00Z' }
   }, new Date('2026-08-11T10:30:00Z')));
-  expect(operator).toMatchObject({
-    state: 'open',
-    source: 'operator-special',
-    operatorConfirmed: true,
-    label: 'Jetzt geöffnet · bis 14:00',
-    proof: 'Sonderzeit vom Betrieb'
-  });
+  expect(operator).toMatchObject({ state: 'open', source: 'operator-special', operatorConfirmed: true, label: 'Jetzt geöffnet · bis 14:00', proof: 'Sonderzeit vom Betrieb' });
 
   await page.locator('[data-btm="discover"]').click();
   await expect(page.locator('.journey-discover-signature')).toBeVisible();
@@ -67,11 +47,8 @@ test('operator special hours may truthfully use a live now label and the same st
 
   await card.click();
   const detail = page.locator('#detail[open]');
-  const profileHours = detail.locator('.profile-hours[data-hoy-now-status="1"]');
-  await expect(profileHours).toContainText(/Offen bis/i);
-  await expect(profileHours).toContainText(/Laut Öffnungszeiten · nicht live bestätigt/i);
-  await expect(detail.locator('.showcase-snapshot .showcase-mini[data-hoy-now-status="1"]')).toContainText(/Offen bis/i);
-  await expect(detail.locator('.hoy-profile-now-status')).toHaveCount(0);
+  await expect(detail.locator('.profile-hours')).toBeVisible();
+  await expect(detail.locator('[data-hoy-now-status]')).toHaveCount(0);
   await detail.locator('[data-close]').first().click();
 
   await page.evaluate(() => nav('map'));
@@ -81,10 +58,10 @@ test('operator special hours may truthfully use a live now label and the same st
   await expect(mapCard.locator('[data-hoy-now-status]')).toContainText('Laut Öffnungszeiten · offen bis');
 });
 
-test('2.19.1 current-status assets are deployed and PWA-cached', async ({ request }) => {
+test('2.19.2 current-status assets are deployed and PWA-cached', async ({ request }) => {
   const pkg = await request.get('./package.json');
   expect(pkg.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.19.1');
+  expect((await pkg.json()).version).toBe('2.19.2');
 
   for (const asset of ['./now-status-2.19.js','./now-status-2.19.css']) {
     const res = await request.get(asset);
@@ -94,13 +71,13 @@ test('2.19.1 current-status assets are deployed and PWA-cached', async ({ reques
 
   const app = await request.get('./index.html');
   const appText = await app.text();
-  expect(appText).toContain('HOY La Manga · Mar Menor · App 2.19.1');
-  expect(appText).toContain('now-status-2.19.css?v=2.19.1');
-  expect(appText).toContain('now-status-2.19.js?v=2.19.1');
+  expect(appText).toContain('HOY La Manga · Mar Menor · App 2.19.2');
+  expect(appText).toContain('now-status-2.19.css?v=2.19.2');
+  expect(appText).toContain('now-status-2.19.js?v=2.19.2');
 
   const worker = await request.get('./service-worker.js');
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.19.1'");
+  expect(workerText).toContain("const CACHE='hoy-v2.19.2'");
   expect(workerText).toContain('./now-status-2.19.js');
   expect(workerText).toContain('./now-status-2.19.css');
 });
