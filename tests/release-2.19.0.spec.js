@@ -87,22 +87,23 @@ test('cloud provenance gate exposes NOW only for verified base schedules', async
   expect(values.conflict.now).toBeNull();
 });
 
-test('2.21.0 opening-hours quality assets are deployed and PWA-cached', async ({ request }) => {
+test('2.21.0 opening-hours quality assets remain deployed and PWA-cached after later releases', async ({ request }) => {
   const pkg = await request.get('./package.json');
   expect(pkg.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.21.0');
+  const { version } = await pkg.json();
+  expect(version).toMatch(/^2\.\d+\.\d+$/);
   for (const asset of ['./hours-quality-2.21.js','./now-status-2.19.js','./now-status-2.19.css']) {
     const res = await request.get(asset); expect(res.ok(), `${asset} should load`).toBeTruthy(); expect((res.headers()['content-type'] || '')).not.toMatch(/text\/html/i);
   }
   const appText = await (await request.get('./index.html')).text();
-  expect(appText).toContain('HOY La Manga · Mar Menor · App 2.21.0');
+  expect(appText).toContain(`HOY La Manga · Mar Menor · App ${version}`);
   expect(appText).toContain('hours-quality-2.21.js?v=2.21.0');
   expect(appText).toContain('now-status-2.19.css?v=2.19.2');
   expect(appText).toContain('now-status-2.19.js?v=2.19.2');
   expect(appText).toContain('menu-signature-2.13.js?v=2.20.1');
   expect(appText).toContain('profile-flow-2.7.js?v=2.20.1');
   const workerText = await (await request.get('./service-worker.js')).text();
-  expect(workerText).toContain("const CACHE='hoy-v2.21.0'");
+  expect(workerText).toContain(`const CACHE='hoy-v${version}'`);
   expect(workerText).toContain('./hours-quality-2.21.js');
   expect(workerText).toContain('./now-status-2.19.js');
   expect(workerText).toContain('./now-status-2.19.css');
