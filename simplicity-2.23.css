@@ -24,13 +24,14 @@
   margin-top:10px!important;
 }
 
-#detail.profile-premium.hoy-simple-profile .profile-trust-line{display:none!important}
+#detail.profile-premium.hoy-simple-profile .profile-trust-line{
+  margin-top:10px;
+}
+#detail.profile-premium.hoy-simple-profile .profile-trust-line span:first-child{
+  color:#6d7d87;
+}
 #detail.profile-premium.hoy-simple-profile .showcase-proof,
 #detail.profile-premium.hoy-simple-profile .showcase-warning{display:none!important}
-#detail.profile-premium.hoy-simple-profile .profile-quick-actions.hoy-actions-two{
-  grid-template-columns:repeat(2,minmax(0,1fr));
-}
-#detail.profile-premium.hoy-simple-profile .hoy-secondary-action-hidden{display:none!important}
 
 #detail.profile-premium .hours-simple-card{
   position:relative;
