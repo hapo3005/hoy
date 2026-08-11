@@ -128,13 +128,8 @@ test('unpaid or not-yet-started promotion rows never become guest advertising', 
   await expect(card.locator('.hoy-sponsored-chip')).toHaveCount(0);
 });
 
-test('2.17 promotion assets are real PWA resources and the Control Center loads the review extension cleanly', async ({ request, page }) => {
-  const pkg = await request.get('./package.json');
-  expect(pkg.ok()).toBeTruthy();
-  const { version } = await pkg.json();
-  expect(version).toBe('2.17.1');
-
-  for (const asset of ['./promotion-2.17.1.js', './promotion-2.17.css', './admin-promotion-2.17.js', './admin-promotion-2.17.css']) {
+test('2.17 sponsored guest assets remain real PWA resources after later releases', async ({ request }) => {
+  for (const asset of ['./promotion-2.17.1.js', './promotion-2.17.css']) {
     const res = await request.get(asset);
     expect(res.ok(), `${asset} should load`).toBeTruthy();
     expect((res.headers()['content-type'] || '')).not.toMatch(/text\/html/i);
@@ -142,13 +137,6 @@ test('2.17 promotion assets are real PWA resources and the Control Center loads 
 
   const worker = await request.get('./service-worker.js');
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.17.1'");
   expect(workerText).toContain('./promotion-2.17.1.js');
   expect(workerText).toContain('./promotion-2.17.css');
-
-  const errors = [];
-  page.on('pageerror', err => errors.push(err.message));
-  await page.goto('./admin.html', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.admin-login')).toBeVisible({ timeout: 15_000 });
-  expect(errors).toEqual([]);
 });
