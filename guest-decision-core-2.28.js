@@ -9,8 +9,8 @@
   const esc280=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const nowStatus=p=>window.hoyNowStatus219For?.(p)||null;
   const currentFor=p=>window.hoyBestCurrentFor?.(p)||null;
-  const menuState=p=>typeof menuFor==='function'?menuFor(p):null;
-  const service=(p,k)=>typeof effectiveServiceState==='function'?effectiveServiceState(p,k):'unknown';
+  const menuState=p=>p&&typeof menuFor==='function'?menuFor(p):null;
+  const service=(p,k)=>p&&typeof effectiveServiceState==='function'?effectiveServiceState(p,k):'unknown';
 
   function madridDay(v=new Date()){
     const d=v instanceof Date?v:new Date(v);if(!Number.isFinite(d.getTime()))return '';
@@ -35,6 +35,7 @@
     return '';
   }
   function decisionScore(p){
+    if(!p)return -999;
     let score=0;const hours=nowStatus(p),row=currentFor(p),phase=currentPhase(row),menu=menuState(p);
     if(hours?.state==='open')score+=72;
     else if(hours?.state==='later')score+=18;
@@ -93,7 +94,7 @@
     return `<div class="${cls}">${reasonsFor(p).map(r=>`<span class="${esc280(r.tone)}">${esc280(r.label)}</span>`).join('')}</div>`;
   }
   function nowCard(p,index){
-    const v=verdictFor(p),menu=menuState(p),row=currentFor(p),phase=currentPhase(row);
+    const v=verdictFor(p),row=currentFor(p),phase=currentPhase(row);
     const kicker=phase==='running'?'JETZT LOS':phase==='soon'?'GLEICH LOS':v.tone==='strong'?'JETZT PASSEND':'HEUTE PASSEND';
     return `<button type="button" class="decision280-card ${esc280(v.tone)}" data-decision280-open="${Number(p.id)}"><span class="decision280-rank">${index+1}</span><div class="decision280-card-copy"><small>${kicker}</small><strong>${esc280(p.name)}</strong><span>${esc280(p.area||'')}</span>${reasonPills(p)}</div><span class="decision280-arrow" aria-hidden="true">→</span></button>`;
   }
@@ -118,19 +119,18 @@
     const defs=[['all','Beste Auswahl'],['now','Jetzt geöffnet'],['today','Heute etwas los']];
     return `<div class="decision280-momentbar" aria-label="Zeitbezug">${defs.map(([k,l])=>`<button type="button" class="${state.moment===k?'active':''}" data-decision280-moment="${k}">${l}</button>`).join('')}</div>`;
   }
-  function reorderDiscover(root){
-    const list=root.querySelector('[data-journey-results]');if(!list)return;
+  function reorderDiscover(root=document){
+    const list=root.querySelector?.('[data-journey-results]');if(!list)return;
     const cards=[...list.querySelectorAll('.list-card[data-open]')];
     cards.sort((a,b)=>decisionScore((DATA||[]).find(p=>Number(p.id)===Number(b.dataset.open)))-decisionScore((DATA||[]).find(p=>Number(p.id)===Number(a.dataset.open))));
     cards.forEach(card=>{
       const p=(DATA||[]).find(x=>Number(x.id)===Number(card.dataset.open));if(!p)return;
       list.appendChild(card);
-      if(!card.querySelector('.decision280-card-verdict')){
-        const v=verdictFor(p),target=card.querySelector('.decision-copy')||card;
-        target.insertAdjacentHTML('beforeend',`<div class="decision280-card-verdict ${esc280(v.tone)}"><b>${esc280(v.title)}</b>${reasonPills(p,'decision280-reasons compact')}</div>`);
-      }
+      card.querySelector('.decision280-card-verdict')?.remove();
+      const v=verdictFor(p),target=card.querySelector('.decision-copy')||card;
+      target.insertAdjacentHTML('beforeend',`<div class="decision280-card-verdict ${esc280(v.tone)}"><b>${esc280(v.title)}</b>${reasonPills(p,'decision280-reasons compact')}</div>`);
     });
-    const label=root.querySelector('[data-result-label]');if(label)label.textContent=cards.length===1?'Ort · nach Jetzt-Relevanz':'Orte · nach Jetzt-Relevanz';
+    const label=root.querySelector?.('[data-result-label]');if(label)label.textContent=cards.length===1?'Ort · nach Jetzt-Relevanz':'Orte · nach Jetzt-Relevanz';
   }
   const baseDiscover280=discover;
   discover=function(){
@@ -144,11 +144,12 @@
 
   function decorateMap(){
     const cards=[...document.querySelectorAll('.map-decision-card[data-map-card]')];if(!cards.length)return;
+    cards.forEach(card=>{card.classList.remove('decision280-map-top');card.querySelector('.decision280-map-verdict')?.remove()});
     const rankedCards=[...cards].sort((a,b)=>decisionScore((DATA||[]).find(p=>Number(p.id)===Number(b.dataset.mapCard)))-decisionScore((DATA||[]).find(p=>Number(p.id)===Number(a.dataset.mapCard))));
     rankedCards.slice(0,3).forEach((card,i)=>{
       const p=(DATA||[]).find(x=>Number(x.id)===Number(card.dataset.mapCard));if(!p)return;
       card.classList.add('decision280-map-top');card.dataset.decisionRank=String(i+1);
-      if(!card.querySelector('.decision280-map-verdict'))(card.querySelector('.map-decision-signals')||card).insertAdjacentHTML('beforebegin',`<div class="decision280-map-verdict"><b>#${i+1} · ${esc280(verdictFor(p).title)}</b>${reasonPills(p,'decision280-reasons compact')}</div>`);
+      (card.querySelector('.map-decision-signals')||card).insertAdjacentHTML('beforebegin',`<div class="decision280-map-verdict"><b>#${i+1} · ${esc280(verdictFor(p).title)}</b>${reasonPills(p,'decision280-reasons compact')}</div>`);
     });
   }
   const baseMapView280=mapView;
@@ -170,11 +171,16 @@
   const baseOpenDetail280=openDetail;
   openDetail=function(id){baseOpenDetail280(id);decorateProfile(id);setTimeout(()=>decorateProfile(id),0)};
 
+  function resetMomentAndFilters(){state.moment='all';state.query='';state.service='all';state.decision='all';render()}
   function bind280(){
     document.querySelectorAll('[data-decision280-open]').forEach(b=>b.onclick=()=>openDetail(Number(b.dataset.decision280Open)));
     document.querySelectorAll('[data-decision280-moment]').forEach(b=>b.onclick=()=>{state.moment=b.dataset.decision280Moment||'all';state.view='discover';render()});
     document.querySelectorAll('[data-decision280-all]').forEach(b=>b.onclick=()=>{state.moment='all';state.view='discover';render()});
-    if(state.view==='map')setTimeout(decorateMap,80);
+    document.querySelectorAll('[data-consumer-reset],[data-decision-reset]').forEach(b=>b.onclick=resetMomentAndFilters);
+    const q=document.getElementById('q');if(q&&state.view==='discover')q.addEventListener('input',()=>setTimeout(()=>reorderDiscover(document),0));
+    if(state.view==='map'){
+      setTimeout(decorateMap,60);setTimeout(decorateMap,220);setTimeout(decorateMap,600);
+    }
   }
   const baseWire280=wire;
   wire=function(){baseWire280();bind280()};
