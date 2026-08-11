@@ -1,4 +1,4 @@
-/* HOY 2.13.5 — premium guest profile orchestration: emotional hero, concise identity and refresh-safe navigation */
+/* HOY 2.18.2 — premium guest profile orchestration: emotional hero, concise identity and async refresh-safe navigation */
 (function(){
   const text=(v)=>String(v||'').trim();
 
@@ -172,13 +172,18 @@
   };
 
   window.addEventListener('hoy:profile-menu-refreshed',e=>{
-    const d=document.getElementById('detail');
     const id=Number(e.detail?.restaurantId||0);
+    const d=document.getElementById('detail');
     if(!d?.open||!d.classList.contains('profile-premium')||Number(d.dataset.restaurantId||0)!==id)return;
-    const nav=d.querySelector('.profile-premium-nav');
-    // A data refresh must never move the user's navigation state. Preserve the current active section and
-    // let the section spy change it only when the user's actual scroll position warrants it.
-    if(nav)wireSectionSpy(d,nav);
-    keepMenuNavigationDeterministic(d);
+    clearTimeout(d._hoyProfileRefreshTimer2182);
+    d._hoyProfileRefreshTimer2182=setTimeout(()=>{
+      if(!d.open||Number(d.dataset.restaurantId||0)!==id)return;
+      const nav=d.querySelector('.profile-premium-nav');
+      const activeHref=nav?.querySelector('a.active')?.getAttribute('href')||'#profile-about';
+      // Menu replacement changes the observed #profile-menu node. Rewire outside the dispatchEvent stack so
+      // refresh publishers never block on WebKit observer work, and preserve the user's current section meanwhile.
+      if(nav){wireSectionSpy(d,nav);setActiveNav(nav,activeHref)}
+      keepMenuNavigationDeterministic(d);
+    },0);
   });
 })();
