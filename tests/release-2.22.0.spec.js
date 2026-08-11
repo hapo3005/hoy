@@ -29,6 +29,7 @@ test('HOY 2.22 loads opening-hours trust assets and keeps one-tap confirmation p
 
 test('restaurant profiles explain verified and conflicting hours instead of faking NOW certainty', async ({ page }) => {
   await page.goto('./', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => page.evaluate(() => cloud.status), { timeout: 20_000 }).toBe('online');
   await page.locator('[data-btm="discover"]').click();
   await expect(page.locator('.journey-discover-signature')).toBeVisible();
 
