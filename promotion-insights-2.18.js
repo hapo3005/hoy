@@ -46,7 +46,7 @@
 
   async function loadCampaigns(p){
     const {data,error}=await sb.from('event_promotions')
-      .select('id,offer_id,restaurant_id,status,billing_status,starts_at,ends_at,quoted_price_cents,currency,approved_at,created_at')
+      .select('id,offer_id,restaurant_id,status,billing_status,starts_at,ends_at,quoted_price_cents,currency,approved_at,created_at,updated_at')
       .eq('restaurant_id',Number(p.id)).order('created_at',{ascending:false}).limit(8);
     if(error)throw error;return data||[];
   }
@@ -67,7 +67,10 @@
     if(d.dataset.promoResultsLoading218==='1')return;d.dataset.promoResultsLoading218='1';
     try{
       const rows=(await loadCampaigns(p)).filter(x=>['active','cancelled'].includes(String(x.status))||asDate(x.ends_at)<=new Date()).filter(x=>x.approved_at||x.quoted_price_cents!=null).slice(0,4);
+      const sig=rows.map(x=>`${x.id}:${x.status}:${x.billing_status}:${x.updated_at||x.ends_at}`).join('|');
+      if(sig&&d.dataset.promoResultsSig218===sig&&d.querySelector('.hoy-promo-performance-218'))return;
       d.querySelector('.hoy-promo-performance-218')?.remove();
+      d.dataset.promoResultsSig218=sig;
       if(!rows.length)return;
       const insights=[];for(const row of rows){try{insights.push([row,await loadInsight(row.id)])}catch(_){}}
       if(!insights.length)return;
