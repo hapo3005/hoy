@@ -1,8 +1,8 @@
-/* HOY 2.28.0 — canonical guest decision spine: turn trusted live signals into one explainable journey */
+/* HOY 2.28.1 — canonical guest decision spine: turn trusted live signals into one explainable journey */
 (function(){
   if(window.__hoyGuestDecisionCore280)return;
   window.__hoyGuestDecisionCore280=true;
-  window.hoyGuestDecisionCoreVersion='2.28.0';
+  window.hoyGuestDecisionCoreVersion='2.28.1';
 
   state.moment=state.moment||'all';
   const TZ='Europe/Madrid';
@@ -82,12 +82,17 @@
     const hours=nowStatus(p);
     return hours?.state==='open'||hours?.state==='later';
   }
+  function nowMomentAvailable(){return (DATA||[]).some(p=>nowStatus(p)?.state==='open')}
+  function todayMomentAvailable(){return (DATA||[]).some(p=>['running','soon','today'].includes(currentPhase(currentFor(p))))}
+  function momentAvailable(key){return key==='now'?nowMomentAvailable():key==='today'?todayMomentAvailable():true}
   function ranked(rows){return [...rows].sort((a,b)=>decisionScore(b)-decisionScore(a)||String(a.name||'').localeCompare(String(b.name||''),'de'))}
   window.hoyDecision280For=p=>({...verdictFor(p)});
   window.hoyDecision280Rank=rows=>ranked(rows||[]);
+  window.hoyDecision280MomentAvailable=momentAvailable;
 
   const baseFiltered280=filtered;
   filtered=function(){
+    if(!momentAvailable(state.moment))state.moment='all';
     let rows=baseFiltered280();
     if(state.moment==='now')rows=rows.filter(p=>nowStatus(p)?.state==='open');
     else if(state.moment==='today')rows=rows.filter(p=>['running','soon','today'].includes(currentPhase(currentFor(p))));
@@ -102,10 +107,17 @@
     const kicker=phase==='running'?'JETZT LOS':phase==='soon'?'GLEICH LOS':v.tone==='strong'?'JETZT PASSEND':'HEUTE PASSEND';
     return `<button type="button" class="decision280-card ${esc280(v.tone)}" data-decision280-open="${Number(p.id)}"><span class="decision280-rank">${index+1}</span><div class="decision280-card-copy"><small>${kicker}</small><strong>${esc280(p.name)}</strong><span>${esc280(p.area||'')}</span>${reasonPills(p)}</div><span class="decision280-arrow" aria-hidden="true">→</span></button>`;
   }
+  function momentButtons({map=false}={}){
+    const out=[];
+    if(nowMomentAvailable())out.push('<button type="button" data-decision280-moment="now">Jetzt geöffnet</button>');
+    if(todayMomentAvailable())out.push('<button type="button" data-decision280-moment="today">Heute etwas los</button>');
+    if(map)out.push('<button type="button" data-nav="map">Auf der Karte</button>');
+    return out.join('');
+  }
   function homeDecisionBlock(){
     const candidates=ranked((DATA||[]).filter(decisionEligibleNow)).slice(0,3);
     if(!candidates.length)return '';
-    return `<section class="decision280-home" data-decision280-home><div class="decision280-head"><div><span>HOY NOW</span><h2>Was jetzt wirklich passt.</h2><p>Öffnungszeiten, Aktuelles, Speisekarte und Services bereits zusammengedacht.</p></div><button type="button" data-decision280-all>Alle ansehen</button></div><div class="decision280-list">${candidates.map(nowCard).join('')}</div><div class="decision280-moments"><button type="button" data-decision280-moment="now">Jetzt geöffnet</button><button type="button" data-decision280-moment="today">Heute etwas los</button><button type="button" data-nav="map">Auf der Karte</button></div></section>`;
+    return `<section class="decision280-home" data-decision280-home><div class="decision280-head"><div><span>HOY NOW</span><h2>Was jetzt wirklich passt.</h2><p>Öffnungszeiten, Aktuelles, Speisekarte und Services bereits zusammengedacht.</p></div><button type="button" data-decision280-all>Alle ansehen</button></div><div class="decision280-list">${candidates.map(nowCard).join('')}</div><div class="decision280-moments">${momentButtons({map:true})}</div></section>`;
   }
 
   const baseHome280=home;
@@ -120,7 +132,10 @@
   };
 
   function momentBar(){
-    const defs=[['all','Beste Auswahl'],['now','Jetzt geöffnet'],['today','Heute etwas los']];
+    const defs=[['all','Beste Auswahl']];
+    if(nowMomentAvailable())defs.push(['now','Jetzt geöffnet']);
+    if(todayMomentAvailable())defs.push(['today','Heute etwas los']);
+    if(!momentAvailable(state.moment))state.moment='all';
     return `<div class="decision280-momentbar" aria-label="Zeitbezug">${defs.map(([k,l])=>`<button type="button" class="${state.moment===k?'active':''}" data-decision280-moment="${k}">${l}</button>`).join('')}</div>`;
   }
   function reorderDiscover(root=document){
@@ -178,7 +193,7 @@
   function resetMomentAndFilters(){state.moment='all';state.query='';state.service='all';state.decision='all';render()}
   function bind280(){
     document.querySelectorAll('[data-decision280-open]').forEach(b=>b.onclick=()=>openDetail(Number(b.dataset.decision280Open)));
-    document.querySelectorAll('[data-decision280-moment]').forEach(b=>b.onclick=()=>{state.moment=b.dataset.decision280Moment||'all';state.view='discover';render()});
+    document.querySelectorAll('[data-decision280-moment]').forEach(b=>b.onclick=()=>{const next=b.dataset.decision280Moment||'all';state.moment=momentAvailable(next)?next:'all';state.view='discover';render()});
     document.querySelectorAll('[data-decision280-all]').forEach(b=>b.onclick=()=>{state.moment='all';state.view='discover';render()});
     document.querySelectorAll('[data-consumer-reset],[data-decision-reset]').forEach(b=>b.onclick=resetMomentAndFilters);
     document.querySelectorAll('[data-home-intent],[data-journey-area]').forEach(b=>b.addEventListener('click',()=>{state.moment='all'},{capture:true}));
