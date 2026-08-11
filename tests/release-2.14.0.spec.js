@@ -11,9 +11,10 @@ test('decision-first home explains the HOY value before the user starts searchin
 
   const hero = page.locator('.journey-signature-hero');
   await expect(hero).toBeVisible();
-  await expect(hero.locator('.hero-copy p')).toContainText(/Menüs, Services und klarer Datenlage/i);
-  await expect(hero.locator('.journey-trust-strip')).toContainText(/Speisekarten.*Services.*Datenstatus sichtbar/i);
-  await expect(hero.locator('[data-home-search-go]')).toHaveText('Finden');
+  await expect(hero.locator('.hero-copy p')).toContainText(/aktuellen Öffnungszeiten und Speisekarten/i);
+  await expect(hero.locator('.journey-trust-strip')).toContainText(/Aktuelle Öffnungszeiten.*Speisekarten.*Direkt zum Betrieb/i);
+  await expect(hero.locator('.journey-trust-strip')).not.toContainText(/Datenstatus/i);
+  await expect(hero.locator('[data-home-search-go]')).toHaveText('Suchen');
 
   const metrics = await page.locator('.view').evaluate(el => ({
     clientWidth: el.clientWidth,
