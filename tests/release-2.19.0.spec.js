@@ -61,7 +61,8 @@ test('2.19.3 current-status assets are deployed and PWA-cached', async ({ reques
   expect(appText).toContain('HOY La Manga · Mar Menor · App 2.19.3');
   expect(appText).toContain('now-status-2.19.css?v=2.19.2');
   expect(appText).toContain('now-status-2.19.js?v=2.19.2');
-  expect(appText).toContain('menu-signature-2.13.js?v=2.19.3');
+  expect(appText).toContain('menu-signature-2.13.js?v=2.20.1');
+  expect(appText).toContain('profile-flow-2.7.js?v=2.20.1');
   const workerText = await (await request.get('./service-worker.js')).text();
   expect(workerText).toContain("const CACHE='hoy-v2.19.3'");
   expect(workerText).toContain('./now-status-2.19.js');
