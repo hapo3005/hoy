@@ -33,7 +33,7 @@ test('overnight schedules work while uncertain public hours stay deliberately si
   expect(values.uncertain).toBeNull();
 });
 
-test('operator special hours may truthfully use a live now label and the same status reaches list, map and profile', async ({ page }) => {
+test('operator special hours may truthfully use a live now label and the same status reaches list, map and existing profile hours UI', async ({ page }) => {
   await page.goto('./', { waitUntil: 'domcontentloaded' });
   const operator = await page.evaluate(() => window.hoyNowStatus219For?.({
     operator_special_hours: {
@@ -67,7 +67,11 @@ test('operator special hours may truthfully use a live now label and the same st
 
   await card.click();
   const detail = page.locator('#detail[open]');
-  await expect(detail.locator('.hoy-profile-now-status')).toContainText('Nicht live bestätigt');
+  const profileHours = detail.locator('.profile-hours[data-hoy-now-status="1"]');
+  await expect(profileHours).toContainText(/Offen bis/i);
+  await expect(profileHours).toContainText(/Laut Öffnungszeiten · nicht live bestätigt/i);
+  await expect(detail.locator('.showcase-snapshot .showcase-mini[data-hoy-now-status="1"]')).toContainText(/Offen bis/i);
+  await expect(detail.locator('.hoy-profile-now-status')).toHaveCount(0);
   await detail.locator('[data-close]').first().click();
 
   await page.evaluate(() => nav('map'));
@@ -77,10 +81,10 @@ test('operator special hours may truthfully use a live now label and the same st
   await expect(mapCard.locator('[data-hoy-now-status]')).toContainText('Laut Öffnungszeiten · offen bis');
 });
 
-test('2.19 current-status assets are deployed and PWA-cached', async ({ request }) => {
+test('2.19.1 current-status assets are deployed and PWA-cached', async ({ request }) => {
   const pkg = await request.get('./package.json');
   expect(pkg.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.19.0');
+  expect((await pkg.json()).version).toBe('2.19.1');
 
   for (const asset of ['./now-status-2.19.js','./now-status-2.19.css']) {
     const res = await request.get(asset);
@@ -90,13 +94,13 @@ test('2.19 current-status assets are deployed and PWA-cached', async ({ request 
 
   const app = await request.get('./index.html');
   const appText = await app.text();
-  expect(appText).toContain('HOY La Manga · Mar Menor · App 2.19.0');
-  expect(appText).toContain('now-status-2.19.css?v=2.19.0');
-  expect(appText).toContain('now-status-2.19.js?v=2.19.0');
+  expect(appText).toContain('HOY La Manga · Mar Menor · App 2.19.1');
+  expect(appText).toContain('now-status-2.19.css?v=2.19.1');
+  expect(appText).toContain('now-status-2.19.js?v=2.19.1');
 
   const worker = await request.get('./service-worker.js');
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.19.0'");
+  expect(workerText).toContain("const CACHE='hoy-v2.19.1'");
   expect(workerText).toContain('./now-status-2.19.js');
   expect(workerText).toContain('./now-status-2.19.css');
 });
