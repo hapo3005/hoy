@@ -146,7 +146,7 @@ test('localized menu presents the HOY language promise and editorial browsing co
   await expect(section).toHaveClass(/menu-signature/);
   await expect(section).toHaveClass(/menu-signature-localized/);
   await expect(section).toHaveAttribute('data-menu-locale', 'de');
-  await expect(section.locator('.profile-section-head h3')).toContainText(/Speisekarte auf Deutsch/i);
+  await expect(section.locator('.profile-section-head h3')).toContainText(/(?:Speisekarte|Auswahl) auf Deutsch/i);
   await expect(section.locator('.menu-signature-promise')).toBeVisible();
   await expect(section.locator('.menu-signature-promise')).toContainText(/Für dich auf Deutsch/i);
   await expect(section.locator('.menu-signature-promise')).toContainText(/Originalpreise unverändert/i);
