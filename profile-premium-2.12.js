@@ -1,4 +1,4 @@
-/* HOY 2.18.4 — premium guest profile orchestration with layout-lazy rerender-safe navigation */
+/* HOY 2.18.5 — premium guest profile orchestration with refresh-safe user-owned navigation */
 (function(){
   const text=(v)=>String(v||'').trim();
 
@@ -43,18 +43,16 @@
 
     const sync=()=>{
       d._hoyProfileScrollFrame=0;
-      if(!d.open||!nav?.isConnected)return;
+      if(!d.open||!nav?.isConnected||d._hoyMenuRefreshing)return;
       setActiveNav(nav,activeSectionHref(d));
     };
     const onScroll=()=>{
-      if(d._hoyProfileScrollFrame)return;
+      if(d._hoyMenuRefreshing||d._hoyProfileScrollFrame)return;
       d._hoyProfileScrollFrame=requestAnimationFrame(sync);
     };
     d.addEventListener('scroll',onScroll,{passive:true});
     d._hoyProfileScrollHandler=onScroll;
     d._hoyProfileSyncSection=sync;
-    // Initial state is deliberately set by enhanceProfile. Geometry is read only after an actual scroll,
-    // never during first paint or immediately after an async menu replacement.
   }
 
   function ensureMenuCategoryNav(d){
@@ -101,9 +99,6 @@
     });
     observer.observe(section,{childList:true,subtree:true});
     d._hoyMenuNavObserver=observer;
-
-    // MutationObserver covers the normal async menu arrival. Keep only a delayed fallback instead of
-    // stacking microtask/rAF work directly behind a large DOM replacement.
     setTimeout(()=>{
       ensureMenuCategoryNav(d);
       observer.disconnect();
@@ -143,19 +138,11 @@
     status?.remove();
     body.insertBefore(identity,body.firstChild);
 
-    if(snapshot){
-      snapshot.classList.add('profile-quick-snapshot');
-      identity.insertAdjacentElement('afterend',snapshot);
-    }
-
+    if(snapshot){snapshot.classList.add('profile-quick-snapshot');identity.insertAdjacentElement('afterend',snapshot)}
     if(actions){
       actions.classList.add('profile-quick-actions');
       const sticky=d.querySelector('.detail-primary-bar');
-      if(sticky){
-        actions.querySelectorAll('a').forEach(a=>{
-          if((a.getAttribute('href')||'').includes('google.com/maps'))a.classList.add('profile-action-duplicate');
-        });
-      }
+      if(sticky)actions.querySelectorAll('a').forEach(a=>{if((a.getAttribute('href')||'').includes('google.com/maps'))a.classList.add('profile-action-duplicate')});
       (snapshot||identity).insertAdjacentElement('afterend',actions);
     }
 
@@ -193,16 +180,7 @@
     if(p)enhanceProfile(p,d);
   };
 
-  window.addEventListener('hoy:profile-menu-refreshed',e=>{
-    const id=Number(e.detail?.restaurantId||0);
-    const d=document.getElementById('detail');
-    if(!d?.open||!d.classList.contains('profile-premium')||Number(d.dataset.restaurantId||0)!==id)return;
-    clearTimeout(d._hoyProfileRefreshTimer2184);
-    d._hoyProfileRefreshTimer2184=setTimeout(()=>{
-      if(!d.open||Number(d.dataset.restaurantId||0)!==id)return;
-      // Preserve the current top-level tab exactly. A data refresh is not user navigation and therefore
-      // must not force layout or recalculate the section until the next real dialog scroll.
-      keepMenuNavigationDeterministic(d);
-    },0);
-  });
+  // A menu-data refresh is not navigation. profile-flow preserves the active tab while replacing the menu.
+  // This notification intentionally performs no section/layout work; the existing scroll handler already
+  // queries the current DOM the next time the user actually scrolls.
 })();
