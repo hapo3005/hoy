@@ -1,0 +1,36 @@
+/* HOY 2.27.0 — claim entry + verified welcome */
+#detail .onboarding-claim-entry{
+  margin-top:22px;
+  padding:17px;
+  border:1px solid rgba(16,40,61,.09);
+  border-radius:18px;
+  background:linear-gradient(145deg,#fffaf2,#f4eee3);
+  box-shadow:0 12px 28px rgba(7,31,53,.05);
+}
+#detail .onboarding-claim-entry h3{margin:0 0 6px;color:var(--navy);font:600 20px/1.08 var(--serif);letter-spacing:-.025em}
+#detail .onboarding-claim-entry p{margin:0;color:#667782;font-size:10px;line-height:1.55}
+#detail .onboarding-claim-entry button{width:100%;min-height:46px;margin-top:12px;border:0;border-radius:13px;background:var(--navy);color:#fff;font-size:10px;font-weight:850;box-shadow:0 10px 22px rgba(6,42,73,.14)}
+
+.onboarding-preclaim-hidden{display:none!important}
+.onboarding-partner-hero{margin-top:12px}
+.onboarding-partner-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 18px 0}
+.onboarding-partner-steps>div{min-width:0;padding:12px;border:1px solid rgba(16,40,61,.08);border-radius:15px;background:#fffaf2;box-shadow:0 8px 20px rgba(7,31,53,.035)}
+.onboarding-partner-steps span{width:24px;height:24px;display:grid;place-items:center;margin-bottom:9px;border-radius:50%;background:#062a49;color:#fff;font-size:8px;font-weight:900}
+.onboarding-partner-steps b{display:block;color:#17364c;font-size:10px;line-height:1.25}
+.onboarding-partner-steps small{display:block;margin-top:3px;color:#7c8992;font-size:8px;line-height:1.35}
+
+.onboarding-verified-welcome{margin:14px 16px 8px;padding:18px;border:1px solid rgba(38,118,83,.13);border-radius:22px;background:linear-gradient(145deg,#edf6f1,#fffaf2 72%);box-shadow:0 16px 36px rgba(7,31,53,.06)}
+.onboarding-welcome-mark{width:43px;height:43px;display:grid;place-items:center;margin-bottom:12px;border-radius:50%;background:#267653;color:#fff;font-size:17px;font-weight:900;box-shadow:0 10px 22px rgba(38,118,83,.16)}
+.onboarding-verified-welcome h2{margin:5px 0 8px;color:#062a49;font:500 28px/1 var(--serif);letter-spacing:-.04em}
+.onboarding-verified-welcome p{margin:0;color:#63757f;font-size:10.5px;line-height:1.55}
+.onboarding-welcome-actions{display:grid;grid-template-columns:1.25fr 1fr;gap:8px;margin-top:14px}
+.onboarding-welcome-actions button{min-height:44px;border:1px solid rgba(16,40,61,.12);border-radius:13px;background:#fff;color:#062a49;font-size:9.5px;font-weight:850}
+.onboarding-welcome-actions button.primary{border-color:#062a49;background:#062a49;color:#fff;box-shadow:0 9px 20px rgba(6,42,73,.14)}
+.onboarding-welcome-dismiss{margin-top:9px;border:0;background:transparent;color:#7e8a91;font-size:8.5px;font-weight:800;padding:6px 2px}
+
+@media(max-width:400px){
+  .onboarding-partner-steps{grid-template-columns:1fr;margin-left:14px;margin-right:14px}
+  .onboarding-partner-steps>div{display:grid;grid-template-columns:27px 1fr;gap:2px 9px;align-items:center}
+  .onboarding-partner-steps span{grid-row:1/3;margin:0}
+  .onboarding-welcome-actions{grid-template-columns:1fr}
+}
