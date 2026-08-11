@@ -13,7 +13,7 @@ async function mockDecisionSignals(page){
     const ids=DATA.slice(0,4).map(x=>Number(x.id));
     window.hoyNowStatus219For=p=>{
       const id=Number(p?.id);
-      if(id===ids[0])return {state:'open',tone:'open',label:'Jetzt geöffnet · bis 23:30',source:'operator',operatorConfirmed:true};
+      if(id===ids[0])return {state:'open',tone:'open',label:'Jetzt geöffnet',source:'operator',operatorConfirmed:true};
       if(id===ids[1])return {state:'later',tone:'later',label:'Öffnet heute 21:00',source:'operator',operatorConfirmed:true};
       return {state:'closed',tone:'closed',label:'Heute geschlossen',source:'operator',operatorConfirmed:true};
     };
@@ -22,21 +22,21 @@ async function mockDecisionSignals(page){
   });
 }
 
-test('HOY 2.28 release assets are wired and cached',async({page,request})=>{
+test('HOY 2.28.2 release assets are wired and cached',async({page,request})=>{
   const [js,css,pkg,index,worker]=await Promise.all([
     request.get('./guest-decision-core-2.28.js'),request.get('./guest-decision-core-2.28.css'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')
   ]);
   for(const res of [js,css,pkg,index,worker])expect(res.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.28.0');
+  expect((await pkg.json()).version).toBe('2.28.2');
   const indexText=await index.text(),workerText=await worker.text();
-  expect(indexText).toContain('App 2.28.0');
-  expect(indexText).toContain('guest-decision-core-2.28.css?v=2.28.0');
-  expect(indexText).toContain('guest-decision-core-2.28.js?v=2.28.0');
-  expect(workerText).toContain("const CACHE='hoy-v2.28.0'");
+  expect(indexText).toContain('App 2.28.2');
+  expect(indexText).toContain('guest-decision-core-2.28.css?v=2.28.2');
+  expect(indexText).toContain('guest-decision-core-2.28.js?v=2.28.2');
+  expect(workerText).toContain("const CACHE='hoy-v2.28.2'");
   expect(workerText).toContain('./guest-decision-core-2.28.css');
   expect(workerText).toContain('./guest-decision-core-2.28.js');
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  expect(await page.evaluate(()=>window.hoyGuestDecisionCoreVersion)).toBe('2.28.0');
+  expect(await page.evaluate(()=>window.hoyGuestDecisionCoreVersion)).toBe('2.28.2');
 });
 
 test('decision score prefers genuinely open and current places',async({page})=>{
