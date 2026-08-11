@@ -41,7 +41,9 @@ test('operator special hours may truthfully use a live label while current statu
     p.hours_text = 'Täglich 00:00–12:00 & 12:00–24:00'; p.operator_hours = null; p.operator_special_hours = null; render();
   });
   await expect(page.locator('.list-card[data-open="16"]')).toBeVisible({ timeout: 12_000 });
-  await expect(page.locator('.list-card[data-open="16"] [data-hoy-now-status]')).toContainText('Laut Öffnungszeiten · offen bis');
+  const listNow = page.locator('.list-card[data-open="16"] [data-hoy-now-status]');
+  await expect(listNow).toContainText(/Geöffnet · bis/);
+  await expect(listNow).not.toContainText('Laut Öffnungszeiten');
 
   await page.locator('.list-card[data-open="16"]').click();
   const detail = page.locator('#detail[open]');
@@ -53,7 +55,9 @@ test('operator special hours may truthfully use a live label while current statu
   await expect(page.locator('.map-journey-signature')).toBeVisible();
   const mapCard = page.locator('.map-decision-card[data-map-card="16"]');
   await expect(mapCard).toBeVisible({ timeout: 20_000 });
-  await expect(mapCard.locator('[data-hoy-now-status]')).toContainText('Laut Öffnungszeiten · offen bis');
+  const mapNow = mapCard.locator('[data-hoy-now-status]');
+  await expect(mapNow).toContainText(/Geöffnet · bis/);
+  await expect(mapNow).not.toContainText('Laut Öffnungszeiten');
 });
 
 test('cloud provenance gate exposes NOW only for verified base schedules', async ({ page }) => {
