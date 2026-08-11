@@ -1,4 +1,4 @@
-/* HOY 2.19.1 — contextual now-status, integrated into existing surfaces */
+/* HOY 2.19.2 — contextual current-hours status only on decision surfaces */
 .hoy-now-status{display:flex;align-items:flex-start;gap:9px;min-width:0;color:#12324c}
 .hoy-now-status .hoy-now-dot{width:8px;height:8px;border-radius:50%;flex:0 0 8px;margin-top:5px;background:#71808d;box-shadow:0 0 0 4px rgba(113,128,141,.1)}
 .hoy-now-status>div{display:grid;gap:2px;min-width:0}
@@ -11,9 +11,5 @@
 .hoy-now-status.compact strong{font-size:12px}
 .decision-card .hoy-now-status.compact,.decision-card-signature .hoy-now-status.compact{max-width:max-content}
 .map-decision-card .hoy-now-status.compact{margin:2px 0 7px}
-.profile-hours[data-hoy-now-status="1"] .hours-proof b{color:#12324c}
-.profile-hours[data-hoy-now-tone="open"] .hours-proof b,.showcase-mini[data-hoy-now-tone="open"] strong{color:#17644c}
-.profile-hours[data-hoy-now-tone="later"] .hours-proof b,.showcase-mini[data-hoy-now-tone="later"] strong{color:#b85d20}
-.showcase-mini[data-hoy-now-status="1"] span{font-weight:650}
 @media (max-width:520px){.hoy-now-status.compact{padding:7px 9px}}
 @media (prefers-reduced-motion:reduce){.hoy-now-status .hoy-now-dot{box-shadow:none}}
