@@ -1,4 +1,4 @@
-/* HOY 2.19.3 — signature localized menu experience with non-blocking refresh reconciliation */
+/* HOY 2.20.1 — signature localized menu experience with bounded non-blocking refresh reconciliation */
 (function(){
   const COPY={
     de:{title:'Speisekarte auf Deutsch',partial:'Auswahl auf Deutsch',promise:'Für dich auf Deutsch',proof:'Kulinarisch übersetzt · Originalpreise unverändert',body:'HOY überträgt Gerichte sinngemäß statt Wort für Wort. Spanische Eigennamen bleiben erhalten, wenn sie zum Gericht gehören.',search:'Speisekarte durchsuchen …',checked:'HOY redaktionell geprüft'},
@@ -108,8 +108,6 @@
     const activeIndex=Math.max(0,buttons.findIndex(b=>b.classList.contains('active')));
     buttons.forEach((b,i)=>b.classList.toggle('active',i===activeIndex));
     nav.dataset.hoyActiveIndex=String(activeIndex);
-    // Category selection is intentionally user-controlled. Vertical profile scrolling must not move the
-    // horizontal category rail or claim that another category is active while a different heading is visible.
     return true;
   }
 
@@ -139,13 +137,14 @@
     const h3=head?.querySelector('h3');
     const small=head?.querySelector('small');
     const count=head?.querySelector('.profile-menu-count');
-    if(small)small.textContent='HOY SPEISEKARTE';
+    if(small&&small.textContent!=='HOY SPEISEKARTE')small.textContent='HOY SPEISEKARTE';
     if(h3&&m?.localized){
       const c=copyFor(m);
-      h3.textContent=m.status==='partial'?c.partial:c.title;
+      const wanted=m.status==='partial'?c.partial:c.title;
+      if(h3.textContent!==wanted)h3.textContent=wanted;
     }
     const n=itemCount(section);
-    if(count&&n)count.textContent=`${n} Positionen`;
+    if(count&&n){const wanted=`${n} Positionen`;if(count.textContent!==wanted)count.textContent=wanted}
 
     addPromise(section,m);
     restyleProvenance(section);
@@ -153,16 +152,28 @@
     return decorateCategories(section,d);
   }
 
+  function cancelSignatureRetry(d){
+    if(d?._hoyMenuSignatureRetryTimer)clearTimeout(d._hoyMenuSignatureRetryTimer);
+    if(d)d._hoyMenuSignatureRetryTimer=0;
+  }
+
   function enhanceSignatureMenu(p,d){
     const section=d?.querySelector('#profile-menu');
     if(!p||!section)return;
+    cancelSignatureRetry(d);
     if(applySignatureState(section,p,d))return;
 
-    const observer=new MutationObserver(()=>{
-      if(applySignatureState(section,p,d))observer.disconnect();
-    });
-    observer.observe(section,{childList:true,subtree:true});
-    setTimeout(()=>observer.disconnect(),5000);
+    // WebKit can deliver MutationObserver callbacks for mutations made by the callback itself.
+    // A bounded timer retry avoids a self-triggering microtask loop while still covering late menu data.
+    let attempts=0;
+    const retry=()=>{
+      d._hoyMenuSignatureRetryTimer=0;
+      if(!d.open||!section.isConnected)return;
+      attempts+=1;
+      if(applySignatureState(section,p,d))return;
+      if(attempts<12)d._hoyMenuSignatureRetryTimer=setTimeout(retry,Math.min(240,30*attempts));
+    };
+    d._hoyMenuSignatureRetryTimer=setTimeout(retry,0);
   }
 
   const baseOpenDetail213Menu=openDetail;
