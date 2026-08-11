@@ -1,4 +1,4 @@
-/* HOY 2.18.2 — premium guest profile orchestration: emotional hero, concise identity and async refresh-safe navigation */
+/* HOY 2.18.3 — premium guest profile orchestration with rerender-safe scroll navigation */
 (function(){
   const text=(v)=>String(v||'').trim();
 
@@ -21,17 +21,39 @@
     nav?.querySelectorAll('a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')===href));
   }
 
+  function activeSectionHref(d){
+    const sections=['#profile-about','#profile-menu','#profile-info']
+      .map(sel=>d?.querySelector(sel)).filter(Boolean);
+    if(!sections.length)return '#profile-about';
+    const box=d.getBoundingClientRect();
+    const threshold=box.top+Math.min(150,Math.max(96,box.height*.22));
+    let chosen=sections[0];
+    for(const section of sections){
+      if(section.getBoundingClientRect().top<=threshold)chosen=section;
+      else break;
+    }
+    return `#${chosen.id}`;
+  }
+
   function wireSectionSpy(d,nav){
     d._hoyProfileObserver?.disconnect?.();
-    const sections=['#profile-about','#profile-menu','#profile-info']
-      .map(sel=>d.querySelector(sel)).filter(Boolean);
-    if(!('IntersectionObserver' in window)||!sections.length)return;
-    const observer=new IntersectionObserver(entries=>{
-      const visible=entries.filter(x=>x.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
-      if(visible)setActiveNav(nav,`#${visible.target.id}`);
-    },{root:d,rootMargin:'-82px 0px -58% 0px',threshold:[0,.08,.2,.45]});
-    sections.forEach(s=>observer.observe(s));
-    d._hoyProfileObserver=observer;
+    d._hoyProfileObserver=null;
+    if(d._hoyProfileScrollHandler)d.removeEventListener('scroll',d._hoyProfileScrollHandler);
+    if(d._hoyProfileScrollFrame)cancelAnimationFrame(d._hoyProfileScrollFrame);
+
+    const sync=()=>{
+      d._hoyProfileScrollFrame=0;
+      if(!d.open||!nav?.isConnected)return;
+      setActiveNav(nav,activeSectionHref(d));
+    };
+    const onScroll=()=>{
+      if(d._hoyProfileScrollFrame)return;
+      d._hoyProfileScrollFrame=requestAnimationFrame(sync);
+    };
+    d.addEventListener('scroll',onScroll,{passive:true});
+    d._hoyProfileScrollHandler=onScroll;
+    d._hoyProfileSyncSection=sync;
+    queueMicrotask(sync);
   }
 
   function ensureMenuCategoryNav(d){
@@ -175,14 +197,12 @@
     const id=Number(e.detail?.restaurantId||0);
     const d=document.getElementById('detail');
     if(!d?.open||!d.classList.contains('profile-premium')||Number(d.dataset.restaurantId||0)!==id)return;
-    clearTimeout(d._hoyProfileRefreshTimer2182);
-    d._hoyProfileRefreshTimer2182=setTimeout(()=>{
+    clearTimeout(d._hoyProfileRefreshTimer2183);
+    d._hoyProfileRefreshTimer2183=setTimeout(()=>{
       if(!d.open||Number(d.dataset.restaurantId||0)!==id)return;
-      const nav=d.querySelector('.profile-premium-nav');
-      const activeHref=nav?.querySelector('a.active')?.getAttribute('href')||'#profile-about';
-      // Menu replacement changes the observed #profile-menu node. Rewire outside the dispatchEvent stack so
-      // refresh publishers never block on WebKit observer work, and preserve the user's current section meanwhile.
-      if(nav){wireSectionSpy(d,nav);setActiveNav(nav,activeHref)}
+      // The scroll handler queries the current sections on every sync, so replacing #profile-menu needs no
+      // IntersectionObserver rebuild. Recompute from the preserved dialog scroll position instead.
+      d._hoyProfileSyncSection?.();
       keepMenuNavigationDeterministic(d);
     },0);
   });
