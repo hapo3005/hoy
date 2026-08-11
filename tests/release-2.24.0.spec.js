@@ -63,7 +63,8 @@ test('operator cockpit defaults to one next step and a calm management list inst
   const root=page.locator('.operator-simple-center');
   await expect(root).toBeVisible();
   await expect(root.locator('.operator-simple-hero')).toContainText('DEIN HOY PROFIL');
-  await expect(root.locator('.operator-simple-focus')).toContainText('2 Punkte brauchen deine Aufmerksamkeit.');
+  await expect(root.locator('.operator-simple-focus')).toContainText('Als Nächstes: Öffnungszeiten prüfen.');
+  await expect(root.locator('.operator-simple-focus')).toContainText('Alles andere kann warten.');
   await expect(root.locator('.operator-simple-focus [data-hub-action="hours"]')).toHaveText('Öffnungszeiten prüfen');
   await expect(root.locator('.operator-simple-row')).toHaveCount(6);
   await expect(root.locator('.operator-simple-row').filter({hasText:'Öffnungszeiten'})).toContainText('Prüfen');
