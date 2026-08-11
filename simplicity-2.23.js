@@ -5,7 +5,7 @@
   window.hoySimplicityVersion='2.23.0';
 
   const TZ='Europe/Madrid';
-  const escSimple=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const escSimple=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
   const validUrl=v=>/^https?:\/\//i.test(String(v||''));
 
   function madridDate(value=new Date()){
@@ -105,18 +105,10 @@
   function simplifyProfile(p,d){
     if(!p||!d?.open)return;
     d.classList.add('hoy-simple-profile');
-    d.querySelector('.profile-trust-line')?.remove();
+    const trust=d.querySelector('.profile-trust-line');
+    if(trust)trust.innerHTML=`<span>${escSimple(isClaimed(p)?'Vom Betrieb bestätigt':'Von HOY geprüft')}</span>`;
     d.querySelector('.showcase-warning')?.remove();
     d.querySelector('.showcase-proof')?.remove();
-
-    const actions=d.querySelector('.profile-quick-actions');
-    if(actions){
-      [...actions.children].forEach(action=>{
-        if(/teilen/i.test(String(action.textContent||'')))action.classList.add('hoy-secondary-action-hidden');
-      });
-      const visible=[...actions.children].filter(x=>!x.classList.contains('hoy-secondary-action-hidden')&&!x.classList.contains('profile-action-duplicate'));
-      actions.classList.toggle('hoy-actions-two',visible.length===2);
-    }
 
     d.querySelectorAll('.profile-info-section .fact').forEach(fact=>{
       const b=fact.querySelector('b');
