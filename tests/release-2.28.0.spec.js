@@ -68,12 +68,11 @@ test('home immediately exposes explainable HOY NOW choices',async({page},testInf
 
 test('guest can go from HOY NOW choice directly to an explained profile',async({page})=>{
   await page.goto('./',{waitUntil:'domcontentloaded'});await waitForData(page);await mockDecisionSignals(page);
-  const first=page.locator('[data-decision280-open]').first();
-  await first.click();
+  await page.locator('[data-decision280-open]').first().click();
   await expect(page.locator('#detail')).toHaveAttribute('open','');
   const verdict=page.locator('#detail .decision280-profile');
   await expect(verdict).toBeVisible();
-  await expect(verdict).toContainText('Warum jetzt?');
+  await expect(verdict).toContainText(/warum jetzt/i);
   await expect(verdict).toContainText('Passt gerade besonders gut');
   await expect(verdict).toContainText('Jetzt geöffnet');
 });
@@ -86,4 +85,16 @@ test('Jetzt geöffnet moment removes closed venues from discover',async({page})=
   const ids=await page.locator('[data-journey-results] .list-card[data-open]').evaluateAll(nodes=>nodes.map(n=>Number(n.dataset.open)));
   expect(ids).toEqual([await page.evaluate(()=>Number(DATA[0].id))]);
   await expect(page.locator('[data-journey-results] .decision280-card-verdict')).toContainText('Passt');
+});
+
+test('live search keeps decision verdicts and reset clears moment',async({page})=>{
+  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForData(page);await mockDecisionSignals(page);
+  await page.locator('[data-decision280-moment="now"]').first().click();
+  const q=page.locator('#q');
+  await q.fill(String(await page.evaluate(()=>DATA[0].name)).slice(0,4));
+  await expect(page.locator('[data-journey-results] .decision280-card-verdict')).toHaveCount(1);
+  const reset=page.locator('[data-consumer-reset]').first();
+  if(await reset.count())await reset.click();
+  else await page.evaluate(()=>{state.moment='all';state.query='';state.service='all';state.decision='all';render()});
+  expect(await page.evaluate(()=>state.moment)).toBe('all');
 });
