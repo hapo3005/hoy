@@ -15,7 +15,7 @@ const ACTION_TYPES = new Set([
   'website_open',
   'reservation_start',
   'reservation_submit',
-  'call_start',
+  'call_click',
   'menu_open',
 ])
 
