@@ -11,7 +11,7 @@ async function shot(page, testInfo, name) {
   await page.screenshot({ path: path.join(SCREEN_DIR, `${testInfo.project.name}-${name}.png`), fullPage: false });
 }
 
-test('HOY 2.23 keeps guest choices simple while preserving the deep trust model underneath', async ({ page, request }, testInfo) => {
+test('HOY 2.23 guest simplicity remains intact in later releases while the deep trust model stays underneath', async ({ page, request }, testInfo) => {
   const [js, css, pkg, index, worker] = await Promise.all([
     request.get('./simplicity-2.23.js'),
     request.get('./simplicity-2.23.css'),
@@ -23,13 +23,15 @@ test('HOY 2.23 keeps guest choices simple while preserving the deep trust model 
   expect((js.headers()['content-type'] || '')).not.toMatch(/text\/html/i);
   expect((css.headers()['content-type'] || '')).not.toMatch(/text\/html/i);
   const { version } = await pkg.json();
-  expect(version).toBe('2.23.0');
+  const [major, minor] = String(version).split('.').map(Number);
+  expect(major).toBe(2);
+  expect(minor).toBeGreaterThanOrEqual(23);
   const indexText = await index.text();
   const workerText = await worker.text();
-  expect(indexText).toContain('App 2.23.0');
+  expect(indexText).toContain(`App ${version}`);
   expect(indexText).toContain('simplicity-2.23.js?v=2.23.0');
   expect(indexText).toContain('simplicity-2.23.css?v=2.23.0');
-  expect(workerText).toContain("const CACHE='hoy-v2.23.0'");
+  expect(workerText).toContain(`const CACHE='hoy-v${version}'`);
   expect(workerText).toContain('./simplicity-2.23.js');
   expect(workerText).toContain('./simplicity-2.23.css');
 
