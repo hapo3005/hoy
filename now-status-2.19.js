@@ -1,11 +1,13 @@
-/* HOY 2.19 — conservative now-status: useful in the moment, never more certain than the source */
+/* HOY 2.19.1 — conservative now-status without changing profile scroll geometry */
 (function(){
   const TZ='Europe/Madrid';
   const DAYS=['Mo','Di','Mi','Do','Fr','Sa','So'];
   const DAY_INDEX=new Map(DAYS.map((d,i)=>[d,i]));
   const EN_DAY={Mon:0,Tue:1,Wed:2,Thu:3,Fri:4,Sat:5,Sun:6};
+  const WEEK_KEYS=['mon','tue','wed','thu','fri','sat','sun'];
   const UNCERTAIN=/(widersprech|bestätigung erforderlich|vor live-anzeige|nicht klar ausgewiesen|nicht belastbar|wochenplan noch nicht vollständig|andere aktuelle profile weichen ab|konkrete saisonzeiten vor besuch prüfen|bis spät|\bca\.|\bab\s+\d{1,2}:\d{2})/i;
-  const esc219=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const BASE_CACHE=new Map();
+  const esc219=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 
   function madridParts(now=new Date()){
     const date=now instanceof Date?now:new Date(now);
@@ -20,7 +22,7 @@
     return h===24?(end?1440:0):h*60+min;
   }
   function normalizeIntervals(value){
-    if(!Array.isArray(value))return [];
+    if(!Array.isArray(value))return null;
     return value.map(pair=>{
       if(!Array.isArray(pair)||pair.length!==2)return null;
       const start=String(pair[0]||'').trim(),end=String(pair[1]||'').trim();
@@ -45,7 +47,9 @@
     return out.slice(0,3);
   }
   function parseBaseSchedule(text){
-    const raw=String(text||'').trim();if(!raw||UNCERTAIN.test(raw))return null;
+    const raw=String(text||'').trim();if(!raw)return null;
+    if(BASE_CACHE.has(raw))return BASE_CACHE.get(raw);
+    if(UNCERTAIN.test(raw)){BASE_CACHE.set(raw,null);return null}
     const schedule=Array.from({length:7},()=>null);const explicitClosed=new Set();
     const segments=raw.split('·').map(x=>x.trim()).filter(Boolean);
     for(const seg of segments){
@@ -57,19 +61,21 @@
       const intervals=parseIntervalsFromText(seg);if(!intervals.length)continue;
       for(const d of days)schedule[d]=intervals.map(x=>({...x}));
     }
-    return schedule.some(x=>Array.isArray(x))?schedule:null;
+    const result=schedule.some(x=>Array.isArray(x))?schedule:null;
+    BASE_CACHE.set(raw,result);
+    return result;
   }
   function scheduleFromOperator(p,parts){
     const special=p?.operator_special_hours;
     if(special&&String(special.service_date||'')===parts.date){
       if(special.is_closed)return {schedule:Array.from({length:7},(_,i)=>i===parts.day?[]:null),source:'operator-special'};
       const intervals=normalizeIntervals(special.intervals);
-      if(intervals.length){const schedule=Array.from({length:7},()=>null);schedule[parts.day]=intervals;return {schedule,source:'operator-special'}}
+      if(intervals?.length){const schedule=Array.from({length:7},()=>null);schedule[parts.day]=intervals;return {schedule,source:'operator-special'}}
     }
     const weekly=p?.operator_hours?.weekly_hours;
     if(weekly&&typeof weekly==='object'){
-      const schedule=DAYS.map(day=>normalizeIntervals(weekly[{Mo:'mon',Di:'tue',Mi:'wed',Do:'thu',Fr:'fri',Sa:'sat',So:'sun'}[day]]));
-      return {schedule,source:'operator'};
+      const schedule=WEEK_KEYS.map(key=>normalizeIntervals(weekly[key]));
+      if(schedule.some(x=>Array.isArray(x)))return {schedule,source:'operator'};
     }
     return null;
   }
@@ -87,12 +93,12 @@
   }
   function resultFor(source,window,extra={}){
     if(!window)return null;const operator=source!=='base';
-    if(window.state==='open')return {state:'open',source,operatorConfirmed:operator,tone:'open',label:operator?`Jetzt geöffnet · bis ${window.end}`:`Laut Öffnungszeiten · offen bis ${window.end}`,proof:source==='operator-special'?'Sonderzeit vom Betrieb':source==='operator'?'Vom Betrieb gepflegt':extra.seasonal?'Nicht live bestätigt · saisonale Abweichung möglich':'Nicht live bestätigt'};
-    if(window.state==='later')return {state:'later',source,operatorConfirmed:operator,tone:'later',label:operator?`Öffnet heute ${window.start}`:`Laut Öffnungszeiten · öffnet ${window.start}`,proof:source==='operator-special'?'Sonderzeit vom Betrieb':source==='operator'?'Vom Betrieb gepflegt':extra.seasonal?'Nicht live bestätigt · saisonale Abweichung möglich':'Nicht live bestätigt'};
-    return {state:'closed',source,operatorConfirmed:operator,tone:'closed',label:operator?'Heute geschlossen':'Laut Öffnungszeiten · heute geschlossen',proof:source==='operator-special'?'Sonderzeit vom Betrieb':source==='operator'?'Vom Betrieb gepflegt':extra.seasonal?'Nicht live bestätigt · saisonale Abweichung möglich':'Nicht live bestätigt'};
+    if(window.state==='open')return {state:'open',source,operatorConfirmed:operator,tone:'open',label:operator?`Jetzt geöffnet · bis ${window.end}`:`Laut Öffnungszeiten · offen bis ${window.end}`,shortLabel:operator?`Jetzt geöffnet · bis ${window.end}`:`Offen bis ${window.end}`,proof:source==='operator-special'?'Sonderzeit vom Betrieb':source==='operator'?'Vom Betrieb gepflegt':extra.seasonal?'Nicht live bestätigt · saisonale Abweichung möglich':'Nicht live bestätigt'};
+    if(window.state==='later')return {state:'later',source,operatorConfirmed:operator,tone:'later',label:operator?`Öffnet heute ${window.start}`:`Laut Öffnungszeiten · öffnet ${window.start}`,shortLabel:`Öffnet ${window.start}`,proof:source==='operator-special'?'Sonderzeit vom Betrieb':source==='operator'?'Vom Betrieb gepflegt':extra.seasonal?'Nicht live bestätigt · saisonale Abweichung möglich':'Nicht live bestätigt'};
+    return {state:'closed',source,operatorConfirmed:operator,tone:'closed',label:operator?'Heute geschlossen':'Laut Öffnungszeiten · heute geschlossen',shortLabel:'Heute geschlossen',proof:source==='operator-special'?'Sonderzeit vom Betrieb':source==='operator'?'Vom Betrieb gepflegt':extra.seasonal?'Nicht live bestätigt · saisonale Abweichung möglich':'Nicht live bestätigt'};
   }
   function statusFor(p,now=new Date()){
-    const parts=madridParts(now);if(!parts||parts.day==null)return null;
+    const parts=madridParts(now);if(!parts||parts.day==null||!p)return null;
     const operator=scheduleFromOperator(p,parts);if(operator)return resultFor(operator.source,openWindow(operator.schedule,parts));
     const base=scheduleFromBase(p);if(!base)return null;
     return resultFor(base.source,openWindow(base.schedule,parts),base);
@@ -100,38 +106,49 @@
   window.hoyNowStatus219For=statusFor;
   window.hoyParseHours219=parseBaseSchedule;
 
-  function markup(status,compact=false){
-    if(!status)return '';
-    return `<div class="hoy-now-status ${esc219(status.tone)}${status.operatorConfirmed?' confirmed':' base'}${compact?' compact':''}" data-hoy-now-status><span class="hoy-now-dot" aria-hidden="true"></span><div><strong>${esc219(status.label)}</strong>${compact?'':`<small>${esc219(status.proof)}</small>`}</div></div>`;
+  function compactMarkup(status){
+    return `<div class="hoy-now-status ${esc219(status.tone)}${status.operatorConfirmed?' confirmed':' base'} compact" data-hoy-now-status><span class="hoy-now-dot" aria-hidden="true"></span><div><strong>${esc219(status.label)}</strong></div></div>`;
   }
-
-  const baseListCard219=listCard;
-  listCard=function(p){
-    const html=baseListCard219(p),status=statusFor(p);if(!status)return html;
-    const shell=document.createElement('div');shell.innerHTML=html;const card=shell.firstElementChild;if(!card)return html;
-    const copy=card.querySelector('.decision-copy')||card.querySelector('.map-decision-copy');
-    const signals=card.querySelector('.decision-signals');
-    if(copy&&!card.querySelector('[data-hoy-now-status]'))(signals||copy.lastElementChild)?.insertAdjacentHTML(signals?'beforebegin':'afterend',markup(status,true));
-    return card.outerHTML;
+  function restaurantById(id){return DATA.find(x=>Number(x.id)===Number(id))||null}
+  function decorateDecisionCard(card,id,signalSelector){
+    if(!card||card.querySelector('[data-hoy-now-status]'))return;
+    const status=statusFor(restaurantById(id));if(!status)return;
+    const signals=card.querySelector(signalSelector);if(!signals)return;
+    signals.insertAdjacentHTML('beforebegin',compactMarkup(status));
+  }
+  function decorateCurrentCards(){
+    document.querySelectorAll('.list-card[data-open],.card[data-open]').forEach(card=>decorateDecisionCard(card,card.dataset.open,'.decision-signals'));
+    document.querySelectorAll('.map-decision-card[data-map-card]').forEach(card=>decorateDecisionCard(card,card.dataset.mapCard,'.map-decision-signals'));
+  }
+  const baseWire219=wire;
+  wire=function(){
+    baseWire219();
+    decorateCurrentCards();
   };
 
-  const baseMapView219=mapView;
-  mapView=function(){
-    const html=baseMapView219();const shell=document.createElement('div');shell.innerHTML=html;const root=shell.firstElementChild;if(!root)return html;
-    root.querySelectorAll('.map-decision-card[data-map-card]').forEach(card=>{
-      const p=DATA.find(x=>Number(x.id)===Number(card.dataset.mapCard)),status=statusFor(p);if(!status||card.querySelector('[data-hoy-now-status]'))return;
-      const signals=card.querySelector('.map-decision-signals'),copy=card.querySelector('.map-decision-copy');
-      if(signals)signals.insertAdjacentHTML('beforebegin',markup(status,true));else copy?.insertAdjacentHTML('beforeend',markup(status,true));
-    });
-    return root.outerHTML;
-  };
-
+  function decorateProfileHours(d,status){
+    const hours=d?.querySelector('.profile-hours');
+    if(hours){
+      hours.dataset.hoyNowStatus='1';
+      hours.dataset.hoyNowTone=status.tone;
+      const proof=hours.querySelector('.hours-proof');
+      const b=proof?.querySelector('b'),small=proof?.querySelector('small');
+      if(b)b.textContent=status.operatorConfirmed?`✓ ${status.shortLabel}`:status.shortLabel;
+      if(small)small.textContent=status.operatorConfirmed?status.proof:`Laut Öffnungszeiten · ${status.proof.toLowerCase()}`;
+    }
+    const minis=[...(d?.querySelectorAll('.showcase-snapshot .showcase-mini')||[])];
+    const mini=minis.find(x=>/öffnungszeiten/i.test(x.querySelector('small')?.textContent||''));
+    if(mini){
+      mini.dataset.hoyNowStatus='1';mini.dataset.hoyNowTone=status.tone;
+      const strong=mini.querySelector('strong'),span=mini.querySelector('span');
+      if(strong)strong.textContent=status.shortLabel;
+      if(span)span.textContent=status.operatorConfirmed?status.proof:`Laut Öffnungszeiten · ${status.proof.toLowerCase()}`;
+    }
+  }
   const baseOpenDetail219=openDetail;
   openDetail=function(id){
     baseOpenDetail219(id);
-    const p=DATA.find(x=>Number(x.id)===Number(id)),d=document.getElementById('detail'),status=statusFor(p);if(!p||!d?.open||!status||d.querySelector('.hoy-profile-now-status'))return;
-    const identity=d.querySelector('.profile-identity-card');if(!identity)return;
-    const wrap=document.createElement('div');wrap.className='hoy-profile-now-status';wrap.innerHTML=markup(status,false);
-    const trust=identity.querySelector('.profile-trust-line');(trust||identity.lastElementChild)?.insertAdjacentElement('afterend',wrap);
+    const p=restaurantById(id),d=document.getElementById('detail'),status=statusFor(p);
+    if(p&&d?.open&&status)decorateProfileHours(d,status);
   };
 })();
