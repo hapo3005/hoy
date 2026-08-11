@@ -50,21 +50,54 @@ test('operator special hours may truthfully use a live label while current statu
   await expect(mapCard.locator('[data-hoy-now-status]')).toContainText('Laut Öffnungszeiten · offen bis');
 });
 
-test('2.19.3 current-status assets are deployed and PWA-cached', async ({ request }) => {
+test('cloud provenance gate exposes NOW only for verified base schedules', async ({ page }) => {
+  await page.goto('./', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => page.evaluate(() => cloud.status)).toBe('online');
+  const values = await page.evaluate(() => {
+    const summarize = slug => {
+      const p = DATA.find(x => x.slug === slug);
+      return {
+        status: p?.hours_status,
+        displayHours: p?.hours,
+        nowHours: p?.hours_text,
+        now: p ? window.hoyNowStatus219For?.(p, new Date('2026-08-16T12:30:00Z')) : null
+      };
+    };
+    return {
+      verified: summarize('brunch-le-buffet'),
+      conditional: summarize('la-cascada'),
+      conflict: summarize('hatsune-japanese-bar')
+    };
+  });
+  expect(values.verified.status).toBe('verified');
+  expect(values.verified.nowHours).toContain('13:00');
+  expect(values.verified.now).toMatchObject({ state: 'open', source: 'base' });
+  expect(values.conditional.status).toBe('conditional');
+  expect(values.conditional.displayHours).toContain('10:00');
+  expect(values.conditional.nowHours).toBe('');
+  expect(values.conditional.now).toBeNull();
+  expect(values.conflict.status).toBe('conflict');
+  expect(values.conflict.nowHours).toBe('');
+  expect(values.conflict.now).toBeNull();
+});
+
+test('2.21.0 opening-hours quality assets are deployed and PWA-cached', async ({ request }) => {
   const pkg = await request.get('./package.json');
   expect(pkg.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.19.3');
-  for (const asset of ['./now-status-2.19.js','./now-status-2.19.css']) {
+  expect((await pkg.json()).version).toBe('2.21.0');
+  for (const asset of ['./hours-quality-2.21.js','./now-status-2.19.js','./now-status-2.19.css']) {
     const res = await request.get(asset); expect(res.ok(), `${asset} should load`).toBeTruthy(); expect((res.headers()['content-type'] || '')).not.toMatch(/text\/html/i);
   }
   const appText = await (await request.get('./index.html')).text();
-  expect(appText).toContain('HOY La Manga · Mar Menor · App 2.19.3');
+  expect(appText).toContain('HOY La Manga · Mar Menor · App 2.21.0');
+  expect(appText).toContain('hours-quality-2.21.js?v=2.21.0');
   expect(appText).toContain('now-status-2.19.css?v=2.19.2');
   expect(appText).toContain('now-status-2.19.js?v=2.19.2');
   expect(appText).toContain('menu-signature-2.13.js?v=2.20.1');
   expect(appText).toContain('profile-flow-2.7.js?v=2.20.1');
   const workerText = await (await request.get('./service-worker.js')).text();
-  expect(workerText).toContain("const CACHE='hoy-v2.19.3'");
+  expect(workerText).toContain("const CACHE='hoy-v2.21.0'");
+  expect(workerText).toContain('./hours-quality-2.21.js');
   expect(workerText).toContain('./now-status-2.19.js');
   expect(workerText).toContain('./now-status-2.19.css');
 });
