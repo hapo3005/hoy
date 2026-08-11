@@ -31,26 +31,12 @@
     const note=clean(module?.querySelector(':scope > small')?.textContent)||clean(module?.querySelector('p')?.textContent);
     const button=module?.querySelector('[data-hub-action]');
     const tone=toneFor(module);
-    return {
-      title,
-      note,
-      action:button?.dataset.hubAction||'',
-      actionLabel:clean(button?.textContent)||`${title} öffnen`,
-      tone,
-      state:plainState(module,tone)
-    };
+    return {title,note,action:button?.dataset.hubAction||'',actionLabel:clean(button?.textContent)||`${title} öffnen`,tone,state:plainState(module,tone)};
   }
   function planName(root){
     const hero=clean(root?.querySelector('.hub-hero p')?.textContent);
     const parts=hero.split('·').map(clean).filter(Boolean);
     return parts[parts.length-1]||'FREE';
-  }
-  function focusCopy(items){
-    const bad=items.filter(x=>x.tone==='bad').length;
-    const warn=items.filter(x=>x.tone==='warn').length;
-    if(bad)return {title:bad===1?'Eine Rückfrage ist offen.':`${bad} Rückfragen sind offen.`,copy:'Klär zuerst diesen Punkt. Danach ist dein Profil wieder auf einem sauberen Stand.'};
-    if(warn)return {title:warn===1?'Ein Punkt braucht deine Aufmerksamkeit.':`${warn} Punkte brauchen deine Aufmerksamkeit.`,copy:'HOY zeigt dir zuerst nur das, was du tatsächlich prüfen oder ergänzen solltest.'};
-    return {title:'Alles Wesentliche ist aktuell.',copy:'Du musst nichts pflegen, solange sich bei deinem Betrieb nichts ändert.'};
   }
   function rowMarkup(item){
     if(!item.action)return '';
@@ -68,9 +54,13 @@
     const next=root.querySelector('.hub-next[data-hub-action]');
     const nextAction=next?.dataset.hubAction||modules.find(x=>x.tone==='bad'||x.tone==='warn')?.action||'preview';
     const nextLabel=clean(next?.textContent).replace(/\s*[→›]\s*$/,'')||'Gastansicht öffnen';
-    const focus=focusCopy(modules);
+    const allReady=nextAction==='preview';
+    const focus=allReady
+      ?{title:'Alles Wesentliche ist aktuell.',copy:'Du musst nichts pflegen, solange sich bei deinem Betrieb nichts ändert.'}
+      :{title:`Als Nächstes: ${nextLabel}.`,copy:'Das ist der sinnvollste nächste Schritt. Alles andere kann warten.'};
     const ready=modules.filter(x=>x.tone==='good').length;
     const alert=root.querySelector('.hub-alert')?.outerHTML||'';
+    const previewAction=allReady?'':`<button type="button" class="primary" data-hub-action="preview">Gastansicht öffnen</button>`;
 
     root.dataset.operatorSimple='1';
     root.classList.add('operator-simple-center');
@@ -90,8 +80,8 @@
         <div class="operator-simple-section-head"><div><small>VERWALTEN</small><h3>Dein Profil</h3></div><span>${ready?`${ready} aktuell`:'Alles an einem Ort'}</span></div>
         <div class="operator-simple-list">${modules.map(rowMarkup).join('')}</div>
       </section>
-      <div class="operator-simple-actions">
-        <button type="button" class="primary" data-hub-action="preview">Gastansicht öffnen</button>
+      <div class="operator-simple-actions ${allReady?'single':''}">
+        ${previewAction}
         <button type="button" data-hub-action="plans">${esc240(plan)} · Tarif & Funktionen</button>
       </div>
       <p class="operator-simple-footnote">Änderungen an öffentlichen Angaben werden weiterhin sauber geprüft. Live-Funktionen bleiben dort direkt pflegbar, wo dein Tarif sie freischaltet.</p>`;
