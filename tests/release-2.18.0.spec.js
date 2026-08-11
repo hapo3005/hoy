@@ -164,10 +164,10 @@ test('menu refresh stays observer-free and preserves the active profile section'
   await expect(active).toContainText(/Überblick/i);
 });
 
-test('2.18.3 pricing, insights and lifecycle assets are real deployed resources', async ({ request }) => {
+test('2.18.4 pricing, insights and lifecycle assets are real deployed resources', async ({ request }) => {
   const pkg = await request.get('./package.json');
   expect(pkg.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.18.3');
+  expect((await pkg.json()).version).toBe('2.18.4');
 
   for (const asset of ['./promotion-insights-2.18.js','./promotion-insights-2.18.css','./profile-open-stability-2.18.1.js','./profile-premium-2.12.js','./menu-signature-2.13.js','./admin-promotion-2.18.js','./admin-promotion-2.18.css']) {
     const res = await request.get(asset);
@@ -177,18 +177,18 @@ test('2.18.3 pricing, insights and lifecycle assets are real deployed resources'
 
   const worker = await request.get('./service-worker.js');
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.18.3'");
+  expect(workerText).toContain("const CACHE='hoy-v2.18.4'");
   expect(workerText).toContain('./promotion-insights-2.18.js');
   expect(workerText).toContain('./profile-open-stability-2.18.1.js');
 
   const app = await request.get('./index.html');
   const appText = await app.text();
-  expect(appText).toContain('profile-premium-2.12.js?v=2.18.3');
-  expect(appText).toContain('menu-signature-2.13.js?v=2.18.3');
+  expect(appText).toContain('profile-premium-2.12.js?v=2.18.4');
+  expect(appText).toContain('menu-signature-2.13.js?v=2.18.4');
 
   const admin = await request.get('./admin.html');
   const adminText = await admin.text();
-  expect(adminText).toContain('HOY Control Center · 2.18.3');
-  expect(adminText).toContain('admin-promotion-2.18.js?v=2.18.3');
+  expect(adminText).toContain('HOY Control Center · 2.18.4');
+  expect(adminText).toContain('admin-promotion-2.18.js?v=2.18.4');
   expect(adminText).not.toContain('admin-promotion-2.17.js');
 });
