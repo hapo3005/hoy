@@ -22,21 +22,21 @@ async function mockDecisionSignals(page){
   });
 }
 
-test('HOY 2.28 release assets are wired and cached',async({page,request})=>{
+test('HOY 2.28.2 release assets are wired and cached',async({page,request})=>{
   const [js,css,pkg,index,worker]=await Promise.all([
     request.get('./guest-decision-core-2.28.js'),request.get('./guest-decision-core-2.28.css'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')
   ]);
   for(const res of [js,css,pkg,index,worker])expect(res.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.28.0');
+  expect((await pkg.json()).version).toBe('2.28.2');
   const indexText=await index.text(),workerText=await worker.text();
-  expect(indexText).toContain('App 2.28.0');
-  expect(indexText).toContain('guest-decision-core-2.28.css?v=2.28.0');
-  expect(indexText).toContain('guest-decision-core-2.28.js?v=2.28.0');
-  expect(workerText).toContain("const CACHE='hoy-v2.28.0'");
+  expect(indexText).toContain('App 2.28.2');
+  expect(indexText).toContain('guest-decision-core-2.28.css?v=2.28.2');
+  expect(indexText).toContain('guest-decision-core-2.28.js?v=2.28.2');
+  expect(workerText).toContain("const CACHE='hoy-v2.28.2'");
   expect(workerText).toContain('./guest-decision-core-2.28.css');
   expect(workerText).toContain('./guest-decision-core-2.28.js');
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  expect(await page.evaluate(()=>window.hoyGuestDecisionCoreVersion)).toBe('2.28.0');
+  expect(await page.evaluate(()=>window.hoyGuestDecisionCoreVersion)).toBe('2.28.2');
 });
 
 test('decision score prefers genuinely open and current places',async({page})=>{
