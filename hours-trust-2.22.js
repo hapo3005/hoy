@@ -81,6 +81,19 @@
     enhanceOpenProfile(id);
   };
 
+  // A profile can be opened while the initial cloud/provenance refresh is still in flight,
+  // especially in Mobile WebKit. Once the complete loader chain settles, re-evaluate the
+  // already-open trust card against the enriched hours_status/provenance instead of leaving
+  // the optimistic first render stuck on "missing".
+  const baseLoadCloudRestaurants222=loadCloudRestaurants;
+  loadCloudRestaurants=async function(){
+    await baseLoadCloudRestaurants222();
+    const d=document.getElementById('detail');
+    if(!d?.open)return;
+    const id=Number(d.dataset.restaurantId||0);
+    if(id)enhanceOpenProfile(id);
+  };
+
   function todayPlanLabel(p){
     const h=window.hoyLiveHoursFor?.(p);const weekly=h?.weekly_hours;
     if(!weekly||typeof weekly!=='object')return '';
