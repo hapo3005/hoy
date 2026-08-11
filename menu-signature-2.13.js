@@ -1,4 +1,4 @@
-/* HOY 2.18.5 — signature localized menu experience with refresh-safe user-controlled categories */
+/* HOY 2.19.3 — signature localized menu experience with non-blocking refresh reconciliation */
 (function(){
   const COPY={
     de:{title:'Speisekarte auf Deutsch',partial:'Auswahl auf Deutsch',promise:'Für dich auf Deutsch',proof:'Kulinarisch übersetzt · Originalpreise unverändert',body:'HOY überträgt Gerichte sinngemäß statt Wort für Wort. Spanische Eigennamen bleiben erhalten, wenn sie zum Gericht gehören.',search:'Speisekarte durchsuchen …',checked:'HOY redaktionell geprüft'},
@@ -173,20 +173,22 @@
     if(p)enhanceSignatureMenu(p,d);
   };
 
+  let refreshTimer2193=0;
   window.addEventListener('hoy:profile-menu-refreshed',e=>{
     const id=Number(e.detail?.restaurantId||0);
-    const d=document.getElementById('detail');
-    if(!d?.open||Number(d.dataset.restaurantId||0)!==id)return;
-    const section=d.querySelector('#profile-menu');
-    const p=DATA.find(x=>Number(x.id)===id);
-    if(!section||!p)return;
-    const alreadyDecorated=section.classList.contains('menu-signature')
-      &&!!section.querySelector('.menu-signature-categories')
-      &&(!menuFor(p)?.localized||!!section.querySelector('.menu-signature-promise'));
-    if(alreadyDecorated)return;
-    clearTimeout(d._hoySignatureRefreshTimer2185);
-    d._hoySignatureRefreshTimer2185=setTimeout(()=>{
-      if(!d.open||Number(d.dataset.restaurantId||0)!==id)return;
+    if(!id)return;
+    clearTimeout(refreshTimer2193);
+    refreshTimer2193=setTimeout(()=>{
+      const d=document.getElementById('detail');
+      if(!d?.open||Number(d.dataset.restaurantId||0)!==id)return;
+      const section=d.querySelector('#profile-menu');
+      const p=DATA.find(x=>Number(x.id)===id);
+      if(!section||!p)return;
+      const m=menuFor(p);
+      const alreadyDecorated=section.classList.contains('menu-signature')
+        &&!!section.querySelector('.menu-signature-categories')
+        &&(!m?.localized||!!section.querySelector('.menu-signature-promise'));
+      if(alreadyDecorated)return;
       enhanceSignatureMenu(p,d);
     },0);
   });
