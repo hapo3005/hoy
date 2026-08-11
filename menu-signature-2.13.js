@@ -1,4 +1,4 @@
-/* HOY 2.13.3 — signature localized menu experience with live data-ready upgrades */
+/* HOY 2.18.2 — signature localized menu experience with async live data-ready refresh upgrades */
 (function(){
   const COPY={
     de:{title:'Speisekarte auf Deutsch',partial:'Auswahl auf Deutsch',promise:'Für dich auf Deutsch',proof:'Kulinarisch übersetzt · Originalpreise unverändert',body:'HOY überträgt Gerichte sinngemäß statt Wort für Wort. Spanische Eigennamen bleiben erhalten, wenn sie zum Gericht gehören.',search:'Speisekarte durchsuchen …',checked:'HOY redaktionell geprüft'},
@@ -176,8 +176,13 @@
 
   window.addEventListener('hoy:profile-menu-refreshed',e=>{
     const id=Number(e.detail?.restaurantId||0);
-    const p=DATA.find(x=>Number(x.id)===id);
     const d=document.getElementById('detail');
-    if(p&&d?.open&&Number(d.dataset.restaurantId||0)===id)enhanceSignatureMenu(p,d);
+    if(!d?.open||Number(d.dataset.restaurantId||0)!==id)return;
+    clearTimeout(d._hoySignatureRefreshTimer2182);
+    d._hoySignatureRefreshTimer2182=setTimeout(()=>{
+      if(!d.open||Number(d.dataset.restaurantId||0)!==id)return;
+      const p=DATA.find(x=>Number(x.id)===id);
+      if(p)enhanceSignatureMenu(p,d);
+    },0);
   });
 })();
