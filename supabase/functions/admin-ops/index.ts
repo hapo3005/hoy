@@ -153,7 +153,9 @@ Deno.serve(async (req: Request) => {
       approved_by: user.id, approved_at: updatedAt, rejection_reason: rejectionReason,
     })
     if (decision === 'cancelled') Object.assign(patch, {
-      status: 'cancelled', billing_status: 'cancelled', approved_by: user.id,
+      status: 'cancelled',
+      billing_status: promotion.status === 'requested' ? 'cancelled' : promotion.billing_status,
+      approved_by: user.id,
       rejection_reason: rejectionReason || 'Von HOY beendet',
     })
 
