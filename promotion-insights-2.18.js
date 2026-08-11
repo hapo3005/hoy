@@ -3,7 +3,7 @@
   const ATTR_KEY='hoy-promo-attribution-v1';
   const WINDOW_MS=30*60*1000;
   const LAUNCH_PRICE_CENTS=2900;
-  const ATTRIBUTABLE=new Set(['profile_view','route_start','service_open','website_open','reservation_start','reservation_submit','call_start','menu_open']);
+  const ATTRIBUTABLE=new Set(['profile_view','route_start','service_open','website_open','reservation_start','reservation_submit','call_click','menu_open']);
   const asDate=v=>{const d=v instanceof Date?v:new Date(v);return Number.isFinite(d.getTime())?d:null};
   const fmtMoney=cents=>Number.isInteger(Number(cents))?new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(Number(cents)/100):'—';
   const esc2=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
