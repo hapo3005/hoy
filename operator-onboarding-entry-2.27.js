@@ -5,6 +5,23 @@
 
   const welcomeKey=p=>`hoy-onboarding-welcome-${Number(p?.id)||0}`;
   const isVerified=p=>!!(p&&typeof isClaimed==='function'&&isClaimed(p));
+  const clean=v=>String(v??'').trim();
+
+  /* Old 6-step drafts may land on the new review step. Never let that bypass the two required phases. */
+  const baseRenderClaimFlow270=renderClaimFlow;
+  renderClaimFlow=function(){
+    baseRenderClaimFlow270();
+    const d=document.getElementById('claimFlow');
+    const final=d?.querySelector('.onboarding-step-count')?.textContent==='3/3'?d.querySelector('[data-claim-next]'):null;
+    if(!final||claimVerificationStatus()==='pending')return;
+    const missingContact=!claimDraft.restaurantId||!clean(claimDraft.contact?.name)||!clean(claimDraft.contact?.email)||!claimDraft.verified;
+    const missingCore=!clean(claimDraft.profile?.address);
+    if(!missingContact&&!missingCore)return;
+    const target=missingContact?1:2;
+    final.textContent=missingContact?'Kontakt vervollständigen':'Kerndaten vervollständigen';
+    final.classList.remove('orange');
+    final.onclick=()=>{claimDraft.step=target;saveClaim();renderClaimFlow();toast(missingContact?'Bitte Kontakt und Berechtigung vervollständigen':'Bitte die Kerndaten vervollständigen')};
+  };
 
   const baseOpenDetail270=openDetail;
   openDetail=function(id){
