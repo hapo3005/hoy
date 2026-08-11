@@ -82,7 +82,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const { data: restaurant, error: restaurantError } = await admin.from('restaurants')
-    .select('id,name,is_published,hours_weekly,hours_text')
+    .select('id,name,is_published,hours_weekly')
     .eq('id', restaurantId)
     .eq('is_published', true)
     .maybeSingle()
@@ -96,9 +96,7 @@ Deno.serve(async (req: Request) => {
     return json({ error: action === 'confirm' ? 'no_prepared_schedule' : 'invalid_schedule' }, 400)
   }
 
-  const displayText = action === 'confirm' && String(restaurant.hours_text || '').trim()
-    ? String(restaurant.hours_text).trim()
-    : scheduleText(schedule)
+  const displayText = scheduleText(schedule)
   const now = new Date().toISOString()
 
   const { data: before } = await admin.from('restaurant_live_hours')
@@ -137,7 +135,7 @@ Deno.serve(async (req: Request) => {
       plan_at_confirmation: entitlement.active_plan,
     },
   })
-  if (auditError) return json({ error: 'hours_confirmation_audit_failed' }, 500)
+  if (auditError) console.error('HOY hours confirmation audit failed', auditError)
 
-  return json({ ok: true, action, live_hours: liveHours })
+  return json({ ok: true, action, live_hours: liveHours, audit_logged: !auditError })
 })
