@@ -38,8 +38,8 @@
   align-items:center;
   gap:10px;
   min-height:66px;
-  margin-left:calc(clamp(16px,4.5vw,24px) * -1);
-  margin-right:calc(clamp(16px,4.5vw,24px) * -1);
+  margin-left:clamp(-24px,-4.5vw,-16px);
+  margin-right:clamp(-24px,-4.5vw,-16px);
   padding:calc(10px + env(safe-area-inset-top)) clamp(16px,4.5vw,24px) 10px;
   border-bottom:1px solid rgba(16,40,61,.07);
   background:rgba(248,243,233,.88);
