@@ -158,14 +158,15 @@ test('menu refresh stays observer-free and preserves the active profile section'
 test('2.18.5 pricing, insights and lifecycle assets remain real deployed resources after later releases', async ({ request }) => {
   const pkg = await request.get('./package.json');
   expect(pkg.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.21.0');
+  const { version } = await pkg.json();
+  expect(version).toMatch(/^2\.\d+\.\d+$/);
   for (const asset of ['./promotion-insights-2.18.js','./promotion-insights-2.18.css','./profile-open-stability-2.18.1.js','./profile-premium-2.12.js','./menu-signature-2.13.js','./admin-promotion-2.18.js','./admin-promotion-2.18.css']) {
     const res = await request.get(asset);
     expect(res.ok(), `${asset} should load`).toBeTruthy();
     expect((res.headers()['content-type'] || '')).not.toMatch(/text\/html/i);
   }
   const workerText = await (await request.get('./service-worker.js')).text();
-  expect(workerText).toContain("const CACHE='hoy-v2.21.0'");
+  expect(workerText).toContain(`const CACHE='hoy-v${version}'`);
   expect(workerText).toContain('./promotion-insights-2.18.js');
   expect(workerText).toContain('./profile-open-stability-2.18.1.js');
   const appText = await (await request.get('./index.html')).text();
