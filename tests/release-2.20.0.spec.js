@@ -34,3 +34,25 @@ test('HOY Control 2.20 loads the internal decision coverage extension without ex
   await expect(page.getByText('Decision Coverage.', { exact: true })).toHaveCount(0);
   expect(pageErrors).toEqual([]);
 });
+
+test('profile section state follows geometry even when the dialog scroll event is unavailable', async ({ page }) => {
+  await page.goto('./', { waitUntil: 'domcontentloaded' });
+  await page.locator('[data-btm="discover"]').click();
+  await expect(page.locator('.journey-discover-signature')).toBeVisible();
+  await page.locator('#q').fill('Agua Salá');
+  const card = page.locator('.list-card[data-open="16"]');
+  await expect(card).toBeVisible({ timeout: 20_000 });
+  await card.click();
+
+  const detail = page.locator('#detail[open]');
+  await expect(detail).toBeVisible({ timeout: 12_000 });
+  await expect(detail.locator('#profile-menu')).toBeVisible();
+  await page.evaluate(() => {
+    const d = document.querySelector('#detail[open]');
+    const menu = d?.querySelector('#profile-menu');
+    if (!d || !menu) throw new Error('profile/menu missing');
+    if (d._hoyProfileScrollHandler) d.removeEventListener('scroll', d._hoyProfileScrollHandler);
+    menu.scrollIntoView({ block: 'start' });
+  });
+  await expect(detail.locator('.profile-premium-nav a.active')).toContainText(/Speisekarte/i, { timeout: 2_000 });
+});
