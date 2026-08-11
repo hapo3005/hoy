@@ -48,6 +48,11 @@ test('explicit sponsored open starts a 30 minute same-venue attribution window',
   expect(website.p_metadata.promotion_id).toBe('22222222-2222-4222-8222-222222222222');
   expect(website.p_metadata.promotion_attribution).toBe('sponsored_open_30m_same_venue');
   expect(website.p_metadata.sponsored).toBe('true');
+
+  await page.evaluate(() => trackEvent('call_click', 1, { qa: 'phone' }));
+  await expect.poll(() => calls.filter(x => x?.p_event_type === 'call_click').length).toBeGreaterThan(0);
+  const phone = calls.find(x => x?.p_event_type === 'call_click');
+  expect(phone.p_metadata.promotion_id).toBe('22222222-2222-4222-8222-222222222222');
 });
 
 test('promotion attribution never leaks to another venue or past its expiry', async ({ page }) => {
@@ -76,12 +81,44 @@ test('promotion attribution never leaks to another venue or past its expiry', as
   expect(calls[0].p_metadata.promotion_id).toBeUndefined();
 });
 
-test('2.18 pricing and insights assets are real deployed resources', async ({ request }) => {
+test('restaurant profile still opens after a visible discover card is replaced without direct listeners', async ({ page }) => {
+  await page.goto('./', { waitUntil: 'domcontentloaded' });
+  await page.locator('[data-btm="discover"]').click();
+  await expect(page.locator('.journey-discover-signature')).toBeVisible();
+  await page.locator('#q').fill('Agua Salá');
+
+  const card = page.locator('.list-card[data-open]').filter({ hasText: 'Agua Salá' }).first();
+  await expect(card).toBeVisible({ timeout: 20_000 });
+  await page.evaluate(() => {
+    const old = [...document.querySelectorAll('.list-card[data-open]')].find(x => (x.textContent || '').includes('Agua Salá'));
+    if (!old) throw new Error('Agua Salá card missing');
+    old.replaceWith(old.cloneNode(true));
+  });
+
+  await card.click();
+  const detail = page.locator('#detail[open]');
+  await expect(detail).toBeVisible({ timeout: 12_000 });
+  await expect(detail).toContainText('Agua Salá');
+  await detail.locator('[data-close]').first().click();
+  await expect(detail).not.toBeVisible();
+
+  await page.evaluate(() => {
+    const old = [...document.querySelectorAll('.list-card[data-open]')].find(x => (x.textContent || '').includes('Agua Salá'));
+    if (!old) throw new Error('Agua Salá card missing after close');
+    old.replaceWith(old.cloneNode(true));
+  });
+  await card.focus();
+  await card.press('Enter');
+  await expect(detail).toBeVisible({ timeout: 12_000 });
+  await expect(detail).toContainText('Agua Salá');
+});
+
+test('2.18.1 pricing, insights and profile-stability assets are real deployed resources', async ({ request }) => {
   const pkg = await request.get('./package.json');
   expect(pkg.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.18.0');
+  expect((await pkg.json()).version).toBe('2.18.1');
 
-  for (const asset of ['./promotion-insights-2.18.js','./promotion-insights-2.18.css','./admin-promotion-2.18.js','./admin-promotion-2.18.css']) {
+  for (const asset of ['./promotion-insights-2.18.js','./promotion-insights-2.18.css','./profile-open-stability-2.18.1.js','./admin-promotion-2.18.js','./admin-promotion-2.18.css']) {
     const res = await request.get(asset);
     expect(res.ok(), `${asset} should load`).toBeTruthy();
     expect((res.headers()['content-type'] || '')).not.toMatch(/text\/html/i);
@@ -89,13 +126,13 @@ test('2.18 pricing and insights assets are real deployed resources', async ({ re
 
   const worker = await request.get('./service-worker.js');
   const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.18.0'");
+  expect(workerText).toContain("const CACHE='hoy-v2.18.1'");
   expect(workerText).toContain('./promotion-insights-2.18.js');
-  expect(workerText).toContain('./promotion-insights-2.18.css');
+  expect(workerText).toContain('./profile-open-stability-2.18.1.js');
 
   const admin = await request.get('./admin.html');
   const adminText = await admin.text();
-  expect(adminText).toContain('HOY Control Center · 2.18');
-  expect(adminText).toContain('admin-promotion-2.18.js?v=2.18.0');
+  expect(adminText).toContain('HOY Control Center · 2.18.1');
+  expect(adminText).toContain('admin-promotion-2.18.js?v=2.18.1');
   expect(adminText).not.toContain('admin-promotion-2.17.js');
 });
