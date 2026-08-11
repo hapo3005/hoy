@@ -169,7 +169,7 @@ test('2.18.5 pricing, insights and lifecycle assets remain real deployed resourc
   expect(workerText).toContain('./promotion-insights-2.18.js');
   expect(workerText).toContain('./profile-open-stability-2.18.1.js');
   const appText = await (await request.get('./index.html')).text();
-  expect(appText).toContain('profile-premium-2.12.js?v=2.18.5');
+  expect(appText).toContain('profile-premium-2.12.js?v=2.20.2');
   expect(appText).toContain('menu-signature-2.13.js?v=2.20.1');
   expect(appText).toContain('profile-flow-2.7.js?v=2.20.1');
   const adminText = await (await request.get('./admin.html')).text();
