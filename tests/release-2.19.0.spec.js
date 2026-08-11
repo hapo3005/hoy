@@ -8,10 +8,7 @@ test('base opening hours answer the moment without pretending to be live-confirm
     { hours_text: 'Mo–So 08:00–23:00' },
     new Date('2026-08-10T18:00:00Z')
   ));
-  expect(result).toMatchObject({
-    state: 'open', source: 'base', operatorConfirmed: false,
-    label: 'Laut Öffnungszeiten · offen bis 23:00', proof: 'Nicht live bestätigt'
-  });
+  expect(result).toMatchObject({ state: 'open', source: 'base', operatorConfirmed: false, label: 'Laut Öffnungszeiten · offen bis 23:00', proof: 'Nicht live bestätigt' });
 });
 
 test('overnight schedules work while uncertain public hours stay deliberately silent', async ({ page }) => {
@@ -26,9 +23,7 @@ test('overnight schedules work while uncertain public hours stay deliberately si
 
 test('operator special hours may truthfully use a live label while current status stays on decision surfaces', async ({ page }) => {
   await page.goto('./', { waitUntil: 'domcontentloaded' });
-  const operator = await page.evaluate(() => window.hoyNowStatus219For?.({
-    operator_special_hours: { service_date: '2026-08-11', intervals: [['10:00','14:00']], is_closed: false, updated_at: '2026-08-11T07:00:00Z' }
-  }, new Date('2026-08-11T10:30:00Z')));
+  const operator = await page.evaluate(() => window.hoyNowStatus219For?.({ operator_special_hours: { service_date: '2026-08-11', intervals: [['10:00','14:00']], is_closed: false, updated_at: '2026-08-11T07:00:00Z' } }, new Date('2026-08-11T10:30:00Z')));
   expect(operator).toMatchObject({ state: 'open', source: 'operator-special', operatorConfirmed: true, label: 'Jetzt geöffnet · bis 14:00', proof: 'Sonderzeit vom Betrieb' });
 
   await page.locator('[data-btm="discover"]').click();
@@ -38,10 +33,7 @@ test('operator special hours may truthfully use a live label while current statu
   await expect(card).toBeVisible({ timeout: 20_000 });
   await page.evaluate(() => {
     const p = DATA.find(x => Number(x.id) === 16);
-    p.hours_text = 'Täglich 00:00–12:00 & 12:00–24:00';
-    p.operator_hours = null;
-    p.operator_special_hours = null;
-    render();
+    p.hours_text = 'Täglich 00:00–12:00 & 12:00–24:00'; p.operator_hours = null; p.operator_special_hours = null; render();
   });
   await expect(card.locator('[data-hoy-now-status]')).toContainText('Laut Öffnungszeiten · offen bis');
 
@@ -58,26 +50,20 @@ test('operator special hours may truthfully use a live label while current statu
   await expect(mapCard.locator('[data-hoy-now-status]')).toContainText('Laut Öffnungszeiten · offen bis');
 });
 
-test('2.19.2 current-status assets are deployed and PWA-cached', async ({ request }) => {
+test('2.19.3 current-status assets are deployed and PWA-cached', async ({ request }) => {
   const pkg = await request.get('./package.json');
   expect(pkg.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.19.2');
-
+  expect((await pkg.json()).version).toBe('2.19.3');
   for (const asset of ['./now-status-2.19.js','./now-status-2.19.css']) {
-    const res = await request.get(asset);
-    expect(res.ok(), `${asset} should load`).toBeTruthy();
-    expect((res.headers()['content-type'] || '')).not.toMatch(/text\/html/i);
+    const res = await request.get(asset); expect(res.ok(), `${asset} should load`).toBeTruthy(); expect((res.headers()['content-type'] || '')).not.toMatch(/text\/html/i);
   }
-
-  const app = await request.get('./index.html');
-  const appText = await app.text();
-  expect(appText).toContain('HOY La Manga · Mar Menor · App 2.19.2');
+  const appText = await (await request.get('./index.html')).text();
+  expect(appText).toContain('HOY La Manga · Mar Menor · App 2.19.3');
   expect(appText).toContain('now-status-2.19.css?v=2.19.2');
   expect(appText).toContain('now-status-2.19.js?v=2.19.2');
-
-  const worker = await request.get('./service-worker.js');
-  const workerText = await worker.text();
-  expect(workerText).toContain("const CACHE='hoy-v2.19.2'");
+  expect(appText).toContain('menu-signature-2.13.js?v=2.19.3');
+  const workerText = await (await request.get('./service-worker.js')).text();
+  expect(workerText).toContain("const CACHE='hoy-v2.19.3'");
   expect(workerText).toContain('./now-status-2.19.js');
   expect(workerText).toContain('./now-status-2.19.css');
 });
