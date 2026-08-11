@@ -1,8 +1,8 @@
-/* HOY 2.24.0 — operator cockpit simplified: one next step, calm management list, commercial depth stays secondary */
+/* HOY 2.24.1 — operator cockpit simplified: one next step, calm management list, urgent HOY callbacks always win */
 (function(){
   if(window.__hoyOperatorSimplicity240)return;
   window.__hoyOperatorSimplicity240=true;
-  window.hoyOperatorSimplicityVersion='2.24.0';
+  window.hoyOperatorSimplicityVersion='2.24.1';
 
   const esc240=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const clean=v=>String(v||'').replace(/\s+/g,' ').trim();
@@ -49,15 +49,21 @@
     if(!modules.length)return root;
 
     const heroName=clean(root.querySelector('.hub-hero h2')?.textContent)||'Dein Betrieb';
-    const verified=clean(root.querySelector('.hub-verified')?.textContent)||'✓ Verifiziert';
+    const verified=clean(root.querySelector('.hub-verified')?.textContent);
     const plan=planName(root);
-    const next=root.querySelector('.hub-next[data-hub-action]');
-    const nextAction=next?.dataset.hubAction||modules.find(x=>x.tone==='bad'||x.tone==='warn')?.action||'preview';
-    const nextLabel=clean(next?.textContent).replace(/\s*[→›]\s*$/,'')||'Gastansicht öffnen';
-    const allReady=nextAction==='preview';
-    const focus=allReady
-      ?{title:'Alles Wesentliche ist aktuell.',copy:'Du musst nichts pflegen, solange sich bei deinem Betrieb nichts ändert.'}
-      :{title:`Als Nächstes: ${nextLabel}.`,copy:'Das ist der sinnvollste nächste Schritt. Alles andere kann warten.'};
+    const legacyNext=root.querySelector('.hub-next[data-hub-action]');
+    const fallbackWarn=modules.find(x=>x.tone==='warn'&&x.state!=='In Prüfung');
+    const legacyNextAction=legacyNext?.dataset.hubAction||fallbackWarn?.action||'preview';
+    const legacyNextLabel=clean(legacyNext?.textContent).replace(/\s*[→›]\s*$/,'')||fallbackWarn?.actionLabel||'Gastansicht öffnen';
+    const urgent=modules.find(x=>x.tone==='bad');
+    const nextAction=urgent?.action||legacyNextAction;
+    const nextLabel=urgent?.actionLabel||legacyNextLabel;
+    const allReady=nextAction==='preview'&&!urgent;
+    const focus=urgent
+      ?{title:`Als Nächstes: ${nextLabel}.`,copy:'HOY hat hier eine Rückfrage. Klär diesen Punkt zuerst; alles andere kann warten.'}
+      :allReady
+        ?{title:'Für dich ist gerade nichts zu tun.',copy:'HOY hält dein Profil im Blick. Du musst erst wieder etwas tun, wenn sich bei deinem Betrieb etwas ändert oder wir eine Rückfrage haben.'}
+        :{title:`Als Nächstes: ${nextLabel}.`,copy:'Das ist der sinnvollste nächste Schritt. Alles andere kann warten.'};
     const ready=modules.filter(x=>x.tone==='good').length;
     const alert=root.querySelector('.hub-alert')?.outerHTML||'';
     const previewAction=allReady?'':`<button type="button" class="primary" data-hub-action="preview">Gastansicht öffnen</button>`;
@@ -67,7 +73,7 @@
     root.innerHTML=`
       <header class="operator-simple-hero">
         <div><div class="eyebrow">DEIN HOY PROFIL</div><h2>${esc240(heroName)}</h2><p>Pflege nur, was sich geändert hat. HOY hält den Rest übersichtlich.</p></div>
-        <span class="operator-simple-verified">${esc240(verified)}</span>
+        ${verified?`<span class="operator-simple-verified">${esc240(verified)}</span>`:''}
       </header>
       <section class="operator-simple-focus" aria-label="Nächster sinnvoller Schritt">
         <small>JETZT WICHTIG</small>

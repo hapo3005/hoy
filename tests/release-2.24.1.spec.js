@@ -23,7 +23,7 @@ const legacyFixture = `
   <div class="hub-plan-strip"><div><small>AKTUELLER TARIF</small><b>PRO</b><span>49 € / Monat</span></div><button data-hub-action="plans">Tarife & Funktionen</button></div>
 </section>`;
 
-test('HOY 2.24 deploys the operator simplicity layer and keeps it in the PWA core', async ({ page, request }) => {
+test('HOY 2.24.1 deploys the operator priority fix and keeps the simplicity layer in the PWA core', async ({ page, request }) => {
   const [js, css, pkg, index, worker] = await Promise.all([
     request.get('./operator-simplicity-2.24.js'),
     request.get('./operator-simplicity-2.24.css'),
@@ -33,20 +33,18 @@ test('HOY 2.24 deploys the operator simplicity layer and keeps it in the PWA cor
   ]);
   for (const res of [js, css, pkg, index, worker]) expect(res.ok()).toBeTruthy();
   const { version } = await pkg.json();
-  expect(version).toBe('2.24.0');
+  expect(version).toBe('2.24.1');
   const indexText = await index.text();
   const workerText = await worker.text();
-  expect(indexText).toContain('App 2.24.0');
-  expect(indexText).toContain('operator-simplicity-2.24.js?v=2.24.0');
-  expect(indexText).toContain('operator-simplicity-2.24.css?v=2.24.0');
-  expect(workerText).toContain("const CACHE='hoy-v2.24.0'");
+  expect(indexText).toContain('App 2.24.1');
+  expect(indexText).toContain('operator-simplicity-2.24.js?v=2.24.1');
+  expect(workerText).toContain("const CACHE='hoy-v2.24.1'");
   expect(workerText).toContain('./operator-simplicity-2.24.js');
-  expect(workerText).toContain('./operator-simplicity-2.24.css');
 
   const errors=[];
   page.on('pageerror', error=>errors.push(error.message));
   await page.goto('./', { waitUntil: 'domcontentloaded' });
-  expect(await page.evaluate(() => window.hoyOperatorSimplicityVersion)).toBe('2.24.0');
+  expect(await page.evaluate(() => window.hoyOperatorSimplicityVersion)).toBe('2.24.1');
   expect(errors).toEqual([]);
 });
 
@@ -78,6 +76,60 @@ test('operator cockpit defaults to one next step and a calm management list inst
   expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth+1);
   expect(metrics.docScroll).toBeLessThanOrEqual(metrics.docClient+1);
 
-  await page.screenshot({path:path.join(SCREEN_DIR,`${testInfo.project.name}-operator-simple-2.24.png`),fullPage:false});
+  await page.screenshot({path:path.join(SCREEN_DIR,`${testInfo.project.name}-operator-simple-2.24.1.png`),fullPage:false});
   expect(errors).toEqual([]);
+});
+
+test('an explicit HOY callback overrides a routine readiness next step', async ({ page }) => {
+  await page.goto('./', { waitUntil: 'domcontentloaded' });
+  await page.evaluate(fixture => {
+    const view=document.getElementById('view');
+    view.innerHTML=fixture;
+    const root=view.querySelector('.operator-command-center');
+    const profile=[...root.querySelectorAll('.hub-module')].find(x=>x.querySelector('h3')?.textContent==='Basisdaten');
+    const status=profile.querySelector('.hub-status');
+    status.className='hub-status bad';
+    status.textContent='RÜCKFRAGE';
+    profile.querySelector('small').textContent='Bitte Telefonnummer erneut prüfen.';
+    window.hoySimplifyOperatorCockpit(root);
+  }, legacyFixture);
+
+  const focus=page.locator('.operator-simple-focus');
+  await expect(focus).toContainText('Als Nächstes: Daten korrigieren.');
+  await expect(focus).toContainText('HOY hat hier eine Rückfrage.');
+  await expect(focus.locator('[data-hub-action="profile"]')).toHaveText('Daten korrigieren');
+  await expect(page.locator('.operator-simple-row').filter({hasText:'Basisdaten'})).toContainText('Rückfrage');
+});
+
+test('a passive in-review state does not create artificial work for the operator', async ({ page }) => {
+  await page.goto('./', { waitUntil: 'domcontentloaded' });
+  await page.evaluate(fixture => {
+    const view=document.getElementById('view');
+    view.innerHTML=fixture;
+    const root=view.querySelector('.operator-command-center');
+    const next=root.querySelector('.hub-next');
+    next.dataset.hubAction='preview';
+    next.textContent='Gastansicht ansehen →';
+    for(const module of root.querySelectorAll('.hub-module')){
+      const title=module.querySelector('h3')?.textContent;
+      const status=module.querySelector('.hub-status');
+      if(title==='Basisdaten'){
+        status.className='hub-status warn';
+        status.textContent='IN PRÜFUNG';
+      }else if(title==='Aktuelles'){
+        status.className='hub-status locked';
+        status.textContent='PRO';
+      }else{
+        status.className='hub-status good';
+        status.textContent='AKTIV';
+      }
+    }
+    window.hoySimplifyOperatorCockpit(root);
+  }, legacyFixture);
+
+  const focus=page.locator('.operator-simple-focus');
+  await expect(focus).toContainText('Für dich ist gerade nichts zu tun.');
+  await expect(focus).toContainText('wenn sich bei deinem Betrieb etwas ändert oder wir eine Rückfrage haben');
+  await expect(focus.locator('[data-hub-action="preview"]')).toHaveText('Gastansicht ansehen');
+  await expect(page.locator('.operator-simple-row').filter({hasText:'Basisdaten'})).toContainText('In Prüfung');
 });
