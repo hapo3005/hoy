@@ -3,32 +3,49 @@
   const baseLoadCloudRestaurants=loadCloudRestaurants;
 
   loadCloudRestaurants=async function(){
-    const {data,error}=await sb.from('restaurants').select('id,slug,name,area,description,address,phone,website,hours_text,hours_weekly,hours_status,hours_source_url,hours_source_label,hours_checked_at,hours_note,latitude,longitude,is_published,restaurant_services(reservation_state,pickup_state,delivery_state),restaurant_entitlements(operator_verified,active_plan)').eq('is_published',true).order('id');
+    // Always preserve the complete loader chain first. Later feature releases (events,
+    // promotions, etc.) wrap loadCloudRestaurants too and must never be bypassed.
+    await baseLoadCloudRestaurants();
+    if(!sb)return;
+
+    const {data,error}=await sb.from('restaurants')
+      .select('id,hours_text,hours_weekly,hours_status,hours_source_url,hours_source_label,hours_checked_at,hours_note')
+      .eq('is_published',true)
+      .order('id');
+
     if(error){
-      // Backward-compatible fallback for a deployment race where the schema migration is not visible yet.
-      return baseLoadCloudRestaurants();
+      // If provenance is temporarily unavailable, preserve all other cloud data but fail
+      // closed for NOW: without a verified status we do not infer a live open/closed state.
+      DATA=(DATA||[]).map(p=>({
+        ...p,
+        hours_raw_text:p.hours_raw_text||p.hours_text||p.hours||'',
+        hours_text:'',
+        hours_status:'missing'
+      }));
+      console.warn('HOY opening-hours provenance unavailable; NOW disabled',error);
+      return;
     }
-    DATA=(data||[]).map(row=>{
-      const base=LOCAL_DATA.find(x=>Number(x.id)===Number(row.id))||{};
-      const svc=Array.isArray(row.restaurant_services)?row.restaurant_services[0]:row.restaurant_services||{};
-      const ent=Array.isArray(row.restaurant_entitlements)?row.restaurant_entitlements[0]:row.restaurant_entitlements||{};
-      const displayHours=row.hours_text||base.hours||'';
+
+    const hoursById=new Map((data||[]).map(row=>[Number(row.id),row]));
+    DATA=(DATA||[]).map(p=>{
+      const row=hoursById.get(Number(p.id));
+      if(!row)return p;
       const status=row.hours_status||'missing';
+      const displayHours=row.hours_text||p.hours||'';
       // now-status-2.19 consumes p.hours_text. Only verified base schedules are exposed there.
       // Conditional, contradictory, missing and merely reviewed legacy data remain display-only.
       const nowHours=status==='verified'?(row.hours_text||''):'';
       return {
-        ...base,
-        id:Number(row.id),slug:row.slug,name:row.name,area:row.area,
-        description:row.description||base.description||'',address:row.address||base.address||'',
-        phone:row.phone||base.phone||'',website:row.website||base.website||'',
-        hours:displayHours,hours_text:nowHours,hours_raw_text:row.hours_text||'',
-        hours_weekly:row.hours_weekly||null,hours_status:status,
-        hours_source_url:row.hours_source_url||'',hours_source_label:row.hours_source_label||'',
-        hours_checked_at:row.hours_checked_at||null,hours_note:row.hours_note||'',
-        latitude:row.latitude?Number(row.latitude):null,longitude:row.longitude?Number(row.longitude):null,
-        reservation:legacyService(svc.reservation_state),pickup:legacyService(svc.pickup_state),delivery:legacyService(svc.delivery_state),
-        operator_verified:!!ent.operator_verified,active_plan:ent.active_plan||'free',cloud:true
+        ...p,
+        hours:displayHours,
+        hours_text:nowHours,
+        hours_raw_text:row.hours_text||'',
+        hours_weekly:row.hours_weekly||null,
+        hours_status:status,
+        hours_source_url:row.hours_source_url||'',
+        hours_source_label:row.hours_source_label||'',
+        hours_checked_at:row.hours_checked_at||null,
+        hours_note:row.hours_note||''
       };
     });
     cloud.restaurantCount=DATA.length;
