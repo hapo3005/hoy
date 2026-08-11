@@ -1,4 +1,4 @@
-/* HOY 2.18.4 — signature localized menu experience with layout-lazy rerender-safe scroll navigation */
+/* HOY 2.18.5 — signature localized menu experience with refresh-safe user-controlled categories */
 (function(){
   const COPY={
     de:{title:'Speisekarte auf Deutsch',partial:'Auswahl auf Deutsch',promise:'Für dich auf Deutsch',proof:'Kulinarisch übersetzt · Originalpreise unverändert',body:'HOY überträgt Gerichte sinngemäß statt Wort für Wort. Spanische Eigennamen bleiben erhalten, wenn sie zum Gericht gehören.',search:'Speisekarte durchsuchen …',checked:'HOY redaktionell geprüft'},
@@ -72,50 +72,18 @@
     return nav;
   }
 
-  function categoryIndexForPosition(d,cats){
-    if(!cats.length)return 0;
-    const box=d.getBoundingClientRect();
-    const threshold=box.top+Math.min(180,Math.max(120,box.height*.28));
-    let chosen=0;
-    cats.forEach((cat,i)=>{if(cat.getBoundingClientRect().top<=threshold)chosen=i});
-    return chosen;
-  }
-
-  function wireCategoryScrollSync(d,nav,cats,buttons){
-    d._hoyMenuSignatureObserver?.disconnect?.();
-    d._hoyMenuSignatureObserver=null;
-    if(d._hoyMenuSignatureScrollHandler)d.removeEventListener('scroll',d._hoyMenuSignatureScrollHandler);
-    if(d._hoyMenuSignatureScrollFrame)cancelAnimationFrame(d._hoyMenuSignatureScrollFrame);
-
-    const sync=()=>{
-      d._hoyMenuSignatureScrollFrame=0;
-      if(!d.open||!nav?.isConnected)return;
-      const idx=categoryIndexForPosition(d,cats);
-      const changed=nav.dataset.hoyActiveIndex!==String(idx);
-      buttons.forEach((b,j)=>b.classList.toggle('active',j===idx));
-      nav.dataset.hoyActiveIndex=String(idx);
-      if(changed&&nav.scrollWidth>nav.clientWidth){
-        const b=buttons[idx];
-        if(b)nav.scrollTo({left:Math.max(0,b.offsetLeft-nav.clientWidth/2+b.clientWidth/2),behavior:'auto'});
-      }
-    };
-    const onScroll=()=>{
-      if(d._hoyMenuSignatureScrollFrame)return;
-      d._hoyMenuSignatureScrollFrame=requestAnimationFrame(sync);
-    };
-    d.addEventListener('scroll',onScroll,{passive:true});
-    d._hoyMenuSignatureScrollHandler=onScroll;
-    d._hoyMenuSignatureSync=sync;
-    // No initial geometry read here. The first category is the deterministic initial state; geometry
-    // is consulted only after a real dialog scroll.
-  }
-
   function decorateCategories(section,d){
     const cats=[...section.querySelectorAll('.menu-cat')];
     if(!cats.length)return false;
-
     const nav=ensureCategoryNav(section,cats);
     if(!nav)return false;
+
+    d._hoyMenuSignatureObserver?.disconnect?.();
+    d._hoyMenuSignatureObserver=null;
+    if(d._hoyMenuSignatureScrollHandler)d.removeEventListener('scroll',d._hoyMenuSignatureScrollHandler);
+    d._hoyMenuSignatureScrollHandler=null;
+    if(d._hoyMenuSignatureScrollFrame)cancelAnimationFrame(d._hoyMenuSignatureScrollFrame);
+    d._hoyMenuSignatureScrollFrame=0;
 
     cats.forEach(cat=>{
       const h=cat.querySelector('h4');
@@ -137,9 +105,11 @@
         nav.dataset.hoyActiveIndex=String(i);
       });
     });
-    if(!buttons.some(b=>b.classList.contains('active'))&&buttons[0])buttons[0].classList.add('active');
-    if(!nav.dataset.hoyActiveIndex)nav.dataset.hoyActiveIndex='0';
-    wireCategoryScrollSync(d,nav,cats,buttons);
+    const activeIndex=Math.max(0,buttons.findIndex(b=>b.classList.contains('active')));
+    buttons.forEach((b,i)=>b.classList.toggle('active',i===activeIndex));
+    nav.dataset.hoyActiveIndex=String(activeIndex);
+    // Category selection is intentionally user-controlled. Vertical profile scrolling must not move the
+    // horizontal category rail or claim that another category is active while a different heading is visible.
     return true;
   }
 
@@ -207,11 +177,17 @@
     const id=Number(e.detail?.restaurantId||0);
     const d=document.getElementById('detail');
     if(!d?.open||Number(d.dataset.restaurantId||0)!==id)return;
-    clearTimeout(d._hoySignatureRefreshTimer2184);
-    d._hoySignatureRefreshTimer2184=setTimeout(()=>{
+    const section=d.querySelector('#profile-menu');
+    const p=DATA.find(x=>Number(x.id)===id);
+    if(!section||!p)return;
+    const alreadyDecorated=section.classList.contains('menu-signature')
+      &&!!section.querySelector('.menu-signature-categories')
+      &&(!menuFor(p)?.localized||!!section.querySelector('.menu-signature-promise'));
+    if(alreadyDecorated)return;
+    clearTimeout(d._hoySignatureRefreshTimer2185);
+    d._hoySignatureRefreshTimer2185=setTimeout(()=>{
       if(!d.open||Number(d.dataset.restaurantId||0)!==id)return;
-      const p=DATA.find(x=>Number(x.id)===id);
-      if(p)enhanceSignatureMenu(p,d);
+      enhanceSignatureMenu(p,d);
     },0);
   });
 })();
