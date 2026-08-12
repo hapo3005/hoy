@@ -16,6 +16,7 @@ test('Bonobo first-party publisher is hash-pinned and narrowly scoped',()=>{
   expect(script).not.toMatch(/SUPABASE|menu_sources|menu_items|POST|PATCH|DELETE/);
   expect(workflow).toContain('permissions:\n  contents: write');
   expect(workflow).toContain('git add -- menu-pages/4/f9653f87c69d');
+  expect(workflow).toContain('git status --porcelain --untracked-files=all');
   expect(workflow).toContain("grep -v '^menu-pages/4/f9653f87c69d/'");
   expect(workflow).toContain("grep -v '^menu-image-publish-output/'");
   expect(workflow).not.toMatch(/git add\s+\.|git add\s+-A/);
