@@ -1,0 +1,16 @@
+/* HOY Control 2.25.0 — official menu-source release gate */
+.ms225-gate{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;margin:0 0 16px;padding:16px 18px;border-radius:18px;border:1px solid rgba(153,55,44,.18);background:#fff5f2;color:#10283d}
+.ms225-gate.good{border-color:rgba(43,134,94,.18);background:#f2faf5}
+.ms225-gate small{display:block;margin-bottom:5px;color:#a7493f;font-size:8px;font-weight:900;letter-spacing:.14em}
+.ms225-gate.good small{color:#2c835f}
+.ms225-gate strong{display:block;font-size:13px;line-height:1.35}
+.ms225-gate p{margin:5px 0 0;color:#74808a;font-size:10px;line-height:1.5}
+.ms225-gate>span{display:grid;place-items:center;min-width:44px;height:44px;padding:0 10px;border-radius:14px;background:#9d4037;color:#fff;font-size:18px;font-weight:900}
+.ms225-gate.good>span{background:#2f8764}
+.ms225-panel{margin:0 0 16px}
+.ms225-list{display:grid;gap:8px}
+.ms225-list article{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:11px 12px;border:1px solid rgba(16,40,61,.08);border-radius:14px;background:#fff}
+.ms225-list b{display:block;color:#10283d;font-size:12px}
+.ms225-list small{display:block;margin-top:3px;color:#77838c;font-size:9px;line-height:1.4}
+.ms225-list a{padding:8px 10px;border-radius:10px;border:1px solid rgba(16,40,61,.1);color:#10283d;font-size:9px;font-weight:850;text-decoration:none}
+@media(max-width:760px){.ms225-gate{grid-template-columns:1fr}.ms225-gate>span{justify-self:start}.ms225-list article{grid-template-columns:1fr auto}.ms225-list article>a{grid-column:1/-1}}
