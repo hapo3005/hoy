@@ -4,17 +4,17 @@ const {test,expect}=require('@playwright/test');
 test.use({serviceWorkers:'block'});
 const read=file=>fs.readFileSync(file,'utf8');
 
-test('HOY 2.30 invite assets are wired and cached',async({request})=>{
+test('HOY 2.30 invite assets remain wired in the 2.31 release',async({request})=>{
   const [js,css,pkg,index,worker]=await Promise.all([
     request.get('./operator-invite-2.30.js'),request.get('./operator-invite-2.30.css'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')
   ]);
   for(const r of [js,css,pkg,index,worker])expect(r.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.30.0');
+  expect((await pkg.json()).version).toBe('2.31.0');
   const html=await index.text(),sw=await worker.text();
-  expect(html).toContain('App 2.30.0');
+  expect(html).toContain('App 2.31.0');
   expect(html).toContain('operator-invite-2.30.css?v=2.30.0');
   expect(html).toContain('operator-invite-2.30.js?v=2.30.0');
-  expect(sw).toContain("const CACHE='hoy-v2.30.0'");
+  expect(sw).toContain("const CACHE='hoy-v2.31.0'");
   expect(sw).toContain('./operator-invite-2.30.js');
   expect(sw).toContain('./operator-invite-2.30.css');
 });
