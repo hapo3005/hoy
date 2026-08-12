@@ -89,10 +89,10 @@ test('EL NIDO exposes exactly the 117-item main card and keeps El Cuco/highlight
   await expect(profile.locator('.menu233-language-gap')).toHaveCount(0);
 });
 
-test('reviewed image menus stay in HOY and never regress to raw PDF delivery',async({page,request})=>{
+test('reviewed image menus stay first-party in HOY and never regress to raw PDF or fragile hotlinks',async({page,request})=>{
   await assertImageMenu(page,request,9,4,'/hoy/menu-pages/9/f63bfbbb509f/');
   await assertImageMenu(page,request,111,1,'/hoy/menu-pages/111/2d419a28324c/');
-  await assertImageMenu(page,request,4,3,'bonoboplaya.com/wp-content/uploads/2026/');
+  await assertImageMenu(page,request,4,3,'/hoy/menu-pages/4/f9653f87c69d/');
 });
 
 test('2.37 release shell is cache-busted and full-catalog bootstrap is shipped',async({request})=>{
