@@ -11,7 +11,7 @@
   loadCloudMenus=async function(){
     await baseLoadCloudMenus231();
     if(!sb)return;
-    const {data,error}=await sb.from('menu_sources').select('restaurant_id,source_url,source_label,last_checked_at,display_payload,is_official');
+    const {data,error}=await sb.from('menu_sources').select('restaurant_id,source_url,source_label,last_checked_at,display_payload,is_official').eq('is_official',true);
     if(error){console.warn('HOY in-app menu payload unavailable',error);return}
     for(const source of data||[]){
       const id=Number(source.restaurant_id),current=MENUS[id]||{},pages=safePages231(source.display_payload);
