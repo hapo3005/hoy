@@ -7,18 +7,18 @@ async function ready(page){
   await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuSourceTruthVersion==='2.34.1'&&window.hoyMenuSourceTruth234&&cloud.status==='online',{timeout:30000});
 }
 
-test('HOY 2.34.1 menu-source truth assets are wired and cached',async({request})=>{
+test('HOY menu-source truth hotfix stays wired through the 2.34 release shell',async({request})=>{
   const [js,css,pkg,index,worker]=await Promise.all([
     request.get('./menu-source-truth-2.34.js'),request.get('./menu-source-truth-2.34.css'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')
   ]);
   for(const r of [js,css,pkg,index,worker])expect(r.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.34.1');
+  expect((await pkg.json()).version).toBe('2.34.0');
   const html=await index.text(),sw=await worker.text();
-  expect(html).toContain('App 2.34.1');
-  expect(html).toContain('menu-source-truth-2.34.css?v=2.34.1');
-  expect(html).toContain('menu-source-truth-2.34.js?v=2.34.1');
+  expect(html).toContain('App 2.34.0');
+  expect(html).toContain('menu-source-truth-2.34.css?v=2.34.0');
+  expect(html).toContain('menu-source-truth-2.34.js?v=2.34.0');
   expect(html.indexOf('menu-source-truth-2.34.js')).toBeGreaterThan(html.indexOf('menu-language-integrity-2.33.js'));
-  expect(sw).toContain("const CACHE='hoy-v2.34.1'");
+  expect(sw).toContain("const CACHE='hoy-v2.34.0'");
   expect(sw).toContain('./menu-source-truth-2.34.js');
 });
 
