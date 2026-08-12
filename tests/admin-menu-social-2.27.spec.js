@@ -28,6 +28,19 @@ test('discovery order is website/QR, then official social, then operator',async(
   expect(website).toBeGreaterThan(0);
   expect(social).toBeGreaterThan(website);
   expect(js).toContain("CLOSED_CHECKS=new Set(['checked_no_menu','blocked','unavailable'])");
+  expect(js).toContain("OPEN_SOURCE_STATUSES=new Set(['source_only','partial','complete','image_complete'])");
+  expect(js).not.toContain("OPEN_SOURCE_STATUSES=new Set(['source_only','partial','complete','image_complete','insufficient'])");
+  expect(js).toContain('OPEN_SOURCE_STATUSES.has(clean227(s.completeness_status))');
   expect(js).toContain("webCheck.found||socialCheck.found");
   expect(js).toContain('next_review_at');
+});
+
+test('Escuela social research is recorded without unlocking outreach',async({request})=>{
+  const r=await request.get('./supabase/seed/menu-discovery-history-2.27.sql');expect(r.ok()).toBeTruthy();
+  const sql=await r.text();
+  expect(sql).toContain("'@escueladepieter1975'");
+  expect(sql).toContain("'https://escueladepieter.com/'");
+  expect(sql).toContain('send_lock=true');
+  expect(sql).toContain('keine Nachricht senden');
+  expect(sql).not.toContain('send_authorized_at');
 });
