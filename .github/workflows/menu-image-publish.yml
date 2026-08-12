@@ -1,0 +1,64 @@
+name: HOY Menu Image Publish
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'config/menu-image-publish-targets.json'
+      - 'scripts/publish-menu-images.py'
+      - '.github/workflows/menu-image-publish.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hoy-menu-image-publish
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Download only hash-pinned reviewed operator images
+        run: python3 scripts/publish-menu-images.py
+      - name: Verify publish scope
+        shell: bash
+        run: |
+          test -s menu-image-publish-output/manifest.json
+          test "$(find menu-pages/4/f9653f87c69d -type f -name '*.jpg' | wc -l)" -eq 3
+          if find menu-pages/4/f9653f87c69d -type f ! -name '*.jpg' | grep -q .; then
+            echo '::error::Unexpected file type in Bonobo publish bundle'; exit 2
+          fi
+          changed=$(git status --porcelain | awk '{print $2}' | grep -v '^menu-pages/4/f9653f87c69d/' | grep -v '^menu-image-publish-output/' || true)
+          if [ -n "$changed" ]; then
+            echo '::error::Publisher changed files outside the approved Bonobo bundle/audit output'; echo "$changed"; exit 3
+          fi
+          file menu-pages/4/f9653f87c69d/*.jpg
+      - name: Upload pinned menu assets for audit
+        uses: actions/upload-artifact@v5
+        with:
+          name: hoy-menu-image-pages-${{ github.run_id }}
+          path: |
+            menu-image-publish-output/manifest.json
+            menu-pages/4/f9653f87c69d/
+          retention-days: 30
+          if-no-files-found: error
+      - name: Publish only reviewed Bonobo menu image assets
+        shell: bash
+        run: |
+          git config user.name "HOY Menu Image Publisher"
+          git config user.email "actions@users.noreply.github.com"
+          git add -- menu-pages/4/f9653f87c69d
+          if git diff --cached --quiet; then
+            echo "Pinned Bonobo assets already published."
+            exit 0
+          fi
+          git commit -m "HOY menu assets: publish reviewed Bonobo pages"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
