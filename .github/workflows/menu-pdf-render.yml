@@ -1,0 +1,41 @@
+name: HOY Menu PDF Render
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'config/menu-pdf-render-targets.json'
+      - 'scripts/render-menu-pdfs.py'
+      - '.github/workflows/menu-pdf-render.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hoy-menu-pdf-render
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install PDF renderer
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - name: Render allowlisted official PDFs
+        run: python3 scripts/render-menu-pdfs.py
+      - name: Verify artifact contains no source PDFs
+        run: |
+          if find menu-pdf-render-output -type f -name '*.pdf' | grep -q .; then
+            echo '::error::Source PDF leaked into artifact'; exit 2
+          fi
+          test -s menu-pdf-render-output/manifest.json
+      - name: Upload rendered menu pages
+        uses: actions/upload-artifact@v5
+        with:
+          name: hoy-menu-pdf-pages-${{ github.run_id }}
+          path: menu-pdf-render-output/
+          retention-days: 30
+          if-no-files-found: error
