@@ -15,7 +15,7 @@
   const hoursGap221=r=>['missing','conflict','needs_review','conditional'].includes(String(r?.hours_status||''));
   const directContact221=(r,s=saleFor221(r))=>!!(clean221(s.contact_email)||clean221(s.contact_phone)||clean221(s.contact_instagram)||clean221(r?.phone));
   const channel221=(r,s=saleFor221(r))=>clean221(s.preferred_channel)||(clean221(s.contact_email)?'E-Mail':'')||(clean221(s.contact_instagram)?'Instagram':'')||(clean221(s.contact_phone||r?.phone)?'Telefon':'')||(clean221(s.contact_website||r?.website)?'Website':'')||'Kontakt recherchieren';
-  const language221=s=>clean221(s.preferred_outreach_language)||clean221(s.language_fit)||clean221(s.working_language)||'ES';
+  const language221=s=>clean221(s.preferred_outreach_language)||clean221(s.language_fit)||'ES';
   const firstWave221=s=>['DE','EN'].includes(language221(s))||String(s.international_fit||'').toLowerCase()==='high';
 
   async function loadActivation221(){
