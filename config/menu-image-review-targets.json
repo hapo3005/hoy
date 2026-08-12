@@ -1,0 +1,24 @@
+{
+  "targets": [
+    {
+      "restaurant_id": 4,
+      "name": "Bonobo Playa",
+      "source_url": "https://www.bonoboplaya.com/nuestra-carta/",
+      "allowed_host": "www.bonoboplaya.com",
+      "pages": [
+        {
+          "label": "Carta 1",
+          "url": "https://www.bonoboplaya.com/wp-content/uploads/2026/06/carta-bonobo-26-Junio-a4.jpg"
+        },
+        {
+          "label": "Carta 2",
+          "url": "https://www.bonoboplaya.com/wp-content/uploads/2026/07/carta-bonobo-26-Agosto-A4.jpg"
+        },
+        {
+          "label": "Carta 3",
+          "url": "https://www.bonoboplaya.com/wp-content/uploads/2026/06/carta-bonobo-26-Junio-a4-2.jpg"
+        }
+      ]
+    }
+  ]
+}
