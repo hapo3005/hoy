@@ -7,6 +7,7 @@
   const CORE_AREAS=new Set(['La Manga del Mar Menor','Cabo de Palos']);
   const CORE_SCOPES=new Set(['full_menu','food','breakfast','lunch','dinner','day_menu','tasting']);
   const CLOSED_CHECKS=new Set(['checked_no_menu','blocked','unavailable']);
+  const OPEN_SOURCE_STATUSES=new Set(['source_only','partial','complete','image_complete']);
   const clean227=v=>String(v??'').trim();
   const https227=v=>/^https:\/\//i.test(clean227(v))?clean227(v):'';
   const sales227=id=>state.sales.find(x=>Number(x.restaurant_id)===Number(id))||{};
@@ -23,8 +24,6 @@
     const checked=new Date(c.checked_at||0).getTime();
     return Number.isFinite(checked)&&checked>now227()-30*864e5;
   }
-  function latestCheck227(rows,channel){return rows.filter(x=>x.channel===channel).sort((a,b)=>new Date(b.checked_at||0)-new Date(a.checked_at||0))[0]||null}
-  function latestSocialCheck227(rows){return rows.filter(x=>x.channel==='instagram'||x.channel==='facebook').sort((a,b)=>new Date(b.checked_at||0)-new Date(a.checked_at||0))[0]||null}
   function fmtCheck227(c){if(!c)return 'noch nicht geprüft';const d=new Date(c.checked_at);return Number.isFinite(d.getTime())?`geprüft ${new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'}).format(d)}`:'geprüft'}
 
   function renderableSource227(s){
@@ -74,7 +73,7 @@
   }
 
   function rowState227(r){
-    const sources=sources227(r.id),renderable=sources.some(renderableSource227),social=socialRefs227(r),websites=websiteRefs227(r),officialSource=sources.some(s=>CORE_SCOPES.has(clean227(s.coverage_scope))&&!['superseded','invalid'].includes(clean227(s.completeness_status))),checks=checks227(r.id);
+    const sources=sources227(r.id),renderable=sources.some(renderableSource227),social=socialRefs227(r),websites=websiteRefs227(r),officialSource=sources.some(s=>CORE_SCOPES.has(clean227(s.coverage_scope))&&OPEN_SOURCE_STATUSES.has(clean227(s.completeness_status))),checks=checks227(r.id);
     const webCheck=checkResolution227(checks,['website','qr']),socialCheck=checkResolution227(checks,['instagram','facebook']);
     let stage='operator_needed',label='Betreiberbestätigung nötig',tone='muted',next='Keine belastbare digitale Vollkarte nachgewiesen; Betreiber/Claim priorisieren';
 
