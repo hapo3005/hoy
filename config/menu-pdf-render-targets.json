@@ -1,0 +1,16 @@
+{
+  "targets": [
+    {
+      "restaurant_id": 9,
+      "slug": "area-sunset",
+      "label": "Carta restaurante 2026 · Area Sunset",
+      "source_url": "https://areasunset.es/wp-content/uploads/2025/05/Carta-Area-Sunset-web.pdf"
+    },
+    {
+      "restaurant_id": 111,
+      "slug": "la-taberna-del-puerto",
+      "label": "Carta oficial · La Taberna del Puerto",
+      "source_url": "https://latabernadelpuertocabodepalos.es/wp-content/uploads/2024/10/carta-Taberna-del-Puerto-mantel-A3.pdf"
+    }
+  ]
+}
