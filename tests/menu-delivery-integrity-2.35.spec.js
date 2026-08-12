@@ -13,6 +13,33 @@ async function ready(page){
   );
 }
 
+async function assertImageMenu(page,request,id,expectedPages,pathPart){
+  await ready(page);
+  const state=await page.evaluate(id=>{
+    const p=DATA.find(x=>Number(x.id)===Number(id)),m=menuFor(p);
+    return {name:p?.name,integrity:m?.integrity,displayMode:m?.displayMode,pages:(m?.pages||[]).map(x=>x.url),source:m?.source,officialMenuUrl:m?.officialMenuUrl};
+  },id);
+  expect(state.integrity).toBe('image_complete');
+  expect(state.displayMode).toBe('image_pages');
+  expect(state.pages).toHaveLength(expectedPages);
+  expect(state.source).toBeFalsy();
+  expect(state.pages.every(x=>x.includes(pathPart))).toBeTruthy();
+  for(const url of state.pages){const response=await request.get(url);expect(response.ok(),`${state.name}: ${url}`).toBeTruthy()}
+
+  await page.evaluate(id=>openDetail(id),id);
+  const menuTab=page.locator('#detail [data-tab="menu"]');
+  if(await menuTab.count())await menuTab.click();
+  const profile=page.locator('#detail #profile-menu');
+  await expect(profile).toBeVisible();
+  await expect(profile.locator('.menu231-page img')).toHaveCount(expectedPages);
+  await expect(profile.locator('.menu234-frame')).toHaveCount(0);
+  await expect(profile.locator('iframe[src*=".pdf"]')).toHaveCount(0);
+  await expect(profile.locator('a[href*=".pdf"]')).toHaveCount(0);
+  await expect(profile).not.toContainText(/\.pdf/i);
+  await expect(profile.getByRole('link',{name:/öffnen/i})).toHaveCount(0);
+  await expect.poll(async()=>profile.locator('.menu231-page img').first().evaluate(img=>img.complete&&img.naturalWidth>200),{timeout:15000}).toBeTruthy();
+}
+
 test('deployed HOY 2.35 never exposes the truncated La Finca fallback',async({page})=>{
   await ready(page);
   const state=await page.evaluate(()=>{
@@ -56,6 +83,18 @@ test('deployed HOY 2.35 never exposes the truncated La Finca fallback',async({pa
   await expect(profile).toContainText('Hähnchenbrust');
   await expect(profile).not.toContainText('Main Course');
   await expect(profile).not.toContainText('Breast of chicken');
+});
+
+test('Area Sunset renders all four reviewed operator pages inside HOY, never a raw PDF',async({page,request})=>{
+  await assertImageMenu(page,request,9,4,'/hoy/menu-pages/9/f63bfbbb509f/');
+});
+
+test('La Taberna del Puerto renders its reviewed A3 menu inside HOY, never a raw PDF',async({page,request})=>{
+  await assertImageMenu(page,request,111,1,'/hoy/menu-pages/111/2d419a28324c/');
+});
+
+test('Bonobo Playa renders all three official operator menu images inside HOY',async({page,request})=>{
+  await assertImageMenu(page,request,4,3,'bonoboplaya.com/wp-content/uploads/2026/');
 });
 
 test('menu integrity failure is fail-closed in the shipped client',async({request})=>{
