@@ -2,27 +2,12 @@
   "scope": "core",
   "limit": 1,
   "focus_ids": [97],
-  "reason": "Focused browser deep-dive across all official Chibichanga menu sections",
+  "reason": "Resolve Chibichanga juice and shake sections through the operator WordPress API",
   "extra_urls": {
     "97": [
       "https://www.chibichanga.com/",
-      "https://www.chibichanga.com/desayunos/",
-      "https://www.chibichanga.com/tostadas/",
-      "https://www.chibichanga.com/cafes/",
-      "https://www.chibichanga.com/gofres-y-creps/",
-      "https://www.chibichanga.com/zumos/",
-      "https://www.chibichanga.com/batidos/",
-      "https://www.chibichanga.com/tapas/",
-      "https://www.chibichanga.com/refrescos-de-verano/",
-      "https://www.chibichanga.com/refrescos/",
-      "https://www.chibichanga.com/cervezas/",
-      "https://www.chibichanga.com/vinos/",
-      "https://www.chibichanga.com/licores/",
-      "https://www.chibichanga.com/ginebras/",
-      "https://www.chibichanga.com/rones/",
-      "https://www.chibichanga.com/whiskies/",
-      "https://www.chibichanga.com/vodka/",
-      "https://www.chibichanga.com/cocktails/"
+      "https://www.chibichanga.com/wp-json/wp/v2/pages?slug=zumos",
+      "https://www.chibichanga.com/wp-json/wp/v2/pages?slug=batidos"
     ]
   }
 }
