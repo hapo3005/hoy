@@ -54,7 +54,10 @@
       }
 
       if(clean234(primary.completeness_status)==='source_only'&&p.fallbackUrl){
-        MENUS[id]={...current,status:'source_only',integrity:'source_only',officialMenuUrl:p.fallbackUrl,label:p.title,checked:sourceDate234(primary)||current.checked||'',source:null,provenanceUrls:provenance,cloud:true};
+        const stronger=['complete','image_complete','partial','embed_complete'].includes(clean234(current.integrity));
+        MENUS[id]=stronger
+          ? {...current,officialMenuUrl:p.fallbackUrl,provenanceUrls:provenance,cloud:true}
+          : {...current,status:'source_only',integrity:'source_only',officialMenuUrl:p.fallbackUrl,label:p.title,checked:sourceDate234(primary)||current.checked||'',source:null,provenanceUrls:provenance,cloud:true};
         sourceOnlyFallbacks++;
       }
     }
