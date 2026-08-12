@@ -1,0 +1,25 @@
+/* HOY Control 2.26.0 — menu discovery incl. official social media */
+.ms226-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:0 0 16px}
+.ms226-kpi{padding:13px 14px;border:1px solid rgba(16,40,61,.08);border-radius:15px;background:#fff}
+.ms226-kpi strong{display:block;color:#10283d;font-size:22px;line-height:1}
+.ms226-kpi span{display:block;margin-top:5px;color:#263c4d;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.ms226-kpi small{display:block;margin-top:4px;color:#7b8790;font-size:8px;line-height:1.4}
+.ms226-kpi.good{background:#f3faf6;border-color:rgba(45,135,100,.16)}
+.ms226-kpi.warn{background:#fff8ed;border-color:rgba(218,137,58,.16)}
+.ms226-kpi.danger{background:#fff3f0;border-color:rgba(159,65,54,.16)}
+.ms226-rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.ms226-rules article{padding:14px 15px;border:1px solid rgba(16,40,61,.08);border-radius:16px;background:#fff}
+.ms226-rules small{display:block;color:#d06f32;font-size:7.5px;font-weight:900;letter-spacing:.13em}
+.ms226-rules b{display:block;margin-top:4px;color:#10283d;font-size:12px}
+.ms226-rules p{margin:5px 0 0;color:#74808a;font-size:9px;line-height:1.5}
+.ms226-score{display:flex;align-items:baseline;gap:4px;white-space:nowrap;color:#60717d}
+.ms226-score b{color:#10283d;font-size:15px}.ms226-score span{font-size:7px;text-transform:uppercase;letter-spacing:.08em}
+.ms226-score.hot b{color:#9b3f36}.ms226-score.warn b{color:#b66a2f}
+.ms226-state{display:inline-flex;padding:5px 8px;border-radius:999px;background:#f0f2f3;color:#61727e;font-size:8px;font-weight:900;letter-spacing:.03em}
+.ms226-state.good{background:#e9f7ef;color:#287a58}.ms226-state.warn{background:#fff1df;color:#a55e26}.ms226-state.danger{background:#ffe9e5;color:#9b4037}
+.ms226-detail{display:block;max-width:250px;margin-top:5px;color:#77838c;font-size:8.5px;line-height:1.45}
+.ms226-refs{display:flex;flex-wrap:wrap;gap:6px;min-width:150px}
+.ms226-refs a{display:inline-flex;padding:7px 9px;border:1px solid rgba(16,40,61,.1);border-radius:10px;background:#fff;color:#10283d;font-size:8.5px;font-weight:850;text-decoration:none}
+.ms226-refs a:hover{border-color:rgba(230,123,53,.4)}
+@media(max-width:1180px){.ms226-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){.ms226-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.ms226-rules{grid-template-columns:1fr}.ms226-refs{min-width:0}}
