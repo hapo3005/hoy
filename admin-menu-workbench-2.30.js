@@ -4,6 +4,7 @@
   window.__hoyAdminMenuWorkbench230=true;
   window.hoyAdminMenuWorkbenchVersion='2.30.0';
 
+  const PAGE_SIZE230=500;
   const CORE_AREAS=new Set(['La Manga del Mar Menor','Cabo de Palos']);
   const CORE_SCOPES=new Set(['full_menu','food','breakfast','lunch','dinner','day_menu','tasting']);
   const CLOSED_CHECKS=new Set(['checked_no_menu','blocked','unavailable']);
@@ -30,6 +31,25 @@
   const payload230=s=>s?.display_payload&&typeof s.display_payload==='object'?s.display_payload:{};
   const socialRows230=()=>typeof window.hoyAdminMenuSocialRows227==='function'?window.hoyAdminMenuSocialRows227():[];
 
+  async function fetchAllMenuItems230(){
+    const rows=[];
+    for(let from=0;from<10000;from+=PAGE_SIZE230){
+      const {data,error}=await sb.from('menu_items').select('id,restaurant_id,source_id,is_active,source_checked_at').eq('is_active',true).order('restaurant_id').order('source_id').order('id').range(from,from+PAGE_SIZE230-1);
+      if(error)throw error;
+      const page=data||[];rows.push(...page);
+      if(page.length<PAGE_SIZE230)return rows;
+    }
+    throw new Error('HOY Control menu item pagination safety limit reached');
+  }
+
+  const baseLoadData230=loadData;
+  loadData=async function(){
+    await baseLoadData230();
+    const items=await fetchAllMenuItems230();
+    state.menuItems=items;
+    window.hoyAdminMenuWorkbenchCatalog230={items:items.length,integrity:'ready',loadedAt:Date.now()};
+  };
+
   function renderable230(s){
     const status=clean230(s?.completeness_status),p=payload230(s);
     if(status==='image_complete'&&Array.isArray(p.pages)&&p.pages.some(x=>safeHttps230(typeof x==='string'?x:x?.url)))return true;
@@ -48,17 +68,17 @@
   function closedFresh230(check){return !!check&&CLOSED_CHECKS.has(clean230(check.status))&&!due230(check)}
   function fmtDate230(value){const d=new Date(value||0);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}).format(d):'—'}
   function ownedWebsite230(r){const u=safeHttps230(r?.website);return u&&!SOCIAL.test(u)?u:''}
-  function socialRefs230(r){const row=socialRows230().find(x=>Number(x.r?.id)===Number(r.id));return row?.social||[]}
   function direct230(id){const s=sales230(id);return {email:clean230(s.contact_email),phone:clean230(s.contact_phone),channel:clean230(s.preferred_channel),confidence:clean230(s.contact_confidence)}}
   function hasDirect230(id){const d=direct230(id);return !!(d.email||d.phone)}
 
-  function classify230(r){
+  function classify230(r,socialMap){
     const sources=menuSources230(r.id),renderable=sources.find(renderable230),importable=sources.find(importable230),insufficient=sources.find(s=>clean230(s.completeness_status)==='insufficient');
-    const website=ownedWebsite230(r),webCheck=websiteCheck230(r.id),socialCheck=socialCheck230(r.id),social=socialRefs230(r),direct=direct230(r.id);
+    const website=ownedWebsite230(r),webCheck=websiteCheck230(r.id),socialCheck=socialCheck230(r.id),social=socialMap.get(Number(r.id))?.social||[],direct=direct230(r.id);
+    const recheckDue=!!website&&((!!insufficient&&!webCheck)||!!webCheck&&due230(webCheck));
     let lane='research_route';
     if(renderable)lane='ready';
     else if(importable)lane='editorial';
-    else if(website&&(insufficient||webCheck)&&due230(webCheck))lane='website_recheck_due';
+    else if(recheckDue)lane='website_recheck_due';
     else if(website&&!webCheck&&!insufficient)lane='website_first';
     else if(social.length&&!closedFresh230(socialCheck))lane='social_manual';
     else if(hasDirect230(r.id))lane='direct_contact_later';
@@ -69,7 +89,8 @@
   }
 
   function rows230(){
-    return (state.restaurants||[]).filter(r=>r.is_published&&CORE_AREAS.has(clean230(r.area))).map(classify230).sort((a,b)=>b.priority-a.priority||a.r.name.localeCompare(b.r.name,'de'));
+    const socialMap=new Map(socialRows230().map(x=>[Number(x.r?.id),x]));
+    return (state.restaurants||[]).filter(r=>r.is_published&&CORE_AREAS.has(clean230(r.area))).map(r=>classify230(r,socialMap)).sort((a,b)=>b.priority-a.priority||a.r.name.localeCompare(b.r.name,'de'));
   }
   window.hoyAdminMenuWorkbenchRows230=rows230;
 
@@ -81,7 +102,7 @@
 
   function evidence230(x){
     if(x.lane==='editorial')return `${clean230(x.importable?.source_label)||'Offizielle Kartenquelle'} · ${clean230(x.importable?.completeness_status)}`;
-    if(x.lane==='website_recheck_due')return `letzter Website-Check ${fmtDate230(x.webCheck?.checked_at)} · Wiedervorlage ${fmtDate230(x.webCheck?.next_review_at)}`;
+    if(x.lane==='website_recheck_due')return x.webCheck?`letzter Website-Check ${fmtDate230(x.webCheck.checked_at)} · Wiedervorlage ${fmtDate230(x.webCheck.next_review_at)}`:'unzureichende offizielle Quelle · noch ohne dokumentierte Wiedervorlage';
     if(x.lane==='website_first')return x.website?'eigene Betreiberwebsite vorhanden':'Website offen';
     if(x.lane==='social_manual')return `${x.social.length} bekannter Social-Kanal${x.social.length===1?'':'äle'} · noch nicht als Menü-Evidenz freigegeben`;
     if(x.lane==='direct_contact_later')return [x.direct.channel,x.direct.confidence&&`Kontakt ${x.direct.confidence}`].filter(Boolean).join(' · ')||'direkter Kontakt hinterlegt';
@@ -135,7 +156,7 @@
   }
 
   function panel230(){
-    const rows=rows230(),m=metrics230(rows),open=rows.filter(x=>x.lane!=='ready'),last=state230.last;
+    const rows=rows230(),m=metrics230(rows),last=state230.last;
     const lastText=last?`${esc(last.label)} · ${last.processed} geprüft · ${last.found} Quelle${last.found===1?'':'n'} gefunden${last.social?` · ${last.social} Social-Übergabe${last.social===1?'':'n'}`:''}${last.failed?` · ${last.failed} technisch offen`:''}`:'Bereit. Keine automatische Veröffentlichung und kein Outreach.';
     return `<section class="mwb230" id="mwb230"><div class="mwb230-head"><div><small>CORE MENU WORKBENCH · LA MANGA + CABO</small><h3>Eine Queue. Eine nächste Aktion pro Betrieb.</h3><p>HOY trennt belastbare Betreiberquellen, fällige Rechecks, manuelle Social-Verifikation und spätere Betreiberaktivierung. Automatisierung beschleunigt die Recherche – sie senkt niemals den Vertrauensstandard.</p></div><div class="mwb230-actions"><button class="primary" data-mwb230-batch="first" ${m.websiteFirst?'':'disabled'}>Neue Website-Lücken prüfen · ${m.websiteFirst}</button><button class="ghost" data-mwb230-batch="due" ${m.recheck?'':'disabled'}>Fällige Rechecks · ${m.recheck}</button></div></div><div class="mwb230-kpis"><div><b>${m.ready}/${m.total}</b><span>kernseitig nutzbar</span></div><div><b>${m.open}</b><span>noch offen</span></div><div><b>${m.editorial}</b><span>redaktionell</span></div><div><b>${m.websiteFirst+m.recheck}</b><span>Website-Aktionen</span></div><div><b>${m.social}</b><span>Social manuell</span></div><div><b>${m.direct}</b><span>Betreiberweg später</span></div><div><b>${m.research}</b><span>Route recherchieren</span></div></div><div class="mwb230-guard"><b>Vertrauensregel</b><span>Social-/Sales-Hinweise sind Recherchewege, keine automatische Betreiber-Evidenz. Direkte Kontakte bleiben vorbereitet; es wird nichts versendet.</span></div><div class="mwb230-toolbar"><select id="mwb230Lane"><option value="open">Alle offenen (${m.open})</option><option value="editorial">Redaktionell strukturieren (${m.editorial})</option><option value="website_recheck_due">Fällige Rechecks (${m.recheck})</option><option value="website_first">Website erstmals prüfen (${m.websiteFirst})</option><option value="social_manual">Social manuell (${m.social})</option><option value="direct_contact_later">Betreiberweg später (${m.direct})</option><option value="website_waiting">Wiedervorlage geplant (${m.waiting})</option><option value="research_route">Route recherchieren (${m.research})</option><option value="ready">Fertig (${m.ready})</option></select><select id="mwb230Area"><option value="all">La Manga + Cabo</option><option value="La Manga del Mar Menor">La Manga</option><option value="Cabo de Palos">Cabo de Palos</option></select></div><div class="mwb230-table"><table><thead><tr><th>Betrieb</th><th>Arbeitsbahn</th><th>Evidenz / nächster Schritt</th><th>Aktion</th></tr></thead><tbody>${rows.map(row230).join('')}</tbody></table></div><div class="mwb230-progress ${state230.busy?'busy':''}">${state230.busy?'HOY prüft Betreiberwebsites in sicheren 4er-Batches …':lastText}</div></section>`;
   }
