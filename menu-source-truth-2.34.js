@@ -1,4 +1,4 @@
-/* HOY 2.34.1 — official menu source truth: active complete operator menus outrank stale/superseded sources */
+/* HOY 2.34.1 — official menu source truth: active main-menu scope outranks stale/superseded or narrower sources */
 (function(){
   if(window.__hoyMenuSourceTruth2340)return;
   window.__hoyMenuSourceTruth2340=true;
@@ -26,7 +26,7 @@
   function officialMenuSource234(rows){
     return [...rows]
       .filter(s=>s?.is_official!==false&&CORE_SCOPES.has(clean234(s.coverage_scope))&&!EXCLUDED_STATUSES.has(clean234(s.completeness_status)))
-      .sort((a,b)=>statusWeight234(b)-statusWeight234(a)||scopeWeight234(b)-scopeWeight234(a)||String(sourceDate234(b)).localeCompare(String(sourceDate234(a))))[0]||null;
+      .sort((a,b)=>scopeWeight234(b)-scopeWeight234(a)||statusWeight234(b)-statusWeight234(a)||String(sourceDate234(b)).localeCompare(String(sourceDate234(a))))[0]||null;
   }
 
   async function reconcile234(){
