@@ -1,0 +1,5 @@
+{
+  "scope": "core",
+  "limit": 12,
+  "reason": "Initial browser-backed pass for unresolved La Manga and Cabo de Palos menu sources"
+}
