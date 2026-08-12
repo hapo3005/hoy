@@ -1,14 +1,16 @@
-/* HOY 2.34.0 — official menu source truth: embed complete operator menus, never claim "no menu" when an official source exists */
+/* HOY 2.34.1 — official menu source truth: active complete operator menus outrank stale/superseded sources */
 (function(){
   if(window.__hoyMenuSourceTruth2340)return;
   window.__hoyMenuSourceTruth2340=true;
-  window.hoyMenuSourceTruthVersion='2.34.0';
+  window.hoyMenuSourceTruthVersion='2.34.1';
 
   const CORE_SCOPES=new Set(['full_menu','food','breakfast','lunch','dinner','day_menu','tasting']);
+  const EXCLUDED_STATUSES=new Set(['superseded','invalid','unknown']);
   const clean234=v=>String(v??'').trim();
   const safeHttps234=v=>/^https:\/\//i.test(clean234(v))?clean234(v):'';
   const sourceDate234=s=>clean234(s?.completeness_checked_at||s?.last_checked_at).slice(0,10);
   const scopeWeight234=s=>({full_menu:100,food:90,dinner:70,lunch:70,breakfast:60,tasting:50,day_menu:40}[clean234(s?.coverage_scope)]||0);
+  const statusWeight234=s=>({complete:500,image_complete:450,partial:300,source_only:200,insufficient:100}[clean234(s?.completeness_status)]||0);
 
   function payload234(source){
     const p=source?.display_payload&&typeof source.display_payload==='object'?source.display_payload:{};
@@ -23,8 +25,8 @@
 
   function officialMenuSource234(rows){
     return [...rows]
-      .filter(s=>s?.is_official!==false&&CORE_SCOPES.has(clean234(s.coverage_scope)))
-      .sort((a,b)=>scopeWeight234(b)-scopeWeight234(a)||String(sourceDate234(b)).localeCompare(String(sourceDate234(a))))[0]||null;
+      .filter(s=>s?.is_official!==false&&CORE_SCOPES.has(clean234(s.coverage_scope))&&!EXCLUDED_STATUSES.has(clean234(s.completeness_status)))
+      .sort((a,b)=>statusWeight234(b)-statusWeight234(a)||scopeWeight234(b)-scopeWeight234(a)||String(sourceDate234(b)).localeCompare(String(sourceDate234(a))))[0]||null;
   }
 
   async function reconcile234(){
