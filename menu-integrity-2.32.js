@@ -1,9 +1,10 @@
-/* HOY 2.32.0 — one menu truth for guest UI, ranking and quality control */
+/* HOY 2.37.0 — one menu truth for guest UI, now bootstrapped from the complete paginated catalog */
 (function(){
   if(window.__hoyMenuIntegrity2320)return;
   window.__hoyMenuIntegrity2320=true;
-  window.hoyMenuIntegrityVersion='2.32.0';
+  window.hoyMenuIntegrityVersion='2.37.0';
 
+  const PAGE_SIZE232=500;
   const NON_CORE=new Set(['wine','dessert','drinks','highlights','secondary']);
   const ACTIVE_CONTENT=new Set(['complete','partial','image_complete']);
   const IGNORE=new Set(['superseded','invalid','unknown']);
@@ -15,6 +16,20 @@
   const sourceDate232=s=>s?.completeness_checked_at||s?.last_checked_at||'';
   const latest232=rows=>rows.map(sourceDate232).filter(Boolean).sort().at(-1)||'';
   const categoryCount232=cats=>(cats||[]).reduce((n,[,items])=>n+(items?.length||0),0);
+
+  async function fetchAll232(table,select,configure){
+    const rows=[];
+    for(let from=0;from<10000;from+=PAGE_SIZE232){
+      let query=sb.from(table).select(select);
+      query=configure(query).range(from,from+PAGE_SIZE232-1);
+      const {data,error}=await query;
+      if(error)throw error;
+      const page=data||[];
+      rows.push(...page);
+      if(page.length<PAGE_SIZE232)return rows;
+    }
+    throw new Error(`HOY ${table} bootstrap pagination safety limit reached`);
+  }
 
   function categories232(rows){
     const cats=new Map();
@@ -63,12 +78,28 @@
   loadCloudMenus=async function(){
     await baseLoadCloudMenus232();
     if(!sb)return;
-    const [sourceRes,itemRes]=await Promise.all([
-      sb.from('menu_sources').select('id,restaurant_id,source_url,source_label,last_checked_at,display_payload,is_official,coverage_scope,completeness_status,completeness_checked_at,completeness_note,coverage_meta').eq('is_official',true),
-      sb.from('menu_items').select('id,restaurant_id,source_id,category,name,price_text,is_active,source_checked_at').eq('is_active',true).order('category').order('name')
-    ]);
-    if(sourceRes.error||itemRes.error){console.warn('HOY menu integrity unavailable',sourceRes.error||itemRes.error);return}
-    const sources=sourceRes.data||[],items=itemRes.data||[];cloud.menuItemCount=items.length;
+    let sources,items;
+    try{
+      [sources,items]=await Promise.all([
+        fetchAll232(
+          'menu_sources',
+          'id,restaurant_id,source_url,source_label,last_checked_at,display_payload,is_official,coverage_scope,completeness_status,completeness_checked_at,completeness_note,coverage_meta',
+          q=>q.eq('is_official',true).order('restaurant_id').order('id')
+        ),
+        fetchAll232(
+          'menu_items',
+          'id,restaurant_id,source_id,category,name,description,price_text,is_active,source_checked_at',
+          q=>q.eq('is_active',true).order('restaurant_id').order('category').order('name').order('id')
+        )
+      ]);
+    }catch(error){
+      window.hoyMenuBootstrap232={itemCount:null,sourceCount:null,loadedAt:Date.now(),integrity:'blocked',error:error?.message||String(error)};
+      console.warn('HOY full-catalog menu bootstrap unavailable',error);
+      return;
+    }
+
+    cloud.menuItemCount=items.length;
+    window.hoyMenuBootstrap232={items,itemCount:items.length,sourceCount:sources.length,loadedAt:Date.now(),integrity:'ready'};
     const byRestaurantSources=new Map(),byRestaurantItems=new Map();
     for(const source of sources){const id=Number(source.restaurant_id);if(!byRestaurantSources.has(id))byRestaurantSources.set(id,[]);byRestaurantSources.get(id).push(source)}
     for(const item of items){const id=Number(item.restaurant_id);if(!byRestaurantItems.has(id))byRestaurantItems.set(id,[]);byRestaurantItems.get(id).push(item)}
