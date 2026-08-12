@@ -156,7 +156,7 @@ test('localized menu presents the HOY language promise and editorial browsing co
   await expect(section.locator('.menu-signature-categories button').first()).toHaveClass(/active/);
   await expect(section.locator('.menu-cat-count').first()).toContainText(/Position/);
   await expect(section.locator('.localized-menu-item > span').first()).toContainText(/€|EUR/i);
-  await expect(section.locator('.menu-signature-provenance a')).toContainText(/Originalkarte öffnen/i);
+  await expect(section.locator('.menu-signature-provenance a')).toHaveCount(0);
 
   await page.evaluate(() => {
     const s=document.querySelector('#detail[open] #profile-menu');
