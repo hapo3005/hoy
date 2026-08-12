@@ -7,9 +7,8 @@ const SUPABASE_URL='https://zlscptisdxzxuvllogza.supabase.co';
 const SUPABASE_KEY='sb_publishable_CckkwI-sINoA1sEag2jbfw_-wxnr_og';
 const CORE_AREAS=new Set(['La Manga del Mar Menor','Cabo de Palos']);
 const NON_CORE_SCOPES=new Set(['wine','dessert','drinks','highlights','secondary']);
-const DONE=new Set(['complete','image_complete','embed_complete']);
 const MENU_RE=/(carta|men[uú]|speisekarte|food|drink|bebida|vino|postre|dessert|starter|main|ensalada|pescado|arroz|carne|cocktail|precio|price|qr|\.pdf)/i;
-const CLICK_RE=/^(carta|men[uú]|food|drinks?|bebidas?|vinos?|entrantes?|ensaladas?|pescados?|arroces?|carnes?|postres?|starters?|mains?|desserts?|wines?)$/i;
+const CLICK_RE=/^(carta|men[uú]|food|drinks?|bebidas?|vinos?|entrantes?|ensaladas?|crudo|pescados?|arroces?|carnes?|para los peques|postres?(?: caseros)?|alcohol|caf[eé]s?|starters?|mains?|main courses?|desserts?|wines?)$/i;
 const args=Object.fromEntries(process.argv.slice(2).reduce((a,x,i,all)=>x.startsWith('--')?[...a,[x.slice(2),all[i+1]]]:a,[]));
 const trigger=JSON.parse(await readFile('.github/hoy-menu-discovery-trigger.json','utf8'));
 const scope=(args.scope||trigger.scope||'core').toLowerCase();
@@ -77,7 +76,7 @@ async function inspect(context,venue,entry,index){
     const response=await page.goto(entry.url,{waitUntil:'domcontentloaded',timeout:30000});out.http_status=response?.status()??null;
     await page.waitForTimeout(1200);await dismiss(page);await page.waitForTimeout(500);out.final_url=page.url();
     const first=await collect(page);out.title=first.title;out.body_excerpt=clean(first.body).slice(0,12000);out.anchors=uniq(first.anchors,x=>x.url).slice(0,50);out.iframes=uniq(first.iframes,x=>x.url).slice(0,30);out.images=uniq(first.images,x=>x.url).slice(0,40);
-    for(const c of first.controls.filter(x=>CLICK_RE.test(x.text)).slice(0,20)){
+    for(const c of first.controls.filter(x=>CLICK_RE.test(x.text)).slice(0,24)){
       const before=await page.locator('body').innerText().catch(()=>first.body);
       const loc=page.locator('button,[role="tab"],a').filter({hasText:c.text}).first();if(!await loc.isVisible().catch(()=>false))continue;
       await loc.click({timeout:1800,force:true}).catch(()=>{});await page.waitForTimeout(500);
