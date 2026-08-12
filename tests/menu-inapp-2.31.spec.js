@@ -46,8 +46,9 @@ test('source-only menu is not presented as a finished external menu',async({page
   expect(html).not.toMatch(/href=/i);
 });
 
-test('2.31 menu module contains no external navigation CTA',()=>{
+test('2.31 menu module embeds only official sources and contains no external navigation CTA',()=>{
   const js=fs.readFileSync('menu-inapp-2.31.js','utf8');
+  expect(js).toContain(".eq('is_official',true)");
   expect(js).not.toMatch(/window\.open|target=["']_blank|Originalquelle öffnen/i);
   expect(js).toContain("status:'source_only'");
   expect(js).toContain("displayMode:'image_pages'");
