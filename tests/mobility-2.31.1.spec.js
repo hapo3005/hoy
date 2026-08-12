@@ -100,7 +100,36 @@ test('fail-closed resolver response never exposes a phone action',async({page,co
   await expect(flow.locator('[data-mobility229-call]')).toHaveCount(0);
 });
 
-test('resolved result exposes only the verified provider and does not persist raw GPS',async({page,context})=>{
+test('resolved Cartagena result exposes the general verified dispatch contact',async({page,context})=>{
+  await mockRuntimeConfig(page);
+  await context.grantPermissions(['geolocation']);
+  await context.setGeolocation({latitude:37.634690,longitude:-0.690290});
+  await mockMobilityResult(page,{
+    status:'resolved',
+    confidence:'verified_local_boundary',
+    municipality:'Cartagena',
+    distance_to_boundary_m:5002,
+    safety_radius_m:80,
+    area:{slug:'cartagena-coast',name:'Cartagena · La Manga / Cabo de Palos',verified_at:'2026-08-12T00:00:00Z',source_label:'Ayuntamiento de Cartagena · Transportes'},
+    provider:{slug:'radio-taxi-cartagena',name:'Radio Taxi Cartagena',phone_e164:'+34968311515',phone_display:'968 311 515',alternate_phone_e164:'+34968520404',alternate_phone_display:'968 520 404',verified_at:'2026-08-12T00:00:00Z',source_label:'Ayuntamiento de Cartagena + Radio Taxi Cartagena'},
+    source:{boundary:'IGN cached geometry',boundary_dataset_date:'2026-02-12',boundary_dataset_uncertainty_m:40}
+  });
+
+  await page.goto('./?mobility=preview',{waitUntil:'domcontentloaded'});
+  await waitForData(page);
+  await openFirstProfile(page);
+  await page.locator('[data-mobility229-open]').click();
+  await page.locator('[data-mobility229-direction="to"]').click();
+
+  const flow=page.locator('#mobilityFlow');
+  await expect(flow).toContainText('ZUSTÄNDIGKEIT GEPRÜFT');
+  await expect(flow).toContainText('Radio Taxi Cartagena');
+  await expect(flow.locator('[data-mobility229-call]')).toBeVisible();
+  await expect(flow.locator('[data-mobility229-call]')).toContainText('968 311 515');
+  await expect(flow).toContainText('968 520 404');
+});
+
+test('resolved San Javier result exposes only the verified provider and does not persist raw GPS',async({page,context})=>{
   await mockRuntimeConfig(page);
   await context.grantPermissions(['geolocation']);
   await context.setGeolocation({latitude:37.705673,longitude:-0.742513});
