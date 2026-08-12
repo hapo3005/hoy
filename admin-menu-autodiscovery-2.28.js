@@ -1,8 +1,8 @@
-/* HOY Control 2.28.1 — authenticated official-site menu auto-discovery */
+/* HOY Control 2.28.2 — authenticated official-site menu auto-discovery + social handoff */
 (function(){
   if(window.__hoyAdminMenuAutoDiscovery228)return;
   window.__hoyAdminMenuAutoDiscovery228=true;
-  window.hoyAdminMenuAutoDiscoveryVersion='2.28.1';
+  window.hoyAdminMenuAutoDiscoveryVersion='2.28.2';
 
   const CORE_AREAS=new Set(['La Manga del Mar Menor','Cabo de Palos']);
   const FALLBACK_FOOD_TYPES=new Set(['restaurant','chiringuito','beach_club']);
@@ -25,28 +25,37 @@
 
   function panel228(){
     const m=metrics228(),last=runState.last;
-    const lastText=last?`${last.found} neue Quelle${last.found===1?'':'n'} gefunden · ${last.processed} geprüft${last.failed?` · ${last.failed} technisch offen`:''}`:'Noch kein automatischer Lauf in dieser Sitzung.';
-    return `<section class="mad228-panel ${runState.busy?'busy':''}" id="mad228Panel"><div class="mad228-head"><div><small>AUTOMATISCHE MENÜ-DISCOVERY</small><h3>Offizielle Betreiberquellen zuerst.</h3><p>HOY prüft ausschließlich hinterlegte Betreiberwebsites, folgt Carta/Menu/PDF/QR-Hinweisen und legt Treffer zunächst als ungeprüfte offizielle Quelle an. Keine automatisch gefundene Karte wird dadurch als vollständig veröffentlicht.</p></div><div class="mad228-actions"><button class="primary" data-mad228-run="food">Food-Lücken prüfen</button><button class="ghost" data-mad228-run="La Manga del Mar Menor">La Manga prüfen</button><button class="ghost" data-mad228-run="Cabo de Palos">Cabo prüfen</button></div></div><div class="mad228-status"><div class="mad228-stat"><b>${m.foodReady}/${m.food}</b><span>Food-Betriebe mit Kernquelle</span></div><div class="mad228-stat"><b>${m.foodMissing}</b><span>echte Food-Lücken</span></div><div class="mad228-stat"><b>${m.runnable}</b><span>alle Lücken mit eigener Website</span></div><div class="mad228-stat"><b>${m.missing}</b><span>alle Kerngebiets-Lücken</span></div></div><div class="mad228-progress">${runState.busy?'HOY prüft Betreiberwebsites in kleinen sicheren Batches …':lastText}</div></section>`;
+    const lastText=last?`${last.found} neue Menüquelle${last.found===1?'':'n'} · ${last.social||0} offizielle Instagram-Übergabe${last.social===1?'':'n'} · ${last.processed} geprüft${last.failed?` · ${last.failed} technisch offen`:''}`:'Noch kein automatischer Lauf in dieser Sitzung.';
+    return `<section class="mad228-panel ${runState.busy?'busy':''}" id="mad228Panel"><div class="mad228-head"><div><small>AUTOMATISCHE MENÜ-DISCOVERY</small><h3>Offizielle Betreiberquellen zuerst.</h3><p>HOY prüft identitätsgesichert hinterlegte Betreiberwebsites, folgt Carta/Menu/PDF/QR-Hinweisen und legt Treffer zunächst als ungeprüfte offizielle Quelle an. Findet die verifizierte Website stattdessen ihr eigenes Instagram, wird dieses nur als nächster Recherchekanal übernommen. Nichts wird kontaktiert oder automatisch als vollständige Karte veröffentlicht.</p></div><div class="mad228-actions"><button class="primary" data-mad228-run="food">Food-Lücken prüfen</button><button class="ghost" data-mad228-run="La Manga del Mar Menor">La Manga prüfen</button><button class="ghost" data-mad228-run="Cabo de Palos">Cabo prüfen</button></div></div><div class="mad228-status"><div class="mad228-stat"><b>${m.foodReady}/${m.food}</b><span>Food-Betriebe mit Kernquelle</span></div><div class="mad228-stat"><b>${m.foodMissing}</b><span>echte Food-Lücken</span></div><div class="mad228-stat"><b>${m.runnable}</b><span>alle Lücken mit eigener Website</span></div><div class="mad228-stat"><b>${m.missing}</b><span>alle Kerngebiets-Lücken</span></div></div><div class="mad228-progress">${runState.busy?'HOY prüft Betreiberwebsites in kleinen sicheren Batches …':lastText}</div></section>`;
   }
 
   async function invoke228(ids){
     const {data,error}=await sb.functions.invoke('menu-discovery',{body:{action:'discover',restaurant_ids:ids,only_missing:true,limit:ids.length}});
     if(error)throw error;if(data?.error)throw new Error(data.error);return data||{};
   }
+  async function handoff228(ids){
+    try{
+      const {data,error}=await sb.functions.invoke('menu-social-handoff',{body:{restaurant_ids:ids}});
+      if(error)throw error;if(data?.error)throw new Error(data.error);return Number(data?.handed_off||0);
+    }catch(error){console.warn('HOY social handoff unavailable',error);return 0}
+  }
   async function runRows228(rows,label){
     if(runState.busy)return;
     if(!rows.length){toast('Für diesen Lauf gibt es keine automatisch prüfbare Website-Lücke.');return}
     runState.busy=true;render();
-    const summary={processed:0,found:0,failed:0,blocked:0,noMenu:0};
+    const summary={processed:0,found:0,social:0,failed:0,blocked:0,noMenu:0};
     try{
       for(let i=0;i<rows.length;i+=4){
-        const batch=rows.slice(i,i+4),data=await invoke228(batch.map(r=>Number(r.id))),results=data.results||[];
+        const batch=rows.slice(i,i+4),ids=batch.map(r=>Number(r.id)),data=await invoke228(ids),results=data.results||[];
         summary.processed+=Number(data.processed||results.length||0);summary.found+=Number(data.found||0);
-        summary.failed+=results.filter(x=>x.status==='failed').length;summary.blocked+=results.filter(x=>x.status==='website_blocked').length;summary.noMenu+=results.filter(x=>x.status==='checked_no_menu').length;
+        summary.failed+=results.filter(x=>x.status==='failed').length;
+        summary.blocked+=results.filter(x=>['website_blocked','identity_review_required'].includes(x.status)).length;
+        summary.noMenu+=results.filter(x=>x.status==='checked_no_menu').length;
+        summary.social+=await handoff228(ids);
       }
       runState.last=summary;
       await loadData();
-      toast(`${label}: ${summary.found} neue offizielle Menüquelle${summary.found===1?'':'n'} gefunden`);
+      toast(`${label}: ${summary.found} neue Menüquelle${summary.found===1?'':'n'} · ${summary.social} Social-Übergabe${summary.social===1?'':'n'}`);
     }catch(error){console.error('HOY automatic menu discovery failed',error);runState.last={...summary,failed:summary.failed+1};toast(error?.message||'Automatische Menüprüfung fehlgeschlagen')}
     finally{runState.busy=false;render()}
   }
