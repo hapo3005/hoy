@@ -1,0 +1,45 @@
+name: HOY Menu Image Review
+
+on:
+  push:
+    branches: [agent/bonobo-image-review]
+    paths:
+      - 'config/menu-image-review-targets.json'
+      - 'scripts/review-menu-images.py'
+      - '.github/workflows/menu-image-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hoy-menu-image-review-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Download and verify official operator menu images
+        run: python3 scripts/review-menu-images.py
+      - name: Verify output is JPEG-only and review-only
+        shell: bash
+        run: |
+          test -s menu-image-review-output/manifest.json
+          test "$(find menu-image-review-output -type f -name '*.jpg' | wc -l)" -eq 3
+          if find menu-image-review-output -type f ! -name '*.jpg' ! -name 'manifest.json' | grep -q .; then
+            echo '::error::Unexpected review artifact type'; exit 2
+          fi
+          if test -d menu-pages; then
+            echo '::error::Review workflow must not create publish assets'; exit 3
+          fi
+          file menu-image-review-output/*/*.jpg
+      - name: Upload operator image evidence
+        uses: actions/upload-artifact@v5
+        with:
+          name: hoy-menu-image-review-${{ github.run_id }}
+          path: menu-image-review-output/
+          retention-days: 30
+          if-no-files-found: error
