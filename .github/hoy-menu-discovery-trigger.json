@@ -1,21 +1,28 @@
 {
   "scope": "core",
-  "limit": 14,
-  "reason": "Second browser-backed pass: complete Playa Chica tabs and deepen operator menu routes",
+  "limit": 1,
+  "focus_ids": [97],
+  "reason": "Focused browser deep-dive across all official Chibichanga menu sections",
   "extra_urls": {
-    "4": ["https://www.bonoboplaya.com/nuestra-carta/"],
-    "11": ["https://www.playachicalamanga.es/", "https://www.instagram.com/playachica.lamanga/"],
-    "14": ["https://bocanadepalos.com/es/inicio", "https://www.instagram.com/bocanadepalos/"],
-    "6": ["https://chiringuitoelbaron.com/"],
-    "151": ["https://mangata.myrestoo.net", "https://www.instagram.com/chiringuito_mangata/"],
-    "97": ["https://www.chibichanga.com/", "https://www.chibichanga.com/vinos/", "https://www.chibichanga.com/cocktails/"],
-    "217": ["https://elnidokm1.es/", "https://elnidokm1.es/carta/"],
-    "7": ["https://escueladepieter.com/", "https://www.instagram.com/escueladepieter1975/"],
-    "10": ["https://clubnauticodosmares.com/restaurante/"],
-    "205": ["https://rincondelcheflamanga.es/"],
-    "152": ["https://whitediamondloungebar.com/", "https://www.instagram.com/_white__diamond/"],
-    "147": ["https://www.instagram.com/bondibeachcabo/"],
-    "157": ["https://www.instagram.com/chiringuitodosmares/"],
-    "156": ["https://www.instagram.com/chiringuitolevante/"]
+    "97": [
+      "https://www.chibichanga.com/",
+      "https://www.chibichanga.com/desayunos/",
+      "https://www.chibichanga.com/tostadas/",
+      "https://www.chibichanga.com/cafes/",
+      "https://www.chibichanga.com/gofres-y-creps/",
+      "https://www.chibichanga.com/zumos-naturales/",
+      "https://www.chibichanga.com/batidos-naturales/",
+      "https://www.chibichanga.com/tapas/",
+      "https://www.chibichanga.com/refrescos-de-verano/",
+      "https://www.chibichanga.com/refrescos/",
+      "https://www.chibichanga.com/cervezas/",
+      "https://www.chibichanga.com/vinos/",
+      "https://www.chibichanga.com/licores/",
+      "https://www.chibichanga.com/ginebras/",
+      "https://www.chibichanga.com/rones/",
+      "https://www.chibichanga.com/whiskies/",
+      "https://www.chibichanga.com/vodka/",
+      "https://www.chibichanga.com/cocktails/"
+    ]
   }
 }
