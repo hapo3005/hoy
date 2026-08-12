@@ -46,7 +46,7 @@
     const coreSourceOnly=core.filter(s=>status232(s)==='source_only');
     const coreInsufficient=core.filter(s=>status232(s)==='insufficient');
     const primary=coreComplete[0]||coreImages[0]?.s||corePartial[0]||coreSourceOnly[0]||coreInsufficient[0]||valid[0]||null;
-    const base={source:null,provenanceUrls,checked:checked?String(checked).slice(0,10):'',label:clean232(primary?.source_label)||'Offizielle Betreiberquelle',cloud:true,sourceCount:valid.length,itemCount:rows.length};
+    const base={source:null,provenanceUrls,contentSourceIds:[...contentSourceIds],checked:checked?String(checked).slice(0,10):'',label:clean232(primary?.source_label)||'Offizielle Betreiberquelle',cloud:true,sourceCount:valid.length,itemCount:rows.length};
 
     if(coreComplete.length&&rows.length){
       return {...base,status:'structured',integrity:'complete',categories:cats,note:'Die aktuelle Hauptkarte ist in HOY vollständig für alle verifizierbaren Positionen abgebildet.'};
