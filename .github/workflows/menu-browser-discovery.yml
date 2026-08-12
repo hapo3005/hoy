@@ -1,0 +1,73 @@
+name: HOY Menu Browser Discovery
+
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: 'Discovery scope: core or all'
+        required: true
+        default: 'core'
+        type: choice
+        options: [core, all]
+      venue_limit:
+        description: 'Maximum venues to inspect (1-50)'
+        required: true
+        default: '14'
+  push:
+    branches: [main]
+    paths:
+      - '.github/hoy-menu-discovery-trigger.json'
+      - '.github/workflows/menu-browser-discovery.yml'
+      - 'scripts/menu-browser-discovery.mjs'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hoy-menu-browser-discovery
+  cancel-in-progress: true
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Install pinned browser dependency
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Resolve scope
+        id: config
+        shell: bash
+        env:
+          DISPATCH_SCOPE: ${{ github.event.inputs.scope }}
+          DISPATCH_LIMIT: ${{ github.event.inputs.venue_limit }}
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            scope=$(node -e "const x=require('./.github/hoy-menu-discovery-trigger.json');process.stdout.write(String(x.scope||'core'))")
+            limit=$(node -e "const x=require('./.github/hoy-menu-discovery-trigger.json');process.stdout.write(String(x.limit||14))")
+          else
+            scope="${DISPATCH_SCOPE:-core}"
+            limit="${DISPATCH_LIMIT:-14}"
+          fi
+          case "$scope" in core|all) ;; *) echo '::error::scope must be core or all'; exit 3;; esac
+          if ! [[ "$limit" =~ ^[0-9]+$ ]] || [ "$limit" -lt 1 ] || [ "$limit" -gt 50 ]; then echo '::error::venue_limit must be 1-50'; exit 4; fi
+          echo "scope=$scope" >> "$GITHUB_OUTPUT"
+          echo "limit=$limit" >> "$GITHUB_OUTPUT"
+      - name: Browse official operator channels
+        run: node scripts/menu-browser-discovery.mjs --scope "${{ steps.config.outputs.scope }}" --limit "${{ steps.config.outputs.limit }}"
+      - name: Upload discovery evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: hoy-menu-discovery-${{ github.run_id }}
+          path: |
+            menu-discovery-report.json
+            menu-discovery-summary.json
+            menu-discovery-screenshots/
+          retention-days: 30
+          if-no-files-found: error
