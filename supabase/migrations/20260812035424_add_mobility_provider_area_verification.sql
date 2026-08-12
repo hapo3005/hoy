@@ -4,17 +4,27 @@ alter table public.mobility_provider_areas
   add column if not exists verified_at timestamptz,
   add column if not exists coverage_note text;
 
--- San Javier is directly identified by the official regional tourism directory.
+-- San Javier is identified by both the official regional tourism directory and
+-- the operator's own site, which explicitly states coverage of the whole municipality.
 update public.mobility_provider_areas pa
 set verification_status = case when p.slug='radio-taxi-san-javier' then 'verified' else 'pending' end,
     verified_at = case when p.slug='radio-taxi-san-javier' then now() else null end,
     coverage_note = case
-      when p.slug='radio-taxi-san-javier' then 'Official regional tourism directory identifies Radio Taxi San Javier; operational coverage still requires pre-launch reconfirmation.'
+      when p.slug='radio-taxi-san-javier' then 'Verified for the full municipality of San Javier: the official operator site states that its vehicles cover the entire municipality and identifies 968 57 33 00 as the reference taxi number; dedicated La Manga pages use the same number. This is corroborated by the official Murcia regional tourism listing.'
       when p.slug='radio-taxi-la-manga' then 'Official Cartagena directory identifies Radio Taxi La Manga for La Manga del Mar Menor (Cartagena). This La Manga-specific contact is not used as the broad Cartagena/Cabo de Palos provider.'
       else coverage_note
     end
 from public.mobility_providers p
 where p.id=pa.provider_id;
+
+update public.mobility_providers
+set website='https://taxilamangasanjavier.es/',
+    source_label='Turismo Región de Murcia + Radio Taxi San Javier',
+    source_url='https://taxilamangasanjavier.es/conoce-radio-taxi',
+    notes='Official regional tourism listing confirms 968 573 300. The operator official site states that its vehicles cover the entire municipality of San Javier and identifies 968 57 33 00 as the reference taxi number; dedicated La Manga pages use the same number.',
+    verified_at=now(),
+    updated_at=now()
+where slug='radio-taxi-san-javier';
 
 -- The broad Cartagena service area uses the general Cartagena dispatch rather than
 -- extending the La Manga-specific number to Cabo de Palos by assumption.
