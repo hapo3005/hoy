@@ -24,3 +24,35 @@ on conflict (restaurant_id,channel,coalesce(source_url,'')) do update set
  checked_at=excluded.checked_at,
  next_review_at=excluded.next_review_at,
  updated_at=now();
+
+-- Escuela de Pieter: official social route discovered on the restaurant website.
+-- This is research metadata only. Outreach remains locked and contact status remains untouched/default Not contacted.
+insert into public.venue_sales_pipeline (
+  restaurant_id,contact_instagram,contact_website,contact_source_url,contact_confidence,
+  contact_researched_at,pre_contact_action,research_notes,send_lock
+)
+values (
+  7,
+  '@escueladepieter1975',
+  'https://escueladepieter.com/',
+  'https://escueladepieter.com/',
+  'High',
+  now(),
+  'Offizielles Instagram/Facebook auf aktuelle vollständige Karte prüfen; keine Nachricht senden.',
+  'Offizielle Betreiberwebsite verlinkt Instagram @escueladepieter1975 und Facebook /EscueladePieter. Der aktuelle Ver-Carta-Link ist defekt und fällt auf die Startseite zurück.',
+  true
+)
+on conflict (restaurant_id) do update set
+  contact_instagram=excluded.contact_instagram,
+  contact_website=excluded.contact_website,
+  contact_source_url=excluded.contact_source_url,
+  contact_confidence=excluded.contact_confidence,
+  contact_researched_at=excluded.contact_researched_at,
+  pre_contact_action=excluded.pre_contact_action,
+  research_notes=case
+    when coalesce(public.venue_sales_pipeline.research_notes,'')='' then excluded.research_notes
+    when position(excluded.research_notes in public.venue_sales_pipeline.research_notes)>0 then public.venue_sales_pipeline.research_notes
+    else public.venue_sales_pipeline.research_notes || E'\n' || excluded.research_notes
+  end,
+  send_lock=true,
+  updated_at=now();
