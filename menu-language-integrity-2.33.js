@@ -1,8 +1,8 @@
-/* HOY 2.35.0 — full-catalog pagination + fail-closed German menu delivery */
+/* HOY 2.37.0 — reuse the complete bootstrap catalog + fail-closed German menu delivery */
 (function(){
   if(window.__hoyMenuLanguageIntegrity2330)return;
   window.__hoyMenuLanguageIntegrity2330=true;
-  window.hoyMenuLanguageIntegrityVersion='2.35.0';
+  window.hoyMenuLanguageIntegrityVersion='2.37.0';
 
   const PAGE_SIZE=500;
   const PRODUCTION_TRANSLATIONS=new Set(['curated','operator_confirmed']);
@@ -74,12 +74,17 @@
 
   async function reconcileFullCatalog233(){
     if(!sb)return;
+    const cached=window.hoyMenuBootstrap232?.integrity==='ready'&&Array.isArray(window.hoyMenuBootstrap232?.items)
+      ? window.hoyMenuBootstrap232.items
+      : null;
     const [items,translations]=await Promise.all([
-      fetchAll233(
-        'menu_items',
-        'id,restaurant_id,source_id,category,name,description,price_text,is_active,source_checked_at',
-        q=>q.eq('is_active',true).order('restaurant_id').order('category').order('name').order('id')
-      ),
+      cached
+        ? Promise.resolve(cached)
+        : fetchAll233(
+            'menu_items',
+            'id,restaurant_id,source_id,category,name,description,price_text,is_active,source_checked_at',
+            q=>q.eq('is_active',true).order('restaurant_id').order('category').order('name').order('id')
+          ),
       fetchAll233(
         'menu_item_translations',
         'menu_item_id,locale,category,name,description,translation_status',
@@ -120,7 +125,8 @@
     }
 
     cloud.menuItemCount=items.length;
-    window.hoyMenuCatalog233={items:items.length,deTranslations:translations.length,loadedAt:Date.now(),integrity:'ready'};
+    if(window.hoyMenuBootstrap232?.integrity==='ready')window.hoyMenuBootstrap232={...window.hoyMenuBootstrap232,items:null,reusedByLanguageLayer:Boolean(cached)};
+    window.hoyMenuCatalog233={items:items.length,deTranslations:translations.length,loadedAt:Date.now(),integrity:'ready',reusedBootstrap:Boolean(cached)};
     window.hoyMenuLanguageIntegrityFailure=null;
     window.hoyMenuLanguageIntegrityState='ready';
     window.dispatchEvent(new CustomEvent('hoy:menu-language-ready',{detail:{locale:state.lang,items:items.length,deTranslations:translations.length,at:Date.now()}}));
