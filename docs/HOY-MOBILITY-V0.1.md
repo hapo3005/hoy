@@ -69,7 +69,7 @@ Provider assignments are data, not frontend constants. Each provider-area assign
 - Alternate: `968 520 404`
 - Official municipal source: Ayuntamiento de Cartagena transport directory
 - Operator source: https://radiotaxicartagena.es/
-- Provider-area verification: **VERIFIED in configuration**, with direct operational reconfirmation still required before public launch.
+- Provider-area verification: **VERIFIED in configuration**, with direct Cabo de Palos operational reconfirmation still required before public launch.
 
 Why the broad Cartagena contact changed: the Ayuntamiento de Cartagena lists Radio Taxi Cartagena among the municipal taxi operators, and the operator's own official site publishes the general Cartagena dispatch numbers while describing taxi service in Cartagena and La Manga. Cabo de Palos is inside Cartagena municipality. This gives HOY a defensible municipality-level routing contact without pretending that a La Manga-specific number has been verified for Cabo de Palos.
 
@@ -85,9 +85,11 @@ However, its association with the broad `cartagena-coast` area is intentionally 
 - Service area: `san-javier`
 - Provider: `radio-taxi-san-javier`
 - Primary: `968 573 300`
-- Official source: Turismo Región de Murcia / San Javier public listings
-- https://www.turismoregiondemurcia.es/es/taxi/radio-taxi-san-javier-833/
-- Provider-area verification: **VERIFIED in configuration**, with operational reconfirmation still required before public launch.
+- Official source: Turismo Región de Murcia
+- Operator source: https://taxilamangasanjavier.es/conoce-radio-taxi
+- Provider-area verification: **VERIFIED**.
+
+The operator's current official site explicitly states that its vehicles cover **the entire municipality of San Javier** and identifies `968 57 33 00` as the reference taxi number. Dedicated operator pages for La Manga / Tomás Maestre and El Zoco publish the same number. This independently corroborates the official regional tourism listing, so no additional provider-scope assumption is required for San Javier.
 
 If a joint La Manga taxi service area becomes legally effective, or operators confirm a different dispatch setup, the provider/service-area rows can be changed centrally without rewriting the consumer UI.
 
@@ -174,12 +176,11 @@ The PR-local Playwright smoke suite covers:
 
 ## Public-launch gates
 
-Official-source and technical provider verification is now complete for both configured municipality-level routes. Before calling Mobility production-ready for guests:
+Official-source and technical provider verification is complete for both configured municipality-level routes. San Javier's full-municipality operational scope is additionally corroborated by the operator's own current website. Before calling Mobility production-ready for guests:
 
-1. Reconfirm operationally with Radio Taxi Cartagena that `968 311 515` / `968 520 404` are appropriate dispatch numbers for pickups in the Cartagena part of La Manga **and Cabo de Palos**.
-2. Reconfirm operationally with Radio Taxi San Javier that `968 573 300` is the appropriate dispatch contact for pickups in the San Javier part of La Manga.
-3. Re-check whether an `Área de Prestación Conjunta` for La Manga has become legally effective and update service-area rules if necessary.
-4. Run a real-device browser QA pass in La Manga: one Cartagena pickup, one San Javier pickup, one Cabo de Palos pickup, and one pickup close to the municipal boundary.
-5. Only after those gates pass, set `consumer_visible=true`.
+1. Reconfirm operationally with Radio Taxi Cartagena that `968 311 515` / `968 520 404` are appropriate dispatch numbers specifically for pickups in **Cabo de Palos** as well as the Cartagena part of La Manga. The public operator site confirms Cartagena/La Manga but does not name Cabo de Palos explicitly.
+2. Re-check whether an `Área de Prestación Conjunta` for La Manga has become legally effective and update service-area rules if necessary.
+3. Run a real-device browser QA pass in La Manga: one Cartagena pickup, one San Javier pickup, one Cabo de Palos pickup, and one pickup close to the municipal boundary.
+4. Only after those gates pass, set `consumer_visible=true`.
 
 The architecture treats these as data/verification gates rather than frontend code changes.
