@@ -31,13 +31,16 @@ async function assertImageMenu(page,request,id,expectedPages,pathPart){
   if(await menuTab.count())await menuTab.click();
   const profile=page.locator('#detail #profile-menu');
   await expect(profile).toBeVisible();
-  await expect(profile.locator('.menu231-page img')).toHaveCount(expectedPages);
+  const images=profile.locator('.menu231-page img');
+  await expect(images).toHaveCount(expectedPages);
   await expect(profile.locator('.menu234-frame')).toHaveCount(0);
   await expect(profile.locator('iframe[src*=".pdf"]')).toHaveCount(0);
   await expect(profile.locator('a[href*=".pdf"]')).toHaveCount(0);
   await expect(profile).not.toContainText(/\.pdf/i);
   await expect(profile.getByRole('link',{name:/öffnen/i})).toHaveCount(0);
-  await expect.poll(async()=>profile.locator('.menu231-page img').first().evaluate(img=>img.complete&&img.naturalWidth>200),{timeout:15000}).toBeTruthy();
+  const first=images.first();
+  await first.scrollIntoViewIfNeeded();
+  await expect.poll(async()=>first.evaluate(img=>img.complete&&img.naturalWidth>200),{timeout:15000}).toBeTruthy();
 }
 
 test('deployed HOY 2.35 never exposes the truncated La Finca fallback',async({page})=>{
@@ -83,6 +86,37 @@ test('deployed HOY 2.35 never exposes the truncated La Finca fallback',async({pa
   await expect(profile).toContainText('Hähnchenbrust');
   await expect(profile).not.toContainText('Main Course');
   await expect(profile).not.toContainText('Breast of chicken');
+});
+
+test('Playa Chica is 12/12 complete and fully German in the deployed guest app',async({page})=>{
+  await ready(page);
+  const state=await page.evaluate(()=>{
+    const p=DATA.find(x=>Number(x.id)===11),m=menuFor(p);
+    return {name:p?.name,itemCount:m?.itemCount,integrity:m?.integrity,localized:m?.localized,locale:m?.locale,coverage:m?.languageCoverage,categories:(m?.categories||[]).map(([cat,items])=>({cat,count:items.length,names:items.map(x=>x[0])}))};
+  });
+  expect(state.name).toContain('Playa Chica');
+  expect(state.itemCount).toBe(126);
+  expect(state.integrity).toBe('complete');
+  expect(state.localized).toBeTruthy();
+  expect(state.locale).toBe('de');
+  expect(state.coverage).toMatchObject({total:126,ready:126,missing:0,complete:true});
+  expect(state.categories.find(x=>x.cat==='Vorspeisen')?.count).toBe(25);
+  expect(state.categories.find(x=>x.cat==='Reisgerichte')?.count).toBe(8);
+  expect(state.categories.find(x=>x.cat==='Für Kinder')?.count).toBe(3);
+  expect(state.categories.find(x=>x.cat==='Hausgemachte Desserts')?.count).toBe(7);
+  expect(state.categories.flatMap(x=>x.names)).toContain('Meeresfrüchte-Paella');
+
+  await page.evaluate(()=>openDetail(11));
+  const menuTab=page.locator('#detail [data-tab="menu"]');
+  if(await menuTab.count())await menuTab.click();
+  const profile=page.locator('#detail #profile-menu');
+  await expect(profile).toBeVisible();
+  await expect(profile.locator('[data-menu-item]')).toHaveCount(126);
+  await expect(profile).toContainText('126 Positionen');
+  await expect(profile).toContainText('Meeresfrüchte-Paella');
+  await expect(profile).toContainText('Kleine Jakobsmuschel mit Foie gras & Teriyaki-Sauce');
+  await expect(profile).not.toContainText('Teilkarte');
+  await expect(profile.locator('.menu233-language-gap')).toHaveCount(0);
 });
 
 test('Area Sunset renders all four reviewed operator pages inside HOY, never a raw PDF',async({page,request})=>{
