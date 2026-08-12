@@ -17,8 +17,17 @@ concurrency:
 jobs:
   gate:
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    name: gate · ${{ matrix.project }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: mobile-chrome
+            browser: chromium
+          - project: mobile-webkit
+            browser: webkit
     env:
       PLAYWRIGHT_TEST_BASE_URL: https://hapo3005.github.io/hoy/
       CI: 'true'
@@ -36,20 +45,17 @@ jobs:
       - name: Install pinned QA dependency
         run: npm install --no-audit --no-fund
 
-      - name: Install mobile browser engines
-        run: npx playwright install --with-deps chromium webkit
+      - name: Install browser engine
+        run: npx playwright install --with-deps "${{ matrix.browser }}"
 
-      - name: Verify deployed menu truth in Chromium
-        run: npx playwright test tests/menu-delivery-integrity-2.35.spec.js --project=mobile-chrome
-
-      - name: Verify deployed menu truth in WebKit
-        run: npx playwright test tests/menu-delivery-integrity-2.35.spec.js --project=mobile-webkit
+      - name: Verify deployed menu truth
+        run: npx playwright test tests/menu-delivery-integrity-2.35.spec.js --project="${{ matrix.project }}"
 
       - name: Upload failure evidence
         if: ${{ failure() }}
         uses: actions/upload-artifact@v5
         with:
-          name: hoy-menu-delivery-failure-${{ github.run_id }}
+          name: hoy-menu-delivery-failure-${{ matrix.project }}-${{ github.run_id }}
           path: |
             test-results/
             playwright-report/

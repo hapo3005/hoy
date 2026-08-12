@@ -51,10 +51,9 @@ test('deployed HOY 2.35 never exposes the truncated La Finca fallback',async({pa
   await expect(profile).toBeVisible();
   await expect(profile.locator('[data-menu-item]')).toHaveCount(19);
   await expect(profile).toContainText('19 Positionen');
-  await expect(profile).toContainText('Vorspeisen');
-  await expect(profile).toContainText('Hauptgerichte');
+  await expect(profile.getByRole('heading',{name:/^Hauptgerichte\s+10 Positionen$/})).toBeVisible();
+  await expect(profile.getByRole('heading',{name:/^Vorspeisen\s+9 Positionen$/})).toBeVisible();
   await expect(profile).toContainText('Hähnchenbrust');
-  await expect(profile).not.toContainText('10 Positionen');
   await expect(profile).not.toContainText('Main Course');
   await expect(profile).not.toContainText('Breast of chicken');
 });
