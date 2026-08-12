@@ -58,26 +58,34 @@ The resolver measures distance only to the **shared Cartagena/San Javier boundar
 
 ## Provider configuration
 
-Provider assignments are data, not frontend constants. Each provider-area assignment now has a separate verification state: `pending`, `verified`, or `suspended`. The resolver only uses `verified` assignments.
+Provider assignments are data, not frontend constants. Each provider-area assignment has a separate verification state: `pending`, `verified`, or `suspended`. The resolver only uses `verified` assignments.
 
-### Cartagena
+### Cartagena · La Manga / Cabo de Palos
 
 - Service area: `cartagena-coast`
-- Provider record: `radio-taxi-la-manga`
-- Primary: `968 145 000`
-- Alternate: `968 563 863`
-- Official source: Ayuntamiento de Cartagena transport directory
-- https://www.cartagena.es/plantillas/1.asp?idPaginaOriginal=1483&pt_idpag=1482
-- Provider-area verification: **PENDING**
+- Verified broad provider: `radio-taxi-cartagena`
+- Provider name: `Radio Taxi Cartagena`
+- Primary: `968 311 515`
+- Alternate: `968 520 404`
+- Official municipal source: Ayuntamiento de Cartagena transport directory
+- Operator source: https://radiotaxicartagena.es/
+- Provider-area verification: **VERIFIED in configuration**, with direct operational reconfirmation still required before public launch.
 
-Reason for pending status: the official source identifies Radio Taxi La Manga for `La Manga del Mar Menor (Cartagena)`, but HOY has not yet verified that this dispatch contact is the correct pickup contact for every Cartagena point inside the broader HOY coastal region, especially Cabo de Palos. Until that scope is confirmed or represented by a narrower verified coverage area, Cartagena returns `no_verified_provider` rather than guessing.
+Why the broad Cartagena contact changed: the Ayuntamiento de Cartagena lists Radio Taxi Cartagena among the municipal taxi operators, and the operator's own official site publishes the general Cartagena dispatch numbers while describing taxi service in Cartagena and La Manga. Cabo de Palos is inside Cartagena municipality. This gives HOY a defensible municipality-level routing contact without pretending that a La Manga-specific number has been verified for Cabo de Palos.
+
+The existing `radio-taxi-la-manga` record remains in the data because its La Manga-specific numbers are officially listed:
+
+- `968 145 000`
+- `968 563 863`
+
+However, its association with the broad `cartagena-coast` area is intentionally **SUSPENDED**. It must not be selected for Cabo de Palos merely because it is valid for La Manga del Mar Menor (Cartagena). A future narrower La Manga-only service area could use it if operational verification supports that design.
 
 ### San Javier
 
 - Service area: `san-javier`
 - Provider: `radio-taxi-san-javier`
 - Primary: `968 573 300`
-- Official source: Turismo Región de Murcia
+- Official source: Turismo Región de Murcia / San Javier public listings
 - https://www.turismoregiondemurcia.es/es/taxi/radio-taxi-san-javier-833/
 - Provider-area verification: **VERIFIED in configuration**, with operational reconfirmation still required before public launch.
 
@@ -135,28 +143,43 @@ The first distance check measured the point against the whole municipal perimete
 
 ### Cloud initialization race fixed
 
-`mobility-2.29.js` loads before `app-3-6.js`, while `initCloud()` starts in `app-3-6.js`. The runtime loader therefore no longer caches `sb === null` as a permanent disabled state; it retries lazily once the Supabase client exists.
+The page now loads `app-3-6.js` before `mobility-2.29.js`. `initCloud()` therefore creates the Supabase client before Mobility reads its runtime gate, eliminating the startup race structurally rather than relying on timing retries.
 
 ### Public-role RLS test
 
-The resolver was executed under the `anon` role and returned a valid resolved result for the verified San Javier configuration, confirming that the required read policies and `SECURITY INVOKER` path work for the public client.
+The resolver was executed under the `anon` role and returned valid resolved results through the public client path, confirming that the required read policies and `SECURITY INVOKER` path work.
 
 ## Current backend test cases
 
-- `37.655050, -0.722400` → Cartagena → **uncertain / `no_verified_provider`** because the provider-area scope is intentionally pending.
-- `37.705673, -0.742513` → San Javier → Radio Taxi San Javier → **resolved**.
-- A point on the cached shared municipal boundary → uncertain / no provider.
+- `37.655050, -0.722400` → La Manga (Cartagena) → Radio Taxi Cartagena `968 311 515` → **resolved**.
+- `37.634690, -0.690290` → Faro de Cabo de Palos vicinity → Radio Taxi Cartagena `968 311 515` → **resolved**.
+- `37.705673, -0.742513` → La Manga (San Javier) → Radio Taxi San Javier `968 573 300` → **resolved**.
+- GPS accuracy `180 m` at the Cartagena test point → uncertain / `low_location_accuracy` → no provider action.
+- A point on or inside the configured safety corridor around the cached shared municipal boundary → uncertain / no provider.
 - Madrid → unsupported / no provider.
 - Runtime kill switch off → disabled / no provider.
 
+## Browser QA
+
+The PR-local Playwright smoke suite covers:
+
+- guest UI hidden while `consumer_visible=false`;
+- preview mode;
+- server-side routing kill switch behavior;
+- fail-closed boundary response with no telephone action;
+- resolved Cartagena/Cabo de Palos response using `Radio Taxi Cartagena` and the general dispatch number;
+- resolved San Javier response using `Radio Taxi San Javier`;
+- absence of raw GPS coordinates in local Mobility analytics;
+- correct script order and PWA cache wiring.
+
 ## Public-launch gates
 
-Before calling Mobility production-ready for guests:
+Official-source and technical provider verification is now complete for both configured municipality-level routes. Before calling Mobility production-ready for guests:
 
-1. Confirm directly with the Cartagena taxi operator/competent authority which dispatch contact covers the Cartagena part of La Manga and whether/how Cabo de Palos is covered; then either verify the existing assignment or create narrower verified service areas.
-2. Reconfirm the San Javier dispatch contact and operational coverage.
+1. Reconfirm operationally with Radio Taxi Cartagena that `968 311 515` / `968 520 404` are appropriate dispatch numbers for pickups in the Cartagena part of La Manga **and Cabo de Palos**.
+2. Reconfirm operationally with Radio Taxi San Javier that `968 573 300` is the appropriate dispatch contact for pickups in the San Javier part of La Manga.
 3. Re-check whether an `Área de Prestación Conjunta` for La Manga has become legally effective and update service-area rules if necessary.
-4. Run a real-device browser QA pass in La Manga: one Cartagena pickup, one San Javier pickup, and one pickup close to the municipal boundary.
+4. Run a real-device browser QA pass in La Manga: one Cartagena pickup, one San Javier pickup, one Cabo de Palos pickup, and one pickup close to the municipal boundary.
 5. Only after those gates pass, set `consumer_visible=true`.
 
 The architecture treats these as data/verification gates rather than frontend code changes.
