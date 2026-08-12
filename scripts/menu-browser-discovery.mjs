@@ -69,9 +69,27 @@ async function collect(page){
     return {title:document.title,body:(document.body?.innerText||'').slice(0,30000),anchors,iframes,images,controls};
   },MENU_RE.source);
 }
+async function officialLocaleSnapshot(page,url,code='DE'){
+  try{
+    await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});await page.waitForTimeout(900);await dismiss(page);await page.waitForTimeout(300);
+    const before=await page.locator('body').innerText().catch(()=>'');
+    const controls=page.locator('button,[role="button"],[role="tab"],a');
+    const count=await controls.count();let chosen=null;
+    for(let i=0;i<count;i++){
+      const el=controls.nth(i),text=clean(await el.innerText().catch(()=>''));
+      if(text.toUpperCase()===code&&await el.isVisible().catch(()=>false)){chosen=el;break}
+    }
+    if(!chosen)return null;
+    await chosen.click({timeout:2500,force:true}).catch(()=>{});await page.waitForTimeout(900);
+    const after=await page.locator('body').innerText().catch(()=>before);
+    if(!after||after===before)return null;
+    const state=await collect(page);
+    return {locale:code.toLowerCase(),final_url:page.url(),title:state.title,body:clean(state.body).slice(0,30000),anchors:uniq(state.anchors,x=>x.url).slice(0,40),iframes:uniq(state.iframes,x=>x.url).slice(0,20),images:uniq(state.images,x=>x.url).slice(0,30)};
+  }catch{return null}
+}
 async function inspect(context,venue,entry,index){
   const page=await context.newPage();
-  const out={...entry,requested_url:entry.url,final_url:'',http_status:null,title:'',error:null,anchors:[],iframes:[],images:[],dynamic:[]};
+  const out={...entry,requested_url:entry.url,final_url:'',http_status:null,title:'',error:null,anchors:[],iframes:[],images:[],dynamic:[],locales:{}};
   try{
     const response=await page.goto(entry.url,{waitUntil:'domcontentloaded',timeout:30000});out.http_status=response?.status()??null;
     await page.waitForTimeout(1200);await dismiss(page);await page.waitForTimeout(500);out.final_url=page.url();
@@ -83,6 +101,7 @@ async function inspect(context,venue,entry,index){
       const after=await collect(page);const body=await page.locator('body').innerText().catch(()=>before);
       if(body!==before||after.anchors.length!==first.anchors.length||after.images.length!==first.images.length||after.iframes.length!==first.iframes.length)out.dynamic.push({control:c.text,anchors:uniq(after.anchors,x=>x.url).slice(0,30),iframes:uniq(after.iframes,x=>x.url).slice(0,20),images:uniq(after.images,x=>x.url).slice(0,30),text_delta:clean(body).slice(0,12000)});
     }
+    const de=await officialLocaleSnapshot(page,entry.url,'DE');if(de)out.locales.de=de;
     await mkdir('menu-discovery-screenshots',{recursive:true});const file=`menu-discovery-screenshots/${String(index+1).padStart(2,'0')}-${venue.restaurant_id}-${safe(venue.name)}-${hash(entry.url)}.png`;await page.screenshot({path:file,fullPage:true,animations:'disabled'}).catch(()=>{});out.screenshot=file;
   }catch(e){out.error=String(e?.message||e).slice(0,700);out.final_url=page.url()||entry.url}finally{await page.close().catch(()=>{})}
   return out;
@@ -96,6 +115,6 @@ for(let i=0;i<candidates.length;i++){
   for(const e of v.urls)pages.push(await inspect(context,v,e,i));results.push({...v,pages});
 }
 await context.close();await browser.close();
-const summary={generated_at:new Date().toISOString(),scope,limit,candidate_count:results.length,venues:results.map(v=>({restaurant_id:v.restaurant_id,name:v.name,area:v.area,pages:v.pages.length,links:v.pages.reduce((n,p)=>n+p.anchors.length,0),iframes:v.pages.reduce((n,p)=>n+p.iframes.length,0),images:v.pages.reduce((n,p)=>n+p.images.length,0),dynamic:v.pages.reduce((n,p)=>n+p.dynamic.length,0),errors:v.pages.filter(p=>p.error).length}))};
+const summary={generated_at:new Date().toISOString(),scope,limit,candidate_count:results.length,venues:results.map(v=>({restaurant_id:v.restaurant_id,name:v.name,area:v.area,pages:v.pages.length,links:v.pages.reduce((n,p)=>n+p.anchors.length,0),iframes:v.pages.reduce((n,p)=>n+p.iframes.length,0),images:v.pages.reduce((n,p)=>n+p.images.length,0),dynamic:v.pages.reduce((n,p)=>n+p.dynamic.length,0),official_de:v.pages.filter(p=>p.locales?.de?.body).length,errors:v.pages.filter(p=>p.error).length}))};
 await writeFile('menu-discovery-report.json',JSON.stringify({summary,venues:results},null,2));await writeFile('menu-discovery-summary.json',JSON.stringify(summary,null,2));
 console.table(summary.venues);console.log('Evidence-only discovery complete. No Supabase writes were performed.');
