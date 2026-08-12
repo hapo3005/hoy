@@ -44,7 +44,10 @@ jobs:
           cat /tmp/hoy-pr-server.log
           exit 1
 
-      - name: Run browser QA against PR code
+      - name: Run Mobility smoke QA
+        run: npx playwright test tests/mobility-2.31.1.spec.js
+
+      - name: Run full browser QA against PR code
         run: npm run qa:e2e
 
       - name: Upload Playwright report
