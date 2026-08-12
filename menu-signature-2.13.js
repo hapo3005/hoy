@@ -8,6 +8,7 @@
 
   function copyFor(m){return COPY[m?.locale]||COPY.de}
   function itemCount(section){return section?.querySelectorAll('[data-menu-item]').length||0}
+  function isPartial(m){return m?.integrity==='partial'||m?.status==='partial'}
 
   function decorateSearch(section,m){
     const input=section.querySelector('[data-menu-search]');
@@ -114,7 +115,7 @@
   function addPromise(section,m){
     if(!m?.localized||section.querySelector('.menu-signature-promise'))return;
     const c=copyFor(m);
-    const partial=m.status==='partial';
+    const partial=isPartial(m);
     const promise=document.createElement('div');
     promise.className='menu-signature-promise';
     promise.innerHTML=`<div class="menu-signature-promise-top"><span class="menu-signature-lang">${esc((m.locale||'de').toUpperCase())}</span><div><b>${esc(c.promise)}</b><small>${esc(c.proof)}</small></div></div><p>${esc(c.body)}</p><span class="menu-signature-review">✓ ${esc(c.checked)}${partial?' · aktuelle Auswahl':''}</span>`;
@@ -140,7 +141,7 @@
     if(small&&small.textContent!=='HOY SPEISEKARTE')small.textContent='HOY SPEISEKARTE';
     if(h3&&m?.localized){
       const c=copyFor(m);
-      const wanted=m.status==='partial'?c.partial:c.title;
+      const wanted=isPartial(m)?c.partial:c.title;
       if(h3.textContent!==wanted)h3.textContent=wanted;
     }
     const n=itemCount(section);
@@ -163,8 +164,6 @@
     cancelSignatureRetry(d);
     if(applySignatureState(section,p,d))return;
 
-    // WebKit can deliver MutationObserver callbacks for mutations made by the callback itself.
-    // A bounded timer retry avoids a self-triggering microtask loop while still covering late menu data.
     let attempts=0;
     const retry=()=>{
       d._hoyMenuSignatureRetryTimer=0;
