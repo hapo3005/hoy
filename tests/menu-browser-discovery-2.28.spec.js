@@ -18,6 +18,7 @@ test('core browser targets include known dynamic and social gaps',()=>{
   expect(cfg.extra_urls['11'].some(x=>x.includes('playachicalamanga'))).toBeTruthy();
   expect(cfg.extra_urls['151'].some(x=>x.includes('myrestoo'))).toBeTruthy();
   expect(cfg.extra_urls['152'].some(x=>x.includes('instagram.com'))).toBeTruthy();
+  expect(cfg.extra_urls['217'].some(x=>x.includes('/carta/'))).toBeTruthy();
 });
 
 test('discovery inspects dynamic menu controls and captures evidence',()=>{
@@ -27,4 +28,13 @@ test('discovery inspects dynamic menu controls and captures evidence',()=>{
   expect(js).toContain('iframes');
   expect(js).toContain('images');
   expect(js).toContain('dynamic');
+});
+
+test('official German operator locale is captured separately after source-language discovery',()=>{
+  const js=fs.readFileSync('scripts/menu-browser-discovery.mjs','utf8');
+  expect(js).toContain('officialLocaleSnapshot');
+  expect(js).toContain("officialLocaleSnapshot(page,entry.url,'DE')");
+  expect(js).toContain('out.locales.de=de');
+  expect(js).toContain('official_de:');
+  expect(js).not.toMatch(/menu_item_translations|\.insert\(|\.upsert\(|\.update\(/);
 });
