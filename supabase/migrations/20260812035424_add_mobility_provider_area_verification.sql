@@ -4,16 +4,71 @@ alter table public.mobility_provider_areas
   add column if not exists verified_at timestamptz,
   add column if not exists coverage_note text;
 
+-- San Javier is directly identified by the official regional tourism directory.
 update public.mobility_provider_areas pa
 set verification_status = case when p.slug='radio-taxi-san-javier' then 'verified' else 'pending' end,
     verified_at = case when p.slug='radio-taxi-san-javier' then now() else null end,
     coverage_note = case
       when p.slug='radio-taxi-san-javier' then 'Official regional tourism directory identifies Radio Taxi San Javier; operational coverage still requires pre-launch reconfirmation.'
-      when p.slug='radio-taxi-la-manga' then 'Official Cartagena directory identifies Radio Taxi La Manga for La Manga del Mar Menor (Cartagena), but HOY has not yet verified that this dispatch contact covers every Cartagena pickup in the broader HOY coastal region, especially Cabo de Palos.'
+      when p.slug='radio-taxi-la-manga' then 'Official Cartagena directory identifies Radio Taxi La Manga for La Manga del Mar Menor (Cartagena). This La Manga-specific contact is not used as the broad Cartagena/Cabo de Palos provider.'
       else coverage_note
     end
 from public.mobility_providers p
 where p.id=pa.provider_id;
+
+-- The broad Cartagena service area uses the general Cartagena dispatch rather than
+-- extending the La Manga-specific number to Cabo de Palos by assumption.
+insert into public.mobility_providers (
+  slug,name,phone_e164,phone_display,alternate_phone_e164,alternate_phone_display,
+  website,active,verified_at,source_label,source_url,notes
+)
+values (
+  'radio-taxi-cartagena','Radio Taxi Cartagena','+34968311515','968 311 515',
+  '+34968520404','968 520 404','https://radiotaxicartagena.es/',true,now(),
+  'Ayuntamiento de Cartagena + Radio Taxi Cartagena',
+  'https://radiotaxicartagena.es/',
+  'Cartagena official taxi directory lists Radio Taxi Cartagena. The operator official site states service in Cartagena and La Manga and publishes these general dispatch numbers.'
+)
+on conflict (slug) do update set
+  name=excluded.name,
+  phone_e164=excluded.phone_e164,
+  phone_display=excluded.phone_display,
+  alternate_phone_e164=excluded.alternate_phone_e164,
+  alternate_phone_display=excluded.alternate_phone_display,
+  website=excluded.website,
+  active=true,
+  verified_at=excluded.verified_at,
+  source_label=excluded.source_label,
+  source_url=excluded.source_url,
+  notes=excluded.notes,
+  updated_at=now();
+
+insert into public.mobility_provider_areas (
+  provider_id,service_area_id,priority,active,valid_from,verification_status,verified_at,coverage_note
+)
+select p.id,a.id,5,true,'2026-08-12','verified',now(),
+  'Verified for Cartagena municipality routing: Ayuntamiento de Cartagena lists Radio Taxi Cartagena as a municipal taxi operator, and the operator official site states taxi service in Cartagena and La Manga using the general dispatch numbers. Cabo de Palos is within Cartagena municipal territory. Direct operational reconfirmation remains a public-launch gate.'
+from public.mobility_providers p
+join public.mobility_service_areas a on a.slug='cartagena-coast'
+where p.slug='radio-taxi-cartagena'
+on conflict (provider_id,service_area_id) do update set
+  priority=excluded.priority,
+  active=true,
+  valid_from=excluded.valid_from,
+  valid_until=null,
+  verification_status='verified',
+  verified_at=excluded.verified_at,
+  coverage_note=excluded.coverage_note;
+
+update public.mobility_provider_areas pa
+set verification_status='suspended',
+    verified_at=null,
+    coverage_note='La Manga-specific dispatch contact is officially listed for La Manga del Mar Menor (Cartagena), but this assignment is intentionally suspended because the cartagena-coast service area also includes Cabo de Palos. HOY routes the broad Cartagena area through the verified general Radio Taxi Cartagena dispatch instead.'
+from public.mobility_providers p, public.mobility_service_areas a
+where pa.provider_id=p.id
+  and pa.service_area_id=a.id
+  and p.slug='radio-taxi-la-manga'
+  and a.slug='cartagena-coast';
 
 create or replace function public.mobility_resolve_local(
   p_lat double precision,
