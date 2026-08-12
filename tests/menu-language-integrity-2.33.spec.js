@@ -5,30 +5,32 @@ test.use({serviceWorkers:'block'});
 
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuIntegrityVersion==='2.32.0'&&window.hoyMenuLanguageIntegrityVersion==='2.33.0'&&window.hoyMenuCatalog233?.items>1000&&cloud.status==='online',{timeout:25000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuIntegrityVersion==='2.32.0'&&window.hoyMenuLanguageIntegrityVersion==='2.35.0'&&window.hoyMenuLanguageIntegrityState==='ready'&&window.hoyMenuCatalog233?.items>1000&&cloud.status==='online',{timeout:30000});
 }
 
-test('HOY 2.33 full-catalog language assets are wired and cached',async({request})=>{
+test('HOY 2.35 full-catalog language assets are wired and cache-busted',async({request})=>{
   const [js,css,pkg,index,worker]=await Promise.all([
-    request.get('./menu-language-integrity-2.33.js'),request.get('./menu-language-integrity-2.33.css'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')
+    request.get('./menu-language-integrity-2.33.js?v=2.35.0'),request.get('./menu-language-integrity-2.33.css?v=2.35.0'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')
   ]);
   for(const r of [js,css,pkg,index,worker])expect(r.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.33.0');
+  expect((await pkg.json()).version).toBe('2.35.0');
   const html=await index.text(),sw=await worker.text(),code=await js.text();
-  expect(html).toContain('App 2.33.0');
-  expect(html).toContain('menu-language-integrity-2.33.css?v=2.33.0');
-  expect(html).toContain('menu-language-integrity-2.33.js?v=2.33.0');
+  expect(html).toContain('App 2.35.0');
+  expect(html).toContain('menu-language-integrity-2.33.css?v=2.35.0');
+  expect(html).toContain('menu-language-integrity-2.33.js?v=2.35.0');
   expect(html.indexOf('menu-language-integrity-2.33.js')).toBeGreaterThan(html.indexOf('menu-integrity-2.32.js'));
-  expect(sw).toContain("const CACHE='hoy-v2.33.0'");
+  expect(sw).toContain("const CACHE='hoy-v2.35.0'");
   expect(sw).toContain('./menu-language-integrity-2.33.js');
   expect(code).toContain('PAGE_SIZE=500');
   expect(code).toContain('.range(from,from+PAGE_SIZE-1)');
+  expect(code).toContain("integrity:'quality_blocked'");
 });
 
 test('full menu catalog is paginated beyond the Supabase 1000-row window',async({page})=>{
   await ready(page);
   const catalog=await page.evaluate(()=>window.hoyMenuCatalog233);
   expect(catalog.items).toBeGreaterThan(1600);
+  expect(catalog.integrity).toBe('ready');
 });
 
 test('La Finca renders all 19 current items in German, not only the 10 main courses',async({page})=>{
@@ -73,8 +75,10 @@ test('incomplete German coverage never masquerades as a German menu',async({page
   await expect(profile.locator('.menu-signature-promise')).toHaveCount(0);
 });
 
-test('language completeness requires translated descriptions when the source has one',()=>{
+test('language completeness requires translated descriptions and failures are fail-closed',()=>{
   const code=fs.readFileSync('menu-language-integrity-2.33.js','utf8');
   expect(code).toContain("if(clean233(item.description)&&!clean233(t.description))return false");
   expect(code).toContain("PRODUCTION_TRANSLATIONS=new Set(['curated','operator_confirmed'])");
+  expect(code).toContain("window.hoyMenuLanguageIntegrityState='blocked'");
+  expect(code).toContain("integrity:'quality_blocked'");
 });

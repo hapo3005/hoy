@@ -1,8 +1,8 @@
-/* HOY 2.33.0 — full-catalog pagination + honest German menu localization */
+/* HOY 2.35.0 — full-catalog pagination + fail-closed German menu delivery */
 (function(){
   if(window.__hoyMenuLanguageIntegrity2330)return;
   window.__hoyMenuLanguageIntegrity2330=true;
-  window.hoyMenuLanguageIntegrityVersion='2.33.0';
+  window.hoyMenuLanguageIntegrityVersion='2.35.0';
 
   const PAGE_SIZE=500;
   const PRODUCTION_TRANSLATIONS=new Set(['curated','operator_confirmed']);
@@ -47,6 +47,29 @@
     const allowed=new Set((m?.contentSourceIds||[]).map(String));
     if(!allowed.size)return [];
     return rows.filter(item=>allowed.has(String(item.source_id)));
+  }
+
+  function blockUnsafeTextMenus233(reason){
+    let blocked=0;
+    for(const [id,m] of Object.entries(MENUS||{})){
+      if(!m)continue;
+      if(['image_complete','embed_complete'].includes(clean233(m.integrity))||['image_pages','official_embed'].includes(clean233(m.displayMode)))continue;
+      const hasTextMenu=['complete','partial'].includes(clean233(m.integrity))||(clean233(m.status)==='structured'&&Array.isArray(m.categories)&&m.categories.length);
+      if(!hasTextMenu)continue;
+      MENUS[id]={
+        ...m,
+        status:'unavailable',
+        integrity:'quality_blocked',
+        categories:[],
+        localized:false,
+        locale:null,
+        translationStatus:null,
+        languageCoverage:null,
+        note:reason||'Die vollständige und sprachlich geprüfte Speisekarte konnte nicht sicher geladen werden.'
+      };
+      blocked++;
+    }
+    return blocked;
   }
 
   async function reconcileFullCatalog233(){
@@ -97,23 +120,44 @@
     }
 
     cloud.menuItemCount=items.length;
-    window.hoyMenuCatalog233={items:items.length,deTranslations:translations.length,loadedAt:Date.now()};
+    window.hoyMenuCatalog233={items:items.length,deTranslations:translations.length,loadedAt:Date.now(),integrity:'ready'};
+    window.hoyMenuLanguageIntegrityFailure=null;
+    window.hoyMenuLanguageIntegrityState='ready';
     window.dispatchEvent(new CustomEvent('hoy:menu-language-ready',{detail:{locale:state.lang,items:items.length,deTranslations:translations.length,at:Date.now()}}));
     window.dispatchEvent(new CustomEvent('hoy:menus-ready',{detail:{locale:state.lang,fullCatalog:true,items:items.length,at:Date.now()}}));
   }
 
   const baseLoadCloudMenus233=loadCloudMenus;
   loadCloudMenus=async function(){
+    window.hoyMenuLanguageIntegrityState='loading';
     await baseLoadCloudMenus233();
     try{await reconcileFullCatalog233()}
-    catch(error){console.warn('HOY full menu catalog/language integrity unavailable',error)}
+    catch(error){
+      const message=error?.message||String(error);
+      const blocked=blockUnsafeTextMenus233('HOY konnte die vollständige, sprachlich geprüfte Speisekarte gerade nicht sicher laden. Deshalb wird bewusst kein unvollständiger oder falschsprachiger Zwischenstand angezeigt.');
+      window.hoyMenuLanguageIntegrityState='blocked';
+      window.hoyMenuLanguageIntegrityFailure={message,blocked,at:Date.now()};
+      window.hoyMenuCatalog233={items:null,deTranslations:null,loadedAt:Date.now(),integrity:'blocked'};
+      console.error('HOY full menu catalog/language integrity blocked unsafe menu delivery',error);
+      window.dispatchEvent(new CustomEvent('hoy:menu-language-blocked',{detail:{message,blocked,at:Date.now()}}));
+    }
   };
 
   window.hoyMenuLanguageCoverage233For=p=>p?menuFor(p)?.languageCoverage||null:null;
 
+  const baseMenuStatusLabel233=menuStatusLabel;
+  menuStatusLabel=function(m){
+    if(m?.integrity==='quality_blocked')return 'Speisekarte wird sicher synchronisiert';
+    return baseMenuStatusLabel233(m);
+  };
+
   const baseMenuPanel233=menuPanel;
   menuPanel=function(p){
-    const m=menuFor(p),html=baseMenuPanel233(p),coverage=m?.languageCoverage;
+    const m=menuFor(p);
+    if(m?.integrity==='quality_blocked'){
+      return `<div class="menu-panel menu233-panel"><div class="menu233-quality-block"><div><small>MENÜ-SICHERHEIT</small><b>Kein unsicherer Zwischenstand.</b></div><p>${esc(m.note||'Die vollständige Speisekarte wird gerade sicher synchronisiert.')}</p><span>HOY zeigt lieber vorübergehend keine Karte als eine abgeschnittene oder falschsprachige Version.</span></div></div>`;
+    }
+    const html=baseMenuPanel233(p),coverage=m?.languageCoverage;
     if(state.lang!=='de'||!coverage||coverage.complete||!m?.categories?.length)return html;
     const notice=`<div class="menu233-language-gap"><div><small>SPRACHE</small><b>Originalsprache</b></div><p>Die deutsche Fassung ist noch nicht vollständig freigegeben. HOY zeigt deshalb bewusst keine gemischte oder scheinbar vollständig übersetzte Karte.</p><span>${coverage.ready}/${coverage.total} Positionen auf Deutsch geprüft</span></div>`;
     return html.replace(/(<div class="menu-panel[^>]*>)/,`$1${notice}`);

@@ -1,0 +1,57 @@
+name: HOY Menu Delivery Gate
+
+on:
+  workflow_run:
+    workflows: ["pages-build-deployment"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: hoy-menu-delivery-gate
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PLAYWRIGHT_TEST_BASE_URL: https://hapo3005.github.io/hoy/
+      CI: 'true'
+    steps:
+      - name: Checkout deployed revision
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install pinned QA dependency
+        run: npm install --no-audit --no-fund
+
+      - name: Install mobile browser engines
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Verify deployed menu truth in Chromium
+        run: npx playwright test tests/menu-delivery-integrity-2.35.spec.js --project=mobile-chrome
+
+      - name: Verify deployed menu truth in WebKit
+        run: npx playwright test tests/menu-delivery-integrity-2.35.spec.js --project=mobile-webkit
+
+      - name: Upload failure evidence
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: hoy-menu-delivery-failure-${{ github.run_id }}
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 30
+          if-no-files-found: warn
