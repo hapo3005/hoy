@@ -14,17 +14,17 @@ const schedule={
   fri:[['12:00','24:00']],sat:[['12:00','24:00']],sun:[['12:00','18:00']]
 };
 
-test('HOY 2.29 confirmation assets remain wired in the 2.30 release',async({request})=>{
+test('HOY 2.29 confirmation assets remain wired in the 2.31 release',async({request})=>{
   const [js,css,pkg,index,worker]=await Promise.all([
     request.get('./operator-data-confirmation-2.29.js'),request.get('./operator-data-confirmation-2.29.css'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')
   ]);
   for(const r of [js,css,pkg,index,worker])expect(r.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.30.0');
+  expect((await pkg.json()).version).toBe('2.31.0');
   const indexText=await index.text(),workerText=await worker.text();
-  expect(indexText).toContain('App 2.30.0');
+  expect(indexText).toContain('App 2.31.0');
   expect(indexText).toContain('operator-data-confirmation-2.29.css?v=2.29.0');
   expect(indexText).toContain('operator-data-confirmation-2.29.js?v=2.29.0');
-  expect(workerText).toContain("const CACHE='hoy-v2.30.0'");
+  expect(workerText).toContain("const CACHE='hoy-v2.31.0'");
   expect(workerText).toContain('./operator-data-confirmation-2.29.css');
   expect(workerText).toContain('./operator-data-confirmation-2.29.js');
 });
