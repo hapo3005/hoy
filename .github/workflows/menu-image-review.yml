@@ -32,8 +32,8 @@ jobs:
           if find menu-image-review-output -type f ! -name '*.jpg' ! -name 'manifest.json' | grep -q .; then
             echo '::error::Unexpected review artifact type'; exit 2
           fi
-          if test -d menu-pages; then
-            echo '::error::Review workflow must not create publish assets'; exit 3
+          if test -n "$(git status --porcelain -- menu-pages)"; then
+            echo '::error::Review workflow changed publish assets'; git status --short -- menu-pages; exit 3
           fi
           file menu-image-review-output/*/*.jpg
       - name: Upload operator image evidence
