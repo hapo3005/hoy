@@ -1,0 +1,10 @@
+/* HOY Control 2.24.0 — menu language coverage */
+.mi224-panel{margin-top:16px}
+.mi224-list{display:grid;gap:8px}
+.mi224-list article{display:grid;grid-template-columns:minmax(0,1fr) minmax(90px,180px) 42px;gap:12px;align-items:center;padding:11px 12px;border:1px solid rgba(16,40,61,.08);border-radius:14px;background:#fff}
+.mi224-list b{display:block;color:#10283d;font-size:12px}
+.mi224-list small{display:block;margin-top:3px;color:#77838c;font-size:9px;line-height:1.4}
+.mi224-list strong{text-align:right;color:#10283d;font-size:11px}
+.mi224-progress{height:7px;border-radius:999px;background:#eee8de;overflow:hidden}
+.mi224-progress i{display:block;height:100%;border-radius:inherit;background:#e67b35}
+@media(max-width:760px){.mi224-list article{grid-template-columns:1fr 42px}.mi224-progress{grid-column:1/-1;grid-row:2}}
