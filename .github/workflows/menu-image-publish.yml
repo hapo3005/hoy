@@ -34,9 +34,9 @@ jobs:
           if find menu-pages/4/f9653f87c69d -type f ! -name '*.jpg' | grep -q .; then
             echo '::error::Unexpected file type in Bonobo publish bundle'; exit 2
           fi
-          changed=$(git status --porcelain | awk '{print $2}' | grep -v '^menu-pages/4/f9653f87c69d/' || true)
+          changed=$(git status --porcelain | awk '{print $2}' | grep -v '^menu-pages/4/f9653f87c69d/' | grep -v '^menu-image-publish-output/' || true)
           if [ -n "$changed" ]; then
-            echo '::error::Publisher changed files outside the approved Bonobo asset bundle'; echo "$changed"; exit 3
+            echo '::error::Publisher changed files outside the approved Bonobo bundle/audit output'; echo "$changed"; exit 3
           fi
           file menu-pages/4/f9653f87c69d/*.jpg
       - name: Upload pinned menu assets for audit
