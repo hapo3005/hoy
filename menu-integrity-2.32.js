@@ -24,30 +24,24 @@
 
   function coverage232(core,allRows){
     const measured=core.find(s=>Number(s?.coverage_meta?.expected_sections)>0);
-    if(measured){
-      const expected=Number(measured.coverage_meta.expected_sections)||0,imported=Number(measured.coverage_meta.imported_sections)||0;
-      return {expected,imported,text:`${imported} von ${expected} Kartenbereichen sind aktuell vollständig in HOY.`};
-    }
+    if(measured){const expected=Number(measured.coverage_meta.expected_sections)||0,imported=Number(measured.coverage_meta.imported_sections)||0;return {expected,imported,text:`${imported} von ${expected} Kartenbereichen sind aktuell vollständig in HOY.`}}
     const coreSourceOnly=core.some(s=>status232(s)==='source_only');
     if(coreSourceOnly&&allRows.length)return {expected:null,imported:null,text:`${allRows.length} verifizierte Positionen aus ergänzenden Kartenbereichen sind bereits in HOY; die Hauptkarte fehlt noch.`};
     return {expected:null,imported:null,text:'Diese offizielle Karte ist noch nicht vollständig in HOY abgebildet.'};
   }
 
   function build232(id,sources,items){
+    const invalidSources=sources.filter(s=>status232(s)==='invalid');
     const valid=sources.filter(s=>s?.is_official!==false&&!IGNORE.has(status232(s)));
     const core=valid.filter(isCore232);
     const contentSourceIds=new Set(valid.filter(s=>ACTIVE_CONTENT.has(status232(s))).map(s=>String(s.id)));
     const rows=items.filter(x=>contentSourceIds.has(String(x.source_id)));
-    const cats=categories232(rows);
-    const checked=latest232(valid);
-    const provenanceUrls=[...new Set(valid.map(s=>clean232(s.source_url)).filter(Boolean))];
+    const cats=categories232(rows),checked=latest232(valid.length?valid:sources),provenanceUrls=[...new Set(valid.map(s=>clean232(s.source_url)).filter(Boolean))];
     const coreComplete=core.filter(s=>status232(s)==='complete');
     const coreImages=core.map(s=>({s,pages:pages232(s)})).filter(x=>status232(x.s)==='image_complete'&&x.pages.length).sort((a,b)=>b.pages.length-a.pages.length);
-    const corePartial=core.filter(s=>status232(s)==='partial');
-    const coreSourceOnly=core.filter(s=>status232(s)==='source_only');
-    const coreInsufficient=core.filter(s=>status232(s)==='insufficient');
-    const primary=coreComplete[0]||coreImages[0]?.s||corePartial[0]||coreSourceOnly[0]||coreInsufficient[0]||valid[0]||null;
-    const base={source:null,provenanceUrls,contentSourceIds:[...contentSourceIds],checked:checked?String(checked).slice(0,10):'',label:clean232(primary?.source_label)||'Offizielle Betreiberquelle',cloud:true,sourceCount:valid.length,itemCount:rows.length};
+    const corePartial=core.filter(s=>status232(s)==='partial'),coreSourceOnly=core.filter(s=>status232(s)==='source_only'),coreInsufficient=core.filter(s=>status232(s)==='insufficient');
+    const primary=coreComplete[0]||coreImages[0]?.s||corePartial[0]||coreSourceOnly[0]||coreInsufficient[0]||valid[0]||invalidSources[0]||null;
+    const base={source:null,provenanceUrls,contentSourceIds:[...contentSourceIds],checked:checked?String(checked).slice(0,10):'',label:clean232(primary?.source_label)||'Offizielle Betreiberquelle',cloud:true,sourceCount:sources.length,itemCount:rows.length};
 
     if(coreComplete.length&&rows.length)return {...base,status:'structured',integrity:'complete',categories:cats,note:'Die aktuelle Hauptkarte ist in HOY vollständig für alle verifizierbaren Positionen abgebildet.'};
     if(coreImages.length){const chosen=coreImages[0];return {...base,status:'structured',integrity:'image_complete',displayMode:'image_pages',pages:chosen.pages,label:clean232(chosen.s.source_label)||base.label,note:'Die offizielle Hauptkarte wird vollständig direkt in HOY angezeigt.'}}
@@ -55,6 +49,7 @@
     if(coreSourceOnly.length)return {...base,status:'source_only',integrity:'source_only',note:'Die offizielle Hauptkartenquelle ist bekannt, aber noch nicht vollständig in HOY darstellbar.'};
     if(coreInsufficient.length)return {...base,status:'unavailable',integrity:'insufficient',note:'Die offizielle Betreiberquelle enthält derzeit keine vollständige, belastbar bepreiste Speisekarte.'};
     if(valid.some(s=>status232(s)==='source_only'))return {...base,status:'source_only',integrity:'source_only',note:'Eine offizielle Kartenquelle ist bekannt, aber noch nicht vollständig in HOY darstellbar.'};
+    if(invalidSources.length)return {...base,status:'unavailable',integrity:'invalid',note:'Die bisher bekannte offizielle Kartenadresse ist derzeit keine belastbare aktuelle Speisekarte.'};
     return {...base,status:'unavailable',integrity:'unavailable',note:'Noch keine belastbare, in HOY darstellbare Speisekarte vorhanden.'};
   }
 
@@ -89,6 +84,7 @@
     if(m?.integrity==='partial')return m.localized?(m.locale==='de'?'Auswahl auf Deutsch':m.locale==='en'?'Selection in English':'Selección en español'):'Teilkarte in HOY';
     if(m?.integrity==='source_only')return 'Speisekarte wird in HOY aufbereitet';
     if(m?.integrity==='insufficient')return 'Keine vollständige Karte veröffentlicht';
+    if(m?.integrity==='invalid')return 'Kartenquelle derzeit nicht belastbar';
     return baseMenuStatusLabel232(m);
   };
 
@@ -104,7 +100,9 @@
   menuPanel=function(p){
     const m=menuFor(p);
     if(m?.integrity==='partial')return partialPanel232(m);
+    if(m?.integrity==='source_only')return `<div class="menu-panel menu232-panel"><div class="menu-status"><div class="top"><b>Speisekarte wird in HOY aufbereitet</b><span class="pill warn">Noch nicht in-app</span></div><small>${esc(m.label||'Offizielle Betreiberquelle')}</small></div><div class="menu-empty"><h4>Die offizielle Quelle ist bekannt.</h4><p>HOY zeigt sie erst als Speisekarte, wenn der Inhalt vollständig innerhalb der App nutzbar ist.</p></div></div>`;
     if(m?.integrity==='insufficient')return `<div class="menu-panel menu232-panel"><div class="menu-status"><div class="top"><b>Keine vollständige Karte veröffentlicht</b><span class="pill warn">Betreiberquelle geprüft</span></div><small>${esc(m.label||'Offizielle Betreiberquelle')}</small></div><div class="menu-empty"><h4>HOY zeigt keine erfundene Karte.</h4><p>${esc(m.note||'Die Betreiberquelle enthält aktuell keine vollständige bepreiste Speisekarte.')}</p></div></div>`;
+    if(m?.integrity==='invalid')return `<div class="menu-panel menu232-panel"><div class="menu-status"><div class="top"><b>Kartenquelle derzeit nicht belastbar</b><span class="pill warn">HOY geprüft</span></div><small>${esc(m.label||'Offizielle Betreiberquelle')}</small></div><div class="menu-empty"><h4>Diese Quelle wird nicht als Speisekarte verwendet.</h4><p>${esc(m.note||'HOY wartet auf eine belastbare aktuelle Betreiberkarte.')}</p></div></div>`;
     return baseMenuPanel232(p);
   };
 })();
