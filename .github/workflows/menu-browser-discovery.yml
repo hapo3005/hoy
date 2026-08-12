@@ -19,6 +19,7 @@ on:
       - '.github/hoy-menu-discovery-trigger.json'
       - '.github/workflows/menu-browser-discovery.yml'
       - 'scripts/menu-browser-discovery.mjs'
+      - 'scripts/menu-browser-focus.mjs'
 
 permissions:
   contents: read
@@ -50,16 +51,25 @@ jobs:
           if [ "${{ github.event_name }}" = "push" ]; then
             scope=$(node -e "const x=require('./.github/hoy-menu-discovery-trigger.json');process.stdout.write(String(x.scope||'core'))")
             limit=$(node -e "const x=require('./.github/hoy-menu-discovery-trigger.json');process.stdout.write(String(x.limit||14))")
+            focus=$(node -e "const x=require('./.github/hoy-menu-discovery-trigger.json');process.stdout.write(Array.isArray(x.focus_ids)&&x.focus_ids.length?'true':'false')")
           else
             scope="${DISPATCH_SCOPE:-core}"
             limit="${DISPATCH_LIMIT:-14}"
+            focus="false"
           fi
           case "$scope" in core|all) ;; *) echo '::error::scope must be core or all'; exit 3;; esac
           if ! [[ "$limit" =~ ^[0-9]+$ ]] || [ "$limit" -lt 1 ] || [ "$limit" -gt 50 ]; then echo '::error::venue_limit must be 1-50'; exit 4; fi
           echo "scope=$scope" >> "$GITHUB_OUTPUT"
           echo "limit=$limit" >> "$GITHUB_OUTPUT"
+          echo "focus=$focus" >> "$GITHUB_OUTPUT"
       - name: Browse official operator channels
-        run: node scripts/menu-browser-discovery.mjs --scope "${{ steps.config.outputs.scope }}" --limit "${{ steps.config.outputs.limit }}"
+        shell: bash
+        run: |
+          if [ "${{ steps.config.outputs.focus }}" = "true" ]; then
+            node scripts/menu-browser-focus.mjs
+          else
+            node scripts/menu-browser-discovery.mjs --scope "${{ steps.config.outputs.scope }}" --limit "${{ steps.config.outputs.limit }}"
+          fi
       - name: Upload discovery evidence
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v5
