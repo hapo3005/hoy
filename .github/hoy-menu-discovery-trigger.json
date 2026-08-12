@@ -1,15 +1,15 @@
 {
   "scope": "core",
   "limit": 14,
-  "reason": "Browser-backed pass for unresolved La Manga and Cabo de Palos menu sources",
+  "reason": "Second browser-backed pass: complete Playa Chica tabs and deepen operator menu routes",
   "extra_urls": {
     "4": ["https://www.bonoboplaya.com/nuestra-carta/"],
     "11": ["https://www.playachicalamanga.es/", "https://www.instagram.com/playachica.lamanga/"],
     "14": ["https://bocanadepalos.com/es/inicio", "https://www.instagram.com/bocanadepalos/"],
     "6": ["https://chiringuitoelbaron.com/"],
     "151": ["https://mangata.myrestoo.net", "https://www.instagram.com/chiringuito_mangata/"],
-    "97": ["https://chibichanga.com/"],
-    "217": ["https://elnidokm1.es/"],
+    "97": ["https://www.chibichanga.com/", "https://www.chibichanga.com/vinos/", "https://www.chibichanga.com/cocktails/"],
+    "217": ["https://elnidokm1.es/", "https://elnidokm1.es/carta/"],
     "7": ["https://escueladepieter.com/", "https://www.instagram.com/escueladepieter1975/"],
     "10": ["https://clubnauticodosmares.com/restaurante/"],
     "205": ["https://rincondelcheflamanga.es/"],
