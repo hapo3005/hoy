@@ -10,7 +10,7 @@ on:
       - '.github/workflows/menu-pdf-render.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: hoy-menu-pdf-render
@@ -22,20 +22,39 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - name: Install PDF renderer
         run: sudo apt-get update && sudo apt-get install -y poppler-utils
-      - name: Render allowlisted official PDFs
+      - name: Render hash-pinned reviewed official PDFs
         run: python3 scripts/render-menu-pdfs.py
       - name: Verify artifact contains no source PDFs
         run: |
-          if find menu-pdf-render-output -type f -name '*.pdf' | grep -q .; then
-            echo '::error::Source PDF leaked into artifact'; exit 2
+          if find menu-pdf-render-output menu-pages -type f -name '*.pdf' | grep -q .; then
+            echo '::error::Source PDF leaked into publish output'; exit 2
           fi
           test -s menu-pdf-render-output/manifest.json
-      - name: Upload rendered menu pages
+          test -n "$(find menu-pages -type f -name '*.jpg' -print -quit)"
+      - name: Upload rendered menu pages for audit
         uses: actions/upload-artifact@v5
         with:
           name: hoy-menu-pdf-pages-${{ github.run_id }}
-          path: menu-pdf-render-output/
+          path: |
+            menu-pdf-render-output/manifest.json
+            menu-pages/
           retention-days: 30
           if-no-files-found: error
+      - name: Publish only reviewed menu image assets
+        shell: bash
+        run: |
+          git config user.name "HOY Menu Renderer"
+          git config user.email "actions@users.noreply.github.com"
+          git add -- menu-pages
+          if git diff --cached --quiet; then
+            echo "Reviewed render assets already published."
+            exit 0
+          fi
+          git commit -m "HOY menu assets: publish reviewed PDF pages"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
