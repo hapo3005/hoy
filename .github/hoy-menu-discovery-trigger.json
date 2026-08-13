@@ -1,44 +1,20 @@
 {
   "scope": "core",
-  "limit": 12,
-  "focus_ids": [6,7,10,117,120,148,151,152,205,213],
-  "reason": "Finish core food-menu coverage: verify unresolved trusted sources and dynamic operator/menu pages",
+  "limit": 4,
+  "focus_ids": [6,7,120,148],
+  "reason": "Follow direct menu targets discovered by the first browser pass",
   "extra_urls": {
     "6": [
-      "https://chiringuitoelbaron.com/",
-      "https://es.restaurantguru.com/Chiringuito-El-Baron-La-Manga-2/menu",
-      "https://todalainformacion.com/chiringuito-el-baron-la-manga/"
+      "https://es.restaurantguru.com/link/m103159784"
     ],
     "7": [
-      "https://escueladepieter.com/",
-      "https://escueladepieter.com/carta/",
-      "https://escueladepieter.com/menu/"
-    ],
-    "10": [
-      "https://clubnauticodosmares.com/",
-      "https://clubnauticodosmares.com/restaurante/"
-    ],
-    "117": [
-      "https://todalainformacion.com/asador-argentino-mi-refugio-la-manga/"
+      "https://escueladepieter5818.live-website.com/carta/"
     ],
     "120": [
-      "https://es.restaurantguru.com/El-espigon-Marisqueria-Braseria-Cape-Palos/menu"
+      "https://es.restaurantguru.com/link/60654868"
     ],
     "148": [
-      "https://es.restaurantguru.com/Chiringuito-El-Mirador-Spain/menu"
-    ],
-    "151": [
-      "https://mangata.myrestoo.net/",
-      "https://www.facebook.com/ChiringuitoMangata/"
-    ],
-    "152": [
-      "https://whitediamondloungebar.com/"
-    ],
-    "205": [
-      "https://rincondelcheflamanga.es/"
-    ],
-    "213": [
-      "https://www.just-eat.es/restaurants-munashi-go-la-manga-la-manga/menu"
+      "https://es.restaurantguru.com/link/m35748648"
     ]
   }
 }
