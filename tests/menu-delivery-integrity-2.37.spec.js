@@ -95,18 +95,31 @@ test('reviewed image menus stay first-party in HOY and never regress to raw PDF 
   await assertImageMenu(page,request,4,3,'/hoy/menu-pages/4/f9653f87c69d/');
 });
 
-test('2.37 release shell is cache-busted and full-catalog bootstrap is shipped',async({request})=>{
-  const [integrity,language,index,worker,pkg]=await Promise.all([request.get('./menu-integrity-2.32.js?v=2.37.0'),request.get('./menu-language-integrity-2.33.js?v=2.37.0'),request.get('./index.html'),request.get('./service-worker.js'),request.get('./package.json')]);
-  for(const r of [integrity,language,index,worker,pkg])expect(r.ok()).toBeTruthy();
-  const integrityCode=await integrity.text(),languageCode=await language.text(),html=await index.text(),sw=await worker.text();
-  expect((await pkg.json()).version).toBe('2.37.0');
-  expect(html).toContain('App 2.37.0');
+test('2.38 release shell ships the authority layer and cache-busted menu truth',async({request})=>{
+  const [integrity,language,authority,authorityCss,index,worker,pkg]=await Promise.all([
+    request.get('./menu-integrity-2.32.js?v=2.37.0'),
+    request.get('./menu-language-integrity-2.33.js?v=2.37.0'),
+    request.get('./menu-authority-2.38.js?v=2.38.0'),
+    request.get('./menu-authority-2.38.css?v=2.38.0'),
+    request.get('./index.html'),
+    request.get('./service-worker.js'),
+    request.get('./package.json')
+  ]);
+  for(const r of [integrity,language,authority,authorityCss,index,worker,pkg])expect(r.ok()).toBeTruthy();
+  const integrityCode=await integrity.text(),languageCode=await language.text(),authorityCode=await authority.text(),html=await index.text(),sw=await worker.text();
+  expect((await pkg.json()).version).toBe('2.38.0');
+  expect(html).toContain('App 2.38.0');
   expect(html).toContain('menu-integrity-2.32.js?v=2.37.0');
   expect(html).toContain('menu-language-integrity-2.33.js?v=2.37.0');
-  expect(sw).toContain("const CACHE='hoy-v2.37.0'");
+  expect(html).toContain('menu-authority-2.38.js?v=2.38.0');
+  expect(sw).toContain("const CACHE='hoy-v2.38.0'");
+  expect(sw).toContain("'./menu-authority-2.38.js'");
+  expect(sw).toContain("'./menu-authority-2.38.css'");
   expect(integrityCode).toContain('PAGE_SIZE232=500');
   expect(integrityCode).toContain(".range(from,from+PAGE_SIZE232-1)");
   expect(integrityCode).toContain('hoyMenuBootstrap232');
   expect(languageCode).toContain('reusedBootstrap:Boolean(cached)');
   expect(languageCode).toContain("integrity:'quality_blocked'");
+  expect(authorityCode).toContain("verified_public_snapshot");
+  expect(authorityCode).toContain("authorized_transactional");
 });
