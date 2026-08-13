@@ -1,0 +1,91 @@
+name: HOY PR Browser QA
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(find . -type f -name '*.js' -not -path './node_modules/*' -print0)
+      - name: Check required release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s live-decision-2.39.js
+          test -s live-decision-2.39.css
+          grep -q 'live-decision-2.39.js?v=2.39.0' index.html
+          grep -q 'live-decision-2.39.css?v=2.39.0' index.html
+          grep -q "hoy-v2.39.0" service-worker.js
+          grep -q "'./live-decision-2.39.js'" service-worker.js
+          grep -q "'./live-decision-2.39.css'" service-worker.js
+      - name: Check duplicate core cache entries
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const text=fs.readFileSync('service-worker.js','utf8');
+          const m=text.match(/const CORE=\[(.*?)\];/s);
+          if(!m) throw new Error('CORE cache list not found');
+          const items=[...m[1].matchAll(/'([^']+)'/g)].map(x=>x[1]);
+          const duplicates=items.filter((x,i)=>items.indexOf(x)!==i);
+          if(duplicates.length) throw new Error(`Duplicate CORE cache entries: ${[...new Set(duplicates)].join(', ')}`);
+          console.log(`CORE cache entries: ${items.length}; duplicates: 0`);
+          NODE
+
+  browser-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:4173/
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Install QA dependency
+        run: npm install --no-audit --no-fund
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
+      - name: Start local branch server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/hoy-http.log 2>&1 &
+          echo $! > /tmp/hoy-http.pid
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/hoy-http.log
+          exit 1
+      - name: Run complete Playwright suite
+        run: npm run qa:e2e
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: hoy-pr-playwright-report-${{ github.run_id }}
+          path: playwright-report/
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Upload failure traces
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: hoy-pr-playwright-failures-${{ github.run_id }}
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: warn
