@@ -1,20 +1,11 @@
 {
   "scope": "core",
-  "limit": 4,
-  "focus_ids": [6,7,120,148],
-  "reason": "Follow direct menu targets discovered by the first browser pass",
+  "limit": 1,
+  "focus_ids": [199],
+  "reason": "Verify Estacio Playa current full-menu route",
   "extra_urls": {
-    "6": [
-      "https://es.restaurantguru.com/link/m103159784"
-    ],
-    "7": [
-      "https://escueladepieter5818.live-website.com/carta/"
-    ],
-    "120": [
-      "https://es.restaurantguru.com/link/60654868"
-    ],
-    "148": [
-      "https://es.restaurantguru.com/link/m35748648"
+    "199": [
+      "https://estacio-playa.res-menu.net/"
     ]
   }
 }
