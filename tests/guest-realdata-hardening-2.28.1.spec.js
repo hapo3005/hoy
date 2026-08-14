@@ -1,25 +1,26 @@
 const {test,expect}=require('@playwright/test');
+const {CURRENT_RELEASE, gotoReady}=require('./helpers/current-release');
 test.use({serviceWorkers:'block'});
 
 async function ready(page){
-  await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>=2);
+  await gotoReady(page,'./',2);
 }
 
 function runningRow(id){
   return {id:'live-test',restaurant_id:id,title:'Live-Musik',starts_at:new Date(Date.now()-30*60000).toISOString(),ends_at:new Date(Date.now()+90*60000).toISOString()};
 }
 
-test('HOY 2.28.1 assets and runtime are wired',async({page,request})=>{
+test('HOY guest-decision 2.28.2 assets and runtime remain wired in the current release',async({page,request})=>{
   const [pkg,index,worker]=await Promise.all([request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')]);
   for(const res of [pkg,index,worker])expect(res.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.28.1');
+  expect((await pkg.json()).version).toBe(CURRENT_RELEASE);
   const html=await index.text(),sw=await worker.text();
-  expect(html).toContain('App 2.28.1');
-  expect(html).toContain('guest-decision-core-2.28.js?v=2.28.1');
-  expect(sw).toContain("const CACHE='hoy-v2.28.1'");
+  expect(html).toContain(`App ${CURRENT_RELEASE}`);
+  expect(html).toContain('guest-decision-core-2.28.js?v=2.28.2');
+  expect(sw).toContain(`const CACHE='hoy-v${CURRENT_RELEASE}'`);
+  expect(sw).toContain('./guest-decision-core-2.28.js');
   await ready(page);
-  expect(await page.evaluate(()=>window.hoyGuestDecisionCoreVersion)).toBe('2.28.1');
+  expect(await page.evaluate(()=>window.hoyGuestDecisionCoreVersion)).toBe('2.28.2');
 });
 
 test('empty today-content never offers a dead Today moment',async({page})=>{

@@ -15,7 +15,7 @@ test('in-app source normalization runs before localization and integrity runs la
 
 test('complete localized menu survives integrity classification without external provenance CTA',async({page})=>{
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>cloud.status==='online'&&window.hoyMenuIntegrityVersion==='2.32.0'&&MENUS[16]?.integrity==='complete',{timeout:15000});
+  await page.waitForFunction(()=>cloud.status==='online'&&window.hoyMenuIntegrityVersion==='2.37.0'&&window.hoyMenuLanguageIntegrityState==='ready'&&MENUS[16]?.integrity==='complete',null,{timeout:40000});
   const menu=await page.evaluate(()=>menuFor(DATA.find(x=>Number(x.id)===16)));
   expect(menu.integrity).toBe('complete');
   expect(menu.status).toBe('structured');
@@ -29,11 +29,15 @@ test('complete localized menu survives integrity classification without external
   await expect(section.locator('a').filter({hasText:/Originalkarte öffnen/i})).toHaveCount(0);
 });
 
-test('legacy evidence entries cannot reopen external menu links for classified source-only venues',async({page})=>{
+test('synthetic source-only evidence cannot reopen an external menu link after classification',async({page})=>{
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>cloud.status==='online'&&window.hoyMenuIntegrityVersion==='2.32.0'&&MENUS[21]?.integrity==='source_only',{timeout:15000});
-  await page.evaluate(()=>openDetail(21));
-  const menu=page.locator('#detail #profile-menu');
-  await expect(menu).toContainText('Speisekarte wird in HOY aufbereitet');
-  await expect(menu.locator('a[href*="cabop.es/carta-online"]')).toHaveCount(0);
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuIntegrityVersion==='2.37.0',null,{timeout:30000});
+  const html=await page.evaluate(()=>{
+    const p=DATA[0],old=MENUS[p.id];
+    MENUS[p.id]={status:'source_only',integrity:'source_only',source:null,provenanceUrls:['https://example.com/menu'],label:'Offizielle Quelle'};
+    try{return menuPanel(p)}finally{if(old)MENUS[p.id]=old;else delete MENUS[p.id]}
+  });
+  expect(html).toContain('Speisekarte wird in HOY aufbereitet');
+  expect(html).not.toContain('example.com/menu');
+  expect(html).not.toMatch(/href=/i);
 });

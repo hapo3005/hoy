@@ -39,7 +39,7 @@ test('HOY 2.23 guest simplicity remains intact in later releases while the deep 
   page.on('pageerror', error => pageErrors.push(error.message));
   await page.goto('./', { waitUntil: 'domcontentloaded' });
   expect(await page.evaluate(() => window.hoySimplicityVersion)).toBe('2.23.0');
-  await expect(page.locator('.journey-hero .hero-copy')).toContainText('aktuellen Öffnungszeiten und Speisekarten');
+  await expect(page.locator('.journey-hero .hero-copy')).toContainText(/was offen ist.*was heute passiert.*wirklich machen kannst/i);
   await expect(page.locator('.journey-trust-strip')).toContainText('Direkt zum Betrieb');
   await expect(page.locator('.journey-trust-strip')).not.toContainText('Datenstatus');
   await expect(page.locator('[data-home-search-go]')).toHaveText('Suchen');
@@ -47,7 +47,7 @@ test('HOY 2.23 guest simplicity remains intact in later releases while the deep 
 
   await page.locator('[data-btm="discover"]').click();
   await expect(page.locator('.journey-discover-signature')).toBeVisible();
-  await expect(page.locator('.journey-discover-head p')).toHaveText('Suche direkt oder wähle, worauf du gerade Lust hast.');
+  await expect(page.locator('.journey-discover-head p')).toContainText(/wirklich nutzbar.*weiter eingrenzen/i);
   const moreFilters = page.locator('[data-simple-filter-toggle]');
   const serviceFilters = page.locator('#hoySecondaryFilters');
   await expect(moreFilters).toBeVisible();
@@ -81,15 +81,29 @@ test('HOY 2.23 guest simplicity remains intact in later releases while the deep 
   await expect(detail.locator('.profile-info-section')).toContainText('Aktualität');
   await shot(page, testInfo, 'simple-profile');
 
-  await page.evaluate(() => document.getElementById('detail')?.close());
-  await page.locator('#q').fill('Gran Torino');
-  const granTorino = page.locator('.list-card[data-open="15"]');
-  await expect(granTorino).toBeVisible({ timeout: 20_000 });
-  await granTorino.click();
+  await page.evaluate(() => {
+    document.getElementById('detail')?.close();
+    const p=DATA.find(x=>Number(x.id)===16);
+    window.__hoySimpleQaBackup={
+      status:p.hours_status,note:p.hours_note,raw:p.hours_raw_text,
+      operatorHours:p.operator_hours,operatorSpecial:p.operator_special_hours
+    };
+    p.hours_status='conflict';
+    p.hours_note='QA: widersprüchliche aktuelle Öffnungszeiten.';
+    p.hours_raw_text='QA-Konflikt zwischen aktuellen Quellen.';
+    p.operator_hours=null;
+    p.operator_special_hours=null;
+    openDetail(p.id);
+  });
   const uncertain = page.locator('#detail[open] [data-hours-simple="uncertain"]');
   await expect(uncertain).toBeVisible();
   await expect(uncertain).toContainText('Öffnungszeiten aktuell nicht sicher');
   await expect(uncertain.locator('summary')).toHaveText('Warum?');
+  await page.evaluate(() => {
+    const p=DATA.find(x=>Number(x.id)===16),b=window.__hoySimpleQaBackup;
+    if(p&&b){p.hours_status=b.status;p.hours_note=b.note;p.hours_raw_text=b.raw;p.operator_hours=b.operatorHours;p.operator_special_hours=b.operatorSpecial}
+    delete window.__hoySimpleQaBackup;
+  });
 
   expect(pageErrors).toEqual([]);
 });

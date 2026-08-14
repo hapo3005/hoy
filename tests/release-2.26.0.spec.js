@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { test, expect } = require('@playwright/test');
+const { CURRENT_RELEASE } = require('./helpers/current-release');
 
 const SCREEN_DIR = path.join(process.cwd(), 'qa-screenshots');
 fs.mkdirSync(SCREEN_DIR, { recursive: true });
@@ -21,10 +22,10 @@ async function injectOperatorDialogs(page){
       document.body.insertAdjacentHTML('beforeend',`<dialog id="${id}" class="dialog" open><div class="${rootClass}"><div class="claim-head"><button class="round">←</button><span class="claim-step">HOY · TEST</span></div><h2>Test</h2><p class="claim-lead">Premium operator test.</p><button class="primary">Speichern</button></div></dialog>`);
     }
     window.hoyEnhanceOperatorPremium?.();
-  },defs);
+  },operatorDialogs);
 }
 
-test('HOY 2.26 deploys and caches the premium operator presentation layer', async ({ page, request }) => {
+test('HOY 2.26 premium operator presentation remains deployed and cached', async ({ page, request }) => {
   const [js, css, pkg, index, worker] = await Promise.all([
     request.get('./operator-premium-2.26.js'),
     request.get('./operator-premium-2.26.css'),
@@ -33,14 +34,14 @@ test('HOY 2.26 deploys and caches the premium operator presentation layer', asyn
     request.get('./service-worker.js')
   ]);
   for(const res of [js,css,pkg,index,worker])expect(res.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.26.0');
+  expect((await pkg.json()).version).toBe(CURRENT_RELEASE);
   const indexText=await index.text();
   const workerText=await worker.text();
   const cssText=await css.text();
-  expect(indexText).toContain('App 2.26.0');
+  expect(indexText).toContain(`App ${CURRENT_RELEASE}`);
   expect(indexText).toContain('operator-premium-2.26.css?v=2.26.0');
   expect(indexText).toContain('operator-premium-2.26.js?v=2.26.0');
-  expect(workerText).toContain("const CACHE='hoy-v2.26.0'");
+  expect(workerText).toContain(`const CACHE='hoy-v${CURRENT_RELEASE}'`);
   expect(workerText).toContain('./operator-premium-2.26.css');
   expect(workerText).toContain('./operator-premium-2.26.js');
   expect(cssText).toContain('@media(prefers-reduced-motion:reduce)');

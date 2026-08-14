@@ -2,7 +2,12 @@ const { test, expect } = require('@playwright/test');
 test.use({ serviceWorkers:'block' });
 
 async function inject(page, html){
-  await page.evaluate(markup=>{document.body.insertAdjacentHTML('beforeend',markup);window.hoyEnhanceOperatorFlows?.()},html);
+  await page.evaluate(markup=>{
+    const holder=document.createElement('div');holder.innerHTML=markup;
+    const dialog=holder.querySelector('dialog');if(dialog&&!dialog.hasAttribute('open'))dialog.setAttribute('open','');
+    while(holder.firstChild)document.body.appendChild(holder.firstChild);
+    window.hoyEnhanceOperatorFlows?.();
+  },html);
 }
 
 test('passive in-review state still creates no artificial operator work', async ({ page }) => {
@@ -37,8 +42,9 @@ test('service choice buttons expose pressed state while the legacy select leaves
   const select=page.locator('#operatorServicesFlow select');
   await expect(select).toHaveAttribute('aria-hidden','true');
   await expect(select).toHaveAttribute('tabindex','-1');
-  await expect(page.getByRole('button',{name:'Noch prüfen'})).toHaveAttribute('aria-pressed','true');
-  await page.getByRole('button',{name:'Ja'}).click();
-  await expect(page.getByRole('button',{name:'Ja'})).toHaveAttribute('aria-pressed','true');
-  await expect(page.getByRole('button',{name:'Noch prüfen'})).toHaveAttribute('aria-pressed','false');
+  const dialog=page.locator('#operatorServicesFlow');
+  await expect(dialog.getByRole('button',{name:'Noch prüfen'})).toHaveAttribute('aria-pressed','true');
+  await dialog.getByRole('button',{name:'Ja'}).click();
+  await expect(dialog.getByRole('button',{name:'Ja'})).toHaveAttribute('aria-pressed','true');
+  await expect(dialog.getByRole('button',{name:'Noch prüfen'})).toHaveAttribute('aria-pressed','false');
 });

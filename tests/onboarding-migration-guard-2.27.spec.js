@@ -1,8 +1,9 @@
 const { test, expect } = require('@playwright/test');
+const { gotoReady } = require('./helpers/current-release');
 test.use({ serviceWorkers:'block' });
 
 test('legacy review step cannot bypass missing contact or authorization', async ({ page }) => {
-  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await gotoReady(page);
   await page.evaluate(()=>{
     openClaimFlow(DATA[0].id,1);
     claimDraft.contact={name:'',email:'',role:'Inhaber/in'};
@@ -19,7 +20,7 @@ test('legacy review step cannot bypass missing contact or authorization', async 
 });
 
 test('legacy review step routes back to core data when address is missing', async ({ page }) => {
-  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await gotoReady(page);
   await page.evaluate(()=>{
     openClaimFlow(DATA[0].id,1);
     claimDraft.contact={name:'María Beispiel',email:'maria@example.com',role:'Inhaber/in'};

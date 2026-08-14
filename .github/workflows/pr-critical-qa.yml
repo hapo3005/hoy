@@ -1,0 +1,76 @@
+name: HOY Critical PR QA
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hoy-pr-critical-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  critical-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:4173/
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Install QA dependency
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start branch server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/hoy-critical-http.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/hoy-critical-http.log
+          exit 1
+      - name: Run critical regression set
+        run: >-
+          npx playwright test
+          tests/hoy.spec.js
+          tests/release-2.28.0.spec.js
+          tests/menu-language-integrity-2.33.spec.js
+          tests/live-decision-2.39.spec.js
+          tests/release-hardening-2.39.spec.js
+          tests/service-worker-security-2.39.spec.js
+          tests/venue-media-ssrf-2.39.spec.js
+          tests/admin-menu-social-2.26.spec.js
+          tests/guest-realdata-hardening-2.28.1.spec.js
+          tests/menu-browser-discovery-2.28.spec.js
+          tests/menu-delivery-integrity-2.35.spec.js
+          tests/menu-delivery-integrity-2.36.spec.js
+          tests/menu-discovery-core-data-2.26.spec.js
+          tests/menu-inapp-2.31.spec.js
+          tests/menu-integrity-2.32.spec.js
+          tests/onboarding-entry-2.27.spec.js
+          tests/onboarding-migration-guard-2.27.spec.js
+          tests/release-2.14.0.spec.js
+          tests/release-2.22.0.spec.js
+          tests/release-2.23.0.spec.js
+          tests/release-2.25.0.spec.js
+          tests/release-2.27.0.spec.js
+          --project=mobile-chrome
+          --workers=1
+          --retries=0
+      - name: Upload critical failure traces
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: hoy-critical-failures-${{ github.run_id }}
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: warn

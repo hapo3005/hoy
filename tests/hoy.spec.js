@@ -141,7 +141,11 @@ test('localized menu presents the HOY language promise and editorial browsing co
   const errors = watchPageErrors(page);
   const dialog = await openAguaSala(page);
   const section = dialog.locator('#profile-menu');
-  await section.scrollIntoViewIfNeeded();
+  const menuNav = dialog.locator('.profile-premium-nav a[href="#profile-menu"]');
+  await expect(menuNav).toBeVisible();
+  await menuNav.click();
+  await expect(dialog.locator('.profile-premium-nav a.active')).toHaveAttribute('href', '#profile-menu');
+  await expect(section).toBeVisible();
 
   await expect(section).toHaveClass(/menu-signature/);
   await expect(section).toHaveClass(/menu-signature-localized/);
@@ -171,7 +175,7 @@ test('localized menu presents the HOY language promise and editorial browsing co
   await expect(section).toHaveAttribute('data-menu-locale', 'de');
   await expect(section.locator('.menu-signature-promise')).toContainText(/Für dich auf Deutsch/i);
   await expect(section.locator('.menu-signature-categories')).toBeVisible();
-  await expect(dialog.locator('.profile-premium-nav a.active')).toContainText(/Speisekarte/i);
+  await expect(dialog.locator('.profile-premium-nav a.active')).toHaveAttribute('href', '#profile-menu');
 
   const expand = section.locator('[data-menu-expand]');
   if (await expand.count() && await expand.getAttribute('aria-expanded') === 'false') await expand.click();

@@ -81,6 +81,21 @@
     nav?.querySelectorAll('a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')===href));
   }
 
+  function rememberProfileNavIntent(d,href){
+    if(!d||!href||!d.querySelector(href))return;
+    d._hoyProfileNavIntent={href,at:Date.now()};
+    clearTimeout(d._hoyProfileNavIntentTimer);
+    d._hoyProfileNavIntentTimer=setTimeout(()=>{
+      if(d._hoyProfileNavIntent?.href===href)d._hoyProfileNavIntent=null;
+    },1600);
+  }
+
+  function recentProfileNavIntent(d){
+    const intent=d?._hoyProfileNavIntent;
+    if(!intent?.href||Date.now()-Number(intent.at||0)>1600||!d.querySelector(intent.href))return null;
+    return intent;
+  }
+
   function refreshOpenProfileMenu(){
     const d=document.getElementById('detail');
     if(!d?.open||!d.classList.contains('continuous-profile'))return false;
@@ -95,9 +110,11 @@
     const oldWrap=old.querySelector('[data-inline-menu-wrap]');
     const expanded=!!oldWrap&&!oldWrap.classList.contains('is-collapsed');
     const scrollTop=d.scrollTop;
-    // Geometry is the source of truth here. WebKit may defer the scroll event/rAF that normally updates
-    // the active class, so reading the class alone can preserve a stale "Überblick" state.
-    const activeHref=visibleProfileHref(d);
+    // Geometry remains the normal source of truth. A very recent explicit navigation click is the
+    // exception: replacing the menu while smooth scrolling can otherwise cancel the user's target
+    // and bounce the profile back to "Überblick".
+    const navIntent=recentProfileNavIntent(d);
+    const activeHref=navIntent?.href||visibleProfileHref(d);
 
     d._hoyMenuRefreshing=true;
     const shell=document.createElement('div');
@@ -116,6 +133,9 @@
     const freshInput=fresh.querySelector('[data-menu-search]');
     if(query&&freshInput){freshInput.value=query;freshInput.dispatchEvent(new Event('input',{bubbles:true}))}
     d.scrollTop=scrollTop;
+    if(navIntent){
+      d.querySelector(activeHref)?.scrollIntoView({behavior:'auto',block:'start'});
+    }
     if(inputFocused&&freshInput)freshInput.focus({preventScroll:true});
 
     setProfileNavActive(d,activeHref);
@@ -123,8 +143,11 @@
     clearTimeout(d._hoyMenuRefreshReleaseTimer2185);
     d._hoyMenuRefreshReleaseTimer2185=setTimeout(()=>{
       d._hoyMenuRefreshing=false;
-      // A suppressed scroll event must not leave the navigation stale after the replacement settles.
-      if(typeof d._hoyProfileSyncSection==='function')d._hoyProfileSyncSection();
+      if(navIntent){
+        d.querySelector(activeHref)?.scrollIntoView({behavior:'auto',block:'start'});
+        setProfileNavActive(d,activeHref);
+        d._hoyProfileNavIntent=null;
+      }else if(typeof d._hoyProfileSyncSection==='function')d._hoyProfileSyncSection();
       else setProfileNavActive(d,visibleProfileHref(d));
     },80);
     return true;
@@ -146,7 +169,14 @@
     const flow=document.createElement('div');flow.className='profile-continuous-flow';flow.innerHTML=`<section class="profile-section profile-about-section" id="profile-about"><div class="profile-section-head"><small>ÜBER DAS RESTAURANT</small><h3>${esc(p.name)}</h3></div><p class="desc">${esc(effectiveValue(p,'description'))}</p>${operatorHoursBlock(p)}</section>${menuInline(p)}${offerInline(p)}${infoInline(p)}`;
     oldTabs.replaceWith(nav);oldContent.replaceWith(flow);
     wireInlineMenu(flow,p);
-    nav.querySelectorAll('a').forEach(a=>a.onclick=e=>{e.preventDefault();const target=d.querySelector(a.getAttribute('href'));target?.scrollIntoView({behavior:'smooth',block:'start'})});
+    nav.querySelectorAll('a').forEach(a=>a.onclick=e=>{
+      e.preventDefault();
+      const href=a.getAttribute('href');
+      const target=d.querySelector(href);
+      rememberProfileNavIntent(d,href);
+      setProfileNavActive(d,href);
+      target?.scrollIntoView({behavior:'smooth',block:'start'});
+    });
   }
   const baseOpenDetail27=openDetail;
   openDetail=function(id){

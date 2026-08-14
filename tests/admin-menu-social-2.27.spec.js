@@ -1,4 +1,5 @@
 const {test,expect}=require('@playwright/test');
+const {CURRENT_RELEASE}=require('./helpers/current-release');
 
 test('Control 2.27 wires persistent discovery and preserves read-only operations',async({request})=>{
   const [admin,module,migration]=await Promise.all([
@@ -8,7 +9,7 @@ test('Control 2.27 wires persistent discovery and preserves read-only operations
   ]);
   for(const r of [admin,module,migration])expect(r.ok()).toBeTruthy();
   const html=await admin.text(),js=await module.text(),sql=await migration.text();
-  expect(html).toContain('HOY Control Center · 2.27.0');
+  expect(html).toContain(`HOY Control Center · ${CURRENT_RELEASE}`);
   expect(html).toContain('admin-menu-social-2.27.js?v=2.27.0');
   expect(html).not.toContain('admin-menu-social-2.26.js');
   expect(js).toContain("sb.from('menu_discovery_checks').select");

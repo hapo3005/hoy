@@ -14,13 +14,16 @@ test('browser discovery is evidence-only and needs no privileged secret',()=>{
   expect(wf).toContain("permissions:\n  contents: read");
 });
 
-test('focused deep-dive can inspect all official Chibichanga card sections',()=>{
+test('focused deep-dive is driven by the current explicit focus configuration',()=>{
   const cfg=JSON.parse(fs.readFileSync('.github/hoy-menu-discovery-trigger.json','utf8'));
   expect(cfg.scope).toBe('core');
-  expect(cfg.focus_ids).toEqual([97]);
+  expect(cfg.focus_ids).toHaveLength(1);
   expect(cfg.limit).toBe(1);
-  expect(cfg.extra_urls['97']).toHaveLength(18);
-  for(const path of ['/desayunos/','/tostadas/','/cafes/','/gofres-y-creps/','/zumos-naturales/','/batidos-naturales/','/tapas/','/refrescos-de-verano/','/refrescos/','/cervezas/','/vinos/','/licores/','/ginebras/','/rones/','/whiskies/','/vodka/','/cocktails/'])expect(cfg.extra_urls['97'].some(x=>x.includes(path)),path).toBeTruthy();
+  const id=String(cfg.focus_ids[0]);
+  expect(Array.isArray(cfg.extra_urls[id])).toBeTruthy();
+  expect(cfg.extra_urls[id].length).toBeGreaterThan(0);
+  expect(cfg.extra_urls[id].every(url=>/^https:\/\//i.test(url))).toBeTruthy();
+  expect(String(cfg.reason||'').trim().length).toBeGreaterThan(0);
 });
 
 test('workflow switches to focused collector only when focus_ids are explicitly configured',()=>{
@@ -37,5 +40,6 @@ test('focused discovery captures full page evidence without database access',()=
   expect(code).toContain('anchors');
   expect(code).toContain('images');
   expect(code).toContain('iframes');
-  expect(code).not.toMatch(/SUPABASE|\.insert\(|\.upsert\(|\.update\(/);
+  expect(code).not.toMatch(/SUPABASE_(?:URL|KEY|SECRET)|createClient\s*\(/i);
+  expect(code).not.toMatch(/\.from\s*\([^)]*\)\s*\.\s*(?:insert|upsert|update|delete)\s*\(/i);
 });

@@ -4,10 +4,11 @@ import path from 'node:path';
 
 const root=process.cwd();
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
+const currentRelease=()=>JSON.parse(read('package.json')).version;
 
 test('HOY Control 2.21 wires the activation queue after coverage',()=>{
   const html=read('admin.html');
-  expect(html).toContain('HOY Control Center · 2.21.0');
+  expect(html).toContain(`HOY Control Center · ${currentRelease()}`);
   expect(html).toContain('admin-activation-2.21.css?v=2.21.0');
   expect(html).toContain('admin-activation-2.21.js?v=2.21.0');
   expect(html.indexOf('admin-activation-2.21.js')).toBeGreaterThan(html.indexOf('admin-coverage-2.20.js'));

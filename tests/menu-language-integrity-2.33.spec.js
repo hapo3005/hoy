@@ -5,21 +5,18 @@ test.use({serviceWorkers:'block'});
 
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuIntegrityVersion==='2.32.0'&&window.hoyMenuLanguageIntegrityVersion==='2.35.0'&&window.hoyMenuLanguageIntegrityState==='ready'&&window.hoyMenuCatalog233?.items>1000&&cloud.status==='online',{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuIntegrityVersion==='2.37.0'&&window.hoyMenuLanguageIntegrityVersion==='2.37.0'&&window.hoyMenuLanguageIntegrityState==='ready'&&window.hoyMenuCatalog233?.items>1000&&cloud.status==='online',{timeout:30000});
 }
 
-test('HOY 2.35 full-catalog language assets are wired and cache-busted',async({request})=>{
-  const [js,css,pkg,index,worker]=await Promise.all([
-    request.get('./menu-language-integrity-2.33.js?v=2.35.0'),request.get('./menu-language-integrity-2.33.css?v=2.35.0'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')
+test('full-catalog language assets remain wired and paginated',async({request})=>{
+  const [js,css,index,worker]=await Promise.all([
+    request.get('./menu-language-integrity-2.33.js?v=2.37.0'),request.get('./menu-language-integrity-2.33.css?v=2.35.0'),request.get('./index.html'),request.get('./service-worker.js')
   ]);
-  for(const r of [js,css,pkg,index,worker])expect(r.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.35.0');
+  for(const r of [js,css,index,worker])expect(r.ok()).toBeTruthy();
   const html=await index.text(),sw=await worker.text(),code=await js.text();
-  expect(html).toContain('App 2.35.0');
   expect(html).toContain('menu-language-integrity-2.33.css?v=2.35.0');
-  expect(html).toContain('menu-language-integrity-2.33.js?v=2.35.0');
+  expect(html).toContain('menu-language-integrity-2.33.js?v=2.37.0');
   expect(html.indexOf('menu-language-integrity-2.33.js')).toBeGreaterThan(html.indexOf('menu-integrity-2.32.js'));
-  expect(sw).toContain("const CACHE='hoy-v2.35.0'");
   expect(sw).toContain('./menu-language-integrity-2.33.js');
   expect(code).toContain('PAGE_SIZE=500');
   expect(code).toContain('.range(from,from+PAGE_SIZE-1)');

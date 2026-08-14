@@ -1,4 +1,5 @@
 const {test,expect}=require('@playwright/test');
+const {CURRENT_RELEASE}=require('./helpers/current-release');
 
 test('Control 2.30 wires the core-region workbench after editorial review',async({request})=>{
   const [admin,js,css]=await Promise.all([
@@ -8,7 +9,7 @@ test('Control 2.30 wires the core-region workbench after editorial review',async
   ]);
   for(const r of [admin,js,css])expect(r.ok()).toBeTruthy();
   const html=await admin.text(),code=await js.text(),style=await css.text();
-  expect(html).toContain('HOY Control Center · 2.30.0');
+  expect(html).toContain(`HOY Control Center · ${CURRENT_RELEASE}`);
   expect(html).toContain('admin-menu-editorial-2.29.js?v=2.29.1');
   expect(html).toContain('admin-menu-workbench-2.30.js?v=2.30.0');
   expect(html.indexOf('admin-menu-workbench-2.30.js')).toBeGreaterThan(html.indexOf('admin-menu-editorial-2.29.js'));

@@ -8,8 +8,57 @@ const cors={
   "Content-Type":"application/json"
 };
 const allowedTypes=new Map([["image/jpeg","jpg"],["image/png","png"],["image/webp","webp"]]);
+const MAX_IMAGE_BYTES=10*1024*1024;
+const MAX_REDIRECTS=4;
+const FETCH_TIMEOUT_MS=18000;
 function json(body:unknown,status=200){return new Response(JSON.stringify(body),{status,headers:cors})}
 function extFromPath(path:string){const m=path.toLowerCase().match(/\.(jpe?g|png|webp)$/);return m?(m[1]==="jpeg"?"jpg":m[1]):"jpg"}
+function private4(h:string){
+  const m=h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);if(!m)return false;
+  const p=m.slice(1).map(Number);if(p.some(x=>x<0||x>255))return true;
+  const[a,b,c]=p;
+  return a===0||a===10||a===127||a>=224||
+    (a===100&&b>=64&&b<=127)||(a===169&&b===254)||(a===172&&b>=16&&b<=31)||
+    (a===192&&b===0&&(c===0||c===2))||(a===192&&b===168)||(a===198&&(b===18||b===19))||
+    (a===198&&b===51&&c===100)||(a===203&&b===0&&c===113);
+}
+function private6(h:string){
+  h=h.toLowerCase().replace(/^\[|\]$/g,"");
+  return h==="::"||h==="::1"||h.startsWith("::ffff:")||h.startsWith("fc")||h.startsWith("fd")||
+    /^fe[89ab]/.test(h)||h.startsWith("ff")||h.startsWith("2001:db8:");
+}
+async function publicHttps(raw:string){
+  let u:URL;try{u=new URL(raw)}catch{throw new Error("invalid_asset_url")}
+  if(u.protocol!=="https:")throw new Error("https_required");
+  const h=u.hostname.toLowerCase();
+  if(!h||h==="localhost"||h.endsWith(".local")||h.endsWith(".internal")||private4(h)||private6(h))throw new Error("private_target");
+  const resolved=await Promise.allSettled([Deno.resolveDns(h,"A"),Deno.resolveDns(h,"AAAA")]);
+  const ips=resolved.flatMap(x=>x.status==="fulfilled"?x.value:[]);
+  if(!ips.length)throw new Error("dns_unresolved");
+  if(ips.some(ip=>private4(ip)||private6(ip)))throw new Error("private_dns_target");
+  return u;
+}
+async function fetchPublicImage(raw:string){
+  let u=await publicHttps(raw);
+  for(let redirect=0;redirect<=MAX_REDIRECTS;redirect++){
+    const response=await fetch(u,{redirect:"manual",headers:{"User-Agent":"HOY-Media-Ingest/1.1","Accept":"image/jpeg,image/png,image/webp"},signal:AbortSignal.timeout(FETCH_TIMEOUT_MS)});
+    if([301,302,303,307,308].includes(response.status)){
+      const location=response.headers.get("location");await response.body?.cancel().catch(()=>{});
+      if(!location)throw new Error("redirect_without_location");
+      if(redirect===MAX_REDIRECTS)throw new Error("too_many_redirects");
+      u=await publicHttps(new URL(location,u).href);continue;
+    }
+    if(!response.ok){await response.body?.cancel().catch(()=>{});throw new Error(`source_http_${response.status}`)}
+    const declared=Number(response.headers.get("content-length")||0);
+    if(declared>MAX_IMAGE_BYTES){await response.body?.cancel().catch(()=>{});throw new Error("invalid_image_size")}
+    const contentType=(response.headers.get("content-type")||"").split(";")[0].trim().toLowerCase();const ext=allowedTypes.get(contentType);
+    if(!ext){await response.body?.cancel().catch(()=>{});throw new Error("unsupported_image_type")}
+    const bytes=new Uint8Array(await response.arrayBuffer());
+    if(!bytes.length||bytes.length>MAX_IMAGE_BYTES)throw new Error("invalid_image_size");
+    return {bytes,contentType,ext,url:u.href};
+  }
+  throw new Error("too_many_redirects");
+}
 
 Deno.serve(async(req)=>{
   if(req.method==="OPTIONS")return new Response("ok",{headers:cors});
@@ -85,7 +134,7 @@ Deno.serve(async(req)=>{
         if(downloadError||!blob){skipped.push({candidate_id:cid,reason:`replacement_download_failed:${downloadError?.message||"missing"}`});continue}
         const contentType=(blob.type||"image/jpeg").split(";")[0].toLowerCase();const ext=allowedTypes.get(contentType)||extFromPath(replacement.storage_path);
         const bytes=new Uint8Array(await blob.arrayBuffer());
-        if(!bytes.length||bytes.length>10*1024*1024){skipped.push({candidate_id:cid,reason:"invalid_replacement_size"});continue}
+        if(!bytes.length||bytes.length>MAX_IMAGE_BYTES){skipped.push({candidate_id:cid,reason:"invalid_replacement_size"});continue}
         try{
           const item=await publishBytes(candidate,bytes,contentType,ext,"operator_upload_confirmed",null,"-replacement");published.push(item);
           await service.from("media_assets").update({status:"archived"}).eq("id",replacement.id);
@@ -101,16 +150,10 @@ Deno.serve(async(req)=>{
       if(candidate.operator_decision!=="approved"){skipped.push({candidate_id:cid,reason:"not_approved"});continue}
       if(!candidate.asset_url){skipped.push({candidate_id:cid,reason:"source_approved_asset_selection_pending"});continue}
 
-      let asset:URL;try{asset=new URL(candidate.asset_url)}catch{skipped.push({candidate_id:cid,reason:"invalid_asset_url"});continue}
-      if(asset.protocol!=="https:"){skipped.push({candidate_id:cid,reason:"https_required"});continue}
-      const sourceResponse=await fetch(asset.toString(),{redirect:"follow",headers:{"User-Agent":"HOY-Media-Ingest/1.0"}});
-      if(!sourceResponse.ok){skipped.push({candidate_id:cid,reason:`source_http_${sourceResponse.status}`});continue}
-      const contentType=(sourceResponse.headers.get("content-type")||"").split(";")[0].trim().toLowerCase();const ext=allowedTypes.get(contentType);
-      if(!ext){skipped.push({candidate_id:cid,reason:"unsupported_image_type"});continue}
-      const bytes=new Uint8Array(await sourceResponse.arrayBuffer());
-      if(!bytes.length||bytes.length>10*1024*1024){skipped.push({candidate_id:cid,reason:"invalid_image_size"});continue}
-      try{published.push(await publishBytes(candidate,bytes,contentType,ext,"operator_approved_official_source",candidate.source_page_url||null))}
-      catch(error){skipped.push({candidate_id:cid,reason:error instanceof Error?error.message:String(error)})}
+      try{
+        const fetched=await fetchPublicImage(String(candidate.asset_url));
+        published.push(await publishBytes(candidate,fetched.bytes,fetched.contentType,fetched.ext,"operator_approved_official_source",candidate.source_page_url||fetched.url));
+      }catch(error){skipped.push({candidate_id:cid,reason:error instanceof Error?error.message:String(error)})}
     }
 
     return json({ok:true,review,published,skipped});

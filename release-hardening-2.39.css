@@ -1,0 +1,18 @@
+/* HOY 2.39.0 — release hardening for desktop profile actions */
+@media(min-width:700px){
+  /* The persistent CTA is a mobile interaction pattern. On wider viewports it becomes
+     an in-flow footer so it can never cover the sticky profile navigation. */
+  #detail.profile-premium .detail-body{padding-bottom:40px}
+  #detail.profile-premium .detail-primary-bar{
+    position:relative;
+    left:auto;
+    right:auto;
+    bottom:auto;
+    transform:none;
+    width:100%;
+    z-index:auto;
+    margin:0;
+    background:rgba(248,243,233,.995);
+    border-top:1px solid rgba(16,40,61,.10);
+  }
+}

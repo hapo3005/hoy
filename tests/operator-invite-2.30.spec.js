@@ -1,31 +1,32 @@
 const fs=require('node:fs');
 const {test,expect}=require('@playwright/test');
+const {CURRENT_RELEASE}=require('./helpers/current-release');
 
 test.use({serviceWorkers:'block'});
 const read=file=>fs.readFileSync(file,'utf8');
 
-test('HOY 2.30 invite assets remain wired in the 2.32 release',async({request})=>{
+test('HOY 2.30 invite assets remain wired in the current release',async({request})=>{
   const [js,css,pkg,index,worker]=await Promise.all([
     request.get('./operator-invite-2.30.js'),request.get('./operator-invite-2.30.css'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')
   ]);
   for(const r of [js,css,pkg,index,worker])expect(r.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.32.0');
+  expect((await pkg.json()).version).toBe(CURRENT_RELEASE);
   const html=await index.text(),sw=await worker.text();
-  expect(html).toContain('App 2.32.0');
+  expect(html).toContain(`App ${CURRENT_RELEASE}`);
   expect(html).toContain('operator-invite-2.30.css?v=2.30.0');
   expect(html).toContain('operator-invite-2.30.js?v=2.30.0');
-  expect(sw).toContain("const CACHE='hoy-v2.32.0'");
+  expect(sw).toContain(`const CACHE='hoy-v${CURRENT_RELEASE}'`);
   expect(sw).toContain('./operator-invite-2.30.js');
   expect(sw).toContain('./operator-invite-2.30.css');
 });
 
 test('restaurant invite deep link opens the existing three-step claim with the correct venue preselected',async({page})=>{
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0);
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0,null,{timeout:30000});
   const id=await page.evaluate(()=>Number(DATA[0].id));
   const name=await page.evaluate(()=>String(DATA[0].name));
   await page.goto(`./?claim=${id}&from=operator_invite`,{waitUntil:'domcontentloaded'});
-  await expect(page.locator('#claimFlow')).toHaveAttribute('open','',{timeout:5000});
+  await expect(page.locator('#claimFlow')).toHaveAttribute('open','',{timeout:15000});
   await expect(page.locator('#claimFlow')).toContainText('1/3');
   await expect(page.locator('#claimFlow')).toContainText(`${name} ist bereits vorbereitet.`);
   expect(await page.evaluate(()=>Number(claimDraft.restaurantId))).toBe(id);
@@ -43,7 +44,7 @@ test('invite URL is selection only and contains no authorization material',()=>{
 test('admin can copy or preview an invite but cannot send or unlock outreach',()=>{
   const js=read('admin-invite-2.22.js');
   const html=read('admin.html');
-  expect(html).toContain('HOY Control Center · 2.23.0');
+  expect(html).toContain(`HOY Control Center · ${CURRENT_RELEASE}`);
   expect(html).toContain('admin-invite-2.22.js?v=2.22.0');
   expect(js).toContain('data-invite-copy');
   expect(js).toContain('data-invite-preview');

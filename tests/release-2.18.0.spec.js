@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { CURRENT_RELEASE } = require('./helpers/current-release');
 
 test.use({ serviceWorkers: 'block' });
 
@@ -159,7 +160,7 @@ test('2.18.5 pricing, insights and lifecycle assets remain real deployed resourc
   const pkg = await request.get('./package.json');
   expect(pkg.ok()).toBeTruthy();
   const { version } = await pkg.json();
-  expect(version).toMatch(/^2\.\d+\.\d+$/);
+  expect(version).toBe(CURRENT_RELEASE);
   for (const asset of ['./promotion-insights-2.18.js','./promotion-insights-2.18.css','./profile-open-stability-2.18.1.js','./profile-premium-2.12.js','./menu-signature-2.13.js','./admin-promotion-2.18.js','./admin-promotion-2.18.css']) {
     const res = await request.get(asset);
     expect(res.ok(), `${asset} should load`).toBeTruthy();
@@ -174,7 +175,7 @@ test('2.18.5 pricing, insights and lifecycle assets remain real deployed resourc
   expect(appText).toContain('menu-signature-2.13.js?v=2.20.1');
   expect(appText).toContain('profile-flow-2.7.js?v=2.20.1');
   const adminText = await (await request.get('./admin.html')).text();
-  expect(adminText).toContain('HOY Control Center · 2.20.0');
+  expect(adminText).toContain(`HOY Control Center · ${CURRENT_RELEASE}`);
   expect(adminText).toContain('admin-promotion-2.18.js?v=2.18.5');
   expect(adminText).not.toContain('admin-promotion-2.17.js');
 });
