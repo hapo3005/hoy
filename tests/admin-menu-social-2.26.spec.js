@@ -2,14 +2,14 @@ const fs=require('node:fs');
 const {test,expect}=require('@playwright/test');
 const {CURRENT_RELEASE}=require('./helpers/current-release');
 
-test('HOY Control 2.26 wires menu discovery after source truth',async({request})=>{
-  const [html,js,css]=await Promise.all([request.get('./admin.html'),request.get('./admin-menu-social-2.26.js'),request.get('./admin-menu-social-2.26.css')]);
-  for(const r of [html,js,css])expect(r.ok()).toBeTruthy();
+test('HOY Control menu discovery remains wired after source truth in the current release',async({request})=>{
+  const [html,legacyJs,css,currentJs]=await Promise.all([request.get('./admin.html'),request.get('./admin-menu-social-2.26.js'),request.get('./admin-menu-social-2.26.css'),request.get('./admin-menu-social-2.27.js')]);
+  for(const r of [html,legacyJs,css,currentJs])expect(r.ok()).toBeTruthy();
   const page=await html.text();
   expect(page).toContain(`HOY Control Center · ${CURRENT_RELEASE}`);
   expect(page).toContain('admin-menu-social-2.26.css?v=2.26.0');
-  expect(page).toContain('admin-menu-social-2.26.js?v=2.26.0');
-  expect(page.indexOf('admin-menu-social-2.26.js')).toBeGreaterThan(page.indexOf('admin-menu-source-truth-2.25.js'));
+  expect(page).toContain('admin-menu-social-2.27.js?v=2.27.0');
+  expect(page.indexOf('admin-menu-social-2.27.js')).toBeGreaterThan(page.indexOf('admin-menu-source-truth-2.25.js'));
 });
 
 test('all published venues are forced into one deterministic discovery stage',()=>{
