@@ -19,11 +19,12 @@ async function mockLiveSignals(page){
     const running={id:'live-running',restaurant_id:ids[0],title:'Live Musik',starts_at:new Date(Date.now()-15*60000).toISOString(),ends_at:new Date(Date.now()+75*60000).toISOString()};
     const soon={id:'live-soon',restaurant_id:ids[1],title:'Sunset Session',starts_at:new Date(Date.now()+45*60000).toISOString(),ends_at:new Date(Date.now()+150*60000).toISOString()};
     window.hoyBestCurrentFor=p=>Number(p?.id)===ids[0]?running:Number(p?.id)===ids[1]?soon:null;
+    window.hoyCurrentContentFor=p=>Number(p?.id)===ids[0]?[running]:Number(p?.id)===ids[1]?[soon]:[];
     state.view='home';state.query='';state.service='all';state.moment='all';render();
   });
 }
 
-test('2.39 live decision assets are wired and visible',async({page,request})=>{
+test('2.39 live decision assets are wired with production-safe guest copy',async({page,request})=>{
   const [js,css,index]=await Promise.all([
     request.get('./live-decision-2.39.js'),request.get('./live-decision-2.39.css'),request.get('./index.html')
   ]);
@@ -33,9 +34,12 @@ test('2.39 live decision assets are wired and visible',async({page,request})=>{
   expect(indexText).toContain('live-decision-2.39.js?v=2.39.0');
   await page.goto('./',{waitUntil:'domcontentloaded'});await waitForData(page);await mockLiveSignals(page);
   expect(await page.evaluate(()=>window.hoyLiveDecisionVersion)).toBe('2.39.0');
-  await expect(page.locator('[data-live239-root]')).toBeVisible();
-  await expect(page.locator('[data-live239-root]')).toContainText('NÄCHSTE 2 STUNDEN');
-  await expect(page.locator('[data-live239-root]')).toContainText('MEIN HOY PLAN');
+  const root=page.locator('[data-live239-root]');
+  await expect(root).toBeVisible();
+  await expect(root).toContainText('NÄCHSTE 2 STUNDEN');
+  await expect(root).toContainText('MEIN HOY PLAN');
+  await expect(root).toContainText('HOY LIVE');
+  await expect(root).not.toContainText(/Benidorm|HOY LIVE · 2\.39/i);
 });
 
 test('next-two-hours timeline prefers running then imminent content',async({page})=>{
@@ -47,6 +51,22 @@ test('next-two-hours timeline prefers running then imminent content',async({page
   await expect(rows.nth(0)).toContainText('Live Musik');
   await expect(rows.nth(0)).toContainText('JETZT');
   await expect(rows.nth(1)).toContainText('Sunset Session');
+});
+
+test('next-two-hours timeline keeps multiple imminent events from the same venue',async({page})=>{
+  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForData(page);
+  await page.evaluate(()=>{
+    const id=Number(DATA[0].id);
+    const first={id:'same-venue-1',restaurant_id:id,title:'DJ Warm-up',starts_at:new Date(Date.now()+20*60000).toISOString(),ends_at:new Date(Date.now()+70*60000).toISOString()};
+    const second={id:'same-venue-2',restaurant_id:id,title:'Sunset Set',starts_at:new Date(Date.now()+80*60000).toISOString(),ends_at:new Date(Date.now()+140*60000).toISOString()};
+    window.hoyCurrentContentFor=p=>Number(p?.id)===id?[first,second]:[];
+    window.hoyBestCurrentFor=p=>Number(p?.id)===id?first:null;
+    window.hoyNowStatus219For=()=>({state:'open',label:'Jetzt geöffnet',operatorConfirmed:true,proof:'Vom Betrieb gepflegt'});
+    state.view='home';render();
+  });
+  const timeline=page.locator('.live239-timeline');
+  await expect(timeline).toContainText('DJ Warm-up');
+  await expect(timeline).toContainText('Sunset Set');
 });
 
 test('nearby requests geolocation only after explicit user action',async({page})=>{
