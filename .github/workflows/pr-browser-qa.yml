@@ -33,9 +33,13 @@ jobs:
           test -s live-decision-2.39.css
           grep -q 'live-decision-2.39.js?v=2.39.0' index.html
           grep -q 'live-decision-2.39.css?v=2.39.0' index.html
+          grep -q 'HOY Control Center · 2.39.0' admin.html
+          grep -q '@supabase/supabase-js@2.111.0/dist/umd/supabase.js' index.html
+          grep -q '@supabase/supabase-js@2.111.0/dist/umd/supabase.js' admin.html
           grep -q "hoy-v2.39.0" service-worker.js
           grep -q "'./live-decision-2.39.js'" service-worker.js
           grep -q "'./live-decision-2.39.css'" service-worker.js
+          grep -q '@supabase/supabase-js@2.111.0/dist/umd/supabase.js' service-worker.js
       - name: Check duplicate core cache entries
         run: |
           node - <<'NODE'
