@@ -43,6 +43,7 @@ jobs:
           tests/live-decision-2.39.spec.js
           tests/release-hardening-2.39.spec.js
           tests/service-worker-security-2.39.spec.js
+          tests/venue-media-ssrf-2.39.spec.js
           --project=mobile-chrome
           --workers=4
           --retries=0
