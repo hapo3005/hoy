@@ -15,7 +15,7 @@ concurrency:
 jobs:
   final-release:
     runs-on: ubuntu-latest
-    timeout-minutes: 100
+    timeout-minutes: 130
     env:
       PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:4173/
       CI: 'true'
