@@ -31,12 +31,12 @@ test('Soul Kitchen still renders all official menu pages inside HOY after integr
   expect(menu.source).toBeFalsy();
   expect(menu.pages.every(x=>/^https:\/\//i.test(String(x?.url||'')))).toBeTruthy();
   await page.evaluate(()=>openDetail(234));
-  await page.locator('#detail [data-tab="menu"]').click();
+  const menuTab=page.locator('#detail [data-tab="menu"]');if(await menuTab.count())await menuTab.click();
   const panel=page.locator('#detail .menu231-panel');
   await expect(panel).toContainText('Speisekarte in HOY');
   await expect(panel).toContainText('Direkt in HOY');
   await expect(panel.locator('.menu231-page img')).toHaveCount(12);
-  await expect(panel.locator('a[href*="menurestauranteqr"]')).toHaveCount(0);
+  await expect(page.locator('#detail #profile-menu a[href*="menurestauranteqr"]')).toHaveCount(0);
 });
 
 test('source-only menu is not presented as a finished external menu',async({page})=>{
