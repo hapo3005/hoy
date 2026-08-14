@@ -39,7 +39,7 @@ test('HOY 2.23 guest simplicity remains intact in later releases while the deep 
   page.on('pageerror', error => pageErrors.push(error.message));
   await page.goto('./', { waitUntil: 'domcontentloaded' });
   expect(await page.evaluate(() => window.hoySimplicityVersion)).toBe('2.23.0');
-  await expect(page.locator('.journey-hero .hero-copy')).toContainText('aktuellen Öffnungszeiten und Speisekarten');
+  await expect(page.locator('.journey-hero .hero-copy')).toContainText(/was offen ist.*was heute passiert.*wirklich machen kannst/i);
   await expect(page.locator('.journey-trust-strip')).toContainText('Direkt zum Betrieb');
   await expect(page.locator('.journey-trust-strip')).not.toContainText('Datenstatus');
   await expect(page.locator('[data-home-search-go]')).toHaveText('Suchen');
