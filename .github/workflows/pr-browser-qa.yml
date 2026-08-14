@@ -48,7 +48,7 @@ jobs:
   browser-e2e:
     needs: static-integrity
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 50
     strategy:
       fail-fast: false
       matrix:
@@ -57,7 +57,7 @@ jobs:
             browser: chromium
           - project: mobile-webkit
             browser: webkit
-          - project: desktop-chrome
+          - project: desktop-chromium
             browser: chromium
     env:
       PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:4173/
@@ -83,7 +83,7 @@ jobs:
           cat /tmp/hoy-http.log
           exit 1
       - name: Run complete Playwright project
-        run: npx playwright test --project="${{ matrix.project }}" --workers=3
+        run: npx playwright test --project="${{ matrix.project }}" --workers=1
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v5
