@@ -37,6 +37,16 @@
   }
   function simpleHoursState(p){
     const now=window.hoyNowStatus219For?.(p)||null;
+    const baseStatus=String(p?.hours_status||'missing');
+    const unsafeBase=new Set(['conflict','conditional','needs_review','missing']).has(baseStatus);
+    const operatorBacked=Boolean(
+      p?.operator_hours||
+      p?.operator_special_hours||
+      (now?.source&&now.source!=='base')
+    );
+    if(unsafeBase&&!operatorBacked){
+      return {safe:false,tone:'uncertain',title:'Öffnungszeiten aktuell nicht sicher',meta:'Bitte vor dem Besuch direkt beim Betrieb prüfen.',now:null};
+    }
     if(now){
       if(now.state==='open'){
         const until=nowTime(now.label,'open');
