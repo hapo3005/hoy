@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { CURRENT_RELEASE } = require('./helpers/current-release');
 
 test.use({ serviceWorkers: 'block' });
 
@@ -15,7 +16,7 @@ test('HOY Control 2.20 loads the internal decision coverage extension without ex
   expect(css.headers()['content-type'] || '').not.toMatch(/text\/html/i);
 
   const adminText = await admin.text();
-  expect(adminText).toContain('HOY Control Center · 2.20.0');
+  expect(adminText).toContain(`HOY Control Center · ${CURRENT_RELEASE}`);
   expect(adminText).toContain('admin-coverage-2.20.css?v=2.20.0');
   expect(adminText).toContain('admin-coverage-2.20.js?v=2.20.0');
   expect(adminText).toContain('noindex,nofollow,noarchive');
