@@ -1,12 +1,13 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { test, expect } = require('@playwright/test');
+const { CURRENT_RELEASE, gotoReady } = require('./helpers/current-release');
 
 const SCREEN_DIR = path.join(process.cwd(), 'qa-screenshots');
 fs.mkdirSync(SCREEN_DIR, { recursive: true });
 test.use({ serviceWorkers:'block' });
 
-test('HOY 2.27 deploys and caches the three-step onboarding layer', async ({ page, request }) => {
+test('HOY 2.27 onboarding layer remains deployed and cached in the current release', async ({ page, request }) => {
   const [js, css, pkg, index, worker] = await Promise.all([
     request.get('./operator-onboarding-2.27.js'),
     request.get('./operator-onboarding-2.27.css'),
@@ -15,20 +16,20 @@ test('HOY 2.27 deploys and caches the three-step onboarding layer', async ({ pag
     request.get('./service-worker.js')
   ]);
   for(const res of [js,css,pkg,index,worker])expect(res.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.27.0');
+  expect((await pkg.json()).version).toBe(CURRENT_RELEASE);
   const indexText=await index.text();const workerText=await worker.text();
-  expect(indexText).toContain('App 2.27.0');
+  expect(indexText).toContain(`App ${CURRENT_RELEASE}`);
   expect(indexText).toContain('operator-onboarding-2.27.css?v=2.27.0');
   expect(indexText).toContain('operator-onboarding-2.27.js?v=2.27.0');
-  expect(workerText).toContain("const CACHE='hoy-v2.27.0'");
+  expect(workerText).toContain(`const CACHE='hoy-v${CURRENT_RELEASE}'`);
   expect(workerText).toContain('./operator-onboarding-2.27.css');
   expect(workerText).toContain('./operator-onboarding-2.27.js');
-  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await gotoReady(page);
   expect(await page.evaluate(()=>window.hoyOperatorOnboardingVersion)).toBe('2.27.0');
 });
 
 test('restaurant claim is three focused phases with enrichment and pricing removed', async ({ page }) => {
-  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await gotoReady(page);
   await page.evaluate(()=>openClaimFlow(DATA[0].id,1));
   const flow=page.locator('#claimFlow');
   await expect(flow).toHaveClass(/operator-onboarding-dialog/);
@@ -59,7 +60,7 @@ test('restaurant claim is three focused phases with enrichment and pricing remov
 });
 
 test('legacy six-step drafts migrate safely to the new review step', async ({ page }) => {
-  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await gotoReady(page);
   await page.evaluate(()=>{
     openClaimFlow(DATA[0].id,1);
     claimDraft.contact={name:'Altbestand',email:'alt@example.com',role:'Inhaber/in'};
@@ -74,7 +75,7 @@ test('legacy six-step drafts migrate safely to the new review step', async ({ pa
 });
 
 test('pending verification becomes a calm read-only success state', async ({ page }) => {
-  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await gotoReady(page);
   await page.evaluate(()=>{
     openClaimFlow(DATA[0].id,1);
     const d=document.getElementById('claimFlow');d.close();
@@ -94,7 +95,7 @@ test('pending verification becomes a calm read-only success state', async ({ pag
 
 test('onboarding remains horizontally safe at 390px', async ({ page }, testInfo) => {
   await page.setViewportSize({width:390,height:844});
-  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await gotoReady(page);
   await page.evaluate(()=>openClaimFlow(DATA[0].id,1));
   const metrics=await page.evaluate(()=>({client:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,dialog:document.getElementById('claimFlow').scrollWidth}));
   expect(metrics.scroll).toBeLessThanOrEqual(metrics.client+1);
