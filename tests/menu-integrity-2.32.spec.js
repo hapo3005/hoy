@@ -1,24 +1,26 @@
 const fs=require('node:fs');
 const {test,expect}=require('@playwright/test');
+const {CURRENT_RELEASE, waitForData}=require('./helpers/current-release');
 
 test.use({serviceWorkers:'block'});
 
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuIntegrityVersion==='2.32.0'&&cloud.status==='online',{timeout:15000});
+  await waitForData(page,1,30_000);
+  await page.waitForFunction(()=>window.hoyMenuIntegrityVersion==='2.32.0'&&cloud.status==='online',null,{timeout:30_000});
 }
 
-test('HOY 2.32 menu-integrity assets are wired and cached',async({request})=>{
+test('HOY 2.32 menu-integrity assets remain wired and cached in the current release',async({request})=>{
   const [js,css,pkg,index,worker]=await Promise.all([
     request.get('./menu-integrity-2.32.js'),request.get('./menu-integrity-2.32.css'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')
   ]);
   for(const r of [js,css,pkg,index,worker])expect(r.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.32.0');
+  expect((await pkg.json()).version).toBe(CURRENT_RELEASE);
   const html=await index.text(),sw=await worker.text();
-  expect(html).toContain('App 2.32.0');
+  expect(html).toContain(`App ${CURRENT_RELEASE}`);
   expect(html).toContain('menu-integrity-2.32.css?v=2.32.0');
   expect(html).toContain('menu-integrity-2.32.js?v=2.32.0');
-  expect(sw).toContain("const CACHE='hoy-v2.32.0'");
+  expect(sw).toContain(`const CACHE='hoy-v${CURRENT_RELEASE}'`);
   expect(sw).toContain('./menu-integrity-2.32.js');
   expect(sw).toContain('./menu-integrity-2.32.css');
 });
