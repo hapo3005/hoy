@@ -129,8 +129,8 @@ test('La Taberna del Puerto renders its reviewed A3 menu inside HOY, never a raw
   await assertImageMenu(page,request,111,1,'/hoy/menu-pages/111/2d419a28324c/');
 });
 
-test('Bonobo Playa renders all three official operator menu images inside HOY',async({page,request})=>{
-  await assertImageMenu(page,request,4,3,'bonoboplaya.com/wp-content/uploads/2026/');
+test('Bonobo Playa renders all three reviewed official pages from the HOY mirror',async({page,request})=>{
+  await assertImageMenu(page,request,4,3,'hapo3005.github.io/hoy/menu-pages/4/f9653f87c69d/');
 });
 
 test('menu integrity failure is fail-closed in the shipped client',async({request})=>{
