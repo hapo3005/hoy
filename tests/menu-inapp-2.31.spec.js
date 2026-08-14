@@ -29,7 +29,7 @@ test('Soul Kitchen still renders all official menu pages inside HOY after integr
   expect(menu.displayMode).toBe('image_pages');
   expect(menu.pages).toHaveLength(12);
   expect(menu.source).toBeFalsy();
-  expect(menu.provenanceUrls.some(x=>x.includes('menurestauranteqr.es/soulkitchen'))).toBeTruthy();
+  expect(menu.pages.every(x=>/^https:\/\//i.test(String(x?.url||'')))).toBeTruthy();
   await page.evaluate(()=>openDetail(234));
   await page.locator('#detail [data-tab="menu"]').click();
   const panel=page.locator('#detail .menu231-panel');
