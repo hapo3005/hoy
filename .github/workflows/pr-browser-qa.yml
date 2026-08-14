@@ -46,8 +46,19 @@ jobs:
           NODE
 
   browser-e2e:
+    needs: static-integrity
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: mobile-chrome
+            browser: chromium
+          - project: mobile-webkit
+            browser: webkit
+          - project: desktop-chrome
+            browser: chromium
     env:
       PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:4173/
       CI: 'true'
@@ -58,8 +69,8 @@ jobs:
           node-version: 22
       - name: Install QA dependency
         run: npm install --no-audit --no-fund
-      - name: Install browsers
-        run: npx playwright install --with-deps chromium webkit
+      - name: Install browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Start local branch server
         shell: bash
         run: |
@@ -71,13 +82,13 @@ jobs:
           done
           cat /tmp/hoy-http.log
           exit 1
-      - name: Run complete Playwright suite
-        run: npm run qa:e2e
+      - name: Run complete Playwright project
+        run: npx playwright test --project="${{ matrix.project }}" --workers=3
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v5
         with:
-          name: hoy-pr-playwright-report-${{ github.run_id }}
+          name: hoy-pr-playwright-${{ matrix.project }}-${{ github.run_id }}
           path: playwright-report/
           retention-days: 14
           if-no-files-found: warn
@@ -85,7 +96,7 @@ jobs:
         if: ${{ failure() }}
         uses: actions/upload-artifact@v5
         with:
-          name: hoy-pr-playwright-failures-${{ github.run_id }}
+          name: hoy-pr-failures-${{ matrix.project }}-${{ github.run_id }}
           path: test-results/
           retention-days: 14
           if-no-files-found: warn
