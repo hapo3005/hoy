@@ -39,7 +39,9 @@ jobs:
           npx playwright test
           tests/hoy.spec.js
           tests/release-2.28.0.spec.js
+          tests/menu-language-integrity-2.33.spec.js
           tests/live-decision-2.39.spec.js
+          tests/release-hardening-2.39.spec.js
           tests/service-worker-security-2.39.spec.js
           --project=mobile-chrome
           --workers=4
