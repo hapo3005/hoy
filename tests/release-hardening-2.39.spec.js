@@ -18,8 +18,22 @@ test('2.39 release metadata and pinned Supabase runtime stay aligned',async({req
   expect(html).toContain('App 2.39.0');
   expect(html).toContain(supabaseUrl);
   expect(html).not.toContain('@supabase/supabase-js@2/dist/umd/supabase.js');
+  expect(html).toContain('release-hardening-2.39.css?v=2.39.0');
+  expect(html).toContain('release-hardening-2.39.js?v=2.39.0');
   expect(sw).toContain("const CACHE='hoy-v2.39.0'");
   expect(sw).toContain(supabaseUrl);
+  expect(sw).toContain("'./release-hardening-2.39.css'");
+  expect(sw).toContain("'./release-hardening-2.39.js'");
+});
+
+test('2.39 reset hardening clears moment even on a control inserted after initial wiring',async({page})=>{
+  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await page.evaluate(()=>{
+    state.moment='now';state.query='test';state.service='reservation';state.decision='restaurant';
+    const button=document.createElement('button');button.type='button';button.setAttribute('data-consumer-reset','');button.textContent='Reset fixture';document.body.appendChild(button);
+  });
+  await page.locator('body > [data-consumer-reset]').click();
+  expect(await page.evaluate(()=>({moment:state.moment,query:state.query,service:state.service,decision:state.decision}))).toEqual({moment:'all',query:'',service:'all',decision:'all'});
 });
 
 test('full menu and language catalog still crosses the 1000-row boundary safely',async({page})=>{
