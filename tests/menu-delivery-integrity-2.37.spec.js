@@ -1,4 +1,5 @@
 const {test,expect}=require('@playwright/test');
+const {CURRENT_RELEASE}=require('./helpers/current-release');
 
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
@@ -14,6 +15,7 @@ async function ready(page){
     window.hoyMenuCatalog233?.reusedBootstrap===true&&
     Number(window.hoyMenuCatalog233?.items)>2000&&
     cloud.status==='online',
+    null,
     {timeout:40000}
   );
 }
@@ -95,7 +97,7 @@ test('reviewed image menus stay first-party in HOY and never regress to raw PDF 
   await assertImageMenu(page,request,4,3,'/hoy/menu-pages/4/f9653f87c69d/');
 });
 
-test('2.38 release shell ships the authority layer and cache-busted menu truth',async({request})=>{
+test('2.38 authority layer remains wired through the current release shell',async({request})=>{
   const [integrity,language,authority,authorityCss,index,worker,pkg]=await Promise.all([
     request.get('./menu-integrity-2.32.js?v=2.37.0'),
     request.get('./menu-language-integrity-2.33.js?v=2.37.0'),
@@ -107,12 +109,12 @@ test('2.38 release shell ships the authority layer and cache-busted menu truth',
   ]);
   for(const r of [integrity,language,authority,authorityCss,index,worker,pkg])expect(r.ok()).toBeTruthy();
   const integrityCode=await integrity.text(),languageCode=await language.text(),authorityCode=await authority.text(),html=await index.text(),sw=await worker.text();
-  expect((await pkg.json()).version).toBe('2.38.0');
-  expect(html).toContain('App 2.38.0');
+  expect((await pkg.json()).version).toBe(CURRENT_RELEASE);
+  expect(html).toContain(`App ${CURRENT_RELEASE}`);
   expect(html).toContain('menu-integrity-2.32.js?v=2.37.0');
   expect(html).toContain('menu-language-integrity-2.33.js?v=2.37.0');
   expect(html).toContain('menu-authority-2.38.js?v=2.38.0');
-  expect(sw).toContain("const CACHE='hoy-v2.38.0'");
+  expect(sw).toContain(`const CACHE='hoy-v${CURRENT_RELEASE}'`);
   expect(sw).toContain("'./menu-authority-2.38.js'");
   expect(sw).toContain("'./menu-authority-2.38.css'");
   expect(integrityCode).toContain('PAGE_SIZE232=500');
