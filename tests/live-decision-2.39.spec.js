@@ -135,8 +135,8 @@ test('live decision layer keeps provenance visible',async({page})=>{
   const cards=page.locator('.live239-recommend-list .live239-card');
   await expect(cards).toHaveCount(3);
   // Ranking may change as HOY improves, but the truth labels must survive in the visible set.
-  await expect(cards).toContainText('Vom Betrieb gepflegt');
-  await expect(cards).toContainText('Nicht live bestätigt');
+  await expect(cards.filter({hasText:'Vom Betrieb gepflegt'})).toHaveCount(2);
+  await expect(cards.filter({hasText:'Nicht live bestätigt'})).toHaveCount(1);
   await expect(cards.locator('.live239-signals small.confirmed')).toHaveCount(2);
   await expect(cards.locator('.live239-signals small.base')).toHaveCount(1);
 });
