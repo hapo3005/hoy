@@ -2,7 +2,7 @@ const { version: CURRENT_RELEASE } = require('../../package.json');
 
 async function waitForData(page, min = 1, timeout = 30_000) {
   await page.waitForFunction(
-    expected => Array.isArray(window.DATA) && window.DATA.length >= expected,
+    expected => typeof DATA !== 'undefined' && Array.isArray(DATA) && DATA.length >= expected,
     min,
     { timeout }
   );
