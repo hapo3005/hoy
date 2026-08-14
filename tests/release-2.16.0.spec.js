@@ -7,8 +7,7 @@ test.use({ serviceWorkers: 'block' });
 const SCREEN_DIR = path.join(process.cwd(), 'qa-screenshots');
 fs.mkdirSync(SCREEN_DIR, { recursive: true });
 
-function fixtureEvent({ running = false } = {}) {
-  const now = Date.now();
+function fixtureEvent({ running = false, now = Date.now() } = {}) {
   const start = new Date(now + (running ? -30 : 60) * 60_000).toISOString();
   const end = new Date(now + (running ? 90 : 180) * 60_000).toISOString();
   return {
@@ -99,7 +98,19 @@ test('one published event is reused across home, discover, map and profile witho
 });
 
 test('a scheduled event stays scheduled until its start time instead of being labelled as running', async ({ page }) => {
-  await mockPublishedEvents(page, [fixtureEvent({ running: false })]);
+  // Keep this integration test on the same Madrid calendar day. Near local midnight a
+  // real-clock "+60 min" fixture correctly becomes tomorrow and disappears from Today's UI.
+  const fixedNow = Date.parse('2026-08-14T18:00:00Z'); // 20:00 in Madrid in August
+  await page.addInitScript(now => {
+    const RealDate = Date;
+    class FixedDate extends RealDate {
+      constructor(...args) { super(...(args.length ? args : [now])); }
+      static now() { return now; }
+    }
+    Object.setPrototypeOf(FixedDate, RealDate);
+    window.Date = FixedDate;
+  }, fixedNow);
+  await mockPublishedEvents(page, [fixtureEvent({ running: false, now: fixedNow })]);
   await page.goto('./', { waitUntil: 'domcontentloaded' });
 
   const card = page.locator('.hoy-today-card').filter({ hasText: 'Sunset Session' });
