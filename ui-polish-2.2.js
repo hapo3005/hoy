@@ -70,17 +70,25 @@
     const reservable=effectiveServiceState(p,'reservation')==='available';
     const rawPhone=typeof effectiveValue==='function'?effectiveValue(p,'phone'):p.phone;
     const hasPhone=!!String(rawPhone||'').trim();
+    const lat=Number(p.latitude),lng=Number(p.longitude);
+    const hasMap=Number.isFinite(lat)&&lat>=-90&&lat<=90&&Number.isFinite(lng)&&lng>=-180&&lng<=180;
     const bar=document.createElement('div');
-    bar.className='detail-primary-bar';
+    bar.className=`detail-primary-bar${hasMap?' with-map':''}`;
     const phone=phoneHref(p);
     const primary=reservable
       ?`<button type="button" class="primary" data-ux22-reserve>${icons.calendar}<span>Reservieren</span></button>`
       :hasPhone?`<a class="primary" href="${esc(phone)}">${icons.phone}<span>Anrufen</span></a>`:'';
-    bar.innerHTML=`${primary}<a class="secondary" target="_blank" rel="noopener" href="${esc(routeHref(p))}">${icons.pin}<span>Route</span></a>`;
+    if(!primary)bar.classList.add('location-only');
+    const mapAction=hasMap?`<button type="button" class="secondary map-internal" data-profile-map="${Number(p.id)}">${icons.map||icons.pin}<span>Auf Karte</span></button>`:'';
+    bar.innerHTML=`${primary}${mapAction}<a class="secondary external-route" target="_blank" rel="noopener" href="${esc(routeHref(p))}">${icons.pin}<span>Route</span></a>`;
     d.appendChild(bar);
     bar.querySelector('[data-ux22-reserve]')?.addEventListener('click',()=>{
       d.close();
       openServiceFlow(p,'reservation');
+    });
+    bar.querySelector('[data-profile-map]')?.addEventListener('click',()=>{
+      const opened=window.hoyOpenVenueOnMap239?.(p.id);
+      if(opened===false&&typeof toast==='function')toast('Standort ist noch nicht kartierbar');
     });
     bar.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
       const href=a.getAttribute('href')||'';
