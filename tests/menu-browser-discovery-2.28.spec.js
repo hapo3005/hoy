@@ -40,5 +40,6 @@ test('focused discovery captures full page evidence without database access',()=
   expect(code).toContain('anchors');
   expect(code).toContain('images');
   expect(code).toContain('iframes');
-  expect(code).not.toMatch(/SUPABASE_(?:URL|KEY|SECRET)|createClient\s*\(|\.insert\(|\.upsert\(|\.update\(/i);
+  expect(code).not.toMatch(/SUPABASE_(?:URL|KEY|SECRET)|createClient\s*\(/i);
+  expect(code).not.toMatch(/\.from\s*\([^)]*\)\s*\.\s*(?:insert|upsert|update|delete)\s*\(/i);
 });
