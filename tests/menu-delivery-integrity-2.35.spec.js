@@ -5,7 +5,7 @@ async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>
     Array.isArray(DATA)&&DATA.length>0&&
-    window.hoyMenuLanguageIntegrityVersion==='2.35.0'&&
+    window.hoyMenuLanguageIntegrityVersion==='2.37.0'&&
     window.hoyMenuLanguageIntegrityState==='ready'&&
     window.hoyMenuCatalog233?.integrity==='ready'&&
     Number(window.hoyMenuCatalog233?.items)>1600&&
