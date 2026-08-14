@@ -8,11 +8,16 @@
   const PLAN_LIMIT=4;
   const TZ='Europe/Madrid';
   const live={position:null,geoState:'idle',geoError:''};
-  const esc239=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const esc239=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 
   function restaurantById(id){return (DATA||[]).find(x=>Number(x.id)===Number(id))||null}
   function nowStatus(p,now=new Date()){return window.hoyNowStatus219For?.(p,now)||null}
   function currentFor(p){return window.hoyBestCurrentFor?.(p)||null}
+  function currentRows(p){
+    const rows=window.hoyCurrentContentFor?.(p);
+    if(Array.isArray(rows))return rows;
+    const row=currentFor(p);return row?[row]:[];
+  }
   function ranked(rows,now=new Date()){return window.hoyDecision280Rank?.(rows,now)||[...(rows||[])]}
   function openRestaurant(id){if(typeof openDetail==='function')openDetail(Number(id))}
 
@@ -109,8 +114,10 @@
   function timelineRows(now=new Date()){
     const rows=[];
     for(const p of DATA||[]){
-      const row=currentFor(p),phase=phaseFor(row,now);if(!row||!phase||!['running','soon'].includes(phase.key))continue;
-      rows.push({p,row,phase,start:new Date(row.starts_at).getTime()||0});
+      for(const row of currentRows(p)){
+        const phase=phaseFor(row,now);if(!phase||!['running','soon'].includes(phase.key))continue;
+        rows.push({p,row,phase,start:new Date(row.starts_at).getTime()||0});
+      }
     }
     return rows.sort((a,b)=>a.phase.rank-b.phase.rank||a.start-b.start).slice(0,6);
   }
@@ -146,7 +153,7 @@
   function homeBlock(){
     const now=new Date(),plan=validPlan();const recommended=ranked((DATA||[]).filter(p=>['open','later'].includes(nowStatus(p,now)?.state)),now).slice(0,3);
     return `<section class="live239" data-live239-root>
-      <div class="live239-head"><div><span>HOY LIVE · 2.39</span><h2>Weniger suchen. Direkt entscheiden.</h2><p>Die besten Benidorm-Prinzipien als eigene HOY-Logik: nächste Stunden, echte Nähe und ein kleiner persönlicher Plan.</p></div><span class="live239-plan-count">${plan.length}/${PLAN_LIMIT} im Plan</span></div>
+      <div class="live239-head"><div><span>HOY LIVE</span><h2>Weniger suchen. Direkt entscheiden.</h2><p>Sieh, was gleich passiert, was wirklich nah ist und welche Orte du dir für heute merken möchtest.</p></div><span class="live239-plan-count">${plan.length}/${PLAN_LIMIT} im Plan</span></div>
       <div class="live239-grid">
         <section class="live239-panel"><div class="live239-panel-head"><div><small>NÄCHSTE 2 STUNDEN</small><h3>Was gleich passiert.</h3></div></div>${timelineMarkup(now)}</section>
         <section class="live239-panel"><div class="live239-panel-head"><div><small>NEARBY</small><h3>Was wirklich nah ist.</h3></div>${live.position?'<button type="button" data-live239-locate>Neu orten</button>':''}</div>${nearbyMarkup(now)}</section>
