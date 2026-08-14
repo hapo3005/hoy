@@ -89,6 +89,7 @@ test('hours can copy typical days and keep special days optional', async ({ page
   await page.getByRole('button',{name:'Mo–Fr wie Montag'}).click();
   expect(await page.locator('#liveHoursFlow [data-live-day="fri"] [data-open-1]').inputValue()).toBe('12:00');
   expect(await page.locator('#liveHoursFlow [data-live-day="fri"] [data-close-1]').inputValue()).toBe('23:00');
+  await page.locator('#liveHoursFlow .op-special-details summary').click();
   await page.getByRole('button',{name:'Heute geschlossen'}).click();
   await expect(page.locator('#liveHoursFlow .op-special-details')).toHaveAttribute('open','');
   expect(await page.locator('#liveHoursFlow [data-special-closed]').isChecked()).toBeTruthy();
