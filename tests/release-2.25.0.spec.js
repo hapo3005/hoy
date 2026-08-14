@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { test, expect } = require('@playwright/test');
+const { CURRENT_RELEASE } = require('./helpers/current-release');
 
 const SCREEN_DIR = path.join(process.cwd(), 'qa-screenshots');
 fs.mkdirSync(SCREEN_DIR, { recursive: true });
@@ -21,10 +22,17 @@ const legacyFixture = `
 </section>`;
 
 async function inject(page, html){
-  await page.evaluate(markup=>{document.body.insertAdjacentHTML('beforeend', markup);window.hoyEnhanceOperatorFlows?.()}, html);
+  await page.evaluate(markup=>{
+    const holder=document.createElement('div');
+    holder.innerHTML=markup;
+    const dialog=holder.querySelector('dialog');
+    if(dialog&&!dialog.hasAttribute('open'))dialog.setAttribute('open','');
+    while(holder.firstChild)document.body.appendChild(holder.firstChild);
+    window.hoyEnhanceOperatorFlows?.();
+  }, html);
 }
 
-test('HOY 2.25 deploys the fast operator flow layer and caches it', async ({ page, request }) => {
+test('HOY 2.25 operator flow layer remains deployed and cached', async ({ page, request }) => {
   const [js, css, pkg, index, worker] = await Promise.all([
     request.get('./operator-flow-simplicity-2.25.js'),
     request.get('./operator-flow-simplicity-2.25.css'),
@@ -33,12 +41,12 @@ test('HOY 2.25 deploys the fast operator flow layer and caches it', async ({ pag
     request.get('./service-worker.js')
   ]);
   for (const res of [js, css, pkg, index, worker]) expect(res.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.25.0');
+  expect((await pkg.json()).version).toBe(CURRENT_RELEASE);
   const indexText=await index.text();const workerText=await worker.text();
-  expect(indexText).toContain('App 2.25.0');
+  expect(indexText).toContain(`App ${CURRENT_RELEASE}`);
   expect(indexText).toContain('operator-flow-simplicity-2.25.js?v=2.25.0');
   expect(indexText).toContain('operator-flow-simplicity-2.25.css?v=2.25.0');
-  expect(workerText).toContain("const CACHE='hoy-v2.25.0'");
+  expect(workerText).toContain(`const CACHE='hoy-v${CURRENT_RELEASE}'`);
   expect(workerText).toContain('./operator-flow-simplicity-2.25.js');
   expect(workerText).toContain('./operator-flow-simplicity-2.25.css');
   await page.goto('./', { waitUntil:'domcontentloaded' });
