@@ -1,11 +1,12 @@
 const fs=require('node:fs');
 const {test,expect}=require('@playwright/test');
+const {CURRENT_RELEASE}=require('./helpers/current-release');
 
 const read=f=>fs.readFileSync(f,'utf8');
 
 test('HOY Control 2.23 menu-integrity assets are wired',()=>{
   const html=read('admin.html');
-  expect(html).toContain('HOY Control Center · 2.23.0');
+  expect(html).toContain(`HOY Control Center · ${CURRENT_RELEASE}`);
   expect(html).toContain('admin-menu-integrity-2.23.css?v=2.23.0');
   expect(html).toContain('admin-menu-integrity-2.23.js?v=2.23.0');
 });
