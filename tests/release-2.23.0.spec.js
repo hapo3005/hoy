@@ -47,7 +47,7 @@ test('HOY 2.23 guest simplicity remains intact in later releases while the deep 
 
   await page.locator('[data-btm="discover"]').click();
   await expect(page.locator('.journey-discover-signature')).toBeVisible();
-  await expect(page.locator('.journey-discover-head p')).toHaveText('Suche direkt oder wähle, worauf du gerade Lust hast.');
+  await expect(page.locator('.journey-discover-head p')).toContainText(/wirklich nutzbar.*weiter eingrenzen/i);
   const moreFilters = page.locator('[data-simple-filter-toggle]');
   const serviceFilters = page.locator('#hoySecondaryFilters');
   await expect(moreFilters).toBeVisible();
