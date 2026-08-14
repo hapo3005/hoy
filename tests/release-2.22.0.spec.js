@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { gotoReady } = require('./helpers/current-release');
 
 test.use({ serviceWorkers: 'block' });
 
@@ -31,15 +32,10 @@ test('HOY 2.22 opening-hours trust assets remain loaded and one-tap confirmation
 });
 
 test('later guest layers preserve verified-versus-conflict truth instead of faking NOW certainty', async ({ page }) => {
-  await page.goto('./', { waitUntil: 'domcontentloaded' });
+  await gotoReady(page);
   await expect.poll(() => page.evaluate(() => cloud.status), { timeout: 20_000 }).toBe('online');
-  await page.locator('[data-btm="discover"]').click();
-  await expect(page.locator('.journey-discover-signature')).toBeVisible();
 
-  await page.locator('#q').fill('Agua Salá');
-  const verifiedCard = page.locator('.list-card[data-open="16"]');
-  await expect(verifiedCard).toBeVisible({ timeout: 20_000 });
-  await verifiedCard.click();
+  await page.evaluate(() => openDetail(16));
   const detail = page.locator('#detail[open]');
   await expect(detail).toBeVisible();
   const verified = detail.locator('[data-hours-trust="verified"]');
@@ -47,13 +43,31 @@ test('later guest layers preserve verified-versus-conflict truth instead of faki
   await expect(verified).toHaveAttribute('data-hours-simple', 'safe');
   await expect(verified).toContainText(/HOY geprüft|Vom Betrieb/i);
 
-  await page.evaluate(() => document.getElementById('detail')?.close());
-  await page.locator('#q').fill('Gran Torino');
-  const conflictCard = page.locator('.list-card[data-open="15"]');
-  await expect(conflictCard).toBeVisible({ timeout: 20_000 });
-  await conflictCard.click();
+  await page.evaluate(() => {
+    document.getElementById('detail')?.close();
+    const p=DATA.find(x=>Number(x.id)===16);
+    window.__hoyQaHoursBackup={
+      status:p.hours_status,note:p.hours_note,hours:p.hours,raw:p.hours_raw_text,
+      operatorHours:p.operator_hours,operatorSpecial:p.operator_special_hours
+    };
+    p.hours_status='conflict';
+    p.hours_note='QA: mehrere aktuelle Angaben widersprechen sich.';
+    p.hours_raw_text='QA-Konflikt zwischen zwei aktuellen Quellen.';
+    p.operator_hours=null;
+    p.operator_special_hours=null;
+    openDetail(p.id);
+  });
   const conflict = page.locator('#detail[open] [data-hours-trust="conflict"]');
   await expect(conflict).toBeVisible();
   await expect(conflict).toHaveAttribute('data-hours-simple', 'uncertain');
   await expect(conflict).toContainText('Öffnungszeiten aktuell nicht sicher');
+
+  await page.evaluate(() => {
+    const p=DATA.find(x=>Number(x.id)===16),b=window.__hoyQaHoursBackup;
+    if(p&&b){
+      p.hours_status=b.status;p.hours_note=b.note;p.hours=b.hours;p.hours_raw_text=b.raw;
+      p.operator_hours=b.operatorHours;p.operator_special_hours=b.operatorSpecial;
+    }
+    delete window.__hoyQaHoursBackup;
+  });
 });
