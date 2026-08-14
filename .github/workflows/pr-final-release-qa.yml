@@ -1,0 +1,87 @@
+name: HOY Final Release QA
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hoy-final-release-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  final-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    env:
+      PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:4173/
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Static release integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(find . -type f -name '*.js' -not -path './node_modules/*' -print0)
+          test "$(node -p "require('./package.json').version")" = "2.39.0"
+          grep -q 'App 2.39.0' index.html
+          grep -q 'HOY Control Center · 2.39.0' admin.html
+          grep -q '@supabase/supabase-js@2.111.0/dist/umd/supabase.js' index.html
+          grep -q '@supabase/supabase-js@2.111.0/dist/umd/supabase.js' admin.html
+          grep -q "const CACHE='hoy-v2.39.0'" service-worker.js
+          grep -q 'if(!sameOrigin&&!approvedCdn)return' service-worker.js
+
+      - name: Install QA dependency
+        run: npm install --no-audit --no-fund
+
+      - name: Install release browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Start branch server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/hoy-final-http.log 2>&1 &
+          echo $! > /tmp/hoy-final-http.pid
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/hoy-final-http.log
+          exit 1
+
+      - name: Full Mobile Chrome suite
+        run: npx playwright test --project=mobile-chrome --workers=1 --retries=0
+
+      - name: Full Mobile WebKit suite
+        run: npx playwright test --project=mobile-webkit --workers=1 --retries=0
+
+      - name: Full Desktop Chromium suite
+        run: npx playwright test --project=desktop-chromium --workers=1 --retries=0
+
+      - name: Upload final Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: hoy-final-release-report-${{ github.run_id }}
+          path: playwright-report/
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Upload final failure traces
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: hoy-final-release-failures-${{ github.run_id }}
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: warn
