@@ -1,4 +1,5 @@
 const {test,expect}=require('@playwright/test');
+const {CURRENT_RELEASE}=require('./helpers/current-release');
 
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
@@ -11,6 +12,7 @@ async function ready(page){
     window.hoyMenuCatalog233?.integrity==='ready'&&
     Number(window.hoyMenuCatalog233?.items)>1850&&
     cloud.status==='online',
+    null,
     {timeout:40000}
   );
 }
@@ -86,16 +88,16 @@ test('reviewed image menus stay in HOY and never regress to raw PDF delivery',as
   await assertImageMenu(page,request,4,3,'bonoboplaya.com/wp-content/uploads/2026/');
 });
 
-test('2.36 release shell is cache-busted and fail-closed',async({request})=>{
-  const [core,language,index,worker,pkg]=await Promise.all([request.get('./menu-core-scope-2.36.js?v=2.36.0'),request.get('./menu-language-integrity-2.33.js?v=2.35.0'),request.get('./index.html'),request.get('./service-worker.js'),request.get('./package.json')]);
+test('2.36 feature shell remains cache-busted and fail-closed in the current release',async({request})=>{
+  const [core,language,index,worker,pkg]=await Promise.all([request.get('./menu-core-scope-2.36.js?v=2.36.0'),request.get('./menu-language-integrity-2.33.js'),request.get('./index.html'),request.get('./service-worker.js'),request.get('./package.json')]);
   for(const r of [core,language,index,worker,pkg])expect(r.ok()).toBeTruthy();
   const coreCode=await core.text(),languageCode=await language.text(),html=await index.text(),sw=await worker.text();
-  expect((await pkg.json()).version).toBe('2.36.0');
-  expect(html).toContain('App 2.36.0');
+  expect((await pkg.json()).version).toBe(CURRENT_RELEASE);
+  expect(html).toContain(`App ${CURRENT_RELEASE}`);
   expect(html).toContain('menu-core-scope-2.36.js?v=2.36.0');
   expect(html.indexOf('menu-core-scope-2.36.js')).toBeGreaterThan(html.indexOf('menu-integrity-2.32.js'));
   expect(html.indexOf('menu-core-scope-2.36.js')).toBeLessThan(html.indexOf('menu-language-integrity-2.33.js'));
-  expect(sw).toContain("const CACHE='hoy-v2.36.0'");
+  expect(sw).toContain(`const CACHE='hoy-v${CURRENT_RELEASE}'`);
   expect(sw).toContain('./menu-core-scope-2.36.js');
   expect(coreCode).toContain('supplementalSourceIds');
   expect(coreCode).toContain('contentSourceIds:coreIds');
