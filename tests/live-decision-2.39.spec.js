@@ -2,7 +2,12 @@ const {test,expect}=require('@playwright/test');
 
 test.use({serviceWorkers:'block'});
 
-async function waitForData(page){await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>=3)}
+// These tests deliberately replace the live status/content functions with deterministic fixtures.
+// Wait for the asynchronous production bootstrap to finish first, otherwise a late cloud render can
+// legitimately replace DATA/render state after the fixture has been installed and make the test race live data.
+async function waitForData(page){
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>=3&&cloud?.status==='online'&&!!window.hoyLiveDecision239,{timeout:30000});
+}
 
 async function mockLiveSignals(page){
   await page.evaluate(()=>{
