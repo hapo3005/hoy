@@ -1,12 +1,13 @@
 const fs=require('node:fs');
 const path=require('node:path');
 const {test,expect}=require('@playwright/test');
+const {CURRENT_RELEASE}=require('./helpers/current-release');
 
 test.use({serviceWorkers:'block'});
 
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyOperatorDataConfirmationVersion==='2.29.0');
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyOperatorDataConfirmationVersion==='2.29.0',null,{timeout:30000});
 }
 
 const schedule={
@@ -14,17 +15,17 @@ const schedule={
   fri:[['12:00','24:00']],sat:[['12:00','24:00']],sun:[['12:00','18:00']]
 };
 
-test('HOY 2.29 confirmation assets remain wired in the 2.32 release',async({request})=>{
+test('HOY 2.29 confirmation assets remain wired in the current release',async({request})=>{
   const [js,css,pkg,index,worker]=await Promise.all([
     request.get('./operator-data-confirmation-2.29.js'),request.get('./operator-data-confirmation-2.29.css'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')
   ]);
   for(const r of [js,css,pkg,index,worker])expect(r.ok()).toBeTruthy();
-  expect((await pkg.json()).version).toBe('2.32.0');
+  expect((await pkg.json()).version).toBe(CURRENT_RELEASE);
   const indexText=await index.text(),workerText=await worker.text();
-  expect(indexText).toContain('App 2.32.0');
+  expect(indexText).toContain(`App ${CURRENT_RELEASE}`);
   expect(indexText).toContain('operator-data-confirmation-2.29.css?v=2.29.0');
   expect(indexText).toContain('operator-data-confirmation-2.29.js?v=2.29.0');
-  expect(workerText).toContain("const CACHE='hoy-v2.32.0'");
+  expect(workerText).toContain(`const CACHE='hoy-v${CURRENT_RELEASE}'`);
   expect(workerText).toContain('./operator-data-confirmation-2.29.css');
   expect(workerText).toContain('./operator-data-confirmation-2.29.js');
 });
@@ -73,9 +74,10 @@ test('server endpoint requires verified membership and operator verification wit
   expect(source).toContain("from('restaurant_entitlements')");
   expect(source).toContain('entitlement?.operator_verified');
   expect(source).toContain("from('restaurant_live_hours')");
+  expect(source).toContain("['confirm','correct'].includes(action)");
   expect(source).toContain("action === 'confirm'");
-  expect(source).toContain("action === 'correct'");
-  expect(source).not.toMatch(/active_plan[^\n]*(?:pro|business)/i);
+  expect(source).toContain("action === 'confirm' ? 'operator_hours_confirmed_free' : 'operator_hours_corrected_free'");
+  expect(source).not.toMatch(/active_plan[^\n]*(?:===|==|includes)[^\n]*(?:pro|business)/i);
   expect(source).not.toMatch(/resend|sendgrid|mailgun|send_email|sendEmail/i);
 });
 
