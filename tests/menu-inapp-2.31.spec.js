@@ -6,7 +6,7 @@ test.use({serviceWorkers:'block'});
 
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuInAppVersion==='2.31.0'&&window.hoyMenuIntegrityVersion==='2.32.0',null,{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuInAppVersion==='2.31.0'&&window.hoyMenuIntegrityVersion==='2.37.0',null,{timeout:30000});
 }
 
 test('HOY 2.31 in-app menu assets remain wired in the current release',async({request})=>{
