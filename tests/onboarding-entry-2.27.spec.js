@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { gotoReady } = require('./helpers/current-release');
 test.use({ serviceWorkers:'block' });
 
 test('2.27 claim-entry assets are loaded and cached', async ({ request }) => {
@@ -17,7 +18,7 @@ test('2.27 claim-entry assets are loaded and cached', async ({ request }) => {
 });
 
 test('restaurant profile presents one clear free three-step claim CTA', async ({ page }) => {
-  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await gotoReady(page);
   await page.evaluate(()=>openDetail(DATA[0].id));
   const claim=page.locator('#detail .onboarding-claim-entry');
   await expect(claim).toBeVisible();
@@ -27,7 +28,7 @@ test('restaurant profile presents one clear free three-step claim CTA', async ({
 });
 
 test('pre-verification partner landing focuses on claim instead of pricing', async ({ page }) => {
-  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await gotoReady(page);
   await page.evaluate(()=>{
     localStorage.removeItem(CLAIM_KEY);claimDraft=blankClaim();
     state.view='partner';render();
@@ -41,7 +42,7 @@ test('pre-verification partner landing focuses on claim instead of pricing', asy
 });
 
 test('a newly verified operator gets one clear first-success welcome', async ({ page }) => {
-  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await gotoReady(page);
   await page.evaluate(()=>{
     const p=DATA[0];p.operator_verified=true;p.active_plan='free';
     claimDraft=normalizeClaim({...blankClaim(),restaurantId:p.id,claimed:true,verified:true,verification:{status:'verified',verifiedAt:new Date().toISOString()}});saveClaim();
