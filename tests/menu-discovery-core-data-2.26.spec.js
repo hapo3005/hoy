@@ -4,7 +4,7 @@ test.use({serviceWorkers:'block'});
 
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuSourceTruthVersion==='2.34.0'&&cloud.status==='online',null,{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuSourceTruthVersion==='2.34.1'&&cloud.status==='online',null,{timeout:30000});
 }
 
 test('newly verified operator image menus render directly in HOY',async({page})=>{
