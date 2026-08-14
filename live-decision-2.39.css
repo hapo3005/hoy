@@ -40,4 +40,4 @@
 .live239 button:focus-visible{outline:3px solid rgba(23,63,49,.34);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.live239-card{transition:none}.live239-timeline>button:hover,.live239-card:hover{transform:none}}
 @media(max-width:780px){.live239{padding:15px;border-radius:22px}.live239-head{display:block}.live239-plan-count{display:inline-block;margin-top:10px}.live239-grid{grid-template-columns:1fr}.live239-recommend-list{grid-template-columns:1fr}.live239-card{grid-template-columns:1fr auto}}
-@media(max-width:420px){.live239{margin-inline:-2px}.live239-card{grid-template-columns:1fr}.live239-plan-toggle{justify-self:start}.live239-timeline>button{grid-template-columns:auto 1fr}.live239-timeline i{display:none}}
+@media(max-width:420px){.live239{margin-inline:0}.live239-card{grid-template-columns:1fr}.live239-plan-toggle{justify-self:start}.live239-timeline>button{grid-template-columns:auto 1fr}.live239-timeline i{display:none}}
