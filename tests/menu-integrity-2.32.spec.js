@@ -45,8 +45,9 @@ test('Soul Kitchen remains a complete 12-page in-app image menu',async({page})=>
   expect(menu.source).toBeFalsy();
   await page.evaluate(()=>openDetail(234));
   const menuTab=page.locator('#detail [data-tab="menu"]');if(await menuTab.count())await menuTab.click();
-  await expect(page.locator('#detail .menu231-page img')).toHaveCount(12);
-  await expect(page.locator('#detail a[href*="menurestauranteqr"]')).toHaveCount(0);
+  const profileMenu=page.locator('#detail #profile-menu');
+  await expect(profileMenu.locator('.menu231-page img')).toHaveCount(12);
+  await expect(profileMenu.locator('a[href*="menurestauranteqr"]')).toHaveCount(0);
 });
 
 test('Bonobo current official main card is delivered as a complete in-app image menu',async({page})=>{
