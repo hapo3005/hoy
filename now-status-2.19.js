@@ -80,7 +80,11 @@
     }
     return null;
   }
-  function scheduleFromBase(p){const schedule=parseBaseSchedule(p?.hours_text);return schedule?{schedule,source:'base',seasonal:/saisonale abweichungen/i.test(String(p?.hours_text||''))}:null}
+  function scheduleFromBase(p){
+    if(String(p?.hours_status||'missing')!=='verified')return null;
+    const schedule=parseBaseSchedule(p?.hours_text);
+    return schedule?{schedule,source:'base',seasonal:/saisonale abweichungen/i.test(String(p?.hours_text||''))}:null;
+  }
   function openWindow(schedule,parts){
     const today=schedule[parts.day];const prev=schedule[(parts.day+6)%7];const now=parts.minutes;
     if(Array.isArray(prev))for(const row of prev){const s=timeMinutes(row.start),e=timeMinutes(row.end,{end:true});if(s==null||e==null)continue;if(e<=s&&now<e)return {state:'open',end:row.end,overnight:true}}
