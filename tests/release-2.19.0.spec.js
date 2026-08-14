@@ -5,7 +5,7 @@ test.use({ serviceWorkers: 'block' });
 test('base opening hours answer the moment without pretending to be live-confirmed', async ({ page }) => {
   await page.goto('./', { waitUntil: 'domcontentloaded' });
   const result = await page.evaluate(() => window.hoyNowStatus219For?.(
-    { hours_text: 'Mo–So 08:00–23:00' },
+    { hours_status: 'verified', hours_text: 'Mo–So 08:00–23:00' },
     new Date('2026-08-10T18:00:00Z')
   ));
   expect(result).toMatchObject({ state: 'open', source: 'base', operatorConfirmed: false, label: 'Laut Öffnungszeiten · offen bis 23:00', proof: 'Nicht live bestätigt' });
@@ -14,8 +14,8 @@ test('base opening hours answer the moment without pretending to be live-confirm
 test('overnight schedules work while uncertain public hours stay deliberately silent', async ({ page }) => {
   await page.goto('./', { waitUntil: 'domcontentloaded' });
   const values = await page.evaluate(() => ({
-    overnight: window.hoyNowStatus219For?.({ hours_text: 'Mo–So 13:30–02:00' }, new Date('2026-08-11T23:00:00Z')),
-    uncertain: window.hoyNowStatus219For?.({ hours_text: 'Aktuelle Betreiberprofile widersprechen sich deutlich bei den Öffnungszeiten · vor Live-Anzeige erneut prüfen' }, new Date('2026-08-11T18:00:00Z'))
+    overnight: window.hoyNowStatus219For?.({ hours_status: 'verified', hours_text: 'Mo–So 13:30–02:00' }, new Date('2026-08-11T23:00:00Z')),
+    uncertain: window.hoyNowStatus219For?.({ hours_status: 'verified', hours_text: 'Aktuelle Betreiberprofile widersprechen sich deutlich bei den Öffnungszeiten · vor Live-Anzeige erneut prüfen' }, new Date('2026-08-11T18:00:00Z'))
   }));
   expect(values.overnight).toMatchObject({ state: 'open', label: 'Laut Öffnungszeiten · offen bis 02:00' });
   expect(values.uncertain).toBeNull();
