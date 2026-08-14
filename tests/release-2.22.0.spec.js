@@ -43,7 +43,7 @@ test('later guest layers preserve verified-versus-conflict truth instead of faki
   await expect(verified).toHaveAttribute('data-hours-simple', 'safe');
   await expect(verified).toContainText(/HOY geprüft|Vom Betrieb/i);
 
-  await page.evaluate(() => {
+  const coreConflictState=await page.evaluate(() => {
     document.getElementById('detail')?.close();
     const p=DATA.find(x=>Number(x.id)===16);
     window.__hoyQaHoursBackup={
@@ -55,8 +55,11 @@ test('later guest layers preserve verified-versus-conflict truth instead of faki
     p.hours_raw_text='QA-Konflikt zwischen zwei aktuellen Quellen.';
     p.operator_hours=null;
     p.operator_special_hours=null;
+    const status=window.hoyNowStatus219For?.(p)||null;
     openDetail(p.id);
+    return status;
   });
+  expect(coreConflictState).toBeNull();
   const conflict = page.locator('#detail[open] [data-hours-trust="conflict"]');
   await expect(conflict).toBeVisible();
   await expect(conflict).toHaveAttribute('data-hours-simple', 'uncertain');
