@@ -85,7 +85,7 @@ test('EL NIDO exposes exactly the 117-item main card and keeps El Cuco/highlight
 test('reviewed image menus stay in HOY and never regress to raw PDF delivery',async({page,request})=>{
   await assertImageMenu(page,request,9,4,'/hoy/menu-pages/9/f63bfbbb509f/');
   await assertImageMenu(page,request,111,1,'/hoy/menu-pages/111/2d419a28324c/');
-  await assertImageMenu(page,request,4,3,'bonoboplaya.com/wp-content/uploads/2026/');
+  await assertImageMenu(page,request,4,3,'hapo3005.github.io/hoy/menu-pages/4/f9653f87c69d/');
 });
 
 test('2.36 feature shell remains cache-busted and fail-closed in the current release',async({request})=>{
