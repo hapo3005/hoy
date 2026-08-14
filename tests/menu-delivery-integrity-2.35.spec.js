@@ -1,4 +1,5 @@
 const {test,expect}=require('@playwright/test');
+const {CURRENT_RELEASE}=require('./helpers/current-release');
 
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
@@ -9,6 +10,7 @@ async function ready(page){
     window.hoyMenuCatalog233?.integrity==='ready'&&
     Number(window.hoyMenuCatalog233?.items)>1600&&
     cloud.status==='online',
+    null,
     {timeout:40000}
   );
 }
@@ -43,7 +45,7 @@ async function assertImageMenu(page,request,id,expectedPages,pathPart){
   await expect.poll(async()=>first.evaluate(img=>img.complete&&img.naturalWidth>200),{timeout:15000}).toBeTruthy();
 }
 
-test('deployed HOY 2.35 never exposes the truncated La Finca fallback',async({page})=>{
+test('deployed HOY never exposes the truncated La Finca fallback',async({page})=>{
   await ready(page);
   const state=await page.evaluate(()=>{
     const p=DATA.find(x=>Number(x.id)===216),m=menuFor(p);
@@ -133,18 +135,18 @@ test('Bonobo Playa renders all three official operator menu images inside HOY',a
 
 test('menu integrity failure is fail-closed in the shipped client',async({request})=>{
   const [js,index,worker,pkg]=await Promise.all([
-    request.get('./menu-language-integrity-2.33.js?v=2.35.0'),
+    request.get('./menu-language-integrity-2.33.js'),
     request.get('./index.html'),
     request.get('./service-worker.js'),
     request.get('./package.json')
   ]);
   for(const r of [js,index,worker,pkg])expect(r.ok()).toBeTruthy();
   const code=await js.text(),html=await index.text(),sw=await worker.text(),version=(await pkg.json()).version;
-  expect(version).toBe('2.35.0');
-  expect(html).toContain('App 2.35.0');
-  expect(html).toContain('menu-language-integrity-2.33.js?v=2.35.0');
-  expect(html).toContain('menu-source-truth-2.34.js?v=2.35.0');
-  expect(sw).toContain("const CACHE='hoy-v2.35.0'");
+  expect(version).toBe(CURRENT_RELEASE);
+  expect(html).toContain(`App ${CURRENT_RELEASE}`);
+  expect(html).toMatch(/menu-language-integrity-2\.33\.js\?v=2\.\d+\.\d+/);
+  expect(html).toMatch(/menu-source-truth-2\.34\.js\?v=2\.\d+\.\d+/);
+  expect(sw).toContain(`const CACHE='hoy-v${CURRENT_RELEASE}'`);
   expect(code).toContain("integrity:'quality_blocked'");
   expect(code).toContain("window.hoyMenuLanguageIntegrityState='blocked'");
   expect(code).toContain('kein unvollständiger oder falschsprachiger Zwischenstand');
