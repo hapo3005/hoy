@@ -66,7 +66,7 @@
   };
 
   function primaryBar(p,d){
-    if(!isShowcase(p)||!d||d.querySelector('.detail-primary-bar'))return;
+    if(!p||!d||d.querySelector('.detail-primary-bar'))return;
     const reservable=effectiveServiceState(p,'reservation')==='available';
     const bar=document.createElement('div');
     bar.className='detail-primary-bar';
@@ -87,7 +87,10 @@
   }
 
   function enhanceDetail(p,d){
-    if(!isShowcase(p)||!d)return;
+    if(!p||!d)return;
+    // Direct location/service actions are a core profile capability, not a showcase-only perk.
+    primaryBar(p,d);
+    if(!isShowcase(p))return;
     d.classList.add('ux22-detail');
     d.setAttribute('aria-label',`${p.name} auf HOY`);
     d.querySelector('[data-close]')?.setAttribute('aria-label','Profil schließen');
@@ -95,7 +98,6 @@
     d.querySelector('[data-favdialog]')?.setAttribute('aria-label','Als Favorit speichern');
     const menuBtn=d.querySelector('[data-tab="menu"]');
     if(menuBtn&&menuFor(p)?.status==='partial')menuBtn.textContent='Speisekarte · Auswahl';
-    primaryBar(p,d);
   }
 
   const baseOpenDetail22=openDetail;
