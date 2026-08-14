@@ -42,6 +42,33 @@ test('2.39 live decision assets are wired with production-safe guest copy',async
   await expect(root).not.toContainText(/Benidorm|HOY LIVE · 2\.39/i);
 });
 
+test('HOY Live secondary text meets WCAG AA contrast',async({page})=>{
+  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForData(page);await mockLiveSignals(page);
+  const results=await page.evaluate(()=>{
+    const rgb=value=>{
+      const m=String(value).match(/[\d.]+/g);return m?m.slice(0,3).map(Number):[0,0,0];
+    };
+    const lum=value=>{
+      const [r,g,b]=rgb(value).map(x=>x/255).map(x=>x<=.04045?x/12.92:Math.pow((x+.055)/1.055,2.4));
+      return .2126*r+.7152*g+.0722*b;
+    };
+    const ratio=(fg,bg)=>{const a=lum(fg),b=lum(bg),hi=Math.max(a,b),lo=Math.min(a,b);return (hi+.05)/(lo+.05)};
+    const pairs=[
+      ['timeline','.live239-timeline small','.live239-timeline > button'],
+      ['area','.live239-recommend-list .live239-area','.live239-recommend-list .live239-card'],
+      ['empty','.live239-empty span','.live239-empty'],
+      ['provenance','.live239-signals small.base','.live239-signals small.base']
+    ];
+    return pairs.map(([name,fgSel,bgSel])=>{
+      const fg=document.querySelector(fgSel),bg=document.querySelector(bgSel);
+      if(!fg||!bg)return {name,missing:true,ratio:0};
+      const fs=getComputedStyle(fg),bs=getComputedStyle(bg);
+      return {name,missing:false,ratio:ratio(fs.color,bs.backgroundColor)};
+    });
+  });
+  for(const row of results){expect(row.missing,row.name).toBeFalsy();expect(row.ratio,row.name).toBeGreaterThanOrEqual(4.5)}
+});
+
 test('next-two-hours timeline prefers running then imminent content',async({page})=>{
   await page.goto('./',{waitUntil:'domcontentloaded'});await waitForData(page);await mockLiveSignals(page);
   const timeline=page.locator('.live239-timeline');
