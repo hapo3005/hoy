@@ -1,11 +1,12 @@
 const fs=require('node:fs');
 const {test,expect}=require('@playwright/test');
+const {CURRENT_RELEASE}=require('./helpers/current-release');
 
 test('HOY Control 2.24 wires the language audit after menu integrity',async({request})=>{
   const [html,js,css]=await Promise.all([request.get('./admin.html'),request.get('./admin-menu-language-2.24.js'),request.get('./admin-menu-language-2.24.css')]);
   for(const r of [html,js,css])expect(r.ok()).toBeTruthy();
   const page=await html.text();
-  expect(page).toContain('HOY Control Center · 2.24.0');
+  expect(page).toContain(`HOY Control Center · ${CURRENT_RELEASE}`);
   expect(page).toContain('admin-menu-language-2.24.css?v=2.24.0');
   expect(page).toContain('admin-menu-language-2.24.js?v=2.24.0');
   expect(page.indexOf('admin-menu-language-2.24.js')).toBeGreaterThan(page.indexOf('admin-menu-integrity-2.23.js'));
