@@ -25,21 +25,24 @@ jobs:
           while IFS= read -r -d '' file; do
             node --check "$file"
           done < <(find . -type f -name '*.js' -not -path './node_modules/*' -print0)
-      - name: Check required release assets
+      - name: Check required release assets and security invariants
         shell: bash
         run: |
           set -euo pipefail
+          test "$(node -p "require('./package.json').version")" = "2.39.0"
           test -s live-decision-2.39.js
           test -s live-decision-2.39.css
+          grep -q 'App 2.39.0' index.html
           grep -q 'live-decision-2.39.js?v=2.39.0' index.html
           grep -q 'live-decision-2.39.css?v=2.39.0' index.html
           grep -q 'HOY Control Center · 2.39.0' admin.html
           grep -q '@supabase/supabase-js@2.111.0/dist/umd/supabase.js' index.html
           grep -q '@supabase/supabase-js@2.111.0/dist/umd/supabase.js' admin.html
-          grep -q "hoy-v2.39.0" service-worker.js
+          grep -q "const CACHE='hoy-v2.39.0'" service-worker.js
           grep -q "'./live-decision-2.39.js'" service-worker.js
           grep -q "'./live-decision-2.39.css'" service-worker.js
           grep -q '@supabase/supabase-js@2.111.0/dist/umd/supabase.js' service-worker.js
+          grep -q 'if(!sameOrigin&&!approvedCdn)return' service-worker.js
       - name: Check duplicate core cache entries
         run: |
           node - <<'NODE'
