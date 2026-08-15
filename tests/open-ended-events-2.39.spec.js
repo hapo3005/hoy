@@ -4,7 +4,7 @@ test.use({serviceWorkers:'block'});
 
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.hoyOpenEndEvent239&&Array.isArray(DATA)&&DATA.length>0,{timeout:30000});
+  await page.waitForFunction(()=>window.hoyOpenEndEvent239&&window.hoyEventProvenance239&&Array.isArray(DATA)&&DATA.length>0,{timeout:30000});
 }
 
 test('an event with no published end time is never presented as running now',async({page})=>{
@@ -29,25 +29,33 @@ test('an event with no published end time is never presented as running now',asy
   expect([states.before.key,states.afterStart.key,states.nextDay.key]).not.toContain('running');
 });
 
-test('open-ended event support is wired into the app, PWA core and provenance migration',async({request})=>{
-  const [index,module,migration,worker]=await Promise.all([
+test('open-ended event support is wired into app, PWA, visible provenance and migration',async({request})=>{
+  const [index,module,provenance,migration,worker]=await Promise.all([
     request.get('./index.html'),
     request.get('./open-ended-events-2.39.js'),
+    request.get('./event-provenance-2.39.js'),
     request.get('./supabase/migrations/20260815073500_verified_open_ended_events.sql'),
     request.get('./service-worker.js')
   ]);
-  for(const response of [index,module,migration,worker])expect(response.ok()).toBeTruthy();
+  for(const response of [index,module,provenance,migration,worker])expect(response.ok()).toBeTruthy();
 
   const html=await index.text();
   const js=await module.text();
+  const proof=await provenance.text();
   const sql=await migration.text();
   const sw=await worker.text();
   expect(html).toContain('open-ended-events-2.39.js?v=2.39.0');
+  expect(html).toContain('event-provenance-2.39.js?v=2.39.0');
   expect(sw).toContain("'./open-ended-events-2.39.js'");
+  expect(sw).toContain("'./event-provenance-2.39.js'");
   expect(js).toContain(".is('ends_at',null)");
   expect(js).toContain('loadOpenEndedContent');
   expect(js).toContain('Ende nicht gemeldet');
   expect(js).toContain('Ende offen');
+  expect(proof).toContain('source_url');
+  expect(proof).toContain('source_checked_at');
+  expect(proof).toContain('Geprüfte Originalquelle');
+  expect(proof).toContain("link.target='_blank'");
   expect(sql).toContain('alter column created_by drop not null');
   expect(sql).toContain('source_url');
   expect(sql).toContain('source_checked_at');
