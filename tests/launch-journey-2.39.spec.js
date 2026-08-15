@@ -85,10 +85,16 @@ test('an empty discover search always offers a recoverable path',async({page})=>
 
   const search=page.locator('#q');
   await search.fill('zzzz-no-real-hoy-venue-zzzz');
-  await expect(page.locator('.empty')).toBeVisible();
-  await expect(page.locator('.empty')).toContainText(/Nichts gefunden|Ändere/i);
+  const empty=page.locator('.empty');
+  await expect(empty).toBeVisible();
+  await expect(empty).toContainText(/Hier passt gerade nichts|anderen Suchbegriff/i);
 
-  await search.fill('');
+  const reset=empty.locator('[data-consumer-reset],[data-decision-reset],[data-reset-to-discover]').first();
+  await expect(reset).toBeVisible();
+  await expect(reset).toContainText(/zurücksetzen/i);
+  await reset.click();
+
+  await expect.poll(()=>page.evaluate(()=>({query:state.query,service:state.service,moment:state.moment,decision:state.decision}))).toEqual({query:'',service:'all',moment:'all',decision:'all'});
   await expect(page.locator('.list-card[data-open]').first()).toBeVisible({timeout:10000});
   expect(errors).toEqual([]);
 });
