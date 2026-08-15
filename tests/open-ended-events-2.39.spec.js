@@ -11,10 +11,12 @@ test('an event with no published end time is never presented as running now',asy
   await ready(page);
   const states=await page.evaluate(()=>{
     const row={offer_type:'event',starts_at:'2026-08-18T22:00:00Z',ends_at:null}; // 00:00 Madrid, 19 Aug
+    const blank={...row,ends_at:''};
     return {
       before:window.hoyOpenEndEvent239.openEndPhase(row,new Date('2026-08-18T21:00:00Z')),
       afterStart:window.hoyOpenEndEvent239.openEndPhase(row,new Date('2026-08-19T01:00:00Z')),
-      nextDay:window.hoyOpenEndEvent239.openEndPhase(row,new Date('2026-08-19T22:00:00Z'))
+      nextDay:window.hoyOpenEndEvent239.openEndPhase(row,new Date('2026-08-19T22:00:00Z')),
+      blankEnd:window.hoyOpenEndEvent239.openEndPhase(blank,new Date('2026-08-18T21:00:00Z'))
     };
   });
 
@@ -23,6 +25,7 @@ test('an event with no published end time is never presented as running now',asy
   expect(states.afterStart.key).toBe('uncertain');
   expect(states.afterStart.label).toContain('Ende nicht gemeldet');
   expect(states.nextDay.key).toBe('expired');
+  expect(states.blankEnd.key).toBe('soon');
   expect([states.before.key,states.afterStart.key,states.nextDay.key]).not.toContain('running');
 });
 
@@ -41,6 +44,8 @@ test('open-ended event support is wired into the app, PWA core and provenance mi
   const sw=await worker.text();
   expect(html).toContain('open-ended-events-2.39.js?v=2.39.0');
   expect(sw).toContain("'./open-ended-events-2.39.js'");
+  expect(js).toContain(".is('ends_at',null)");
+  expect(js).toContain('loadOpenEndedContent');
   expect(js).toContain('Ende nicht gemeldet');
   expect(js).toContain('Ende offen');
   expect(sql).toContain('alter column created_by drop not null');
