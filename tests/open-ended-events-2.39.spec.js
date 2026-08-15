@@ -12,21 +12,30 @@ test('an event with no published end time is never presented as running now',asy
   const states=await page.evaluate(()=>{
     const row={offer_type:'event',starts_at:'2026-08-18T22:00:00Z',ends_at:null}; // 00:00 Madrid, 19 Aug
     const blank={...row,ends_at:''};
+    const sameDayRow={offer_type:'event',starts_at:'2026-08-19T21:00:00Z',ends_at:null}; // 23:00 Madrid, 19 Aug
     return {
       before:window.hoyOpenEndEvent239.openEndPhase(row,new Date('2026-08-18T21:00:00Z')),
       afterStart:window.hoyOpenEndEvent239.openEndPhase(row,new Date('2026-08-19T01:00:00Z')),
       nextDay:window.hoyOpenEndEvent239.openEndPhase(row,new Date('2026-08-19T22:00:00Z')),
-      blankEnd:window.hoyOpenEndEvent239.openEndPhase(blank,new Date('2026-08-18T21:00:00Z'))
+      blankEnd:window.hoyOpenEndEvent239.openEndPhase(blank,new Date('2026-08-18T21:00:00Z')),
+      sameDaySoon:window.hoyOpenEndEvent239.openEndPhase(sameDayRow,new Date('2026-08-19T20:00:00Z'))
     };
   });
 
-  expect(states.before.key).toBe('soon');
+  // A midnight event is "tomorrow" while Madrid is still on the previous calendar day,
+  // even when it is only one hour away.
+  expect(states.before.key).toBe('tomorrow');
   expect(states.before.label).toContain('Ende offen');
+  expect(states.blankEnd.key).toBe('tomorrow');
+
+  // Same-day events inside the two-hour window still use the imminent signal.
+  expect(states.sameDaySoon.key).toBe('soon');
+  expect(states.sameDaySoon.label).toContain('Ende offen');
+
   expect(states.afterStart.key).toBe('uncertain');
   expect(states.afterStart.label).toContain('Ende nicht gemeldet');
   expect(states.nextDay.key).toBe('expired');
-  expect(states.blankEnd.key).toBe('soon');
-  expect([states.before.key,states.afterStart.key,states.nextDay.key]).not.toContain('running');
+  expect([states.before.key,states.sameDaySoon.key,states.afterStart.key,states.nextDay.key]).not.toContain('running');
 });
 
 test('HOY curator provenance becomes a visible source link in the profile proof',async({page})=>{
