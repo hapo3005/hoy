@@ -6,6 +6,7 @@
   const TZ='Europe/Madrid';
   const rawRowsFor=window.hoyCurrentContentFor||(()=>[]);
   const rawBestFor=window.hoyBestCurrentFor||(()=>null);
+  const esc239=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   const asDate=v=>{const d=v instanceof Date?v:new Date(v);return Number.isFinite(d.getTime())?d:null};
   const parts=v=>{
@@ -115,7 +116,7 @@
       const key=`${Number(p.id)}|${String(row.title||'')}`;
       if([...timeline.querySelectorAll('[data-open-ended-key]')].some(x=>x.dataset.openEndedKey===key))continue;
       const button=document.createElement('button');button.type='button';button.dataset.live239Open=String(Number(p.id));button.dataset.openEndedKey=key;
-      button.innerHTML=`<span class="live239-time soon">${formatTime(row.starts_at)}</span><div><strong>${String(row.title||'Aktuell')}</strong><small>${String(p.name||'')} · ${ph.label}</small></div><i aria-hidden="true">→</i>`;
+      button.innerHTML=`<span class="live239-time soon">${esc239(formatTime(row.starts_at))}</span><div><strong>${esc239(row.title||'Aktuell')}</strong><small>${esc239(p.name||'')} · ${esc239(ph.label)}</small></div><i aria-hidden="true">→</i>`;
       timeline.appendChild(button);
     }
   }
