@@ -26,18 +26,21 @@ test('an event with no published end time is never presented as running now',asy
   expect([states.before.key,states.afterStart.key,states.nextDay.key]).not.toContain('running');
 });
 
-test('open-ended event support is wired into the app and provenance migration',async({request})=>{
-  const [index,module,migration]=await Promise.all([
+test('open-ended event support is wired into the app, PWA core and provenance migration',async({request})=>{
+  const [index,module,migration,worker]=await Promise.all([
     request.get('./index.html'),
     request.get('./open-ended-events-2.39.js'),
-    request.get('./supabase/migrations/20260815073500_verified_open_ended_events.sql')
+    request.get('./supabase/migrations/20260815073500_verified_open_ended_events.sql'),
+    request.get('./service-worker.js')
   ]);
-  for(const response of [index,module,migration])expect(response.ok()).toBeTruthy();
+  for(const response of [index,module,migration,worker])expect(response.ok()).toBeTruthy();
 
   const html=await index.text();
   const js=await module.text();
   const sql=await migration.text();
+  const sw=await worker.text();
   expect(html).toContain('open-ended-events-2.39.js?v=2.39.0');
+  expect(sw).toContain("'./open-ended-events-2.39.js'");
   expect(js).toContain('Ende nicht gemeldet');
   expect(js).toContain('Ende offen');
   expect(sql).toContain('alter column created_by drop not null');
