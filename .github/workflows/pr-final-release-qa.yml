@@ -41,13 +41,19 @@ jobs:
           grep -q "const CACHE='hoy-v2.39.0'" service-worker.js
           grep -q 'if(!sameOrigin&&!approvedCdn)return' service-worker.js
 
+      # The complete three-browser suite already runs in parallel in HOY PR Browser QA.
+      # Keep this serial release rehearsal available for an explicit manual final check,
+      # but do not repeat the same long suite on every pull request.
       - name: Install QA dependency
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: npm install --no-audit --no-fund
 
       - name: Install release browsers
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: npx playwright install --with-deps chromium webkit
 
       - name: Start branch server
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         shell: bash
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/hoy-final-http.log 2>&1 &
@@ -60,16 +66,19 @@ jobs:
           exit 1
 
       - name: Full Mobile Chrome suite
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: npx playwright test --project=mobile-chrome --workers=1 --retries=0
 
       - name: Full Mobile WebKit suite
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: npx playwright test --project=mobile-webkit --workers=1 --retries=0
 
       - name: Full Desktop Chromium suite
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: npx playwright test --project=desktop-chromium --workers=1 --retries=0
 
       - name: Upload final Playwright report
-        if: ${{ !cancelled() }}
+        if: ${{ github.event_name == 'workflow_dispatch' && !cancelled() }}
         uses: actions/upload-artifact@v5
         with:
           name: hoy-final-release-report-${{ github.run_id }}
@@ -78,7 +87,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Upload final failure traces
-        if: ${{ failure() }}
+        if: ${{ github.event_name == 'workflow_dispatch' && failure() }}
         uses: actions/upload-artifact@v5
         with:
           name: hoy-final-release-failures-${{ github.run_id }}
