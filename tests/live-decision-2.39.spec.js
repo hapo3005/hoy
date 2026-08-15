@@ -75,14 +75,23 @@ test('HOY Live secondary text meets WCAG AA contrast',async({page})=>{
 });
 
 test('next-two-hours timeline prefers running then imminent content',async({page})=>{
-  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForData(page);await mockLiveSignals(page);
-  const timeline=page.locator('.live239-timeline');
-  await expect(timeline).toBeVisible();
-  const rows=timeline.locator('> button');
-  await expect(rows).toHaveCount(2);
-  await expect(rows.nth(0)).toContainText('Live Musik');
-  await expect(rows.nth(0)).toContainText('JETZT');
-  await expect(rows.nth(1)).toContainText('Sunset Session');
+  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForData(page);
+  const rows=await page.evaluate(()=>{
+    const ids=DATA.slice(0,2).map(x=>Number(x.id));
+    // Freeze the decision instant away from midnight. The production rule correctly
+    // excludes events that have crossed into the next Madrid calendar day.
+    const now=new Date('2026-08-14T18:00:00Z');
+    const running={id:'live-running',restaurant_id:ids[0],title:'Live Musik',starts_at:new Date(now.getTime()-15*60000).toISOString(),ends_at:new Date(now.getTime()+75*60000).toISOString()};
+    const soon={id:'live-soon',restaurant_id:ids[1],title:'Sunset Session',starts_at:new Date(now.getTime()+45*60000).toISOString(),ends_at:new Date(now.getTime()+150*60000).toISOString()};
+    window.hoyBestCurrentFor=p=>Number(p?.id)===ids[0]?running:Number(p?.id)===ids[1]?soon:null;
+    window.hoyCurrentContentFor=p=>Number(p?.id)===ids[0]?[running]:Number(p?.id)===ids[1]?[soon]:[];
+    return window.hoyLiveDecision239.timelineRows(now).map(({row,phase})=>({title:row.title,key:phase.key,label:phase.label}));
+  });
+  expect(rows).toHaveLength(2);
+  expect(rows[0]).toMatchObject({title:'Live Musik',key:'running'});
+  expect(rows[0].label).toContain('Läuft jetzt');
+  expect(rows[1]).toMatchObject({title:'Sunset Session',key:'soon'});
+  expect(rows[1].label).toContain('Startet in 45 Min.');
 });
 
 test('next-two-hours timeline keeps multiple imminent events from the same venue',async({page})=>{
