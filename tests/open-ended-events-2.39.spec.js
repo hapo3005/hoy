@@ -29,6 +29,31 @@ test('an event with no published end time is never presented as running now',asy
   expect([states.before.key,states.afterStart.key,states.nextDay.key]).not.toContain('running');
 });
 
+test('HOY curator provenance becomes a visible source link in the profile proof',async({page})=>{
+  await ready(page);
+  const result=await page.evaluate(()=>{
+    const d=document.getElementById('detail');
+    d.innerHTML='<article class="hoy-current-item" data-open-ended-event="fixture-event"><small class="hoy-current-proof">Von HOY geprüft · Ende vom Veranstalter nicht angegeben</small></article>';
+    if(!d.open)d.showModal();
+    window.hoyEventProvenance239.sourceById.set('fixture-event',{
+      url:'https://example.com/original-event',
+      label:'Offizielle Eventquelle',
+      checkedAt:'2026-08-15T05:00:00Z'
+    });
+    window.hoyEventProvenance239.patchProfile(d);
+    const proof=d.querySelector('.hoy-current-proof');const link=proof?.querySelector('a');
+    const out={text:proof?.textContent||'',href:link?.href||'',target:link?.target||'',rel:link?.rel||''};
+    d.close();return out;
+  });
+  expect(result.text).toContain('Von HOY geprüft');
+  expect(result.text).toContain('Offizielle Eventquelle');
+  expect(result.text).toContain('geprüft 15.08.2026');
+  expect(result.text).toContain('Ende vom Veranstalter nicht angegeben');
+  expect(result.href).toBe('https://example.com/original-event');
+  expect(result.target).toBe('_blank');
+  expect(result.rel).toContain('noopener');
+});
+
 test('open-ended event support is wired into app, PWA, visible provenance and migration',async({request})=>{
   const [index,module,provenance,migration,worker]=await Promise.all([
     request.get('./index.html'),
