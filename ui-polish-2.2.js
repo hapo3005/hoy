@@ -66,19 +66,29 @@
   };
 
   function primaryBar(p,d){
-    if(!isShowcase(p)||!d||d.querySelector('.detail-primary-bar'))return;
+    if(!p||!d||d.querySelector('.detail-primary-bar'))return;
     const reservable=effectiveServiceState(p,'reservation')==='available';
+    const rawPhone=typeof effectiveValue==='function'?effectiveValue(p,'phone'):p.phone;
+    const hasPhone=!!String(rawPhone||'').trim();
+    const lat=Number(p.latitude),lng=Number(p.longitude);
+    const hasMap=Number.isFinite(lat)&&lat>=-90&&lat<=90&&Number.isFinite(lng)&&lng>=-180&&lng<=180;
     const bar=document.createElement('div');
-    bar.className='detail-primary-bar';
+    bar.className=`detail-primary-bar${hasMap?' with-map':''}`;
     const phone=phoneHref(p);
     const primary=reservable
       ?`<button type="button" class="primary" data-ux22-reserve>${icons.calendar}<span>Reservieren</span></button>`
-      :`<a class="primary" href="${esc(phone)}">${icons.phone}<span>Anrufen</span></a>`;
-    bar.innerHTML=`${primary}<a class="secondary" target="_blank" rel="noopener" href="${esc(routeHref(p))}">${icons.pin}<span>Route</span></a>`;
+      :hasPhone?`<a class="primary" href="${esc(phone)}">${icons.phone}<span>Anrufen</span></a>`:'';
+    if(!primary)bar.classList.add('location-only');
+    const mapAction=hasMap?`<button type="button" class="secondary map-internal" data-profile-map="${Number(p.id)}">${icons.map||icons.pin}<span>Auf Karte</span></button>`:'';
+    bar.innerHTML=`${primary}${mapAction}<a class="secondary external-route" target="_blank" rel="noopener" href="${esc(routeHref(p))}">${icons.pin}<span>Route</span></a>`;
     d.appendChild(bar);
     bar.querySelector('[data-ux22-reserve]')?.addEventListener('click',()=>{
       d.close();
       openServiceFlow(p,'reservation');
+    });
+    bar.querySelector('[data-profile-map]')?.addEventListener('click',()=>{
+      const opened=window.hoyOpenVenueOnMap239?.(p.id);
+      if(opened===false&&typeof toast==='function')toast('Standort ist noch nicht kartierbar');
     });
     bar.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
       const href=a.getAttribute('href')||'';
@@ -87,7 +97,10 @@
   }
 
   function enhanceDetail(p,d){
-    if(!isShowcase(p)||!d)return;
+    if(!p||!d)return;
+    // Direct location/service actions are a core profile capability, not a showcase-only perk.
+    primaryBar(p,d);
+    if(!isShowcase(p))return;
     d.classList.add('ux22-detail');
     d.setAttribute('aria-label',`${p.name} auf HOY`);
     d.querySelector('[data-close]')?.setAttribute('aria-label','Profil schließen');
@@ -95,7 +108,6 @@
     d.querySelector('[data-favdialog]')?.setAttribute('aria-label','Als Favorit speichern');
     const menuBtn=d.querySelector('[data-tab="menu"]');
     if(menuBtn&&menuFor(p)?.status==='partial')menuBtn.textContent='Speisekarte · Auswahl';
-    primaryBar(p,d);
   }
 
   const baseOpenDetail22=openDetail;

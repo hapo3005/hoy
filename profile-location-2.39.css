@@ -1,0 +1,27 @@
+/* HOY 2.39 — direct location actions in restaurant profiles */
+.detail-primary-bar.with-map{grid-template-columns:1.15fr .9fr .78fr}
+.detail-primary-bar.location-only.with-map{grid-template-columns:1fr 1fr}
+.detail-primary-bar .map-internal{border:1px solid rgba(16,40,61,.14);background:#fffaf3;color:var(--navy)}
+.detail-primary-bar .map-internal svg{width:17px;height:17px}
+
+@media(max-width:380px){
+  .detail-primary-bar.with-map{grid-template-columns:1.08fr .9fr .72fr;gap:6px;padding-left:8px;padding-right:8px}
+  .detail-primary-bar.with-map>*{font-size:10.5px;gap:4px}
+}
+
+@media(min-width:700px){
+  /* The sticky CTA is mobile-only. Every profile action bar becomes an in-flow footer
+     on wider viewports so it never covers profile navigation or content. */
+  #detail .detail-primary-bar{
+    position:relative;
+    left:auto;
+    right:auto;
+    bottom:auto;
+    transform:none;
+    width:100%;
+    z-index:auto;
+    margin:0;
+    background:rgba(248,243,233,.995);
+    border-top:1px solid rgba(16,40,61,.10);
+  }
+}

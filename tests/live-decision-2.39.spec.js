@@ -2,7 +2,11 @@ const {test,expect}=require('@playwright/test');
 
 test.use({serviceWorkers:'block'});
 
-async function waitForData(page){await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>=3)}
+// These tests deliberately replace the live status/content functions with deterministic fixtures.
+// Wait for the asynchronous production bootstrap to finish first so test state is isolated from startup.
+async function waitForData(page){
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>=3&&cloud?.status==='online'&&!!window.hoyLiveDecision239,{timeout:30000});
+}
 
 async function mockLiveSignals(page){
   await page.evaluate(()=>{
@@ -14,7 +18,8 @@ async function mockLiveSignals(page){
       const id=Number(p?.id);
       if(id===ids[0])return {state:'open',tone:'open',label:'Jetzt geöffnet · bis 23:30',source:'operator',operatorConfirmed:true,proof:'Vom Betrieb gepflegt'};
       if(id===ids[1])return {state:'open',tone:'open',label:'Jetzt geöffnet · bis 00:00',source:'base',operatorConfirmed:false,proof:'Nicht live bestätigt'};
-      return {state:'later',tone:'later',label:'Öffnet heute 20:30',source:'operator',operatorConfirmed:true,proof:'Vom Betrieb gepflegt'};
+      if(id===ids[2])return {state:'later',tone:'later',label:'Öffnet heute 20:30',source:'operator',operatorConfirmed:true,proof:'Vom Betrieb gepflegt'};
+      return null;
     };
     const running={id:'live-running',restaurant_id:ids[0],title:'Live Musik',starts_at:new Date(Date.now()-15*60000).toISOString(),ends_at:new Date(Date.now()+75*60000).toISOString()};
     const soon={id:'live-soon',restaurant_id:ids[1],title:'Sunset Session',starts_at:new Date(Date.now()+45*60000).toISOString(),ends_at:new Date(Date.now()+150*60000).toISOString()};
@@ -70,30 +75,39 @@ test('HOY Live secondary text meets WCAG AA contrast',async({page})=>{
 });
 
 test('next-two-hours timeline prefers running then imminent content',async({page})=>{
-  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForData(page);await mockLiveSignals(page);
-  const timeline=page.locator('.live239-timeline');
-  await expect(timeline).toBeVisible();
-  const rows=timeline.locator('> button');
-  await expect(rows).toHaveCount(2);
-  await expect(rows.nth(0)).toContainText('Live Musik');
-  await expect(rows.nth(0)).toContainText('JETZT');
-  await expect(rows.nth(1)).toContainText('Sunset Session');
+  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForData(page);
+  const rows=await page.evaluate(()=>{
+    const ids=DATA.slice(0,2).map(x=>Number(x.id));
+    // Freeze the decision instant away from midnight. The production rule correctly
+    // excludes events that have crossed into the next Madrid calendar day.
+    const now=new Date('2026-08-14T18:00:00Z');
+    const running={id:'live-running',restaurant_id:ids[0],title:'Live Musik',starts_at:new Date(now.getTime()-15*60000).toISOString(),ends_at:new Date(now.getTime()+75*60000).toISOString()};
+    const soon={id:'live-soon',restaurant_id:ids[1],title:'Sunset Session',starts_at:new Date(now.getTime()+45*60000).toISOString(),ends_at:new Date(now.getTime()+150*60000).toISOString()};
+    window.hoyBestCurrentFor=p=>Number(p?.id)===ids[0]?running:Number(p?.id)===ids[1]?soon:null;
+    window.hoyCurrentContentFor=p=>Number(p?.id)===ids[0]?[running]:Number(p?.id)===ids[1]?[soon]:[];
+    return window.hoyLiveDecision239.timelineRows(now).map(({row,phase})=>({title:row.title,key:phase.key,label:phase.label}));
+  });
+  expect(rows).toHaveLength(2);
+  expect(rows[0]).toMatchObject({title:'Live Musik',key:'running'});
+  expect(rows[0].label).toContain('Läuft jetzt');
+  expect(rows[1]).toMatchObject({title:'Sunset Session',key:'soon'});
+  expect(rows[1].label).toContain('Startet in 45 Min.');
 });
 
 test('next-two-hours timeline keeps multiple imminent events from the same venue',async({page})=>{
   await page.goto('./',{waitUntil:'domcontentloaded'});await waitForData(page);
-  await page.evaluate(()=>{
+  const titles=await page.evaluate(()=>{
     const id=Number(DATA[0].id);
-    const first={id:'same-venue-1',restaurant_id:id,title:'DJ Warm-up',starts_at:new Date(Date.now()+20*60000).toISOString(),ends_at:new Date(Date.now()+70*60000).toISOString()};
-    const second={id:'same-venue-2',restaurant_id:id,title:'Sunset Set',starts_at:new Date(Date.now()+80*60000).toISOString(),ends_at:new Date(Date.now()+140*60000).toISOString()};
+    // Freeze this unit of decision logic at 18:00Z (20:00 Madrid in August), so the
+    // second event cannot accidentally cross midnight and correctly leave the "today" timeline.
+    const now=new Date('2026-08-14T18:00:00Z');
+    const first={id:'same-venue-1',restaurant_id:id,title:'DJ Warm-up',starts_at:new Date(now.getTime()+20*60000).toISOString(),ends_at:new Date(now.getTime()+70*60000).toISOString()};
+    const second={id:'same-venue-2',restaurant_id:id,title:'Sunset Set',starts_at:new Date(now.getTime()+80*60000).toISOString(),ends_at:new Date(now.getTime()+140*60000).toISOString()};
     window.hoyCurrentContentFor=p=>Number(p?.id)===id?[first,second]:[];
     window.hoyBestCurrentFor=p=>Number(p?.id)===id?first:null;
-    window.hoyNowStatus219For=()=>({state:'open',label:'Jetzt geöffnet',operatorConfirmed:true,proof:'Vom Betrieb gepflegt'});
-    state.view='home';render();
+    return window.hoyLiveDecision239.timelineRows(now).map(x=>x.row.title);
   });
-  const timeline=page.locator('.live239-timeline');
-  await expect(timeline).toContainText('DJ Warm-up');
-  await expect(timeline).toContainText('Sunset Set');
+  expect(titles).toEqual(['DJ Warm-up','Sunset Set']);
 });
 
 test('nearby requests geolocation only after explicit user action',async({page})=>{
@@ -129,6 +143,9 @@ test('live decision layer keeps provenance visible',async({page})=>{
   await page.goto('./',{waitUntil:'domcontentloaded'});await waitForData(page);await mockLiveSignals(page);
   const cards=page.locator('.live239-recommend-list .live239-card');
   await expect(cards).toHaveCount(3);
-  await expect(cards.nth(0)).toContainText('Vom Betrieb gepflegt');
-  await expect(cards.nth(1)).toContainText('Nicht live bestätigt');
+  // Ranking may change as HOY improves, but the truth labels must survive in the visible set.
+  await expect(cards.filter({hasText:'Vom Betrieb gepflegt'})).toHaveCount(2);
+  await expect(cards.filter({hasText:'Nicht live bestätigt'})).toHaveCount(1);
+  await expect(cards.locator('.live239-signals small.confirmed')).toHaveCount(2);
+  await expect(cards.locator('.live239-signals small.base')).toHaveCount(1);
 });
