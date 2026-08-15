@@ -8,7 +8,11 @@
   const rawBestFor=window.hoyBestCurrentFor||(()=>null);
   const esc239=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  const asDate=v=>{const d=v instanceof Date?v:new Date(v);return Number.isFinite(d.getTime())?d:null};
+  const asDate=v=>{
+    if(v===null||v===undefined||String(v).trim()==='')return null;
+    const d=v instanceof Date?v:new Date(v);
+    return Number.isFinite(d.getTime())?d:null;
+  };
   const parts=v=>{
     const d=asDate(v);if(!d)return null;
     const p=new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d);
