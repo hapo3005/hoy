@@ -36,6 +36,27 @@ test('2.39 reset hardening clears moment even on a control inserted after initia
   expect(await page.evaluate(()=>({moment:state.moment,query:state.query,service:state.service,decision:state.decision}))).toEqual({moment:'all',query:'',service:'all',decision:'all'});
 });
 
+test('service trust never turns an unconfirmed research state into guest availability',async({page})=>{
+  await page.goto('./',{waitUntil:'domcontentloaded'});
+  const values=await page.evaluate(()=>[
+    window.hoyServiceTrust239.trustedServiceValue('available',null),
+    window.hoyServiceTrust239.trustedServiceValue('unavailable',null),
+    window.hoyServiceTrust239.trustedServiceValue('available','2026-08-15T05:00:00Z'),
+    window.hoyServiceTrust239.trustedServiceValue('unavailable','2026-08-15T05:00:00Z')
+  ]);
+  expect(values).toEqual(['Prüfen','Prüfen','Ja','Nein']);
+});
+
+test('cloud restaurant data fails closed for every unconfirmed service row',async({page})=>{
+  await ready(page);
+  const leaks=await page.evaluate(()=>DATA.filter(p=>p.service_trust==='unconfirmed'&&[
+    effectiveServiceState(p,'reservation'),
+    effectiveServiceState(p,'pickup'),
+    effectiveServiceState(p,'delivery')
+  ].includes('available')).map(p=>({id:p.id,name:p.name})));
+  expect(leaks).toEqual([]);
+});
+
 test('full menu and language catalog still crosses the 1000-row boundary safely',async({page})=>{
   await ready(page);
   const state=await page.evaluate(()=>({
