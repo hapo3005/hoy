@@ -57,6 +57,21 @@ test('cloud restaurant data fails closed for every unconfirmed service row',asyn
   expect(leaks).toEqual([]);
 });
 
+test('research-only reservation candidates remain discoverable without a false confirmed label',async({page})=>{
+  await ready(page);
+  const counts=await page.evaluate(()=>({
+    confirmed:DATA.filter(p=>effectiveServiceState(p,'reservation')==='available').length,
+    research:DATA.filter(p=>window.hoyServiceTrust239.researchServiceState(p,'reservation')==='available').length
+  }));
+
+  await page.evaluate(()=>{state.view='discover';state.service='reservation';state.query='';render()});
+  const filter=page.locator('[data-filter="reservation"]');
+  await expect(filter).toBeVisible();
+  if(counts.confirmed===0)await expect(filter).toContainText('Reservierung prüfen');
+  if(counts.research>0)await expect(page.locator('.list-card').first()).toBeVisible();
+  await expect(page.locator('.list-card .service').filter({hasText:'Reservierung'})).toHaveCount(counts.confirmed);
+});
+
 test('full menu and language catalog still crosses the 1000-row boundary safely',async({page})=>{
   await ready(page);
   const state=await page.evaluate(()=>({
