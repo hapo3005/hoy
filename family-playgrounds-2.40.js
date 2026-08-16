@@ -153,7 +153,7 @@
       familyState.loaded=true;familyState.loadError='';return [...byId.values()];
     }catch(err){
       familyState.loaded=true;familyState.loadError=err?.message||String(err);
-      const expectedPreMigration=['PGRST205','42P01','42703'].includes(String(err?.code||''));
+      const expectedPreMigration=['PGRST204','PGRST205','42P01','42703'].includes(String(err?.code||''));
       if(!expectedPreMigration)console.warn('HOY family features unavailable:',familyState.loadError);
       return [];
     }
