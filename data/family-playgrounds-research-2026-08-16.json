@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-16",
+  "market_scope": "HOY Mar Menor start market",
+  "purpose": "Research staging only. This file preserves evidence and mapping status without publishing unverified family claims.",
+  "production_import_allowed": false,
+  "quality_rules": [
+    "Never infer visible_from_seating from distance alone.",
+    "Never infer road_crossing from an address or straight-line distance alone.",
+    "Use hoy_verified only after a HOY on-site check.",
+    "Community verification requires at least two independent current observations.",
+    "Unmatched restaurant names must not be attached to a database restaurant_id by guesswork."
+  ],
+  "mapped_candidates": [
+    {
+      "restaurant_id": 96,
+      "name": "Restaurante La Plaza",
+      "area": "Santiago de la Ribera / San Javier",
+      "mapping_status": "exact",
+      "proposed_status": "source_verified",
+      "family": {
+        "play_types": ["outdoor_playground"],
+        "relationship": "nearby",
+        "access_type": "unknown",
+        "visible_from_seating": true,
+        "road_crossing": "unknown"
+      },
+      "evidence": [
+        {
+          "url": "https://pequemap.com/lugar/restaurante-la-plaza-en-santiago-de-la-ribera/",
+          "label": "PequeMap – restaurant terrace, nearby playground and supervision-from-restaurant description",
+          "checked_at": "2026-08-16"
+        }
+      ],
+      "open_checks": ["exact distance", "road crossing", "fence", "shade"]
+    },
+    {
+      "restaurant_id": 101,
+      "name": "Restaurante Miramar La Ribera",
+      "area": "Santiago de la Ribera / San Javier",
+      "mapping_status": "exact",
+      "proposed_status": "source_verified",
+      "family": {
+        "play_types": ["play_area"],
+        "relationship": "on_premises",
+        "access_type": "restaurant_customers",
+        "visible_from_seating": null,
+        "road_crossing": "unknown"
+      },
+      "evidence": [
+        {
+          "url": "https://www.paginasamarillas.es/f/santiago-de-la-ribera/restaurante-miramar-la-ribera_156562076_000000006.html",
+          "label": "Páginas Amarillas – current zona infantil + terraza/jardín listing",
+          "checked_at": "2026-08-16"
+        }
+      ],
+      "open_checks": ["play-area type", "sightline", "fence", "shade"]
+    },
+    {
+      "restaurant_id": 218,
+      "name": "Restaurante Club Deportivo Mar de Cristal",
+      "area": "Mar de Cristal / Islas Menores",
+      "mapping_status": "exact",
+      "proposed_status": "community_verified",
+      "family": {
+        "play_types": ["outdoor_playground"],
+        "relationship": "on_premises",
+        "access_type": "restaurant_customers",
+        "visible_from_seating": null,
+        "road_crossing": "none"
+      },
+      "evidence": [
+        {
+          "url": "https://www.tripadvisor.com/Restaurant_Review-g1591386-d4745402-Reviews-Restaurante_Club_Deportivo_Mar_de_Cristal-Mar_de_Cristal_Municipality_of_Cartage.html",
+          "label": "Tripadvisor – separate family reports describe children playing in the club kids park while adults use the restaurant",
+          "checked_at": "2026-08-16",
+          "source_count": 2
+        }
+      ],
+      "open_checks": ["direct sightline", "current playground equipment", "shade"]
+    },
+    {
+      "restaurant_id": 163,
+      "name": "Chiringuito Campoamor",
+      "area": "San Pedro del Pinatar / Lo Pagán",
+      "mapping_status": "exact",
+      "proposed_status": "verification_required",
+      "family": null,
+      "evidence": [],
+      "open_checks": ["fresh playground proof", "exact relation to terrace", "sightline"]
+    }
+  ],
+  "priority_unmatched_leads": [
+    {"name":"Restaurante Bamboo","area":"La Manga del Mar Menor","mapping_status":"restaurant_missing","research_strength":"strong","evidence_url":"https://wanderlog.com/es/place/details/4082950/restaurante-braser%C3%ADa-bamboo-la-manga"},
+    {"name":"La Tap-Pizzella","area":"La Manga del Mar Menor","mapping_status":"restaurant_missing","research_strength":"strong","evidence_url":"https://viviendolamanga.es/directorios/la-tap-pizzella/"},
+    {"name":"Restaurante Imperial","area":"Puerto Tomás Maestre / La Manga","mapping_status":"restaurant_missing","research_strength":"verify_current_play_area","evidence_url":"https://www.tripadvisor.es/Restaurant_Review-g642228-d14032096-Reviews-Imperial_La_Manga-La_Manga_del_Mar_Menor_Municipality_of_Cartagena.html"},
+    {"name":"Si! Bar & Restaurant","area":"La Manga Club / Atamaría","mapping_status":"restaurant_missing","research_strength":"strong","evidence_url":"https://www.si-bar.eu/"},
+    {"name":"La Rusticana","area":"Los Belones / Atamaría","mapping_status":"restaurant_missing","research_strength":"strong","evidence_url":"https://la-rusticana-restaurante-y-bar1.webnode.es/"},
+    {"name":"Venta El Sabinar","area":"Los Belones","mapping_status":"restaurant_missing","research_strength":"strong","evidence_url":"https://www.losbelones.com/sitios/venta-el-sabinar/"},
+    {"name":"Venta San José","area":"Mar Menor hinterland","mapping_status":"restaurant_missing","research_strength":"strong","evidence_url":"https://ventasanjose.com/nosotros/"},
+    {"name":"Marea Narejos","area":"Los Alcázares / Los Narejos","mapping_status":"restaurant_missing","research_strength":"strong_commercial_play","evidence_url":"https://www.mareanarejos.com/"},
+    {"name":"Restaurante La Encarnación","area":"Los Alcázares","mapping_status":"restaurant_missing","research_strength":"strong","evidence_url":"https://www.tripadvisor.es/Restaurant_Review-g736856-d2213732-Reviews-Restaurante_La_Encarnacion-Los_Alcazares.html"},
+    {"name":"Casa Lucrecia","area":"San Pedro del Pinatar","mapping_status":"restaurant_missing","research_strength":"strong","evidence_url":"https://www.sluurpy.com/es/san-pedro-del-pinatar/restaurant/1966483/casa-lucrecia/reviews"},
+    {"name":"MardeSal","area":"San Pedro del Pinatar","mapping_status":"restaurant_missing","research_strength":"strong","evidence_url":"https://es.restaurantguru.com/Mardesal-San-Pedro-del-Pinatar"},
+    {"name":"Chiringuito Calisto","area":"El Mojón / San Pedro del Pinatar","mapping_status":"restaurant_missing","research_strength":"strong_community","evidence_url":"https://www.sluurpy.es/san-pedro-del-pinatar/restaurant/1966527/chiringuito-calisto/reviews"},
+    {"name":"Kinita Restaurant & Beach Club","area":"Camping Mar Menor","mapping_status":"restaurant_missing","research_strength":"verify_guest_access","evidence_url":"https://www.kinitarestaurant.com/"},
+    {"name":"Pizzería Da Sebastián","area":"La Manga del Mar Menor","mapping_status":"restaurant_missing","research_strength":"verify_current_play_area","evidence_url":"https://es.restaurantguru.com/Pizzeria-Da-Sebastian-La-Manga-Spain-2"}
+  ],
+  "cluster_backlog": [
+    {"name":"Puerto Tomás Maestre – Jardín infantil","status":"exact_playground_position_needed","evidence_url":"https://puertomaestre.com/servicios/"},
+    {"name":"Cabo de Palos – Calle Yuca","status":"terrace_sightlines_needed"},
+    {"name":"Cabo de Palos – Policía Local / Palmeral","status":"identify_current_adjacent_restaurant"},
+    {"name":"Playa del Espejo","status":"pair_playground_to_best_terrace","evidence_url":"https://turismo.losalcazares.es/playa-del-espejo/"},
+    {"name":"Villananitos","status":"pair_two_new_playgrounds_to_gastro","evidence_url":"https://www.sanpedrodelpinatar.es/la-playa-de-villananitos-cuenta-con-dos-nuevas-zonas-de-juego-infantil/"},
+    {"name":"Los Urrutias – Plaza del Trovo","status":"condition_and_adjacent_gastro_check"},
+    {"name":"Los Nietos – Plaza del Rocío","status":"no_direct_gastro_confirmed_yet","evidence_url":"https://www.cartagena.es/detalle_noticias.asp?id=86593"}
+  ]
+}
