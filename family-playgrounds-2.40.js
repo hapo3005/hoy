@@ -84,7 +84,8 @@
       familyState.loaded=true;familyState.loadError='';return [...byId.values()];
     }catch(err){
       familyState.loaded=true;familyState.loadError=err?.message||String(err);
-      console.warn('HOY family features unavailable:',familyState.loadError);
+      const expectedPreMigration=['PGRST205','42P01'].includes(String(err?.code||''));
+      if(!expectedPreMigration)console.warn('HOY family features unavailable:',familyState.loadError);
       return [];
     }
   }
@@ -160,7 +161,7 @@
     const d=document.getElementById('detail'),row=d?.querySelector('.statusrow');
     if(row&&!row.querySelector('.family240-status')){
       const label=playgroundLabel(f)||(f.indoor_play_area===true?t().indoor:t().family);
-      if(label)row.insertAdjacentHTML('beforeend',`<span class="pill good family240-status">🛝 ${esc240(label)}</span>`);
+      if(label)row.insertAdjacentHTML('beforeend',`<span class="pill good family240-status">${hasPlayground(f)?'🛝':'🧸'} ${esc240(label)}</span>`);
     }
   };
 
@@ -170,6 +171,9 @@
     document.querySelectorAll('[data-family240-filter]').forEach(btn=>btn.onclick=()=>{state.family=btn.dataset.family240Filter||'all';if(typeof trackEvent==='function')trackEvent('family_filter',null,{filter:state.family});render()});
     document.querySelectorAll('[data-family240-situation]').forEach(btn=>btn.onclick=()=>{state.family='playground';state.query='';state.service='all';if(typeof trackEvent==='function')trackEvent('family_situation_open',null,{surface:'home'});nav('discover')});
     document.querySelectorAll('[data-family240-open]').forEach(btn=>btn.onclick=()=>openDetail(Number(btn.dataset.family240Open)));
+    document.querySelectorAll('[data-service]').forEach(btn=>btn.onclick=()=>{state.family='all';state.service=btn.dataset.service;nav('discover')});
+    document.querySelectorAll('[data-zone]').forEach(btn=>btn.onclick=()=>{state.family='all';state.query=btn.dataset.zone;state.service='all';nav('discover')});
+    const go=document.querySelector('[data-go]');if(go)go.onclick=()=>{state.family='all';nav('discover')};
   };
 
   const baseInitCloud240=initCloud;
