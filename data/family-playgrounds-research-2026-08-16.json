@@ -19,6 +19,7 @@
       "area": "Santiago de la Ribera / San Javier",
       "mapping_status": "exact",
       "proposed_status": "source_verified",
+      "seed_status": "prepared_not_applied",
       "family": {
         "play_types": ["outdoor_playground"],
         "relationship": "nearby",
@@ -41,6 +42,7 @@
       "area": "Santiago de la Ribera / San Javier",
       "mapping_status": "exact",
       "proposed_status": "source_verified",
+      "seed_status": "prepared_not_applied",
       "family": {
         "play_types": ["play_area"],
         "relationship": "on_premises",
@@ -63,6 +65,7 @@
       "area": "Mar de Cristal / Islas Menores",
       "mapping_status": "exact",
       "proposed_status": "community_verified",
+      "seed_status": "prepared_not_applied",
       "family": {
         "play_types": ["outdoor_playground"],
         "relationship": "on_premises",
@@ -86,6 +89,7 @@
       "area": "San Pedro del Pinatar / Lo Pagán",
       "mapping_status": "exact",
       "proposed_status": "verification_required",
+      "seed_status": "not_prepared",
       "family": null,
       "evidence": [],
       "open_checks": ["fresh playground proof", "exact relation to terrace", "sightline"]
