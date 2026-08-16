@@ -37,13 +37,13 @@
     if(identity&&!d.querySelector('.family240-status')){
       const summary=document.createElement('div');
       summary.className='family240-card-badges family240-profile-summary';
-      summary.innerHTML=`<span class="pill good family240-status">${esc(`${api.contextLabel(f)}`)}</span>${api.isVisible(f)?`<span class="visible">👀 ${esc(l().visible)}</span>`:''}`;
+      summary.innerHTML=`<span class="pill good family240-status">${esc(api.contextLabel(f))}</span>${api.isVisible(f)?`<span class="visible">👀 ${esc(l().visible)}</span>`:''}`;
       const anchor=identity.querySelector('.profile-trust-line')||identity.querySelector('.meta')||identity.querySelector('h2');
       if(anchor)anchor.insertAdjacentElement('afterend',summary);else identity.appendChild(summary);
     }
 
     const about=d.querySelector('#profile-about')||d.querySelector('[data-tab-content]');
-    if(about&&!about.querySelector('[data-family240-final-profile]'))about.insertAdjacentHTML('beforeend',finalProfilePanel(f));
+    if(about&&!about.querySelector('.family240-profile'))about.insertAdjacentHTML('beforeend',finalProfilePanel(f));
     return true;
   }
 
@@ -58,7 +58,7 @@
     baseWire240h();
     const clear=()=>{state.family='all'};
     document.querySelectorAll('[data-home-intent],[data-home-search-go],[data-zone],[data-nav="discover"],[data-btm="discover"]').forEach(el=>el.addEventListener('click',clear,{capture:true,once:true}));
-    document.querySelectorAll('[data-home-search]').forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')clear()},{capture:true,once:true}));
+    document.querySelectorAll('[data-home-search]').forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')clear()},{capture:true}));
   };
 
   window.hoyFamilyPlaygroundsHardening240={applyFinalProfile};
