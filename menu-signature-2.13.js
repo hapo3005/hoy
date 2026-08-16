@@ -1,14 +1,28 @@
-/* HOY 2.20.1 — signature localized menu experience with bounded non-blocking refresh reconciliation */
+/* HOY 2.40.0 — signature localized menu experience with truthful guest headings */
 (function(){
   const COPY={
     de:{title:'Speisekarte auf Deutsch',partial:'Auswahl auf Deutsch',promise:'Für dich auf Deutsch',proof:'Kulinarisch übersetzt · Originalpreise unverändert',body:'HOY überträgt Gerichte sinngemäß statt Wort für Wort. Spanische Eigennamen bleiben erhalten, wenn sie zum Gericht gehören.',search:'Speisekarte durchsuchen …',checked:'HOY redaktionell geprüft'},
     en:{title:'Menu in English',partial:'Selection in English',promise:'In English for you',proof:'Culinary translation · original prices unchanged',body:'HOY translates dishes by culinary meaning rather than word for word. Spanish names stay where they are part of the dish.',search:'Search this menu …',checked:'Editorially reviewed by HOY'},
     es:{title:'Carta en español',partial:'Selección en español',promise:'En español para ti',proof:'Adaptación culinaria · precios originales sin cambios',body:'HOY adapta los platos por su sentido culinario, no palabra por palabra. Los nombres propios se mantienen cuando forman parte del plato.',search:'Buscar en esta carta …',checked:'Revisado por HOY'}
   };
+  const HEAD_COPY={
+    de:{full:'Speisekarte',partial:'Erfasste Auswahl',source:'Speisekarten-Quelle',status:'Speisekarten-Status'},
+    en:{full:'Menu',partial:'Captured selection',source:'Menu source',status:'Menu status'},
+    es:{full:'Carta',partial:'Selección registrada',source:'Fuente de la carta',status:'Estado de la carta'}
+  };
 
   function copyFor(m){return COPY[m?.locale]||COPY.de}
   function itemCount(section){return section?.querySelectorAll('[data-menu-item]').length||0}
-  function isPartial(m){return m?.integrity==='partial'||m?.status==='partial'}
+  function isPartial(m){return m?.integrity==='partial'||m?.status==='partial'||m?.status==='integrity_partial'}
+  function guestMenuState(m,section){
+    const n=itemCount(section);
+    const complete=typeof window.hoyMenuInAppComplete238==='function'
+      ? window.hoyMenuInAppComplete238(m)===true
+      : m?.status==='structured'&&n>0;
+    const partial=!complete&&n>0&&isPartial(m);
+    const external=m?.guestAvailability==='external_reference'||['source_only','verified_snapshot_complete','verified_snapshot_source','transactional_complete','transactional_partial'].includes(String(m?.integrity||''));
+    return {n,complete,partial,external};
+  }
 
   function decorateSearch(section,m){
     const input=section.querySelector('[data-menu-search]');
@@ -138,19 +152,26 @@
     const h3=head?.querySelector('h3');
     const small=head?.querySelector('small');
     const count=head?.querySelector('.profile-menu-count');
-    if(small&&small.textContent!=='HOY SPEISEKARTE')small.textContent='HOY SPEISEKARTE';
-    if(h3&&m?.localized){
-      const c=copyFor(m);
-      const wanted=isPartial(m)?c.partial:c.title;
-      if(h3.textContent!==wanted)h3.textContent=wanted;
+    const g=guestMenuState(m,section);
+    const hc=HEAD_COPY[state?.lang]||HEAD_COPY.de;
+
+    if(small)small.textContent=g.complete?'HOY SPEISEKARTE':g.partial?'HOY · TEILSTAND':g.external?'KARTENQUELLE':'SPEISEKARTEN-STATUS';
+    if(h3){
+      if(m?.localized&&(g.complete||g.partial)){
+        const c=copyFor(m);
+        h3.textContent=g.partial?c.partial:c.title;
+      }else h3.textContent=g.complete?hc.full:g.partial?hc.partial:g.external?hc.source:hc.status;
     }
-    const n=itemCount(section);
-    if(count&&n){const wanted=`${n} Positionen`;if(count.textContent!==wanted)count.textContent=wanted}
+    if(count){
+      if(g.n)count.textContent=`${g.n} Positionen`;
+      else if(typeof menuStatusLabel==='function')count.textContent=menuStatusLabel(m);
+    }
 
     addPromise(section,m);
     restyleProvenance(section);
     decorateSearch(section,m);
-    return decorateCategories(section,d);
+    const decorated=decorateCategories(section,d);
+    return decorated||g.n===0;
   }
 
   function cancelSignatureRetry(d){
