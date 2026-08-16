@@ -47,11 +47,11 @@ revoke all on table public.restaurant_family_features from anon, authenticated;
 grant select on table public.restaurant_family_features to anon, authenticated;
 grant insert, update, delete on table public.restaurant_family_features to authenticated;
 
-drop policy if exists "public reads verified family features" on public.restaurant_family_features;
-create policy "public reads verified family features"
+drop policy if exists "anonymous reads verified family features" on public.restaurant_family_features;
+create policy "anonymous reads verified family features"
   on public.restaurant_family_features
   for select
-  to anon, authenticated
+  to anon
   using (
     verification_status in ('operator_confirmed','source_verified','hoy_verified')
     and exists (
@@ -60,20 +60,44 @@ create policy "public reads verified family features"
     )
   );
 
-drop policy if exists "members read own family feature records" on public.restaurant_family_features;
-create policy "members read own family feature records"
+drop policy if exists "authenticated reads allowed family features" on public.restaurant_family_features;
+create policy "authenticated reads allowed family features"
   on public.restaurant_family_features
   for select
   to authenticated
-  using (private.is_restaurant_member(restaurant_id));
+  using (
+    private.is_hoy_admin()
+    or private.is_restaurant_member(restaurant_id)
+    or (
+      verification_status in ('operator_confirmed','source_verified','hoy_verified')
+      and exists (
+        select 1 from public.restaurants r
+        where r.id=restaurant_id and r.is_published=true
+      )
+    )
+  );
 
-drop policy if exists "hoy admins manage family features" on public.restaurant_family_features;
-create policy "hoy admins manage family features"
+drop policy if exists "hoy admins insert family features" on public.restaurant_family_features;
+create policy "hoy admins insert family features"
   on public.restaurant_family_features
-  for all
+  for insert
+  to authenticated
+  with check (private.is_hoy_admin());
+
+drop policy if exists "hoy admins update family features" on public.restaurant_family_features;
+create policy "hoy admins update family features"
+  on public.restaurant_family_features
+  for update
   to authenticated
   using (private.is_hoy_admin())
   with check (private.is_hoy_admin());
+
+drop policy if exists "hoy admins delete family features" on public.restaurant_family_features;
+create policy "hoy admins delete family features"
+  on public.restaurant_family_features
+  for delete
+  to authenticated
+  using (private.is_hoy_admin());
 
 comment on table public.restaurant_family_features is
   'Verified family decision facts for HOY Gastro. Unverified rows are never exposed to anonymous guests.';
