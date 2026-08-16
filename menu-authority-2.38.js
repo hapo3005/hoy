@@ -1,8 +1,8 @@
-/* HOY 2.38.1 — menu provenance is independent from guest menu availability */
+/* HOY 2.38.2 — menu provenance is independent from guest menu availability */
 (function(){
   if(window.__hoyMenuAuthority238)return;
   window.__hoyMenuAuthority238=true;
-  window.hoyMenuAuthorityVersion='2.38.1';
+  window.hoyMenuAuthorityVersion='2.38.2';
 
   const TRUSTED=new Set(['first_party','operator_social','authorized_transactional','verified_public_snapshot']);
   const CORE=new Set(['full_menu','food','breakfast','lunch','dinner','day_menu','tasting']);
@@ -27,7 +27,13 @@
     if(integrity==='embed_complete')return m?.displayMode==='official_embed'&&!!safeHttps(m?.embedUrl);
     return false;
   }
-  function currentStrong(m){return inAppComplete(m)}
+  function inAppPartial(m){
+    const integrity=clean(m?.integrity),status=clean(m?.status);
+    return categoryCount(m)>0&&(integrity==='partial'||status==='partial'||(status==='integrity_partial'&&!['transactional_complete','transactional_partial'].includes(integrity)));
+  }
+  /* Even a truthful partial HOY menu is more useful than replacing it with an external
+     source card. External authority may supplement provenance, never erase in-app facts. */
+  function currentStrong(m){return inAppComplete(m)||inAppPartial(m)}
   function trustedSources(rows){return (rows||[]).filter(s=>TRUSTED.has(authority(s))&&CORE.has(clean(s.coverage_scope))&&!['invalid','superseded','unknown'].includes(clean(s.completeness_status))).sort((a,b)=>weight(b)-weight(a)||authWeight(b)-authWeight(a)||String(checked(b)).localeCompare(String(checked(a))))}
 
   async function fetchTrusted(){
@@ -69,7 +75,7 @@
         MENUS[id]={...current,status:'source_only',integrity:'verified_snapshot_source',sourceCompleteness:status,guestAvailability:'external_reference',officialMenuUrl:url,label:clean(primary.source_label)||'Öffentliche Kartenaufnahme',checked:checked(primary),sourceAuthority:a,cloud:true,localized:false,locale:null,translationStatus:null,languageCoverage:null,note:'Eine identitätsgeprüfte öffentliche Kartenaufnahme ist bekannt, aber noch nicht als vollständige HOY-Speisekarte freigegeben.'};
       }
     }
-    window.hoyMenuAuthority238={sourceCount:sources.length,snapshots,transactional,loadedAt:Date.now(),inAppComplete};
+    window.hoyMenuAuthority238={sourceCount:sources.length,snapshots,transactional,loadedAt:Date.now(),inAppComplete,inAppPartial};
     window.dispatchEvent(new CustomEvent('hoy:menu-authority-ready',{detail:window.hoyMenuAuthority238}));
   }
 
@@ -107,4 +113,5 @@
   };
 
   window.hoyMenuInAppComplete238=inAppComplete;
+  window.hoyMenuInAppPartial238=inAppPartial;
 })();
