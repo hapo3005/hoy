@@ -26,21 +26,24 @@ async function seedVisualFamily(page){
   });
 }
 
-test('capture HOY Family home, discover and profile for visual QA',async({page},testInfo)=>{
+test('capture native HOY Family home, discover and profile for visual QA',async({page},testInfo)=>{
   await ready(page);
   await seedVisualFamily(page);
 
-  const home=page.locator('[data-family240-home]');
-  await expect(home).toBeVisible();
-  await testInfo.attach('family-home.png',{body:await home.screenshot(),contentType:'image/png'});
+  await expect(page.locator('[data-family240-home]')).toHaveCount(0);
+  const home=page.locator('.journey-intent-grid');
+  await expect(page.locator('[data-family240-home-context]')).toBeVisible();
+  await testInfo.attach('family-home-native.png',{body:await home.screenshot(),contentType:'image/png'});
 
-  await page.locator('[data-family240-situation]').click();
-  await expect(page.locator('.family240-filter')).toBeVisible();
-  await testInfo.attach('family-discover.png',{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
+  await page.locator('[data-family240-home-context]').click();
+  await expect(page.locator('[data-family240-context-bar]')).toBeVisible();
+  await expect(page.locator('.family240-filter')).toHaveCount(0);
+  await testInfo.attach('family-discover-native.png',{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
 
   const id=await page.evaluate(()=>Number(DATA[0].id));
   await page.evaluate(id=>openDetail(id),id);
   const profile=page.locator('[data-family240-final-profile]');
   await expect(profile).toBeVisible();
-  await testInfo.attach('family-profile.png',{body:await profile.screenshot(),contentType:'image/png'});
+  await expect(profile.locator('[data-family240-details]')).not.toHaveAttribute('open','');
+  await testInfo.attach('family-profile-native.png',{body:await profile.screenshot(),contentType:'image/png'});
 });
