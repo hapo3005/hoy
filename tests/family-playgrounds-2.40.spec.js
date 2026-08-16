@@ -5,7 +5,7 @@ const path=require('path');
 test.use({serviceWorkers:'block'});
 
 async function waitForFamily(page){
-  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>=3&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240,{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>=3&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyPlaygroundsHardening240,{timeout:30000});
 }
 
 async function seedFamilyFixtures(page){
@@ -34,15 +34,17 @@ async function seedFamilyFixtures(page){
 }
 
 test('family assets are wired without changing the guarded 2.39 release shell',async({page,request})=>{
-  const [js,css,index]=await Promise.all([
+  const [js,hardening,css,index]=await Promise.all([
     request.get('./family-playgrounds-2.40.js'),
+    request.get('./family-playgrounds-hardening-2.40.js'),
     request.get('./family-playgrounds-2.40.css'),
     request.get('./index.html')
   ]);
-  expect(js.ok()).toBeTruthy();expect(css.ok()).toBeTruthy();expect(index.ok()).toBeTruthy();
+  expect(js.ok()).toBeTruthy();expect(hardening.ok()).toBeTruthy();expect(css.ok()).toBeTruthy();expect(index.ok()).toBeTruthy();
   const html=await index.text();
   expect(html).toContain('App 2.39.0');
   expect(html).toContain('family-playgrounds-2.40.js?v=2.40.0');
+  expect(html).toContain('family-playgrounds-hardening-2.40.js?v=2.40.0');
   expect(html).toContain('family-playgrounds-2.40.css?v=2.40.0');
   await page.goto('./',{waitUntil:'domcontentloaded'});await waitForFamily(page);
   expect(await page.evaluate(()=>window.hoyFamilyPlaygroundsVersion)).toBe('2.40.0');
@@ -118,7 +120,7 @@ test('restaurant profile explains access, route, supervision and verification pr
   await page.evaluate(id=>openDetail(id),id);
   const dialog=page.locator('#detail');
   await expect(dialog.locator('.family240-status')).toContainText('Direkt daneben');
-  const panel=dialog.locator('.family240-profile');
+  const panel=dialog.locator('[data-family240-final-profile]');
   await expect(panel).toBeVisible();
   await expect(panel).toContainText('Für Familien');
   await expect(panel).toContainText('Spielplatz');
