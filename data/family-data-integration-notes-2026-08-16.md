@@ -1,6 +1,6 @@
 # HOY Family 2.40 — Data integration gate
 
-This branch is intentionally based on `agent/family-playgrounds-2.40` and contains data-integration work only.
+This branch is intentionally data-only and is now based as a pull request on the current `main` after the Family feature and native-integration PRs were merged.
 
 ## Current audited scope
 
@@ -19,12 +19,14 @@ This branch is intentionally based on `agent/family-playgrounds-2.40` and contai
 4. `family_features_240_stage2_verified.sql` aborts if any expected restaurant slug is missing, preventing a partial Family import.
 5. Research data cannot award `hoy_verified`; that status remains reserved for a real HOY on-site check.
 6. No SQL in this branch has been executed against production.
+7. Merging this PR only adds inert research/seed/test files to the repository; it does not execute a migration or seed.
 
 ## Required order later
 
-1. Review/merge Family feature PR.
-2. Apply/test Family schema in a non-production target.
-3. Review/apply unpublished restaurant profile staging in that target.
-4. Review/apply verified Family feature seed in that target.
-5. Visual + data smoke test using real entries.
-6. Independent review before any production migration/seed.
+1. Merge this audited data package only after fresh QA against current `main` is green.
+2. Use the master data for a clearly labelled client-side research preview; do not present unpublished draft profiles as live venue data.
+3. Apply/test the Family schema only in a non-production target.
+4. Review/apply unpublished restaurant profile staging in that target.
+5. Review/apply verified Family feature seed in that target.
+6. Run visual + data smoke tests using the real audited entries.
+7. Perform an independent review before any production migration/seed.
