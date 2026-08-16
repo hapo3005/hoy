@@ -7,6 +7,7 @@
   "quality_rules": [
     "Never infer visible_from_seating from distance alone.",
     "Never infer road_crossing from an address or straight-line distance alone.",
+    "Never infer indoor vs outdoor play from a generic zona infantil label.",
     "Use hoy_verified only after a HOY on-site check.",
     "Community verification requires at least two independent current observations.",
     "Unmatched restaurant names must not be attached to a database restaurant_id by guesswork."
@@ -43,7 +44,7 @@
       "family": {
         "play_types": ["play_area"],
         "relationship": "on_premises",
-        "access_type": "restaurant_customers",
+        "access_type": "unknown",
         "visible_from_seating": null,
         "road_crossing": "unknown"
       },
@@ -54,7 +55,7 @@
           "checked_at": "2026-08-16"
         }
       ],
-      "open_checks": ["play-area type", "sightline", "fence", "shade"]
+      "open_checks": ["play-area type", "access rules", "sightline", "fence", "shade"]
     },
     {
       "restaurant_id": 218,
@@ -65,9 +66,9 @@
       "family": {
         "play_types": ["outdoor_playground"],
         "relationship": "on_premises",
-        "access_type": "restaurant_customers",
+        "access_type": "unknown",
         "visible_from_seating": null,
-        "road_crossing": "none"
+        "road_crossing": "unknown"
       },
       "evidence": [
         {
@@ -77,7 +78,7 @@
           "source_count": 2
         }
       ],
-      "open_checks": ["direct sightline", "current playground equipment", "shade"]
+      "open_checks": ["access rules", "road/pedestrian path", "direct sightline", "current playground equipment", "shade"]
     },
     {
       "restaurant_id": 163,
