@@ -73,7 +73,7 @@ test('family preview is integrated into the normal HOY decision flow',async({pag
   await expect(profile.locator('[data-family240-details]')).not.toHaveAttribute('open','');
   await profile.locator('[data-family240-details] summary').click();
   await expect(profile.locator('[data-family240-details]')).toHaveAttribute('open','');
-  await expect(profile).toContainText(/Beispieldaten|sample data|datos de ejemplo/i);
+  await expect(profile).toContainText(/Auditierte Research-Daten|Audited research data|Datos de investigación auditados|Beispieldaten|sample data|datos de ejemplo/i);
 });
 
 test('regular HOY situations leave the Family context',async({page})=>{
