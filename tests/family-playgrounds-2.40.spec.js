@@ -70,18 +70,22 @@ test('research staging cannot silently become fabricated production data',async(
   expect(seed).toContain('restaurant_family_features');
 });
 
-test('Essen & Spielen only surfaces verified play facts',async({page})=>{
+test('native Family context only surfaces verified family facts',async({page})=>{
   await page.goto('./',{waitUntil:'domcontentloaded'});await waitForFamily(page);await seedFamilyFixtures(page);
-  const block=page.locator('[data-family240-home]');
-  await expect(block).toBeVisible();
-  await expect(block).toContainText('Essen & Spielen');
   const names=await page.evaluate(()=>DATA.slice(0,3).map(x=>x.name));
-  await expect(block).toContainText(names[0]);
-  await expect(block).toContainText(names[1]);
-  await expect(block).not.toContainText(names[2]);
-  await expect(block).toContainText('Vom Sitzplatz einsehbar');
-  await expect(block).toContainText('HOY verifiziert');
-  await expect(block).toContainText('Community bestätigt');
+
+  await expect(page.locator('[data-family240-home]')).toHaveCount(0);
+  await expect(page.locator('[data-family240-home-context]')).toBeVisible();
+  expect(await page.evaluate(()=>window.hoyFamilyPlaygrounds240.familyFor(DATA[2])===null)).toBe(true);
+
+  await page.locator('[data-family240-home-context]').click();
+  await expect.poll(()=>page.evaluate(()=>state.family)).toBe('family');
+  await expect(page.locator('[data-family240-context-main]')).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('[data-family240-context-bar]')).toBeVisible();
+  await expect(page.locator('.family240-filter')).toHaveCount(0);
+  await expect(page.locator('.list')).toContainText(names[0]);
+  await expect(page.locator('.list')).toContainText(names[1]);
+  await expect(page.locator('.list')).not.toContainText(names[2]);
 });
 
 test('family filters distinguish play, direct and visible use cases without guessing unknown sightlines',async({page})=>{
@@ -104,32 +108,50 @@ test('family filters distinguish play, direct and visible use cases without gues
   expect(result.paidLabel).toBe('Kostenpflichtig');
   expect(result.context).toContain('Freizeitpark');
 
-  await page.locator('[data-family240-situation]').click();
-  await expect(page.locator('.family240-filter')).toBeVisible();
-  await expect(page.locator('[data-family240-filter="playground"]')).toHaveAttribute('aria-pressed','true');
-  await page.locator('[data-family240-filter="visible"]').click();
+  await page.locator('[data-family240-home-context]').click();
+  await expect(page.locator('[data-family240-context-bar]')).toBeVisible();
+  await page.locator('[data-family240-subfilter="playground"]').click();
+  await expect(page.locator('[data-family240-subfilter="playground"]')).toHaveAttribute('aria-pressed','true');
   const firstName=await page.evaluate(()=>DATA[0].name);
   const secondName=await page.evaluate(()=>DATA[1].name);
+  const unverifiedName=await page.evaluate(()=>DATA[2].name);
+  await expect(page.locator('.list')).toContainText(firstName);
+  await expect(page.locator('.list')).toContainText(secondName);
+  await expect(page.locator('.list')).not.toContainText(unverifiedName);
+
+  await page.locator('[data-family240-subfilter="direct"]').click();
+  await expect(page.locator('.list')).toContainText(firstName);
+  await expect(page.locator('.list')).toContainText(secondName);
+
+  await page.locator('[data-family240-subfilter="visible"]').click();
+  await expect(page.locator('[data-family240-subfilter="visible"]')).toHaveAttribute('aria-pressed','true');
   await expect(page.locator('.list')).toContainText(firstName);
   await expect(page.locator('.list')).not.toContainText(secondName);
+  await expect(page.locator('.list')).not.toContainText(unverifiedName);
 });
 
-test('restaurant profile explains access, route, supervision and verification provenance',async({page})=>{
+test('restaurant profile keeps compact family guidance while full facts preserve provenance',async({page})=>{
   await page.goto('./',{waitUntil:'domcontentloaded'});await waitForFamily(page);await seedFamilyFixtures(page);
   const id=await page.evaluate(()=>Number(DATA[0].id));
   await page.evaluate(id=>openDetail(id),id);
   const dialog=page.locator('#detail');
-  await expect(dialog.locator('.family240-status')).toContainText('Direkt daneben');
   const panel=dialog.locator('[data-family240-final-profile]');
   await expect(panel).toBeVisible();
   await expect(panel).toContainText('Für Familien');
-  await expect(panel).toContainText('Spielplatz');
-  await expect(panel).toContainText('Kostenlos');
-  await expect(panel).toContainText('18 m · HOY gemessen');
-  await expect(panel).toContainText('Vom Sitzplatz einsehbar');
-  await expect(panel).toContainText('Keine Straßenquerung');
-  await expect(panel).toContainText('Eltern');
-  await expect(panel).toContainText('Kindergerichte');
+  await expect(panel.locator('.family240-profile-highlights')).toContainText('Spielplatz');
+  await expect(panel.locator('.family240-profile-highlights')).toContainText('Vom Tisch sichtbar');
+  await expect(panel.locator('.family240-profile-highlights')).toContainText('Keine Straßenquerung');
+
+  const details=panel.locator('[data-family240-details]');
+  await expect(details).not.toHaveAttribute('open','');
+  await details.locator('summary').click();
+  await expect(details).toHaveAttribute('open','');
+  await expect(details).toContainText('Kostenlos');
+  await expect(details).toContainText('18 m · HOY gemessen');
+  await expect(details).toContainText('Vom Sitzplatz einsehbar');
+  await expect(details).toContainText('Keine Straßenquerung');
+  await expect(details).toContainText('Eltern');
+  await expect(details).toContainText('Kindergerichte');
   await expect(panel).toContainText('HOY verifiziert');
   await expect(panel.locator('a')).toHaveAttribute('href','https://example.com/family-proof');
 });
