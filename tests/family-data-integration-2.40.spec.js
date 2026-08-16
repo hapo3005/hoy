@@ -19,6 +19,7 @@ test('Family master is comprehensive, unique and non-production by default',asyn
   expect(ready).toHaveLength(17);
   expect(ready.every(x=>['operator_confirmed','source_verified','community_verified'].includes(x.verification))).toBeTruthy();
   expect(ready.every(x=>x.verification!=='hoy_verified')).toBeTruthy();
+  expect(ready.filter(x=>x.verification==='community_verified').every(x=>Number(x.source_count)>=2)).toBeTruthy();
 
   expect(master.entries.some(x=>x.status==='status_conflict')).toBeTruthy();
   expect(master.entries.some(x=>x.status==='historical_only')).toBeTruthy();
@@ -46,7 +47,17 @@ test('verified Family seed resolves IDs by slug and refuses partial or HOY-self-
   const sql=read('supabase/seeds/family_features_240_stage2_verified.sql');
   const ready=master.entries.filter(x=>x.status==='seed_ready');
 
-  for(const row of ready)expect(sql).toContain(`'${row.slug}'`);
+  for(const row of ready){
+    const marker=`('${row.slug}',`;
+    const start=sql.indexOf(marker);
+    expect(start,`missing seed tuple for ${row.slug}`).toBeGreaterThanOrEqual(0);
+    const rest=sql.slice(start);
+    const next=rest.indexOf("\n\n    ('",marker.length);
+    const tuple=next>=0?rest.slice(0,next):rest.slice(0,rest.indexOf('\n)'));
+    expect(tuple,`verification drift for ${row.slug}`).toContain(`'${row.verification}',${row.source_count},`);
+    expect(tuple,`source drift for ${row.slug}`).toContain(`'${row.source_url}'`);
+  }
+
   expect(sql).toContain("raise exception 'HOY Family seed aborted: missing restaurant slugs: %'");
   expect(sql).toContain("join public.restaurants r on r.slug=v.slug");
   expect(sql).toContain("research data cannot be hoy_verified");
