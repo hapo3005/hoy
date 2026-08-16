@@ -4,7 +4,7 @@ test.use({serviceWorkers:'block'});
 
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>=3&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240,{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>=3&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyPlaygroundsHardening240,{timeout:30000});
 }
 
 async function seedVisualFamily(page){
@@ -32,7 +32,6 @@ test('capture HOY Family home, discover and profile for visual QA',async({page},
 
   const home=page.locator('[data-family240-home]');
   await expect(home).toBeVisible();
-  await home.scrollIntoViewIfNeeded();
   await testInfo.attach('family-home.png',{body:await home.screenshot(),contentType:'image/png'});
 
   await page.locator('[data-family240-situation]').click();
@@ -41,8 +40,7 @@ test('capture HOY Family home, discover and profile for visual QA',async({page},
 
   const id=await page.evaluate(()=>Number(DATA[0].id));
   await page.evaluate(id=>openDetail(id),id);
-  const profile=page.locator('.family240-profile');
+  const profile=page.locator('[data-family240-final-profile]');
   await expect(profile).toBeVisible();
-  await profile.scrollIntoViewIfNeeded();
   await testInfo.attach('family-profile.png',{body:await profile.screenshot(),contentType:'image/png'});
 });
