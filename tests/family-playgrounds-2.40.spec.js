@@ -148,7 +148,7 @@ test('restaurant profile keeps compact family guidance while full facts preserve
   await expect(details).toHaveAttribute('open','');
   await expect(details).toContainText('Kostenlos');
   await expect(details).toContainText('18 m · HOY gemessen');
-  await expect(details).toContainText('Vom Sitzplatz einsehbar');
+  await expect(details).toContainText('Vom Tisch sichtbar');
   await expect(details).toContainText('Keine Straßenquerung');
   await expect(details).toContainText('Eltern');
   await expect(details).toContainText('Kindergerichte');
