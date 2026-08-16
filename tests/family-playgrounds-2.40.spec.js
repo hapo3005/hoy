@@ -62,6 +62,7 @@ test('research staging cannot silently become fabricated production data',async(
   expect(research.production_import_allowed).toBe(false);
   expect(research.mapped_candidates.filter(x=>x.proposed_status!=='verification_required')).toHaveLength(3);
   expect(research.priority_unmatched_leads.every(x=>x.mapping_status==='restaurant_missing')).toBeTruthy();
+  expect(research.quality_rules).toContain('Never infer indoor vs outdoor play from a generic zona infantil label.');
   expect(seed).not.toContain("'hoy_verified'");
   expect(seed).not.toContain('Restaurante Bamboo');
   expect(seed).toContain('restaurant_family_features');
