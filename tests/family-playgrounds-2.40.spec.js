@@ -56,6 +56,17 @@ test('migration encodes the orthogonal HOY family quality model',async()=>{
   expect(sql).not.toContain('playground_type text not null');
 });
 
+test('research staging cannot silently become fabricated production data',async()=>{
+  const research=JSON.parse(fs.readFileSync(path.join(process.cwd(),'data/family-playgrounds-research-2026-08-16.json'),'utf8'));
+  const seed=fs.readFileSync(path.join(process.cwd(),'supabase/seeds/family_playgrounds_240_verified.sql'),'utf8');
+  expect(research.production_import_allowed).toBe(false);
+  expect(research.mapped_candidates.filter(x=>x.proposed_status!=='verification_required')).toHaveLength(3);
+  expect(research.priority_unmatched_leads.every(x=>x.mapping_status==='restaurant_missing')).toBeTruthy();
+  expect(seed).not.toContain("'hoy_verified'");
+  expect(seed).not.toContain('Restaurante Bamboo');
+  expect(seed).toContain('restaurant_family_features');
+});
+
 test('Essen & Spielen only surfaces verified play facts',async({page})=>{
   await page.goto('./',{waitUntil:'domcontentloaded'});await waitForFamily(page);await seedFamilyFixtures(page);
   const block=page.locator('[data-family240-home]');
