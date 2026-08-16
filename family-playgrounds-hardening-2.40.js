@@ -6,7 +6,7 @@
   const api=window.hoyFamilyPlaygrounds240;
   if(!api)return;
 
-  const esc=v=>typeof window.esc==='function'?window.esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+  const esc=v=>typeof window.esc==='function'?window.esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const labels={
     de:{facts:'Für Familien',play:'Spielangebot',relationship:'Lage zum Restaurant',access:'Zugang',distance:'Entfernung',visible:'Vom Sitzplatz einsehbar',road:'Weg zum Spielbereich',traffic:'Vom Verkehr getrennt',fenced:'Eingezäunt',shade:'Schatten am Spielbereich',supervision:'Aufsicht',highchairs:'Hochstühle',changing:'Wickelmöglichkeit',kidsMenu:'Kindergerichte',stroller:'Kinderwagen-tauglich',age:'Geeignetes Alter'},
     en:{facts:'For families',play:'Play option',relationship:'Location vs venue',access:'Access',distance:'Distance',visible:'Visible from seating',road:'Route to play area',traffic:'Separated from traffic',fenced:'Fenced',shade:'Shade at play area',supervision:'Supervision',highchairs:'Highchairs',changing:'Changing facility',kidsMenu:'Kids menu',stroller:'Stroller friendly',age:'Suitable age'},
