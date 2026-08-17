@@ -23,21 +23,30 @@ test('all Family result cards expose Family decision signals, including existing
   await expect(existing.locator('.family240-card-badges span').first()).not.toHaveText('');
 });
 
-test('research drafts use the normal decision-copy structure and a compact preview art tile',async({page})=>{
+test('research drafts use normal decision copy plus the established direct verdict grid slot',async({page})=>{
   await openFamily(page);
 
   const draft=page.locator('.family240-research-card').first();
   await expect(draft).toBeVisible();
-  await expect(draft.locator('.decision-copy')).toHaveCount(1);
+  await expect(draft.locator(':scope > .decision-copy')).toHaveCount(1);
   await expect(draft.locator('.family240-card-badges')).toBeVisible();
-  await expect(draft.locator('.decision280-card-verdict')).toBeVisible();
+  await expect(draft.locator(':scope > .decision280-card-verdict')).toBeVisible();
   await expect(draft.locator('.family240-research-lock')).toHaveCount(0);
 
   const sizes=await draft.evaluate(card=>{
-    const art=card.querySelector('.family240-research-art');
+    const art=card.querySelector(':scope > .family240-research-art');
+    const verdict=card.querySelector(':scope > .decision280-card-verdict');
     const c=card.getBoundingClientRect(),a=art.getBoundingClientRect();
-    return {cardHeight:c.height,artHeight:a.height,overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth};
+    return {
+      cardHeight:c.height,
+      artHeight:a.height,
+      artArea:getComputedStyle(art).gridArea,
+      verdictArea:getComputedStyle(verdict).gridArea,
+      overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth
+    };
   });
+  expect(sizes.artArea).toBe('art');
+  expect(sizes.verdictArea).toBe('verdict');
   expect(sizes.artHeight).toBeLessThanOrEqual(110);
   expect(sizes.cardHeight).toBeLessThan(260);
   expect(sizes.overflow).toBe(false);
