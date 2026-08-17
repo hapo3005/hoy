@@ -4,7 +4,7 @@ test.use({serviceWorkers:'block'});
 
 async function openFamily(page){
   await page.goto('./?familyPreview=1',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true,{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true&&window.hoyFamilyDataCompletion242?.state?.status==='ready',{timeout:30000});
   await page.locator('[data-family240-home-context]').click();
   await expect.poll(()=>page.evaluate(()=>state.family)).toBe('family');
   await expect(page.locator('[data-result-count]')).toHaveText('19');
@@ -29,8 +29,8 @@ test('La Rusticana opens with normal premium profile depth while staying a truth
   await expect(detail).toContainText('+34 626 919 020');
   await expect(detail).toContainText('Mo–Di geschlossen');
   await expect(detail.locator('.family240-enriched-actions a')).toHaveCount(4);
-  await expect(detail.locator('.family240-enriched-status')).toContainText('Premium-Profil vorbereitet');
-  await expect(detail.locator('.family240-enriched-status')).toContainText('Noch nicht live veröffentlicht');
+  await expect(detail.locator('.family240-enriched-status')).toContainText('Kernprofil vollständig geprüft');
+  await expect(detail.locator('.family240-enriched-status')).toContainText('Nicht veröffentlichte Services');
 
   await expect(detail.locator('#family240-enriched-overview')).toBeVisible();
   await expect(detail.locator('#family240-enriched-menu')).toBeVisible();
@@ -182,7 +182,7 @@ test('José Antonio uses the current official Lo Pagán contact and never revive
   await expect(detail).toContainText('+34 636 756 940');
   await expect(detail).not.toContainText('638 958 995');
   await expect(detail).not.toContainText('07:00–03:00');
-  await expect(detail).toContainText('separaten Obrador');
+  await expect(detail).toContainText('Lo-Pagán-Filiale aktuell keine eigenen Filialzeiten');
   await expect(detail.locator('#family240-enriched-menu')).toContainText('Offizieller Produktkatalog');
 });
 
@@ -202,7 +202,7 @@ test('source-verified Family facts stay source-verified and normal HOY profiles 
 });
 
 test('premium enrichment and research standard are read-only and contain no database write path',async({request})=>{
-  for(const path of ['./family-profile-enrichment-2.40.js','./family-research-standard-2.41.js']){
+  for(const path of ['./family-profile-enrichment-2.40.js','./family-research-standard-2.41.js','./family-data-completion-2.42.js']){
     const js=await (await request.get(path)).text();
     expect(js).not.toMatch(/\.insert\s*\(/);
     expect(js).not.toMatch(/\.upsert\s*\(/);
