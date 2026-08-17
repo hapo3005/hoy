@@ -107,6 +107,7 @@ test('the four existing Family venues use the same premium completion depth insi
   await expect(detail).toHaveAttribute('data-family242-quality','release_ready');
   await expect(detail).toContainText('722 808 081');
   await expect(detail).toContainText('So–Do 13:00–23:00');
+  await expect(detail).toContainText('Live veröffentlicht');
   await expect(detail).not.toContainText('Noch nicht live veröffentlicht');
   await page.locator('#detail [data-close]').click();
 
@@ -143,8 +144,8 @@ test('completion keeps media rights and Family geometry fail-closed',async({requ
 
   const master=await (await request.get('./data/family-gastro-master-2026-08-16.json')).json();
   const rusticana=master.entries.find(x=>x.slug==='la-rusticana');
-  expect(rusticana.visibility_from_table).toBe(null);
-  const da=await (await request.get('./data/family-research-delta-2026-08-17.json')).json();
-  const sebastian=da.promotions.find(x=>x.slug==='pizzeria-da-sebastian');
-  expect(sebastian.visibility_from_table).toBe(null);
+  expect(rusticana.family.visible_from_seating).toBe(null);
+  const delta=await (await request.get('./data/family-research-delta-2026-08-17.json')).json();
+  const sebastian=delta.promotions.find(x=>x.slug==='pizzeria-da-sebastian');
+  expect(sebastian.family.visible_from_seating).toBe(null);
 });
