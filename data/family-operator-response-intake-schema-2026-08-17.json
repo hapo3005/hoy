@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-17",
+  "production_import_allowed": false,
+  "automatic_runtime_mutation_allowed": false,
+  "purpose": "Privacy-minimized schema for converting future operator confirmations into reviewable structured facts without committing raw correspondence to the public repository.",
+  "privacy_policy": {
+    "public_repo_safe": true,
+    "raw_message_content_allowed": false,
+    "personal_name_allowed": false,
+    "private_phone_or_email_from_reply_allowed": false,
+    "signature_or_footer_allowed": false,
+    "attachments_allowed": false,
+    "allowed_evidence_reference": "opaque_internal_reference_only",
+    "rule": "Store only business facts needed for HOY verification, authority classification, timestamps and an opaque evidence reference. Raw correspondence and unnecessary personal data stay outside the public repository."
+  },
+  "record_schema": {
+    "required": [
+      "slug",
+      "received_at",
+      "channel",
+      "authority",
+      "evidence_reference",
+      "field_results",
+      "review_state",
+      "reviewed_at"
+    ],
+    "channel_values": ["email","phone","official_web","official_host","in_person"],
+    "authority_values": ["direct_operator_reply","operator_owned_web_source","official_host_reply_explicitly_confirming_tenant_data","official_host_forward_to_operator","insufficient_authority"],
+    "field_state_values": ["unanswered","confirmed","confirmed_not_published","confirmed_not_applicable","confirmed_false","conflict"],
+    "review_state_values": ["pending_review","no_status_change","conflict_review","remove_from_family_candidate_review","eligible_for_release_review"]
+  },
+  "field_result_schema": {
+    "state": "one_of_field_state_values",
+    "value": "business_fact_or_null",
+    "evidence_note": "short_fact_specific_note_without_personal_data_or_null"
+  },
+  "decision_rules": [
+    "A response record never changes runtime data directly.",
+    "Only fields explicitly answered by an accepted authority may move from unanswered.",
+    "A general statement such as 'everything is correct' does not verify individual unresolved fields unless the operator clearly references the supplied facts.",
+    "If a direct answer conflicts with existing material evidence, use conflict_review instead of silently overwriting history.",
+    "If a required Family premise is confirmed false, use remove_from_family_candidate_review.",
+    "eligible_for_release_review is only a review eligibility state; a separate reviewed data change is still required.",
+    "Never copy raw email text, signatures, personal names or private contact details into this public repository."
+  ],
+  "responses": []
+}
