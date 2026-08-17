@@ -5,7 +5,7 @@ test.use({serviceWorkers:'block'});
 async function ready(page,url='./?familyPreview=1'){
   await page.setViewportSize({width:1280,height:900});
   await page.goto(url,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready',{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true,{timeout:30000});
 }
 
 test('desktop Family preview stays centered and research draft cards keep the decision verdict in their content grid',async({page})=>{
@@ -27,7 +27,7 @@ test('desktop Family preview stays centered and research draft cards keep the de
   expect(shell.documentWidth).toBeLessThanOrEqual(shell.viewportWidth+1);
 
   await page.locator('[data-family240-home-context]').click();
-  await expect(page.locator('[data-result-count]')).toHaveText('17');
+  await expect(page.locator('[data-result-count]')).toHaveText('19');
 
   const card=page.locator('.family240-research-card').first();
   await expect(card).toBeVisible();

@@ -4,17 +4,17 @@ test.use({serviceWorkers:'block'});
 
 async function openFamily(page){
   await page.goto('./?familyPreview=1',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.__hoyFamilyCardConsistency240===true,{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.__hoyFamilyCardConsistency240===true&&window.hoyFamilyResearchStandard241?.state?.applied===true,{timeout:30000});
   await page.locator('[data-family240-home-context]').click();
   await expect.poll(()=>page.evaluate(()=>state.family)).toBe('family');
-  await expect(page.locator('[data-result-count]')).toHaveText('17');
+  await expect(page.locator('[data-result-count]')).toHaveText('19');
 }
 
 test('all Family result cards expose Family decision signals, including existing HOY profiles',async({page})=>{
   await openFamily(page);
 
   const cards=page.locator('[data-journey-results] .list-card[data-open]');
-  await expect(cards).toHaveCount(17);
+  await expect(cards).toHaveCount(19);
   const withoutBadges=await cards.evaluateAll(nodes=>nodes.filter(card=>!card.querySelector('.family240-card-badges')).map(card=>card.dataset.open));
   expect(withoutBadges).toEqual([]);
 
