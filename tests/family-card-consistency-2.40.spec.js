@@ -31,22 +31,27 @@ test('research drafts use normal decision copy plus the established direct verdi
   await expect(draft.locator(':scope > .decision-copy')).toHaveCount(1);
   await expect(draft.locator('.family240-card-badges')).toBeVisible();
   await expect(draft.locator(':scope > .decision280-card-verdict')).toBeVisible();
-  await expect(draft.locator('.family240-research-lock')).toHaveCount(0);
+  const legacyLock=draft.locator(':scope > .family240-research-lock');
+  await expect(legacyLock).toHaveCount(1);
+  await expect(legacyLock).toBeHidden();
 
   const sizes=await draft.evaluate(card=>{
     const art=card.querySelector(':scope > .family240-research-art');
     const verdict=card.querySelector(':scope > .decision280-card-verdict');
+    const lock=card.querySelector(':scope > .family240-research-lock');
     const c=card.getBoundingClientRect(),a=art.getBoundingClientRect();
     return {
       cardHeight:c.height,
       artHeight:a.height,
       artArea:getComputedStyle(art).gridArea,
       verdictArea:getComputedStyle(verdict).gridArea,
+      lockDisplay:getComputedStyle(lock).display,
       overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth
     };
   });
   expect(sizes.artArea).toBe('art');
   expect(sizes.verdictArea).toBe('verdict');
+  expect(sizes.lockDisplay).toBe('none');
   expect(sizes.artHeight).toBeLessThanOrEqual(110);
   expect(sizes.cardHeight).toBeLessThan(260);
   expect(sizes.overflow).toBe(false);
