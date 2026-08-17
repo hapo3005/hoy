@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-17",
+  "based_on": "family-data-completion-2.42",
+  "market_scope": "HOY Mar Menor · Family direct-resolution audit",
+  "production_import_allowed": false,
+  "decision": "Desk research cannot safely close any of the six remaining cases. Preserve the 2.42 states until direct operator or official-host evidence resolves each material conflict.",
+  "quality_gate_before": {
+    "visible_family_profiles": 19,
+    "release_ready": 13,
+    "conditional": 5,
+    "blocked": 1
+  },
+  "quality_gate_after": {
+    "visible_family_profiles": 19,
+    "release_ready": 13,
+    "conditional": 5,
+    "blocked": 1
+  },
+  "rules": [
+    "Operator or official-host evidence outranks directories and aggregators.",
+    "Do not resolve material conflicts by majority vote.",
+    "Do not publish precise hours while credible current sources disagree.",
+    "Do not infer Family geometry such as sightline, access, fence, shade or walking separation from maps, addresses or reviews alone.",
+    "Do not copy or hotlink third-party media without a separate rights decision.",
+    "This audit is read-only research and performs no Supabase, migration or seed writes."
+  ],
+  "outcomes": [
+    {
+      "slug": "restaurante-bamboo-la-manga",
+      "status_before": "blocked",
+      "status_after": "blocked",
+      "status_changed": false,
+      "resolution": "direct_confirmation_required",
+      "reason": "Current-looking 2026 sources consistently associate Bamboo with the Peke Park context, but they still disagree materially on address, primary telephone and opening hours. A majority vote would create false precision.",
+      "safe_conclusions": [
+        "Current public sources corroborate an active Bamboo restaurant operation in La Manga.",
+        "The current public web footprint strongly associates Bamboo with Peke Park.",
+        "The legacy restaurantebamboo.com contact data cannot safely be treated as the current operator source without direct confirmation."
+      ],
+      "open_items": [
+        "Exact current official address",
+        "Primary current reservation telephone",
+        "Current weekly opening hours and seasonal variation",
+        "Official current menu and reservation URL",
+        "Exact operational relationship between Bamboo and Peke Park plus guest access to the children's area",
+        "Family geometry: access, sightline, fence, shade and walking separation"
+      ],
+      "contact_candidates": [
+        {"type": "phone_candidate", "value": "+34 630 390 765"},
+        {"type": "peke_park_phone", "value": "+34 618 620 407"},
+        {"type": "legacy_claimed_phone", "value": "+34 666 167 511"}
+      ],
+      "evidence": [
+        {
+          "url": "https://es.restaurantguru.com/Restaurante-Braseria-Bamboo-La-Manga-La-Manga",
+          "authority": "current_public_snapshot",
+          "supports": ["active operation", "Peke Park association", "current contact candidate", "hours conflict"]
+        },
+        {
+          "url": "https://www.todosbiz.es/bamboo_5R-630-39-07-65",
+          "authority": "current_public_directory",
+          "supports": ["Peke Park association", "multiple current contact candidates", "hours conflict", "legacy website/email distinction"]
+        },
+        {
+          "url": "https://www.tripadvisor.es/Restaurant_Review-g642228-d8656140-Reviews-Restaurante_Bamboo-La_Manga_del_Mar_Menor_Municipality_of_Cartagena.html",
+          "authority": "claimed_public_profile",
+          "supports": ["active operation", "conflicting address", "conflicting phone", "conflicting hours"]
+        },
+        {
+          "url": "https://viviendolamanga.es/directorios/restaurante-bamboo/",
+          "authority": "verified_local_directory",
+          "supports": ["Peke Park context", "conflicting phone", "reservation path candidate"]
+        }
+      ],
+      "questions_es": [
+        "¿Cuál es la dirección exacta actual de Restaurante Bamboo?",
+        "¿Cuál es el teléfono oficial actual para reservas?",
+        "¿Cuál es el horario semanal actual y cambia por temporada?",
+        "¿Cuál es el enlace oficial actual de reservas y de la carta?",
+        "¿Bamboo forma parte de Peke Park y qué zona infantil puede usar un cliente del restaurante?",
+        "Desde las mesas, ¿hay acceso directo y visibilidad de la zona infantil, y existe vallado o separación?"
+      ]
+    },
+    {
+      "slug": "chiringuito-calisto",
+      "status_before": "conditional",
+      "status_after": "conditional",
+      "status_changed": false,
+      "resolution": "direct_confirmation_required",
+      "reason": "Current public sources agree on the operation and principal phone but disagree on the weekly opening schedule. Precise hours therefore remain unsafe for HOY NOW.",
+      "safe_conclusions": [
+        "The current public footprint consistently identifies Chiringuito Calisto in San Pedro del Pinatar.",
+        "The public contact phone +34 629 010 084 is cross-corroborated.",
+        "Current public sources support reservation, outdoor seating and pickup, while delivery is not offered in the current snapshot."
+      ],
+      "open_items": [
+        "Current weekly opening hours and seasonal variation",
+        "Official current menu source",
+        "Family geometry: playground access, sightline, separation, fence, shade and distance"
+      ],
+      "contact_candidates": [
+        {"type": "phone", "value": "+34 629 010 084"},
+        {"type": "email", "value": "chiringuitocalisto@gmail.com"}
+      ],
+      "evidence": [
+        {
+          "url": "https://es.restaurantguru.com/Chiringuito-Calisto-San-Pedro-del-Pinatar",
+          "authority": "current_public_snapshot",
+          "supports": ["current operation", "phone", "services", "hours candidate"]
+        },
+        {
+          "url": "https://www.todosbiz.es/chiringuito-calisto_1u-629-01-00-84",
+          "authority": "current_public_directory",
+          "supports": ["phone", "email", "hours conflict"]
+        }
+      ],
+      "questions_es": [
+        "¿Cuál es el horario semanal actual y cambia en verano o fuera de temporada?",
+        "¿Dónde está publicada la carta oficial actual?",
+        "¿Qué zona de juegos infantil pueden usar los clientes del chiringuito?",
+        "¿Se ve la zona infantil desde las mesas y hay vallado, carretera, paseo u otra separación entre ambos espacios?"
+      ]
+    },
+    {
+      "slug": "aquarium-la-manga-club-resort",
+      "status_before": "conditional",
+      "status_after": "conditional",
+      "status_changed": false,
+      "resolution": "direct_confirmation_required",
+      "reason": "Operator sources verify identity, contact and menu, but no complete authoritative weekly schedule was found and current 2026 public sources publish conflicting hours.",
+      "safe_conclusions": [
+        "The operator website verifies the current Aquarium identity, location and reservation path.",
+        "The operator publishes phone +34 722 816 500, email and an official menu page.",
+        "Current 2026 editorial and local sources corroborate active operation."
+      ],
+      "open_items": [
+        "Complete current weekly opening hours and seasonal variation",
+        "Family play-area ownership and access rules",
+        "Family geometry: layout, sightline, fence, shade and separation"
+      ],
+      "contact_candidates": [
+        {"type": "phone", "value": "+34 722 816 500"},
+        {"type": "email", "value": "aquariumlamangaclubresort@hotmail.com"},
+        {"type": "website", "value": "https://aquariumlamangaclubresort.com/"}
+      ],
+      "evidence": [
+        {
+          "url": "https://aquariumlamangaclubresort.com/",
+          "authority": "operator",
+          "supports": ["identity", "location", "reservation", "terrace"]
+        },
+        {
+          "url": "https://aquariumlamangaclubresort.com/menu/",
+          "authority": "operator",
+          "supports": ["official menu"]
+        },
+        {
+          "url": "https://www.love-lamangaclub.es/ruta-de-la-tapa-mayo-2026/",
+          "authority": "current_local_directory",
+          "supports": ["2026 operation", "hours candidate", "hours conflict"]
+        },
+        {
+          "url": "https://cadenaser.com/murcia/2026/07/08/aquarium-una-propuesta-gastronomica-con-mucho-encanto-en-la-manga-club-resort-radio-cartagena/",
+          "authority": "current_editorial",
+          "supports": ["2026 active operation", "contact", "location"]
+        }
+      ],
+      "questions_es": [
+        "¿Cuál es el horario semanal completo actual y cambia por temporada?",
+        "¿La zona infantil pertenece a Aquarium o es una instalación compartida del resort?",
+        "¿Los clientes del restaurante pueden usarla directamente?",
+        "¿La zona infantil es visible desde la terraza o las mesas y existe vallado o separación?"
+      ]
+    },
+    {
+      "slug": "la-tap-pizzella",
+      "status_before": "conditional",
+      "status_after": "conditional",
+      "status_changed": false,
+      "resolution": "direct_confirmation_required",
+      "reason": "Current public sources support the identity, phone and service model but still disagree on opening hours, and no complete operator-owned menu source is verified.",
+      "safe_conclusions": [
+        "Current public sources consistently identify La Tap-Pizzella at the Gran Sol / Camino Dársena location.",
+        "Phone +34 968 142 716 is cross-corroborated.",
+        "Current public sources support reservation, pickup and delivery."
+      ],
+      "open_items": [
+        "Current weekly opening hours and seasonal variation",
+        "Complete official menu source",
+        "Official reservation channel",
+        "Exact access and sightline relationship to Peke Park"
+      ],
+      "contact_candidates": [
+        {"type": "phone", "value": "+34 968 142 716"},
+        {"type": "email", "value": "tappizzella@gmail.com"},
+        {"type": "instagram", "value": "@la_tappizzella"}
+      ],
+      "evidence": [
+        {
+          "url": "https://restaurantguru.com/La-tap-pizzella-La-Manga",
+          "authority": "current_public_snapshot",
+          "supports": ["phone", "address", "services", "hours candidate", "instagram"]
+        },
+        {
+          "url": "https://viviendolamanga.es/directorios/la-tap-pizzella/",
+          "authority": "verified_local_directory",
+          "supports": ["phone", "services", "hours candidate", "Peke Park context"]
+        },
+        {
+          "url": "https://enlamanga.es/restaurantes/la-tap-pizzella/",
+          "authority": "verified_local_directory",
+          "supports": ["phone", "email", "family context", "features"]
+        }
+      ],
+      "questions_es": [
+        "¿Cuál es el horario semanal actual y cambia por temporada?",
+        "¿Dónde está publicada la carta oficial completa actual?",
+        "¿Cuál es el canal oficial para reservas?",
+        "¿Qué acceso tienen los clientes a Peke Park y se ve la zona infantil desde las mesas?",
+        "¿Existe alguna separación, vallado o cruce entre el restaurante y la zona infantil?"
+      ]
+    },
+    {
+      "slug": "la-vaca-gallega",
+      "status_before": "conditional",
+      "status_after": "conditional",
+      "status_changed": false,
+      "resolution": "direct_confirmation_required",
+      "reason": "The current Zoco host listing verifies the venue, local and phone, but published hours remain inconsistent and the host contact is not a business-specific operator contact.",
+      "safe_conclusions": [
+        "The current Zoco host listing identifies La Vaca Gallega at Local C8.",
+        "Phone +34 695 606 967 is cross-corroborated.",
+        "The host listing supports reservation, terrace, parking, cards and accessibility."
+      ],
+      "open_items": [
+        "Current weekly opening hours and seasonal variation",
+        "Complete official menu source",
+        "Business-specific email or operator-owned contact channel"
+      ],
+      "contact_candidates": [
+        {"type": "phone", "value": "+34 695 606 967"},
+        {"type": "host_email", "value": "info@zocolamanga.com"},
+        {"type": "host_listing", "value": "https://zocolamanga.com/item/la-vaca-gallega/"}
+      ],
+      "evidence": [
+        {
+          "url": "https://zocolamanga.com/item/la-vaca-gallega/",
+          "authority": "venue_host_directory",
+          "supports": ["identity", "local", "phone", "reservation", "features", "hours conflict"]
+        },
+        {
+          "url": "https://www.tripadvisor.co.uk/Restaurant_Review-g642228-d7620396-Reviews-La_Vaca_Gallega-La_Manga_del_Mar_Menor_Municipality_of_Cartagena.html",
+          "authority": "claimed_public_profile",
+          "supports": ["current operation", "phone", "services", "hours conflict"]
+        }
+      ],
+      "questions_es": [
+        "¿Cuál es el horario semanal actual y cambia por temporada?",
+        "¿Dónde está publicada la carta oficial completa actual?",
+        "¿Cuál es el correo o canal online oficial gestionado directamente por el restaurante?"
+      ]
+    },
+    {
+      "slug": "venta-el-sabinar",
+      "status_before": "conditional",
+      "status_after": "conditional",
+      "status_changed": false,
+      "resolution": "direct_confirmation_required",
+      "reason": "Current public sources agree on identity, phone and location but still disagree on whether the venue opens on weekends. That conflict blocks precise weekly hours.",
+      "safe_conclusions": [
+        "Current public sources consistently identify Venta El Sabinar near Los Belones with phone +34 637 064 496.",
+        "The local business listing supports the restaurant's Family context and a children's play area.",
+        "Current public sources corroborate reservation and active operation."
+      ],
+      "open_items": [
+        "Current Saturday and Sunday opening status",
+        "Complete current weekly and seasonal opening hours",
+        "Official current menu source",
+        "Family geometry: sightline, fence, shade and age range"
+      ],
+      "contact_candidates": [
+        {"type": "phone", "value": "+34 637 064 496"},
+        {"type": "email", "value": "pedroconesa81@hotmail.es"},
+        {"type": "local_listing", "value": "https://www.losbelones.com/sitios/venta-el-sabinar/"}
+      ],
+      "evidence": [
+        {
+          "url": "https://www.losbelones.com/sitios/venta-el-sabinar/",
+          "authority": "verified_local_directory",
+          "supports": ["identity", "address", "phone", "email", "hours candidate", "family context"]
+        },
+        {
+          "url": "https://www.tripadvisor.es/Restaurant_Review-g968389-d12315031-Reviews-Venta_El_Sabinar-Los_Belones_Municipality_of_Cartagena.html",
+          "authority": "claimed_public_profile",
+          "supports": ["current operation", "phone", "reservation", "hours conflict"]
+        }
+      ],
+      "questions_es": [
+        "¿Abren actualmente los sábados y domingos?",
+        "¿Cuál es el horario semanal completo actual y cambia por temporada?",
+        "¿Dónde está publicada la carta oficial actual?",
+        "¿Dónde está exactamente la zona infantil respecto a las mesas y se ve desde ellas?",
+        "¿La zona infantil está vallada, tiene sombra y para qué edades está pensada?"
+      ]
+    }
+  ],
+  "next_action": {
+    "order": [
+      "restaurante-bamboo-la-manga",
+      "chiringuito-calisto",
+      "aquarium-la-manga-club-resort",
+      "la-tap-pizzella",
+      "la-vaca-gallega",
+      "venta-el-sabinar"
+    ],
+    "rule": "Change a 2.42 profile state only after direct operator or official-host evidence resolves the material conflict; record the evidence source and confirmation date with the change."
+  }
+}
