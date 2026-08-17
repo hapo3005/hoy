@@ -75,3 +75,22 @@ test('audited preview keeps unknown Family facts unknown instead of inventing ge
   expect(facts.visibleUnknown).toBeGreaterThan(0);
   expect(facts.inventedHoy).toBe(false);
 });
+
+test('Family preview stays active for the current browser session and can be explicitly switched off',async({page})=>{
+  await ready(page);
+  await expect(page.locator('[data-family240-home-context]')).toBeVisible();
+  expect(await page.evaluate(()=>sessionStorage.getItem('hoy_family_preview_session_240'))).toBe('1');
+  expect(new URL(page.url()).searchParams.get('familyPreview')).toBe('1');
+
+  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.hoyFamilyPreviewSession240?.enabled===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready',{timeout:30000});
+  expect(new URL(page.url()).searchParams.get('familyPreview')).toBe('1');
+  await expect(page.locator('[data-family240-home-context]')).toBeVisible();
+  await expect(page.locator('[data-family240-preview-badge]')).toBeVisible();
+
+  await page.goto('./?familyPreview=0',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.hoyFamilyPreviewSession240?.enabled===false,{timeout:30000});
+  expect(new URL(page.url()).searchParams.has('familyPreview')).toBe(false);
+  expect(await page.evaluate(()=>sessionStorage.getItem('hoy_family_preview_session_240'))).toBeNull();
+  await expect(page.locator('[data-family240-preview-badge]')).toHaveCount(0);
+});
