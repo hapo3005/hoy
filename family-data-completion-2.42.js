@@ -11,9 +11,10 @@
   const standard=window.hoyFamilyResearchStandard241;
   if(!hard||!enrichment||!standard)return;
 
-  const completion={status:'idle',error:'',data:null,provenance:null,liveBySlug:new Map(),patchBySlug:new Map(),sourcesBySlug:new Map(),loadedAt:0};
+  const completion={status:'idle',error:'',data:null,provenance:null,liveBySlug:new Map(),patchBySlug:new Map(),sourcesBySlug:new Map(),liveOriginals:new Map(),loadedAt:0};
   let loadPromise=null;
   const enabled=()=>hard.isPreviewEnabled?.()===true;
+  const familyContext=()=>enabled()&&state?.family==='family';
   const safeUrl=v=>/^https:\/\//i.test(String(v||'').trim());
   const deepMerge=(base,patch)=>({
     ...(base||{}),...(patch||{}),
@@ -52,22 +53,29 @@
   }
 
   function patchResearchStates(){
-    const apply=(state)=>{
-      if(!state||!Array.isArray(state.profiles))return;
-      state.profiles=state.profiles.map(row=>{
+    const apply=(target)=>{
+      if(!target||!Array.isArray(target.profiles))return;
+      target.profiles=target.profiles.map(row=>{
         const patch=completion.patchBySlug.get(row.slug);
         return patch?deepMerge(row,patch):row;
       });
-      state.bySlug=new Map(state.profiles.map(row=>[row.slug,row]));
+      target.bySlug=new Map(target.profiles.map(row=>[row.slug,row]));
     };
     apply(enrichment.state);
     apply(standard.state);
   }
 
   function patchLiveMemory(){
+    if(!familyContext())return;
     for(const row of completion.liveBySlug.values()){
       const p=(DATA||[]).find(x=>String(x.slug||'')===row.slug||Number(x.id)===Number(row.restaurant_id));
       if(!p)continue;
+      if(!completion.liveOriginals.has(Number(p.id))){
+        completion.liveOriginals.set(Number(p.id),{
+          description:p.description,website:p.website,phone:p.phone,hours_text:p.hours_text,
+          profile_quality:p.profile_quality,__family242_completion:p.__family242_completion
+        });
+      }
       p.description=row.description;
       p.website=row.website||p.website;
       p.phone=row.phone||p.phone;
@@ -75,6 +83,19 @@
       p.profile_quality='premium';
       p.__family242_completion=true;
     }
+  }
+
+  function restoreLiveMemory(){
+    if(familyContext()||!completion.liveOriginals.size)return;
+    for(const [id,original] of completion.liveOriginals){
+      const p=(DATA||[]).find(x=>Number(x.id)===id);
+      if(!p)continue;
+      p.description=original.description;p.website=original.website;p.phone=original.phone;
+      p.hours_text=original.hours_text;p.profile_quality=original.profile_quality;
+      if(original.__family242_completion===undefined)delete p.__family242_completion;
+      else p.__family242_completion=original.__family242_completion;
+    }
+    completion.liveOriginals.clear();
   }
 
   const LABELS={
@@ -149,7 +170,7 @@
         completion.liveBySlug=new Map(data.live_profiles.map(x=>[x.slug,x]));
         completion.patchBySlug=new Map(data.profile_patches.map(x=>[x.slug,x]));
         completion.sourcesBySlug=new Map(sourceRows.map(x=>[x.slug,x.completion_sources]));
-        patchResearchStates();patchLiveMemory();
+        patchResearchStates();
         completion.status='ready';completion.error='';completion.loadedAt=Date.now();
         if(typeof render==='function')render();
         return true;
@@ -165,25 +186,29 @@
   const baseOpenDetail=openDetail;
   openDetail=function(id){
     if(enabled()&&completion.status==='ready'){
-      patchResearchStates();patchLiveMemory();
+      patchResearchStates();
+      if(familyContext())patchLiveMemory();else restoreLiveMemory();
       const p=(DATA||[]).find(x=>Number(x.id)===Number(id));
-      const live=p&&completion.liveBySlug.get(p.slug);
+      const live=familyContext()&&p&&completion.liveBySlug.get(p.slug);
       if(live&&enrichment.renderProfile?.(p,live)){polish(live);return;}
     }
     const result=baseOpenDetail(id);
     if(enabled()&&completion.status==='ready'){
       const p=(DATA||[]).find(x=>Number(x.id)===Number(id));
-      polish(recordFor(p));
+      if(p?.__family240_preview_profile)polish(recordFor(p));
     }
     return result;
   };
 
   const baseRender=render;
   render=function(){
-    if(enabled()&&completion.status==='ready'){patchResearchStates();patchLiveMemory();}
+    if(enabled()&&completion.status==='ready'){
+      patchResearchStates();
+      if(familyContext())patchLiveMemory();else restoreLiveMemory();
+    }
     return baseRender();
   };
 
   if(enabled())void loadAndApply();
-  window.hoyFamilyDataCompletion242={state:completion,loadAndApply,recordFor,polish};
+  window.hoyFamilyDataCompletion242={state:completion,loadAndApply,recordFor,polish,restoreLiveMemory};
 })();
