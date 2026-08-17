@@ -39,15 +39,24 @@ test('audited Family preview exposes 17 research entries without leaking draft p
   const draft=page.locator('.family240-research-card').first();
   await expect(draft).toContainText('RESEARCH-DRAFT');
   await draft.click();
-  await expect(page.locator('.family240-research-warning')).toBeVisible();
-  await expect(page.locator('.family240-research-warning')).toContainText('Noch nicht als HOY-Profil veröffentlicht');
-  const profile=page.locator('[data-family240-final-profile]');
-  await expect(profile).toBeVisible();
-  await expect(profile).toHaveAttribute('data-family240-audited-preview','');
-  await expect(profile).toContainText(/VORSCHAU/);
-  await profile.locator('[data-family240-details] summary').click();
-  await expect(profile).toContainText(/Auditierte Research-Daten/);
-  await expect(profile.locator('.family240-proof a')).toHaveAttribute('href',/^https:\/\//);
+
+  /* The old debug warning has deliberately become a premium, truthful preview status.
+     Keep the same safety contract: unpublished stays explicit, audited Family facts stay
+     traceable, and the source remains externally inspectable. */
+  const detail=page.locator('[data-family240-preview-detail]');
+  const status=detail.locator('[data-family240-preview-status]');
+  const family=detail.locator('[data-family240-preview-family]');
+  await expect(detail).toBeVisible();
+  await expect(status).toBeVisible();
+  await expect(status).toContainText('Auditiert für HOY Family');
+  await expect(status).toContainText('Das vollständige HOY-Profil ist noch nicht live');
+  await expect(detail.locator('.family240-preview-chip')).toHaveText('VORSCHAU');
+  await expect(family).toBeVisible();
+  await expect(family).toContainText(/VORSCHAU/);
+  await family.locator('[data-family240-preview-details] summary').click();
+  await expect(family).toContainText('Prüfstatus');
+  await expect(family).toContainText(/Vom Betrieb bestätigt|Quelle geprüft|Community bestätigt/);
+  await expect(detail.locator('.family240-preview-source')).toHaveAttribute('href',/^https:\/\//);
   await page.locator('#detail [data-close]').click();
 
   await page.locator('[data-decision="all"]').click();
