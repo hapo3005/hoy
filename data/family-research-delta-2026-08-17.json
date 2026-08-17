@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-17",
+  "base_master": "data/family-gastro-master-2026-08-16.json",
+  "production_import_allowed": false,
+  "purpose": "Additive audited delta. Promotes only candidates whose current evidence now clears the Family source-verification threshold; the base master remains immutable for audit history.",
+  "promotions": [
+    {
+      "name": "Pizzería Da Sebastián",
+      "slug": "pizzeria-da-sebastian",
+      "area": "La Manga del Mar Menor",
+      "municipality": "San Javier",
+      "venue_type": "restaurant",
+      "restaurant_id": null,
+      "mapping": "profile_missing",
+      "status": "seed_ready",
+      "verification": "source_verified",
+      "source_count": 2,
+      "source_url": "https://enlamanga.es/restaurantes/pizzeria-da-sebastian/",
+      "family": {
+        "play_types": ["outdoor_playground"],
+        "relationship": "on_premises",
+        "access_type": "unknown",
+        "visible_from_seating": null,
+        "road_crossing": "unknown",
+        "kids_menu": true
+      },
+      "open_checks": ["access rules", "direct sightline by seating zone", "fence", "shade"],
+      "evidence": [
+        {
+          "url": "https://pizzeriadasebastian.com/",
+          "authority": "operator",
+          "supports": ["current operation", "family positioning", "kids menu", "address", "phone", "hours", "menu"]
+        },
+        {
+          "url": "https://enlamanga.es/restaurantes/pizzeria-da-sebastian/",
+          "authority": "verified_local_directory",
+          "supports": ["current playground statement", "restaurant relationship", "reservation", "terrace"]
+        }
+      ]
+    },
+    {
+      "name": "Restaurante Mediterráneo El Mojón",
+      "slug": "restaurante-mediterraneo-el-mojon",
+      "area": "El Mojón / Pilar de la Horadada",
+      "municipality": "Pilar de la Horadada",
+      "venue_type": "restaurant",
+      "restaurant_id": null,
+      "mapping": "profile_missing",
+      "status": "seed_ready",
+      "verification": "source_verified",
+      "source_count": 2,
+      "source_url": "https://es.restaurantguru.com/Mediterranean-Restaurant-El-Mojon-El-Mojon",
+      "family": {
+        "play_types": ["indoor_playroom"],
+        "relationship": "on_premises",
+        "access_type": "unknown",
+        "visible_from_seating": null,
+        "road_crossing": "none",
+        "indoor_play_area": true,
+        "highchairs": true
+      },
+      "open_checks": ["access rules", "current equipment", "age range", "direct sightline from dining zones"],
+      "evidence": [
+        {
+          "url": "https://es.restaurantguru.com/Mediterranean-Restaurant-El-Mojon-El-Mojon",
+          "authority": "verified_public_snapshot",
+          "supports": ["current operation", "indoor playroom", "address", "phone", "hours"]
+        },
+        {
+          "url": "https://www.tripadvisor.es/Restaurant_Review-g1047911-d5865257-Reviews-Restaurante_Mediterraneo_El_Mojon-Pilar_de_la_Horadada_Province_of_Alicante_Vale.html",
+          "authority": "verified_public_directory",
+          "supports": ["current operation", "address", "phone", "hours", "highchairs", "reservation", "outdoor seating"]
+        }
+      ]
+    }
+  ]
+}
