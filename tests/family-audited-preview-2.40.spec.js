@@ -4,10 +4,10 @@ test.use({serviceWorkers:'block'});
 
 async function ready(page){
   await page.goto('./?familyPreview=1',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyPlaygroundsHardening240&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready',{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyPlaygroundsHardening240&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true,{timeout:30000});
 }
 
-test('audited Family preview exposes 17 research entries without leaking draft profiles into normal HOY',async({page})=>{
+test('audited Family preview exposes 19 research entries without leaking draft profiles into normal HOY',async({page})=>{
   await ready(page);
 
   const initial=await page.evaluate(()=>({
@@ -16,23 +16,25 @@ test('audited Family preview exposes 17 research entries without leaking draft p
     virtual:window.hoyFamilyAuditedPreview240.state.virtualCount,
     mode:window.hoyFamilyAuditedPreview240.state.mode,
     virtualInData:DATA.filter(x=>x.__family240_preview_profile===true).length,
-    badStatus:window.hoyFamilyAuditedPreview240.state.entries.some(x=>x.verification==='hoy_verified')
+    badStatus:window.hoyFamilyAuditedPreview240.state.entries.some(x=>x.verification==='hoy_verified'),
+    locked:window.hoyFamilyResearchStandard241.state.lockedCount
   }));
-  expect(initial.ready).toBe(17);
+  expect(initial.ready).toBe(19);
   expect(initial.existing).toBe(4);
-  expect(initial.virtual).toBe(13);
+  expect(initial.virtual).toBe(15);
   expect(initial.mode).toBe('research');
   expect(initial.virtualInData).toBe(0);
   expect(initial.badStatus).toBe(false);
+  expect(initial.locked).toBe(3);
 
   await expect(page.locator('[data-family240-home-context]')).toBeVisible();
   await page.locator('[data-family240-home-context]').click();
   await expect.poll(()=>page.evaluate(()=>state.family)).toBe('family');
-  await expect.poll(()=>page.evaluate(()=>DATA.filter(x=>x.__family240_preview_profile===true).length)).toBe(13);
-  await expect(page.locator('[data-result-count]')).toHaveText('17');
-  await expect(page.locator('[data-result-label]')).toContainText(/17|auditierte Family-Einträge|Research-Vorschau/);
+  await expect.poll(()=>page.evaluate(()=>DATA.filter(x=>x.__family240_preview_profile===true).length)).toBe(15);
+  await expect(page.locator('[data-result-count]')).toHaveText('19');
+  await expect(page.locator('[data-result-label]')).toContainText(/19|auditierte Family-Einträge|Research-Vorschau/);
   await expect(page.locator('[data-result-label]')).toContainText('auditierte Family-Einträge');
-  await expect(page.locator('.family240-research-card')).toHaveCount(13);
+  await expect(page.locator('.family240-research-card')).toHaveCount(15);
   await expect(page.locator('.family240-research-card [data-fav]')).toHaveCount(0);
   await expect(page.locator('.family240-context-head small')).toContainText('keine Live-Veröffentlichung');
 
@@ -75,8 +77,8 @@ test('audited preview keeps unknown Family facts unknown instead of inventing ge
       inventedHoy:rows.some(x=>x.family_features.verification_status==='hoy_verified')
     };
   });
-  expect(facts.total).toBe(17);
-  expect(facts.unknownDistance).toBe(17);
+  expect(facts.total).toBe(19);
+  expect(facts.unknownDistance).toBe(19);
   expect(facts.visibleTrue).toBeGreaterThanOrEqual(1);
   expect(facts.visibleUnknown).toBeGreaterThan(0);
   expect(facts.inventedHoy).toBe(false);
@@ -89,7 +91,7 @@ test('Family preview stays active for the current browser session and can be exp
   expect(new URL(page.url()).searchParams.get('familyPreview')).toBe('1');
 
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.hoyFamilyPreviewSession240?.enabled===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready',{timeout:30000});
+  await page.waitForFunction(()=>window.hoyFamilyPreviewSession240?.enabled===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true,{timeout:30000});
   expect(new URL(page.url()).searchParams.get('familyPreview')).toBe('1');
   await expect(page.locator('[data-family240-home-context]')).toBeVisible();
   await expect(page.locator('[data-family240-preview-badge]')).toBeVisible();
