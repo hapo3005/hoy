@@ -5,7 +5,7 @@
 
   const api=window.hoyFamilyPlaygrounds240;
   if(!api)return;
-  const esc240=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const esc240=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
   const active=()=>!!state?.family&&state.family!=='all';
 
   function familyBadges(p){
@@ -23,11 +23,15 @@
       const f=api.familyFor?.(p);
       if(!f)return;
       const badges=familyBadges(p);
-      if(!badges)return;
       const copy=card.querySelector('.decision-copy')||card.children[1]||card;
-      const verdict=copy.querySelector('.decision280-card-verdict');
-      if(verdict)verdict.insertAdjacentHTML('beforebegin',badges);
-      else copy.insertAdjacentHTML('beforeend',badges);
+      const verdict=copy.querySelector('.decision280-card-verdict')||card.querySelector(':scope > .decision280-card-verdict');
+      if(badges){
+        if(verdict&&verdict.parentElement===copy)verdict.insertAdjacentHTML('beforebegin',badges);
+        else copy.insertAdjacentHTML('beforeend',badges);
+      }
+      /* Research drafts keep the normal decision-copy content, while the verdict remains
+         its own card grid item. This preserves the established compact shell contract. */
+      if(card.classList.contains('family240-research-card')&&verdict&&verdict.parentElement!==card)card.appendChild(verdict);
     });
   }
 
