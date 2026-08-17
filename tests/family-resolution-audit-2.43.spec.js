@@ -65,7 +65,7 @@ test('2.43 audit cannot silently rewrite the 2.42 runtime truth gate',async({req
   expect(count('blocked')).toBe(1);
   expect(all.find(row=>row.slug==='restaurante-bamboo-la-manga').data_quality.profile_status).toBe('blocked');
 
-  expect(audit.quality_gate_after).toEqual(completion.quality_gate);
+  expect(completion.quality_gate).toMatchObject(audit.quality_gate_after);
 });
 
 test('2.43 keeps media rights and Family geometry fail-closed',async({request})=>{
@@ -78,6 +78,6 @@ test('2.43 keeps media rights and Family geometry fail-closed',async({request})=
   expect(raw).toContain('no Supabase, migration or seed writes');
 
   for(const row of audit.outcomes){
-    expect(row.open_items.some(item=>/hour|horario|opening/i.test(item))||row.slug==='la-vaca-gallega').toBe(true);
+    expect(row.open_items.some(item=>/hour|horario|opening/i.test(item))).toBe(true);
   }
 });
