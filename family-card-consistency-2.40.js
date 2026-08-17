@@ -5,7 +5,7 @@
 
   const api=window.hoyFamilyPlaygrounds240;
   if(!api)return;
-  const esc240=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+  const esc240=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const active=()=>!!state?.family&&state.family!=='all';
 
   function familyBadges(p){
@@ -44,6 +44,7 @@
     return `<article class="list-card family240-research-card" data-open="${Number(p.id)}">
       <div class="list-art family240-research-art"><span>${esc240(preview)}</span></div>
       <div class="decision-copy"><h3>${esc240(p.name)}</h3><p>${esc240(venue)}</p><span class="family240-research-draft" data-family240-research-draft>${esc240(draft)}</span>${familyBadges(p)}</div>
+      <span class="family240-research-lock" hidden aria-hidden="true"></span>
     </article>`;
   };
 
