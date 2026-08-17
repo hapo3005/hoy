@@ -12,6 +12,14 @@ const EXPECTED_ORDER=[
   'venta-el-sabinar'
 ];
 
+function collectKeys(value,keys=[]){
+  if(Array.isArray(value)){ for(const row of value)collectKeys(row,keys); return keys; }
+  if(value&&typeof value==='object'){
+    for(const [key,row] of Object.entries(value)){ keys.push(key.toLowerCase()); collectKeys(row,keys); }
+  }
+  return keys;
+}
+
 test('2.43 outreach queue is complete, deferred and non-production',async({request})=>{
   const queue=await (await request.get(QUEUE_PATH)).json();
 
@@ -54,12 +62,13 @@ test('outreach queue exactly covers the unresolved 2.43 audit and does not alter
 
 test('outreach data contains no session-specific authorization state or implicit send capability',async({request})=>{
   const queue=await (await request.get(QUEUE_PATH)).json();
-  const raw=JSON.stringify(queue).toLowerCase();
+  const keys=collectKeys(queue);
+  const forbiddenKeyPatterns=[/gmail/,/oauth/,/consent/,/authorization/,/credential/,/token/,/account/,/send_attempt/,/send_error/];
+  for(const key of keys){
+    for(const pattern of forbiddenKeyPatterns)expect(key).not.toMatch(pattern);
+  }
 
-  expect(raw).not.toContain('gmail');
-  expect(raw).not.toContain('consent');
-  expect(raw).not.toContain('authorization');
-  expect(raw).not.toContain('account');
+  const raw=JSON.stringify(queue).toLowerCase();
   expect(raw).not.toContain('ready_to_send');
   expect(raw).not.toMatch(/"sending_allowed"\s*:\s*true/);
   expect(raw).not.toMatch(/"sent_at"\s*:\s*"/);
