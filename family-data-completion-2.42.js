@@ -5,12 +5,13 @@
   window.__hoyFamilyDataCompletion242=true;
 
   const DATA_URL='./data/family-profile-completion-2026-08-17.json';
+  const SOURCES_URL='./data/family-profile-completion-sources-2026-08-17.json';
   const hard=window.hoyFamilyPlaygroundsHardening240;
   const enrichment=window.hoyFamilyProfileEnrichment240;
   const standard=window.hoyFamilyResearchStandard241;
   if(!hard||!enrichment||!standard)return;
 
-  const completion={status:'idle',error:'',data:null,liveBySlug:new Map(),patchBySlug:new Map(),loadedAt:0};
+  const completion={status:'idle',error:'',data:null,provenance:null,liveBySlug:new Map(),patchBySlug:new Map(),sourcesBySlug:new Map(),loadedAt:0};
   let loadPromise=null;
   const enabled=()=>hard.isPreviewEnabled?.()===true;
   const safeUrl=v=>/^https:\/\//i.test(String(v||'').trim());
@@ -21,24 +22,33 @@
     socials:{...(base?.socials||{}),...(patch?.socials||{})}
   });
 
-  function validate(data){
+  function validate(data,provenance){
     if(!data||data.production_import_allowed!==false)throw new Error('Family completion must remain non-production');
+    if(!provenance||provenance.production_import_allowed!==false)throw new Error('Family completion provenance must remain non-production');
     const live=Array.isArray(data.live_profiles)?data.live_profiles:[];
     const patches=Array.isArray(data.profile_patches)?data.profile_patches:[];
+    const sourceRows=Array.isArray(provenance.sources)?provenance.sources:[];
     const gate=data.quality_gate||{};
     if(live.length!==4||patches.length!==15)throw new Error(`Expected 4 live + 15 research profile records, got ${live.length}+${patches.length}`);
     const slugs=[...live,...patches].map(x=>String(x.slug||'').trim());
     if(slugs.some(x=>!x)||new Set(slugs).size!==19)throw new Error('Completion slugs must cover exactly 19 unique Family profiles');
     if(gate.visible_family_profiles!==19||gate.release_ready!==13||gate.conditional!==5||gate.blocked!==1)throw new Error('Family completion quality gate mismatch');
+    if(sourceRows.length!==15||new Set(sourceRows.map(x=>x.slug)).size!==15)throw new Error('Expected provenance for exactly 15 research profile patches');
+    const sourceSlugs=new Set(sourceRows.map(x=>x.slug));
+    for(const row of sourceRows){
+      if(!Array.isArray(row.completion_sources)||!row.completion_sources.length)throw new Error(`Missing completion provenance: ${row.slug}`);
+      if(row.completion_sources.some(s=>!safeUrl(s.url)||!s.authority||!Array.isArray(s.supports)||!s.supports.length))throw new Error(`Invalid completion provenance: ${row.slug}`);
+    }
     for(const row of live){
       if(row.publication_state!=='live'||!row.restaurant_id||!row.name||!row.description||!row.address||!row.phone)throw new Error(`Incomplete live completion profile: ${row.slug}`);
       if(!Array.isArray(row.sources)||!row.sources.length||row.sources.some(s=>!safeUrl(s.url)))throw new Error(`Missing live provenance: ${row.slug}`);
     }
     for(const row of patches){
+      if(!sourceSlugs.has(row.slug))throw new Error(`Patch has no completion provenance: ${row.slug}`);
       if(!row.data_quality?.profile_status||!row.data_quality?.hours_status)throw new Error(`Missing completion status: ${row.slug}`);
       if(row.data_quality.profile_status==='release_ready'&&Object.values(row.services||{}).includes('unknown'))throw new Error(`Release-ready profile keeps unresolved service truth: ${row.slug}`);
     }
-    return data;
+    return {data,provenance,sourceRows};
   }
 
   function patchResearchStates(){
@@ -120,6 +130,12 @@
     }
   }
 
+  async function fetchJson(url){
+    const response=await fetch(url,{cache:'no-store'});
+    if(!response.ok)throw new Error(`${url} HTTP ${response.status}`);
+    return response.json();
+  }
+
   async function loadAndApply(){
     if(!enabled())return false;
     if(loadPromise)return loadPromise;
@@ -127,12 +143,12 @@
     loadPromise=(async()=>{
       try{
         await Promise.all([enrichment.load?.(),standard.loadAndApply?.()]);
-        const response=await fetch(DATA_URL,{cache:'no-store'});
-        if(!response.ok)throw new Error(`Family completion HTTP ${response.status}`);
-        const data=validate(await response.json());
-        completion.data=data;
+        const [dataRaw,provenanceRaw]=await Promise.all([fetchJson(DATA_URL),fetchJson(SOURCES_URL)]);
+        const {data,provenance,sourceRows}=validate(dataRaw,provenanceRaw);
+        completion.data=data;completion.provenance=provenance;
         completion.liveBySlug=new Map(data.live_profiles.map(x=>[x.slug,x]));
         completion.patchBySlug=new Map(data.profile_patches.map(x=>[x.slug,x]));
+        completion.sourcesBySlug=new Map(sourceRows.map(x=>[x.slug,x.completion_sources]));
         patchResearchStates();patchLiveMemory();
         completion.status='ready';completion.error='';completion.loadedAt=Date.now();
         if(typeof render==='function')render();
