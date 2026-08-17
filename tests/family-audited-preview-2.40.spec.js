@@ -4,7 +4,7 @@ test.use({serviceWorkers:'block'});
 
 async function ready(page){
   await page.goto('./?familyPreview=1',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyPlaygroundsHardening240&&window.hoyFamilyAuditedPreview240?.state?.status==='ready',{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyPlaygroundsHardening240&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready',{timeout:30000});
 }
 
 test('audited Family preview exposes 17 research entries without leaking draft profiles into normal HOY',async({page})=>{
@@ -40,23 +40,20 @@ test('audited Family preview exposes 17 research entries without leaking draft p
   await expect(draft).toContainText('RESEARCH-DRAFT');
   await draft.click();
 
-  /* The old debug warning has deliberately become a premium, truthful preview status.
-     Keep the same safety contract: unpublished stays explicit, audited Family facts stay
-     traceable, and the source remains externally inspectable. */
-  const detail=page.locator('[data-family240-preview-detail]');
-  const status=detail.locator('[data-family240-preview-status]');
-  const family=detail.locator('[data-family240-preview-family]');
+  const detail=page.locator('[data-family240-enriched-profile]');
+  const status=detail.locator('.family240-enriched-status');
+  const family=detail.locator('#family240-enriched-family');
   await expect(detail).toBeVisible();
   await expect(status).toBeVisible();
-  await expect(status).toContainText('Auditiert für HOY Family');
-  await expect(status).toContainText('Das vollständige HOY-Profil ist noch nicht live');
-  await expect(detail.locator('.family240-preview-chip')).toHaveText('VORSCHAU');
+  await expect(status).toContainText('Premium-Profil vorbereitet');
+  await expect(status).toContainText('Noch nicht live veröffentlicht');
+  await expect(detail.locator('.family240-enriched-preview')).toHaveText('VORSCHAU');
+  await expect(detail.locator('#family240-enriched-overview')).toBeVisible();
+  await expect(detail.locator('#family240-enriched-menu')).toBeVisible();
   await expect(family).toBeVisible();
-  await expect(family).toContainText(/VORSCHAU/);
-  await family.locator('[data-family240-preview-details] summary').click();
-  await expect(family).toContainText('Prüfstatus');
+  await family.locator('summary').click();
   await expect(family).toContainText(/Vom Betrieb bestätigt|Quelle geprüft|Community bestätigt/);
-  await expect(detail.locator('.family240-preview-source')).toHaveAttribute('href',/^https:\/\//);
+  await expect(detail.locator('.family240-enriched-source').first()).toHaveAttribute('href',/^https:\/\//);
   await page.locator('#detail [data-close]').click();
 
   await page.locator('[data-decision="all"]').click();
@@ -92,7 +89,7 @@ test('Family preview stays active for the current browser session and can be exp
   expect(new URL(page.url()).searchParams.get('familyPreview')).toBe('1');
 
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.hoyFamilyPreviewSession240?.enabled===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready',{timeout:30000});
+  await page.waitForFunction(()=>window.hoyFamilyPreviewSession240?.enabled===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready',{timeout:30000});
   expect(new URL(page.url()).searchParams.get('familyPreview')).toBe('1');
   await expect(page.locator('[data-family240-home-context]')).toBeVisible();
   await expect(page.locator('[data-family240-preview-badge]')).toBeVisible();
