@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-17",
+  "based_on": "family-resolution-audit-2026-08-17",
+  "outreach_queue": "family-operator-outreach-2026-08-17",
+  "production_import_allowed": false,
+  "automatic_runtime_mutation_allowed": false,
+  "automatic_status_promotion_allowed": false,
+  "purpose": "Deterministic review contract for direct operator or official-host responses concerning the six unresolved HOY Family profiles.",
+  "authority_policy": {
+    "accepted_for_confirmation": ["direct_operator_reply","operator_owned_web_source","official_host_reply_explicitly_confirming_tenant_data","official_host_forward_to_operator"],
+    "not_sufficient_alone": ["search_result_snippet","aggregator","review","map_listing","directory","social_comment","majority_vote"]
+  },
+  "review_policy": {
+    "no_reply": "no_status_change",
+    "partial_reply": "confirm_answered_fields_only_and_keep_status_until_all_status_gates_are_resolved",
+    "contradiction": "conflict_review",
+    "family_gate_confirmed_false": "remove_from_family_candidate_review",
+    "family_gate_unanswered": "no_family_promotion",
+    "all_required_gates_confirmed": "eligible_for_release_review_only",
+    "media_rights": "separate_rights_review_required",
+    "final_write": "separate_reviewed_change_required"
+  },
+  "confirmation_states": ["unanswered","confirmed","confirmed_not_published","confirmed_not_applicable","confirmed_false","conflict"],
+  "profiles": [
+    {
+      "slug": "restaurante-bamboo-la-manga",
+      "baseline_status": "blocked",
+      "status_gate": ["identity.current_official_address","contact.primary_reservation_phone","hours.current_weekly_schedule","hours.seasonal_variation"],
+      "family_gate": ["family.relationship_to_peke_park","family.customer_access_to_play_area","family.visibility_from_seating","family.physical_separation"],
+      "optional_enrichment": ["menu.official_source","reservation.official_channel"],
+      "release_rule": "Core identity, primary contact and current/seasonal hours must be directly confirmed. Family inclusion additionally requires an explicit operator answer about the Peke Park relationship and customer access; visibility and separation may be published only when explicitly answered.",
+      "negative_family_rule": "If the operator says restaurant customers do not have the claimed play-area relationship/access, route to remove_from_family_candidate_review rather than release_ready."
+    },
+    {
+      "slug": "chiringuito-calisto",
+      "baseline_status": "conditional",
+      "status_gate": ["hours.current_weekly_schedule","hours.seasonal_variation"],
+      "family_gate": ["family.customer_access_to_play_area","family.visibility_from_seating","family.physical_separation"],
+      "optional_enrichment": ["menu.official_source"],
+      "release_rule": "The current weekly/seasonal schedule must be directly confirmed before precise time data can be promoted. Family claims require explicit operator confirmation and are never inferred from family-friendly descriptions or reviews.",
+      "negative_family_rule": "If no customer-accessible play area exists, route to remove_from_family_candidate_review."
+    },
+    {
+      "slug": "aquarium-la-manga-club-resort",
+      "baseline_status": "conditional",
+      "status_gate": ["hours.current_weekly_schedule","hours.seasonal_variation"],
+      "family_gate": ["family.play_area_ownership_or_host","family.customer_access_to_play_area","family.visibility_from_seating","family.physical_separation"],
+      "optional_enrichment": [],
+      "release_rule": "Operator contact and menu are already operator-sourced; the unresolved time gate still requires direct confirmation. Family inclusion requires explicit confirmation of whose play area it is and whether restaurant customers may use it.",
+      "negative_family_rule": "If the relevant play area is not accessible to Aquarium customers, route to remove_from_family_candidate_review."
+    },
+    {
+      "slug": "la-tap-pizzella",
+      "baseline_status": "conditional",
+      "status_gate": ["hours.current_weekly_schedule","hours.seasonal_variation"],
+      "family_gate": ["family.relationship_to_peke_park","family.customer_access_to_play_area","family.visibility_from_seating","family.physical_separation"],
+      "optional_enrichment": ["menu.official_source","reservation.official_channel"],
+      "release_rule": "Conflicting current hours require direct confirmation. Peke Park proximity is not equivalent to customer access or visibility; those Family facts require explicit answers.",
+      "negative_family_rule": "If proximity to Peke Park does not provide the claimed customer play use case, route to remove_from_family_candidate_review."
+    },
+    {
+      "slug": "la-vaca-gallega",
+      "baseline_status": "conditional",
+      "status_gate": ["hours.current_weekly_schedule","hours.seasonal_variation"],
+      "family_gate": [],
+      "optional_enrichment": ["menu.official_source","contact.operator_owned_online_channel"],
+      "release_rule": "The Zoco host listing is useful host evidence but its inconsistent schedule must not be promoted as precise time truth without direct confirmation. A business-specific online channel and menu improve the profile but are not fabricated if unavailable.",
+      "negative_family_rule": null
+    },
+    {
+      "slug": "venta-el-sabinar",
+      "baseline_status": "conditional",
+      "status_gate": ["hours.current_weekly_schedule","hours.seasonal_variation","hours.weekend_open_status"],
+      "family_gate": ["family.customer_access_to_play_area","family.visibility_from_seating","family.physical_separation"],
+      "optional_enrichment": ["family.shade","family.approximate_age_range","menu.official_source"],
+      "release_rule": "The material weekend-hours conflict must be resolved directly. Family geometry and suitability may be published only from explicit operator confirmation.",
+      "negative_family_rule": "If the play area is not customer-accessible, route to remove_from_family_candidate_review."
+    }
+  ],
+  "decision_algorithm": [
+    "Verify that the response authority is accepted under authority_policy; otherwise use it only as a lead.",
+    "Record each answered field independently; never treat a general confirmation as confirmation of unanswered facts.",
+    "If a direct answer contradicts existing material evidence, mark that field conflict and route the profile to conflict_review.",
+    "Do not change baseline status while any status_gate remains unanswered or conflict.",
+    "For profiles with family_gate fields, do not promote Family eligibility while customer access or the relevant relationship remains unanswered.",
+    "If a required Family premise is confirmed false, route to remove_from_family_candidate_review instead of forcing a release-ready Family profile.",
+    "Optional enrichment may be omitted or marked not published without inventing a value.",
+    "A fully satisfied contract produces eligibility for release review only; it never writes runtime or production data automatically."
+  ]
+}
