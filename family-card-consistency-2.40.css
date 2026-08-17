@@ -1,13 +1,13 @@
 /* HOY 2.40.3 — Family result card consistency. */
-.family240-research-card{position:relative!important;grid-template-columns:96px minmax(0,1fr)!important;column-gap:14px!important;align-items:start!important;border:1px solid rgba(18,39,52,.10)!important;border-radius:20px!important;background:#fffdf8!important;box-shadow:0 8px 24px rgba(17,37,49,.045)!important;overflow:hidden!important}
-.family240-research-card>.family240-research-art{width:96px!important;height:96px!important;min-height:96px!important;align-self:start!important;border-radius:14px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:linear-gradient(145deg,#eef1ec,#f8f4eb)!important;color:var(--navy,#17303d)!important;text-align:center!important}
+.family240-research-card{position:relative!important;display:grid!important;grid-template-columns:96px minmax(0,1fr)!important;grid-template-areas:'art copy' 'art verdict'!important;column-gap:14px!important;row-gap:7px!important;align-items:start!important;border:1px solid rgba(18,39,52,.10)!important;border-radius:20px!important;background:#fffdf8!important;box-shadow:0 8px 24px rgba(17,37,49,.045)!important;overflow:hidden!important}
+.family240-research-card>.family240-research-art{grid-area:art!important;width:96px!important;height:96px!important;min-height:96px!important;align-self:start!important;border-radius:14px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:linear-gradient(145deg,#eef1ec,#f8f4eb)!important;color:var(--navy,#17303d)!important;text-align:center!important}
 .family240-research-art span{font-size:9px!important;font-weight:900!important;letter-spacing:.09em!important}
-.family240-research-card>.decision-copy{min-width:0!important;padding-top:1px!important}
+.family240-research-card>.decision-copy{grid-area:copy!important;min-width:0!important;padding-top:1px!important}
 .family240-research-card>.decision-copy h3{margin-bottom:2px!important}
 .family240-research-card>.decision-copy p{margin:0 0 6px!important}
+.family240-research-card>.decision280-card-verdict{grid-area:verdict!important;min-width:0!important;margin-top:2px!important;padding-top:8px!important}
 .family240-research-draft{display:inline-flex!important;margin:1px 0 7px!important;padding:4px 7px!important;border:1px solid rgba(138,96,41,.16)!important;border-radius:999px!important;background:#fff4df!important;color:#805b27!important;font-size:7px!important;font-weight:850!important;letter-spacing:.045em!important;line-height:1.2!important}
 .family240-research-card .family240-card-badges{margin-top:0!important}
-.family240-research-card .decision280-card-verdict{margin-top:9px!important}
 .family240-card-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .family240-card-badges>span{display:inline-flex;align-items:center;max-width:100%;padding:5px 8px;border-radius:999px;font-size:8px;font-weight:800;line-height:1.2;white-space:normal}
 .family240-card-badges>span.play{background:#eff5e7;color:#53643c;border:1px solid rgba(92,121,53,.16)}
