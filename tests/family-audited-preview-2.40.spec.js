@@ -4,7 +4,7 @@ test.use({serviceWorkers:'block'});
 
 async function ready(page){
   await page.goto('./?familyPreview=1',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyPlaygroundsHardening240&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true,{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyPlaygroundsHardening240&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true&&window.hoyFamilyDataCompletion242?.state?.status==='ready',{timeout:30000});
 }
 
 test('audited Family preview exposes 19 research entries without leaking draft profiles into normal HOY',async({page})=>{
@@ -47,8 +47,9 @@ test('audited Family preview exposes 19 research entries without leaking draft p
   const family=detail.locator('#family240-enriched-family');
   await expect(detail).toBeVisible();
   await expect(status).toBeVisible();
-  await expect(status).toContainText('Premium-Profil vorbereitet');
-  await expect(status).toContainText('Noch nicht live veröffentlicht');
+  await expect(status).toContainText('Datenqualität');
+  await expect(status).toContainText('Kernprofil vollständig geprüft');
+  await expect(status).toContainText('Nicht veröffentlichte Services');
   await expect(detail.locator('.family240-enriched-preview')).toHaveText('VORSCHAU');
   await expect(detail.locator('#family240-enriched-overview')).toBeVisible();
   await expect(detail.locator('#family240-enriched-menu')).toBeVisible();
@@ -91,7 +92,7 @@ test('Family preview stays active for the current browser session and can be exp
   expect(new URL(page.url()).searchParams.get('familyPreview')).toBe('1');
 
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.hoyFamilyPreviewSession240?.enabled===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true,{timeout:30000});
+  await page.waitForFunction(()=>window.hoyFamilyPreviewSession240?.enabled===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true&&window.hoyFamilyDataCompletion242?.state?.status==='ready',{timeout:30000});
   expect(new URL(page.url()).searchParams.get('familyPreview')).toBe('1');
   await expect(page.locator('[data-family240-home-context]')).toBeVisible();
   await expect(page.locator('[data-family240-preview-badge]')).toBeVisible();
