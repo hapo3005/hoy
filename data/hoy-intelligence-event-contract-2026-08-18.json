@@ -5,6 +5,7 @@
   "runtime_collection_change_allowed": false,
   "supabase_write_allowed": false,
   "production_data_sale_allowed": false,
+  "governance_contract": "./hoy-intelligence-data-governance-2026-08-18.json",
   "purpose": "Define a privacy-first measurement vocabulary for future HOY Intelligence products without enabling new runtime collection, storage, sharing, or sale in this release.",
   "principles": {
     "product_value_first": true,
@@ -66,6 +67,7 @@
   "external_intelligence_gate": {
     "enabled": false,
     "requirements": [
+      "complete event-level governance inventory",
       "documented lawful basis and privacy review",
       "data protection impact assessment where required",
       "validated anonymization or sufficiently coarse aggregation",
@@ -74,8 +76,10 @@
       "no raw anonymous_id or session_id in customer-facing outputs",
       "no row-level user journey export",
       "clear customer contract restricting re-identification",
-      "retention policy approved",
-      "security review approved"
+      "retention policy approved and implemented",
+      "data lineage documented",
+      "security review approved",
+      "legal review approved"
     ]
   },
   "future_products": [
@@ -87,7 +91,7 @@
     "HOY Intelligence API"
   ],
   "release_gate": {
-    "this_release_may": ["document taxonomy", "test privacy invariants", "prepare future measurement design"],
+    "this_release_may": ["document taxonomy", "document event-level governance", "test privacy invariants", "prepare future measurement design"],
     "this_release_must_not": ["add new tracking calls", "add database migrations", "write production analytics data", "sell or export user-level data", "enable intelligence API"]
   }
 }
