@@ -4,6 +4,7 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
 const manifestPath = path.join(root, 'supabase', 'release', 'rc1-manifest.json');
+const runbookPath = path.join(root, 'docs', 'RC1_SUPABASE_RELEASE_RUNBOOK.md');
 
 function loadManifest() {
   return JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
@@ -14,7 +15,13 @@ test('RC1 Supabase manifest is fail-closed for production deployment', async () 
 
   expect(m.status).toBe('PREPARED_NOT_DEPLOYED');
   expect(m.target.project_ref).toBe('zlscptisdxzxuvllogza');
+
+  // Schema-v1 calls this source.main_sha, but it is the package-generation
+  // application baseline, not a self-referential requirement that the Git ref
+  // containing the manifest itself must equal this SHA forever.
   expect(m.source.main_sha).toBe('888b525eff280e7c6ed9eaa98ab9807a56cb21e1');
+  expect(m.source.main_sha).toBe(m.source.accessible_integration_commit);
+
   expect(m.source.accessible_code_integrated).toBe(true);
   expect(m.source.accessible_database_applied).toBe(false);
   expect(m.release_policy.production_mutations_during_preparation).toBe(false);
@@ -23,6 +30,20 @@ test('RC1 Supabase manifest is fail-closed for production deployment', async () 
   expect(m.release_policy.auto_redeploy_edge_functions).toBe(false);
   expect(m.release_policy.outreach_send_lock_must_remain_true).toBe(true);
   expect(m.seeds.production_auto_apply).toBe(false);
+});
+
+test('RC1 snapshot semantics are non-self-referential and require final scope refresh', async () => {
+  const m = loadManifest();
+  const runbook = fs.readFileSync(runbookPath, 'utf8');
+
+  expect(runbook).toContain('Snapshot semantics — important');
+  expect(runbook).toContain('must **not** be interpreted as a requirement that the repository\'s current `main` ref forever equals that SHA');
+  expect(runbook).toContain('regenerate/verify the manifest against the current Production baseline and the frozen RC scope');
+  expect(runbook).toContain('do **not** require an embedded file to equal the commit that contains that same file');
+
+  // The manifest still has to fail closed when release-relevant scope changes.
+  expect(m.release_order[0]).toMatch(/regenerate this manifest/i);
+  expect(m.release_policy.migration_success_requires_no_new_advisor_regressions).toBe(true);
 });
 
 test('RC1 manifest classifies every migration file currently in main', async () => {
