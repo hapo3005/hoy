@@ -21,12 +21,12 @@ jobs:
 
     steps:
       - name: Checkout deployed revision
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 22
 
@@ -41,7 +41,7 @@ jobs:
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: hoy-playwright-report-${{ github.run_id }}
           path: playwright-report/
@@ -50,7 +50,7 @@ jobs:
 
       - name: Upload QA screenshots
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: hoy-qa-screenshots-${{ github.run_id }}
           path: qa-screenshots/
@@ -59,7 +59,7 @@ jobs:
 
       - name: Upload failure traces and videos
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: hoy-playwright-failures-${{ github.run_id }}
           path: test-results/
