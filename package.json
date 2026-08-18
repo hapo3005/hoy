@@ -3,6 +3,7 @@
   "version": "2.39.0",
   "private": true,
   "scripts": {
+    "qa:platform": "node --test platform-core/tests/core.test.cjs",
     "qa:e2e": "playwright test",
     "qa:e2e:report": "playwright show-report"
   },
