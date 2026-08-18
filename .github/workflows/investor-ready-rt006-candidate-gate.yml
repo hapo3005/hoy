@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout audit controls
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           repository: hapo3005/hoy
           ref: ops/rt-005-rt-006-assets-sbom-ai
@@ -29,7 +29,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout Core pin candidate PR 111
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           repository: hapo3005/hoy
           ref: security/rt006-pin-runtime-dependencies
@@ -38,7 +38,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout Lifestyle current main
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           repository: hapo3005/hoy-lifestyle
           ref: main
@@ -47,7 +47,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout Works pin candidate PR 1
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           repository: hapo3005/hoy-works
           ref: investor-ready/dependency-pin-2.111.0
@@ -139,7 +139,7 @@ jobs:
 
       - name: Upload candidate evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: hoy-rt006-candidate-pinning-gate
           path: investor-ready-rt006-candidate/
