@@ -28,12 +28,14 @@ const trackStart=text.indexOf('trackEvent=function');
 if(trackStart<0)fail('trackEvent override is missing');
 const track=text.slice(trackStart);
 const guard=track.indexOf("if(productionHost()&&!analyticsConsentGranted())return Promise.resolve(false);");
-const readEvents=track.indexOf('readEvents()');
-const buildPayload=track.indexOf('buildPayload(type,restaurantId,meta)');
-if(guard<0||readEvents<0||buildPayload<0)fail('trackEvent guard/order tokens missing');
+// Match executable statements, not explanatory comments that intentionally name
+// readEvents()/buildPayload() while documenting the required order.
+const readEvents=track.indexOf('const rows=readEvents();');
+const buildPayload=track.indexOf('const payload=buildPayload(type,restaurantId,meta);');
+if(guard<0||readEvents<0||buildPayload<0)fail('trackEvent executable guard/order statements missing');
 if(!(guard<readEvents&&guard<buildPayload))fail('production no-consent guard must run before raw-history read and payload creation');
 
-const historyBlock=track.slice(0,buildPayload);
+const historyBlock=track.slice(guard,buildPayload);
 if(!historyBlock.includes('if(!productionHost())'))fail('raw event history is not visibly restricted away from production');
 if(!historyBlock.includes('safeSet(localStorage,ANALYTICS_KEY'))fail('preview/QA bounded history path unexpectedly disappeared');
 
@@ -57,5 +59,6 @@ console.log(JSON.stringify({
   consentKey:'hoy-privacy-analytics-consent-v1',
   productionDefault:'off_without_explicit_grant',
   rawProductionEventHistory:false,
-  withdrawalCleanup:true
+  withdrawalCleanup:true,
+  sourceOrderCheck:'executable-statements-only'
 },null,2));
