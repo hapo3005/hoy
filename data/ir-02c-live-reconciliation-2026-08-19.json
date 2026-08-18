@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "project": "HOY La Manga",
+  "inspectionMode": "read_only",
+  "migrationHistory": [
+    {"version":"20260818201632","applied":true,"repoBlob":"2f4f7243948bc3730a1cb0bdd5a029b04c8c6242"},
+    {"version":"20260818201740","applied":true,"repoBlob":"3ea288cd937b4d9fbbc1d382805846bf6cd59396"},
+    {"version":"20260818201831","applied":true,"repoBlob":"31937c3f35c44dc364f56bf06cadfed68b332624"},
+    {"version":"20260818202531","applied":true,"repoBlob":"e91fb1bb5f52115e88af6070f0fc4c8f9309cc08"},
+    {"version":"20260818203021","applied":true,"repoBlob":"84ab99f092162cf380e334d2d6bfae36844b81e3"}
+  ],
+  "objects": {
+    "private.business_terms_versions": true,
+    "private.business_terms_acceptances": true,
+    "private.business_data_confirmations": true
+  },
+  "publicRpcs": [
+    {"name":"get_business_terms_status","securityDefiner":false},
+    {"name":"operator_accept_business_terms","securityDefiner":false},
+    {"name":"operator_record_business_confirmation","securityDefiner":false}
+  ],
+  "termsV1": {
+    "status": "draft",
+    "masterLocale": "de",
+    "documentPath": "docs/legal/HOY_BUSINESS_DATA_MEDIA_TERMS_v1.0_DE.md",
+    "documentGitBlobSha": "a3d6ce5bb442667e1ec3ff9fc42939397e675a0a",
+    "documentSha256": null,
+    "spanishDocumentPath": "docs/legal/HOY_BUSINESS_DATA_MEDIA_TERMS_v1.0_ES_DRAFT.md",
+    "spanishDocumentSha256": null,
+    "effectiveAt": null,
+    "activatedAt": null,
+    "counselReviewedAt": null,
+    "privacyNoticeVersion": null
+  },
+  "counts": {
+    "businessTermsAcceptances": 0,
+    "businessDataConfirmations": 0
+  },
+  "interpretation": {
+    "repoAction": "restore already-applied migration source files; do not re-run them as new migrations",
+    "termsActive": false,
+    "marketProof": false,
+    "businessConfirmedProof": false,
+    "legalClearanceComplete": false
+  }
+}
