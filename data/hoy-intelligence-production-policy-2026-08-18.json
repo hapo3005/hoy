@@ -1,4 +1,35 @@
 {
   "policy_version": "2.46.0",
-  "status": "fail_closed"
+  "created_at": "2026-08-18",
+  "status": "fail_closed",
+  "runtime_tracking_expansion_allowed": false,
+  "production_collection_default": "blocked",
+  "commercialization_default": "blocked",
+  "allowed_statuses": ["blocked", "internal_only", "production_ready"],
+  "activation_rule": "production_ready requires every mandatory gate to be approved with no pending or unknown value",
+  "material_change_rule": "material changes reset an event to blocked and require re-review",
+  "mandatory_policy_gates": [
+    "lawful_basis_final",
+    "consent_decision_final",
+    "transparency_implemented",
+    "retention_final",
+    "deletion_or_irreversible_aggregation_implemented",
+    "client_allowlist_final",
+    "server_allowlist_final",
+    "server_rejects_unlisted_fields",
+    "data_lineage_documented",
+    "product_owner_assigned",
+    "privacy_owner_assigned",
+    "security_review_approved",
+    "legal_privacy_review_approved",
+    "qa_approved",
+    "commercial_reuse_reviewed_separately"
+  ],
+  "event_policy_files": [
+    "data/hoy-intelligence-policy-discovery-intent-2026-08-18.json",
+    "data/hoy-intelligence-policy-consideration-2026-08-18.json",
+    "data/hoy-intelligence-policy-decision-action-2026-08-18.json",
+    "data/hoy-intelligence-policy-family-demand-2026-08-18.json",
+    "data/hoy-intelligence-policy-supply-freshness-2026-08-18.json"
+  ]
 }
