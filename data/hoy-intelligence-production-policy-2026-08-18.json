@@ -25,6 +25,16 @@
     "qa_approved",
     "commercial_reuse_reviewed_separately"
   ],
+  "globally_prohibited_fields": [
+    "personal_contact_details",
+    "personal_name",
+    "raw_message_or_note",
+    "payment_data",
+    "sensitive_or_special_category_data",
+    "precise_user_location_or_history",
+    "device_fingerprint",
+    "advertising_identifier"
+  ],
   "event_policy_files": [
     "data/hoy-intelligence-policy-discovery-intent-2026-08-18.json",
     "data/hoy-intelligence-policy-consideration-2026-08-18.json",
