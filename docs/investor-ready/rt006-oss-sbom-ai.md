@@ -1,143 +1,162 @@
 # HOY Investor Ready — RT-006 OSS / SBOM / AI Dependency Review
 
-Status: **IN PROGRESS / first-pass dependency inventory complete, exhaustive machine SBOM pending local/full-tree run**
+**Baseline:** 2026-08-18  
+**Status:** TECHNICAL REMEDIATION ADVANCED / FINAL RELEASE-CANDIDATE CLEARANCE PENDING
 
 ## 1. Scope
+RT-006 covers third-party runtime libraries, development/test dependencies, Edge Function imports, GitHub Actions, CDN-loaded code, project-level licensing policy, material AI providers/tools and reproducible SBOM evidence. Rights in external business data/media remain RT-007.
 
-RT-006 covers:
-- third-party runtime libraries;
-- development/test dependencies;
-- Edge Function imports;
-- GitHub Actions dependencies;
-- CDN-loaded code;
-- project-level licensing policy;
-- AI providers/models/tools materially used to create or operate HOY;
-- reproducible SBOM evidence.
+## 2. Machine SBOM baseline — COMPLETE
+Checksum-verified Syft 1.51.0 plus HOY direct dependency scanner generated Syft JSON, SPDX JSON and CycloneDX JSON for Core/Gastro, Lifestyle and Works.
 
-It does **not** decide rights in external business data/media; that is RT-007.
+Reference evidence:
+- run `32186306546`
+- artifact `9342566421`
+- artifact SHA-256 `95557c93142a5adf854d72eb0876d7d75c97ab044883b28b4e4872304fa32af3`
 
-## 2. Current first-pass dependency inventory
+Baseline result:
+- 46 direct dependency records
+- Syft packages: Core 23 / Lifestyle 0 / Works 0
+- 0 root LICENSE/COPYING/NOTICE files in the three audited repositories
+- 11 genuine unpinned launch/runtime records
+- 23 movable GitHub Actions tag references in the nine pre-existing Core workflows
 
-### HOY Core (`hapo3005/hoy`)
+The 11 runtime findings were:
+- Core/Gastro: 8 × `npm:@supabase/supabase-js@2`
+- Core/Gastro: 2 × unversioned `jsr:@supabase/functions-js/edge-runtime.d.ts`
+- Works: 1 × jsDelivr `@supabase/supabase-js@2`
+- Lifestyle: 0
 
-#### Declared npm/dev dependency
-- `@playwright/test` `1.62.0` — development / browser QA — Apache-2.0 upstream.
-- Root `package.json` is marked `private: true`.
-- No `package-lock.json` was found in the reviewed repository root, so dependency installation is less reproducible than a locked build.
+## 3. Runtime dependency remediation candidate — GREEN
+Core PR `hapo3005/hoy#111`:
+- 9 files
+- 10 additions / 10 deletions
+- only import specifiers changed
+- 8 × Supabase JS `@2` → `@2.111.0`
+- 2 × Functions JS unversioned → `@2.111.0`
+- no function-body, SQL, data, auth or Production change
+- Final Release QA GREEN
+- Critical PR QA GREEN
+- PR Browser QA GREEN across Mobile Chrome, Mobile WebKit and Desktop Chromium
+- status: **READY FOR REVIEW / NOT MERGED**
 
-#### Browser/runtime CDN dependencies
-- Leaflet `1.9.4` from jsDelivr — map runtime — BSD-2-Clause upstream.
-- `@supabase/supabase-js` `2.111.0` from jsDelivr — browser Supabase client — MIT upstream.
-- Leaflet assets are pinned to an exact version and use SRI hashes in `index.html`.
-- Supabase JS is pinned to an exact version but the reviewed script tag does not currently carry an SRI hash.
+Works PR `hapo3005/hoy-works#1`:
+- exactly one line changes browser CDN `@2` → `@2.111.0`
+- status: **READY FOR REVIEW / NOT MERGED**
 
-#### Supabase Edge Function imports
-At least one production Edge Function imports:
-- `jsr:@supabase/functions-js/edge-runtime.d.ts` — Supabase Edge runtime type/runtime integration;
-- `npm:@supabase/server@1.4.1` — current npm package metadata reports MIT licensing.
+Combined candidate pinning evidence:
+- run `32187484866`
+- artifact `9342985995`
+- artifact SHA-256 `18d627c0e317322803d07b611e030c36c52e0d3dedc6d625c64411148ed7242c`
+- 46 direct dependency records
+- 16 runtime dependency records
+- **0 unpinned runtime records**
+- technical candidate status: **GREEN**
 
-The full Edge Function tree must be scanned for all `npm:`, `jsr:`, `https:` and relative imports before RT-006 is closed.
+Observed exact runtime specs include:
+- `npm:@supabase/supabase-js@2.111.0`
+- `jsr:@supabase/functions-js@2.111.0/edge-runtime.d.ts`
+- `npm:@supabase/server@1.4.1`
+- browser `@supabase/supabase-js@2.111.0`
+- Leaflet 1.9.4 JS/CSS
 
-#### GitHub Actions
-Workflows include versioned third-party actions such as `actions/checkout@v6`. All Actions `uses:` references must be part of the CI SBOM and should be reviewed for pinning policy.
+This is candidate evidence; `main` is not claimed remediated before an explicit merge decision.
 
-### HOY Works (`hapo3005/hoy-works`)
-- Static web application + Supabase backend.
-- Browser runtime loads `@supabase/supabase-js@2` from jsDelivr.
-- This is **major-version pinned only**, so minor/patch content can change without a HOY source commit.
-- Remediation: pin to an exact reviewed version before launch; preferably align to a tested platform version and record integrity/provenance.
-- No root package-manager manifest was identified in the reviewed root snapshot.
+## 4. Core QA dependency reproducibility — GREEN CANDIDATE
+The Core QA toolchain now has a committed npm `package-lock.json` generated by the RT-006 lock audit, not manually invented.
 
-### HOY Lifestyle (`hapo3005/hoy-lifestyle`)
-- Current root consists of `README.md`, `data/` and `docs/`.
-- No root `package.json` or runtime application dependency manifest was found in the reviewed snapshot.
-- Its primary DD risk is therefore data/source rights (RT-007), not conventional OSS dependency licensing.
+Reference lock evidence:
+- run `32189083547`
+- artifact `9343533212`
+- artifact archive SHA-256 `f5cd0d4996e292a7683a6f51f02dd27bc49706958470018c5dc87bf31bcaf008`
+- lockfile SHA-256 `4ea84e81203520335e98734d5598c5ce8364c7af41bbb4c8bc4c2afb07742028`
+- lockfile version 3
+- 5 package records
+- exact `@playwright/test` 1.62.0 with `resolved` and integrity evidence
+- transitive Playwright/Playwright-Core exact 1.62.0; optional fsevents 2.3.2
 
-## 3. Project-level licensing policy
+Candidate CI/install paths have been moved from `npm install` to `npm ci` in the central Browser, Delivery, PR Browser, Critical and manual Final Release QA workflows so the lock is enforced rather than merely stored.
 
-All three HOY repositories are public today, but none of the reviewed roots contains a `LICENSE` file.
+## 5. GitHub Actions supply-chain control — GREEN
+The baseline 23 movable references resolved to only three official GitHub Actions:
+- `actions/checkout`
+- `actions/setup-node`
+- `actions/upload-artifact`
 
-Until the Parent makes an explicit licensing decision:
-- treat HOY's own source as **proprietary / no license granted by default**;
-- do not add MIT/Apache/GPL or another project-wide OSS license merely for repository hygiene;
-- retain and reproduce third-party notices/attributions as required by their own licenses;
-- segregate third-party code/assets from HOY-owned code where practical;
-- never remove upstream copyright/license notices.
+Verified immutable pins used by HOY:
+- checkout v6 → `d23441a48e516b6c34aea4fa41551a30e30af803`
+- setup-node v6 → `249970729cb0ef3589644e2896645e5dc5ba9c38`
+- upload-artifact v5 → `330a01c490aca151604b8cf639adc76d48f6c5d4`
+- upload-artifact v4 legacy DD workflow → `ea165f8d65b6e75b540449e92b4886f43607fa02`
 
-A public repository is not, by itself, the same as a deliberate open-source licence grant.
+All baseline and post-baseline Investor-Ready workflow references are now immutable on the remediation branch.
 
-## 4. Known license decisions from upstream sources
+Machine enforcement is implemented by `scripts/investor-ready/check-github-actions-pins.mjs` and the `Investor Ready RT-006 Actions Pin Gate` workflow.
 
-| Component | HOY use | Version / range observed | Upstream license | Initial decision |
+Latest verified full audit before cleanup:
+- 15 workflow files
+- 49 remote `uses:` records
+- 49 immutable full-SHA references
+- **0 floating references**
+- status: **GREEN**
+
+The temporary one-shot normalization workflow was removed after the gate turned GREEN.
+
+## 6. Current direct licence classification
+| Component | Use | Version | Licence baseline | Status |
 |---|---|---:|---|---|
-| Leaflet | Core browser runtime | 1.9.4 | BSD-2-Clause | ACCEPT — retain notice |
-| @supabase/supabase-js | Core/Works browser runtime | Core 2.111.0; Works `@2` | MIT | ACCEPT — pin Works exactly; retain notice |
-| @playwright/test | Core development QA | 1.62.0 | Apache-2.0 | ACCEPT — retain license/NOTICE obligations if redistributed |
-| @supabase/server | Core Edge Function | 1.4.1 | MIT (npm metadata) | ACCEPT provisionally; include in generated SBOM |
-| Supabase Edge runtime / functions-js | Edge runtime | JSR import | TO VERIFY in exhaustive scan | REVIEW |
-| GitHub Actions used by workflows | CI only | workflow-specific | TO INVENTORY | REVIEW |
+| Leaflet | Core browser runtime | 1.9.4 | BSD-2-Clause | ACCEPT WITH NOTICE |
+| @supabase/supabase-js | Core/Works runtime candidate | 2.111.0 | MIT | ACCEPT WITH NOTICE |
+| @supabase/functions-js | Core Edge import candidate | 2.111.0 | MIT baseline | ACCEPT WITH NOTICE / final snapshot pending |
+| @supabase/server | Core Edge helper | 1.4.1 | MIT | ACCEPT WITH NOTICE |
+| @playwright/test | Core QA | 1.62.0 | Apache-2.0 | ACCEPT / retain licence+NOTICE evidence |
+| GitHub official Actions above | CI/DD | immutable SHAs | MIT | ACCEPT / inventory retained |
 
-No GPL/AGPL dependency has been identified in this first-pass inventory. That statement is **not** an exhaustive clearance until the generated SBOM/full-tree scan completes.
+No direct copyleft component has been identified in the classified set. This is not yet the final transitive release-candidate licence clearance.
 
-## 5. AI dependency inventory — current code evidence
+## 7. Third-Party Notices — IMPLEMENTED CANDIDATE
+`docs/investor-ready/third-party-notices-draft.md` has been upgraded to a controlled Third-Party Notices / License Inventory Candidate.
 
-### OpenAI menu extraction / evaluation
-HOY Core currently contains automated menu-evaluation and menu-intake code that calls the OpenAI API directly.
+It records the current direct software components, versions, licence baseline, distribution implications and separates software licence clearance from business data/media rights, fonts/assets and AI rights.
 
-Observed controls:
-- API key comes from environment/GitHub Actions secret, not source plaintext in the reviewed workflow;
-- Responses API calls set `store:false` in the reviewed evaluation and intake code;
-- model selection is runtime-aware: the code queries available models and chooses from a configured candidate list rather than assuming one model forever;
-- prompts explicitly treat restaurant source content as untrusted data and prohibit following instructions embedded in source content;
-- structured JSON Schema output and hallucination/price/coverage evaluation gates are used.
+It becomes final only after the actual release-candidate SBOM and Unknown/Custom/Copyleft review.
 
-DD implications:
-- OpenAI is a material vendor dependency for menu extraction/evaluation, but HOY's core discovery/runtime should not depend on model availability for every consumer page load;
-- the OpenAI account/billing/recovery owner belongs in RT-005;
-- menu source URLs/files/images sent for extraction belong in the privacy/data-rights/vendor-flow map (RT-007/RT-008);
-- model/provider/version, purpose, input class, output use and human review must be written to the AI Asset Register;
-- AI output is never a source of truth by itself: original sources, provenance, review and confidence remain separate.
+## 8. AI Asset Register — IMPLEMENTED
+`docs/investor-ready/rt006-ai-asset-register.md` now records material AI uses and separates:
+- provider contractual allocation;
+- copyrightability/originality;
+- source/input rights;
+- human review and quality gates;
+- privacy/vendor-flow clearance;
+- founder→company assignment.
 
-## 6. AI Asset Register minimum fields
+Classes:
+- AI-A founder/user input + AI assistance + substantive human review/modification
+- AI-B AI first draft + material human development
+- AI-C raw/minimally reviewed output
+- AI-D output materially dependent on third-party source material
 
-For every material AI use:
-- use-case ID;
-- provider / product / model family;
-- account/billing owner;
-- code/workflow location;
-- inputs sent;
-- personal/confidential data class;
-- source-rights status;
-- retention/store setting where controlled by HOY;
-- output type;
-- human review / automated quality gate;
-- whether output is published directly;
-- provider terms/version reviewed;
-- fallback if provider/model becomes unavailable;
-- evidence/provenance retained;
-- status: `APPROVED`, `REVIEW`, `BLOCKED`, `DEPRECATED`.
+Current register includes menu extraction, menu evaluation, engineering assistance, DD/security drafting and legal/privacy drafting. Legal/privacy AI drafts remain **BLOCKED FOR ACTIVATION** without qualified DE/ES legal review.
 
-## 7. SBOM generation policy
+HOY does not claim raw AI output is automatically exclusive proprietary IP.
 
-RT-006 includes `scripts/investor-ready/audit-third-party-deps.mjs`, a dependency-free Node scanner intended to run against a fully fetched repository tree.
+## 9. Project-level HOY licence policy
+All three source repositories remain public at this stage and no audited root project licence was found. Until an explicit company licensing decision:
+- do not add a broad MIT/Apache/GPL licence to HOY-owned source merely for hygiene;
+- treat HOY-owned source as proprietary/no project-wide licence grant by default;
+- preserve all required upstream third-party notices;
+- keep third-party rights distinct from HOY ownership claims;
+- continue IR-02E private-source/public-runtime cutover work separately.
 
-It records:
-- package.json dependencies/devDependencies;
-- HTML `src`/`href` external URLs;
-- JS/TS `npm:`, `jsr:` and HTTP imports;
-- GitHub Actions `uses:` references;
-- license/notice files present in the repo.
+Historical public publication cannot be made retroactively confidential.
 
-The scanner output is evidence input, not an automatic legal clearance. Every `UNKNOWN`, unpinned runtime dependency, nonstandard source import or copyleft licence must be resolved manually.
-
-## 8. Release policy
-
+## 10. Release policy
 ### BLOCK
-- unknown/no licence for code copied into or distributed with HOY;
-- AGPL/network-copyleft dependency without explicit legal approval;
-- unreviewed third-party source code copied into HOY;
-- runtime CDN dependency with uncontrolled version drift for launch-critical code;
-- AI/vendor credential controlled only by a personal account with no recovery path at F0-M.
+- unknown/no licence for code copied into or redistributed with HOY;
+- AGPL/network-copyleft without explicit legal approval;
+- unreviewed copied third-party source;
+- launch-critical runtime dependency with uncontrolled version drift;
+- unresolved material AI/vendor account/recovery dependency at final Buyer-DD gate.
 
 ### COUNSEL REVIEW
 - GPL/LGPL or unusual copyleft;
@@ -146,29 +165,40 @@ The scanner output is evidence input, not an automatic legal clearance. Every `U
 - AI-generated code/assets with material third-party similarity/provenance concern.
 
 ### ACCEPT WITH NOTICE
-- permissive MIT/BSD/Apache dependencies after version/source/notice record is complete.
+- permissive MIT/BSD/Apache dependencies after exact version/source/notice evidence is complete.
 
-## 9. Required remediations before RT-006 close
+## 11. Remaining RT-006 work
+Internally completed or candidate-GREEN:
+- machine SBOM baseline
+- direct dependency inventory
+- runtime pin candidates with 0 unpinned runtime records
+- full Core PR #111 browser/critical/release QA
+- Works one-line dependency candidate review
+- npm lockfile generation/integrity evidence
+- `npm ci` enforcement on central QA candidate workflows
+- full GitHub Actions immutable-SHA policy and machine gate
+- Third-Party Notices candidate
+- AI Asset Register
 
-1. Run the scanner on fully fetched Core, Lifestyle and Works repositories.
-2. Generate a machine-readable dependency inventory for the DD room.
-3. Add a controlled third-party notices file to the product/distribution package without licensing HOY's own code.
-4. Pin HOY Works Supabase JS to an exact reviewed version.
-5. Review every Edge Function external import.
-6. Review every GitHub Actions `uses:` dependency/pinning strategy.
-7. Decide whether a package lock / reproducible QA install is required for Core and commit the chosen mechanism.
-8. Complete AI Asset Register with account/terms/privacy ownership.
-9. Resolve every `UNKNOWN`, custom, copyleft or no-license item.
-10. Re-run after any material dependency addition before investor DD/major release.
+Still required before final RT-006 close:
+1. explicit merge/release-candidate decision for Core #111 and Works #1;
+2. generate final SBOM against the **actual composed release candidate**, not baseline `main`;
+3. run final transitive `UNKNOWN` / custom / copyleft review on that candidate;
+4. finalize exact third-party licence/NOTICE package for what is actually redistributed;
+5. close company-controlled AI/vendor account, billing/recovery and privacy-transfer evidence under RT-005/RT-008;
+6. re-run all gates after any material dependency change.
 
-## 10. F0-M close rule
+## 12. Gate
+**RT-006 baseline SBOM:** COMPLETE  
+**Runtime dependency candidate:** GREEN / 0 unpinned  
+**Core dependency PR #111:** READY FOR REVIEW / ALL QA GREEN / NOT MERGED  
+**Works dependency PR #1:** READY FOR REVIEW / NOT MERGED  
+**npm lock/reproducibility:** GREEN CANDIDATE / LOCK COMMITTED / `npm ci` ENFORCED  
+**GitHub Actions immutable pins:** GREEN / 0 floating refs in verified full scan  
+**Third-Party Notices:** IMPLEMENTED CANDIDATE  
+**AI Asset Register:** IMPLEMENTED / ACCOUNT+LEGAL FLOW OPEN  
+**Final release-candidate SBOM/licence clearance:** OPEN  
+**RT-006 overall:** ADVANCED / FINAL RELEASE-CANDIDATE GATE OPEN  
+**F0-M:** BLOCKED pending wider Investor-Ready gates.
 
-RT-006 closes only when:
-- no unresolved P0 OSS/licensing issue remains;
-- launch-critical runtime dependencies are pinned and reproducible;
-- SBOM/dependency evidence is archived;
-- third-party notice obligations are satisfied;
-- material AI/vendor dependencies are registered with ownership, privacy and fallback controls;
-- no secret or paid vendor dependency is controlled solely by an unrecoverable personal account.
-
-No Production code or vendor account was changed in this preparation pass.
+No merge, Production deploy, Supabase deploy, account transfer or business/investor outreach is authorized by this work.
