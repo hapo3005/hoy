@@ -93,7 +93,7 @@
       .filter(date => date && !Number.isNaN(date.getTime()))
       .sort((a, b) => b - a)[0];
 
-    return `<section class="hoya-panel" data-hoya-panel aria-labelledby="hoya-title-${Number(p.id)}">
+    return `<section class="hoya-panel" data-hoya-panel data-accessibility-panel aria-labelledby="hoya-title-${Number(p.id)}">
       <div class="hoya-head">
         <div>
           <div class="eyebrow">HOY ACCESSIBLE</div>
