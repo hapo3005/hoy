@@ -43,7 +43,7 @@ jobs:
           node-version: 22
 
       - name: Install pinned QA dependency
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Install browser engine
         run: npx playwright install --with-deps "${{ matrix.browser }}"
