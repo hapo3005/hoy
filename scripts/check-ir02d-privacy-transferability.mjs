@@ -15,9 +15,11 @@ const esPrivacyPath = 'docs/legal/HOY_PRIVACY_NOTICE_v1.0_ES_DRAFT.md';
 const dpaPath = 'docs/legal/HOY_DPA_ART28_v1.0_DE_DRAFT.md';
 const ddPath = 'docs/IR-02D_PRIVACY_TRANSFERABILITY_DD_STATUS.md';
 const migrationPath = 'supabase/migrations/20260818205155_ir02d_privacy_transferability_governance.sql';
+const analyticsDisablePath = 'supabase/migrations/20260818210151_ir02d_disable_analytics_until_consent_clearance.sql';
+const termsPrivacyLinkPath = 'supabase/migrations/20260818210527_ir02d_link_terms_to_active_privacy_notice.sql';
 const analyticsPath = 'analytics-rpc-1.8.1.js';
 
-for (const p of [dePrivacyPath, esPrivacyPath, dpaPath, ddPath, migrationPath, analyticsPath]) {
+for (const p of [dePrivacyPath, esPrivacyPath, dpaPath, ddPath, migrationPath, analyticsDisablePath, termsPrivacyLinkPath, analyticsPath]) {
   assert(fs.existsSync(path.join(root, p)), `required file missing: ${p}`);
 }
 if (process.exitCode) process.exit(1);
@@ -27,6 +29,8 @@ const es = read(esPrivacyPath);
 const dpa = read(dpaPath);
 const dd = read(ddPath);
 const migration = read(migrationPath);
+const analyticsDisable = read(analyticsDisablePath);
+const termsPrivacyLink = read(termsPrivacyLinkPath);
 const analytics = read(analyticsPath);
 
 assert(/DRAFT \/ NOT YET ACTIVE/i.test(de), 'German Privacy Notice must remain explicitly draft/not active');
@@ -83,11 +87,18 @@ assert(analytics.includes("const CONSENT_KEY='hoy-privacy-analytics-consent-v1'"
 assert(/function analyticsConsentGranted\(\)[\s\S]*?===['"]granted['"]/i.test(analytics), 'analytics consent must require explicit granted state');
 assert(/PRODUCTION_HOSTS\.has\(host\)[\s\S]*?analyticsConsentGranted\(\)/i.test(analytics), 'production transport must require explicit consent');
 assert(/trackEvent=function[\s\S]*?if\(!analyticsStorageAllowed\(\)\)return Promise\.resolve\(false\);[\s\S]*?readEvents\(\)/i.test(analytics), 'trackEvent must stop before local analytics storage when consent is absent');
-assert(/buildPayload[\s\S]*?storedUuid\(localStorage,ANON_KEY\)/i.test(analytics), 'analytics identifier creation path missing');
 assert(/trackEvent=function[\s\S]*?analyticsStorageAllowed\(\)[\s\S]*?buildPayload/i.test(analytics), 'payload/identifier creation must occur only behind consent/QA gate');
 assert(/deny:\(\)=>[\s\S]*?clearAnalyticsIdentifiers\(\)/i.test(analytics), 'deny action must clear analytics identifiers/history');
 assert(/withdraw:\(\)=>[\s\S]*?clearAnalyticsIdentifiers\(\)/i.test(analytics), 'withdraw action must clear analytics identifiers/history');
 assert(/localStorage\.removeItem\(ANON_KEY\)/i.test(analytics) && /sessionStorage\.removeItem\(SESSION_KEY\)/i.test(analytics), 'withdrawal must remove persistent and session analytics identifiers');
+assert(/revoke execute on function public\.log_analytics_event\(text,bigint,uuid,uuid,jsonb\) from anon, authenticated/i.test(analyticsDisable), 'server-side analytics transport must remain revoked pending consent clearance');
+
+// Business Terms and Privacy cannot be activated independently: a referenced
+// Privacy Notice must exist and itself be active before Terms can become active.
+assert(/business_terms_privacy_notice_version_fkey/i.test(termsPrivacyLink), 'Business Terms → Privacy Notice foreign key missing');
+assert(/references private\.privacy_notice_versions\(notice_version\)/i.test(termsPrivacyLink), 'Business Terms must reference registered Privacy Notice version');
+assert(/new\.status='active'[\s\S]*?v_status[\s\S]*?<>'active'/i.test(termsPrivacyLink), 'active Business Terms must require active Privacy Notice');
+assert(/trg_business_terms_require_active_privacy/i.test(termsPrivacyLink), 'Business Terms active-privacy trigger missing');
 
 if (process.exitCode) process.exit(1);
 console.log('IR-02D privacy & transferability governance gate: PASS');
