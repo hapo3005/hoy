@@ -1,5 +1,11 @@
--- HOY 2.43.0 — keep public read policy singular for authenticated users
+-- HOY 2.43.0 — singular public read policy + least-privilege table grants
 begin;
+
+-- Explicitly remove PostgreSQL/Supabase default table privileges that are not
+-- required by the app (notably TRUNCATE, TRIGGER and REFERENCES).
+revoke all privileges on table public.restaurant_accessibility from anon, authenticated;
+grant select on table public.restaurant_accessibility to anon;
+grant select, insert, update, delete on table public.restaurant_accessibility to authenticated;
 
 drop policy if exists "hoy admins manage restaurant accessibility" on public.restaurant_accessibility;
 drop policy if exists "hoy admins insert restaurant accessibility" on public.restaurant_accessibility;
