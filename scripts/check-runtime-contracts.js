@@ -58,6 +58,105 @@ function checkPwaAssetGraph(){
 
 function lineAt(text,index){return text.slice(0,index).split('\n').length}
 
+function extractFirstArgument(text,start){
+  let depth=0;
+  let quote=null;
+  let escaped=false;
+  for(let i=start;i<text.length;i++){
+    const ch=text[i];
+    if(quote){
+      if(escaped){escaped=false;continue}
+      if(ch==='\\'){escaped=true;continue}
+      if(ch===quote){quote=null;continue}
+      continue;
+    }
+    if(ch==='"'||ch==="'"||ch==='`'){quote=ch;continue}
+    if(ch==='('||ch==='['||ch==='{'){depth++;continue}
+    if(ch===')'||ch===']'||ch==='}'){
+      if(depth===0)return null;
+      depth--;
+      continue;
+    }
+    if(ch===','&&depth===0)return text.slice(start,i).trim();
+  }
+  return null;
+}
+
+function isWrappedByOuterParens(expr){
+  if(!expr.startsWith('(')||!expr.endsWith(')'))return false;
+  let depth=0,quote=null,escaped=false;
+  for(let i=0;i<expr.length;i++){
+    const ch=expr[i];
+    if(quote){
+      if(escaped){escaped=false;continue}
+      if(ch==='\\'){escaped=true;continue}
+      if(ch===quote)quote=null;
+      continue;
+    }
+    if(ch==='"'||ch==="'"||ch==='`'){quote=ch;continue}
+    if(ch==='(')depth++;
+    else if(ch===')'){
+      depth--;
+      if(depth===0&&i!==expr.length-1)return false;
+    }
+  }
+  return depth===0&&!quote;
+}
+
+function stripOuterParens(expr){
+  let out=expr.trim();
+  while(isWrappedByOuterParens(out))out=out.slice(1,-1).trim();
+  return out;
+}
+
+function topLevelConditional(expr){
+  let depth=0,quote=null,escaped=false,q=-1,nested=0;
+  for(let i=0;i<expr.length;i++){
+    const ch=expr[i];
+    if(quote){
+      if(escaped){escaped=false;continue}
+      if(ch==='\\'){escaped=true;continue}
+      if(ch===quote)quote=null;
+      continue;
+    }
+    if(ch==='"'||ch==="'"||ch==='`'){quote=ch;continue}
+    if(ch==='('||ch==='['||ch==='{'){depth++;continue}
+    if(ch===')'||ch===']'||ch==='}'){depth--;continue}
+    if(depth!==0)continue;
+    if(ch==='?'){
+      // Optional chaining is not a conditional operator.
+      if(expr[i+1]==='.')continue;
+      if(q===-1){q=i;continue}
+      nested++;
+      continue;
+    }
+    if(ch===':'&&q!==-1){
+      if(nested>0){nested--;continue}
+      return {question:q,colon:i};
+    }
+  }
+  return null;
+}
+
+function enumerateStaticEventExpression(raw){
+  const expr=stripOuterParens(raw);
+  const literal=expr.match(/^(['"])([a-z0-9_]+)\1$/i);
+  if(literal)return [literal[2]];
+  if(expr.includes('`'))return null;
+  const conditional=topLevelConditional(expr);
+  if(!conditional)return null;
+  const yes=enumerateStaticEventExpression(expr.slice(conditional.question+1,conditional.colon));
+  const no=enumerateStaticEventExpression(expr.slice(conditional.colon+1));
+  if(!yes||!no)return null;
+  return [...yes,...no];
+}
+
+function addUsedEvent(usedByFile,type,rel){
+  const files=usedByFile.get(type)||new Set();
+  files.add(rel);
+  usedByFile.set(type,files);
+}
+
 function checkAnalyticsContract(){
   const contract=JSON.parse(read('data/analytics-event-contract-2.45.json'));
   const allowed=new Set(contract.event_types||[]);
@@ -75,20 +174,18 @@ function checkAnalyticsContract(){
       const start=match.index||0;
       const prefix=text.slice(Math.max(0,start-24),start);
       if(/function\s*$/.test(prefix))continue;
-      const after=text.slice(start+match[0].length);
-      if(!/^\s*["']/.test(after))dynamicCalls.push(`${rel}:${lineAt(text,start)}`);
-    }
-
-    for(const match of text.matchAll(/\btrackEvent\s*\(\s*["']([^"']+)["']/g)){
-      const type=match[1];
-      const files=usedByFile.get(type)||new Set();
-      files.add(rel);
-      usedByFile.set(type,files);
+      const firstArg=extractFirstArgument(text,start+match[0].length);
+      const eventTypes=firstArg&&enumerateStaticEventExpression(firstArg);
+      if(!eventTypes){
+        dynamicCalls.push(`${rel}:${lineAt(text,start)}`);
+        continue;
+      }
+      for(const type of eventTypes)addUsedEvent(usedByFile,type,rel);
     }
   }
 
   if(dynamicCalls.length){
-    fail(`Dynamic analytics event names are forbidden; use a literal registered event type: ${dynamicCalls.join(', ')}`);
+    fail(`Dynamic analytics event names are forbidden; use a literal or statically enumerable literal ternary: ${dynamicCalls.join(', ')}`);
   }
 
   const used=new Set(usedByFile.keys());
@@ -122,7 +219,7 @@ function checkAnalyticsContract(){
   const playwright=read('playwright.config.js').toLowerCase();
   if(!playwright.includes("'x-hoy-qa':'1'"))fail('Playwright QA marker X-HOY-QA=1 is missing');
 
-  console.log(`Analytics contract: ${used.size} literal client event types; ${allowed.size} allowed server types; aligned and fail-closed.`);
+  console.log(`Analytics contract: ${used.size} statically enumerable client event types; ${allowed.size} allowed server types; aligned and fail-closed.`);
 }
 
 checkPwaAssetGraph();
