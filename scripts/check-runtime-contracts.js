@@ -124,7 +124,6 @@ function topLevelConditional(expr){
     if(ch===')'||ch===']'||ch==='}'){depth--;continue}
     if(depth!==0)continue;
     if(ch==='?'){
-      // Optional chaining is not a conditional operator.
       if(expr[i+1]==='.')continue;
       if(q===-1){q=i;continue}
       nested++;
@@ -176,10 +175,7 @@ function checkAnalyticsContract(){
       if(/function\s*$/.test(prefix))continue;
       const firstArg=extractFirstArgument(text,start+match[0].length);
       const eventTypes=firstArg&&enumerateStaticEventExpression(firstArg);
-      if(!eventTypes){
-        dynamicCalls.push(`${rel}:${lineAt(text,start)}`);
-        continue;
-      }
+      if(!eventTypes){dynamicCalls.push(`${rel}:${lineAt(text,start)}`);continue}
       for(const type of eventTypes)addUsedEvent(usedByFile,type,rel);
     }
   }
@@ -209,15 +205,20 @@ function checkAnalyticsContract(){
     'revoke all on function public.log_analytics_event',
     'grant execute on function public.log_analytics_event',
     "current_setting('request.headers', true)",
-    "request_headers->>'x-hoy-qa'",
+    "p_metadata->>'qa_runtime'",
     "request_user_agent like '%headlesschrome%'"
   ];
   const lowerMigration=migration.toLowerCase();
   const missingGuards=requiredGuards.filter(item=>!lowerMigration.includes(item.toLowerCase()));
   if(missingGuards.length)fail(`Analytics migration lost required safety guards: ${missingGuards.join(', ')}`);
 
+  const analytics=read('analytics-rpc-1.8.1.js').toLowerCase();
+  if(!analytics.includes("qa_runtime:'1'"))fail('Analytics payload QA marker is missing');
+  if(!analytics.includes('hoylastqaanalyticspayload181'))fail('QA-only analytics payload snapshot is missing');
+
   const playwright=read('playwright.config.js').toLowerCase();
-  if(!playwright.includes("'x-hoy-qa':'1'"))fail('Playwright QA marker X-HOY-QA=1 is missing');
+  if(!playwright.includes("name:'hoy-qa-runtime',value:'1'"))fail('Playwright QA runtime marker is missing');
+  if(playwright.includes('x-hoy-qa'))fail('Analytics QA marker must not be a global Playwright HTTP header');
 
   console.log(`Analytics contract: ${used.size} statically enumerable client event types; ${allowed.size} allowed server types; aligned and fail-closed.`);
 }
