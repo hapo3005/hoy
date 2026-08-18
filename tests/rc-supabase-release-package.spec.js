@@ -25,6 +25,18 @@ test('RC1 Supabase manifest is fail-closed for production deployment', async () 
   expect(m.seeds.production_auto_apply).toBe(false);
 });
 
+test('RC1 manifest classifies every migration file currently in main', async () => {
+  const m = loadManifest();
+  const migrationDir = path.join(root, 'supabase', 'migrations');
+  const repoPaths = fs.readdirSync(migrationDir)
+    .filter(name => name.endsWith('.sql'))
+    .map(name => `supabase/migrations/${name}`)
+    .sort();
+  const manifestPaths = m.migrations.map(x => x.repo_path).sort();
+
+  expect(manifestPaths).toEqual(repoPaths);
+});
+
 test('RC1 database delta is exactly the curated HOY Accessible migration', async () => {
   const m = loadManifest();
   const pending = m.migrations.filter(x => x.status === 'PENDING_PRODUCTION_DB_GATE');
@@ -35,6 +47,7 @@ test('RC1 database delta is exactly the curated HOY Accessible migration', async
     source: 'MAIN_PR_89',
     apply_order: 1,
   });
+  expect(fs.existsSync(path.join(root, pending[0].repo_path))).toBe(true);
   expect(pending[0].expected_after_initial_apply).toMatchObject({
     feature_registry_rows: 24,
     facts_total: 668,
