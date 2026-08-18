@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "overallStatus": "IN_PROGRESS",
+  "scope": "Digital asset control, reachable-history secret evidence, recovery and transfer continuity",
+  "canonicalTechnicalEvidence": {
+    "historicalReferenceRun": 32185575422,
+    "historicalStatus": "GREEN_REFERENCE",
+    "cleanCurrentMainRevalidation": "REQUIRED"
+  },
+  "controls": [
+    {"id":"RT005-01","name":"reachable_history_secret_scan","status":"GREEN_REFERENCE_REVALIDATION_REQUIRED","closeEvidence":"clean current-main workflow run with zero unclassified fingerprints"},
+    {"id":"RT005-02","name":"github_company_control","status":"OPEN","closeEvidence":"company-controlled organization/repository ownership, recovery and continuity evidence"},
+    {"id":"RT005-03","name":"production_infrastructure_control","status":"OPEN","closeEvidence":"company/transaction control, billing, administrators, recovery and backup evidence"},
+    {"id":"RT005-04","name":"domain_dns_registrar_control","status":"OPEN","closeEvidence":"canonical registrant/admin/recovery inventory and transfer/control evidence"},
+    {"id":"RT005-05","name":"vendor_billing_recovery","status":"OPEN","closeEvidence":"material vendor account, billing and recovery ownership record"},
+    {"id":"RT005-06","name":"privileged_secret_control","status":"OPEN","closeEvidence":"vault metadata, privileged credential owner, rotation and recovery evidence without secret values"},
+    {"id":"RT005-07","name":"two_admin_continuity","status":"OPEN","closeEvidence":"two-admin or equivalent tested continuity coverage for launch-critical systems"},
+    {"id":"RT005-08","name":"backup_recovery_drill","status":"OPEN","closeEvidence":"dated recovery/backup drill evidence for material systems"}
+  ],
+  "boundaries": {
+    "containsRt006": false,
+    "productionChangesAuthorized": false,
+    "assetTransfersAuthorized": false,
+    "credentialRotationAuthorized": false,
+    "outreachAuthorized": false
+  },
+  "doneRule": "RT-005 may be DONE only when all controls are closed with current evidence and the final ownership/control model matches the intended transaction state."
+}
