@@ -9,6 +9,7 @@
     "qa:terms": "node scripts/check-ir02c-business-terms.mjs",
     "qa:privacy": "node scripts/check-ir02d-privacy-transferability.mjs",
     "qa:public-runtime": "node scripts/check-ir02e-public-runtime.mjs",
+    "qa:secrets": "node scripts/check-no-critical-secrets.mjs",
     "build:public-runtime": "node scripts/build-public-runtime.mjs"
   },
   "devDependencies": {
