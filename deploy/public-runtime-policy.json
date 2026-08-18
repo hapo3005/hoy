@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.1",
+  "mode": "allowlist_fail_closed",
+  "public_root_extensions": [".html", ".css", ".js", ".webmanifest", ".svg", ".png", ".jpg", ".jpeg", ".webp", ".ico", ".woff", ".woff2", ".xml"],
+  "public_root_files": [".nojekyll", "CNAME", "robots.txt"],
+  "public_directories": ["assets", "icons", "images", "media"],
+  "public_optional_files": [
+    "platform-core/hoy-platform-core-v1.js",
+    "platform-core/gastro-adapter-v1.js"
+  ],
+  "never_publish_directories": [".git", ".github", ".vscode", "data", "docs", "node_modules", "playwright-report", "scripts", "supabase", "test-results", "tests"],
+  "never_publish_extensions": [".csv", ".md", ".mjs", ".sql", ".ts", ".yaml", ".yml"],
+  "never_publish_name_fragments": [".env", "service-role", "service_role", "secret", "private-key", "private_key"],
+  "required_runtime_files": ["index.html"],
+  "secret_patterns": [
+    "SUPABASE_SERVICE_ROLE",
+    "HOY_SUPABASE_SECRET_KEY",
+    "OPENAI_API_KEY",
+    "service_role_key",
+    "sb_secret_",
+    "BEGIN PRIVATE KEY",
+    "postgres://",
+    "postgresql://",
+    "ghp_",
+    "github_pat_"
+  ],
+  "notes": [
+    "Browser-delivered JavaScript/CSS is inherently inspectable and is not treated as confidential source.",
+    "Only allowlisted runtime surfaces enter the public artifact; internal DD, SQL, tests, scripts and data are excluded.",
+    "Platform Core runtime files are individual optional files, not an allowlisted platform-core directory, so README/contracts/tests are not exposed by this policy.",
+    "Unknown top-level directories remain excluded until explicitly reviewed."
+  ]
+}
