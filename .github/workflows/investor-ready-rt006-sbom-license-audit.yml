@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout audit controls
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           repository: hapo3005/hoy
           ref: ops/rt-005-rt-006-assets-sbom-ai
@@ -32,7 +32,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout HOY Core/Gastro
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           repository: hapo3005/hoy
           ref: main
@@ -41,7 +41,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout HOY Lifestyle
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           repository: hapo3005/hoy-lifestyle
           ref: main
@@ -50,7 +50,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout HOY Works
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           repository: hapo3005/hoy-works
           ref: main
@@ -107,10 +107,8 @@ jobs:
           direct = json.loads((root/'direct-scan'/'third-party-dependencies.json').read_text())
 
           def exact_semver_runtime(spec):
-              # Exact package semver for npm:/jsr: scoped and unscoped imports.
               if spec.startswith(('npm:','jsr:')):
                   return bool(re.match(r'^(?:npm:|jsr:)(?:@[^/]+/[^@/]+|[^@/]+)@\d+\.\d+\.\d+(?:/|$)', spec))
-              # Exact jsDelivr npm version. Ordinary non-code external URLs are not dependency pins.
               if 'cdn.jsdelivr.net/npm/' in spec:
                   tail = spec.split('cdn.jsdelivr.net/npm/',1)[1]
                   return bool(re.match(r'^(?:@[^/]+/[^@/]+|[^@/]+)@\d+\.\d+\.\d+(?:/|$)', tail))
@@ -177,7 +175,7 @@ jobs:
 
       - name: Upload RT-006 SBOM evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: hoy-rt006-sbom-license-audit
           path: investor-ready-sbom/
