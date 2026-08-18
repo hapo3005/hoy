@@ -3,20 +3,20 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { gotoReady } = require('./helpers/current-release');
 
-const prefs = mustKey => ({
-  'access.step_free': mustKey === 'access.step_free' ? 'must' : 'ignore',
-  'access.wheelchair_seating': mustKey === 'access.wheelchair_seating' ? 'must' : 'ignore',
-  'access.toilet': mustKey === 'access.toilet' ? 'must' : 'ignore',
-  'access.parking': mustKey === 'access.parking' ? 'must' : 'ignore'
-});
-
-test('HOY Accessible keeps unknown separate from no in MUST matching', async ({ page }) => {
+test('HOY Accessible keeps unknown, stale and unverified facts out of confirmed MUST matching', async ({ page }) => {
   await gotoReady(page);
   await page.waitForFunction(() => window.HOYAccessible?.state?.ready === true);
 
   const results = await page.evaluate(() => {
     const future = '2027-02-14T00:00:00Z';
-    const base = { restaurant_id: 999, feature_key: 'access.step_free', stale_after: future };
+    const now = new Date('2026-08-18T12:00:00Z');
+    const base = {
+      restaurant_id: 999,
+      feature_key: 'access.step_free',
+      stale_after: future,
+      verification_level: 'hoy_verified',
+      review_state: 'clean'
+    };
     const p = {
       'access.step_free': 'must',
       'access.wheelchair_seating': 'ignore',
@@ -24,10 +24,13 @@ test('HOY Accessible keeps unknown separate from no in MUST matching', async ({ 
       'access.parking': 'ignore'
     };
     return {
-      yes: window.HOYAccessible.evaluateFacts([{ ...base, status: 'yes' }], p, new Date('2026-08-18T12:00:00Z')).state,
-      no: window.HOYAccessible.evaluateFacts([{ ...base, status: 'no' }], p, new Date('2026-08-18T12:00:00Z')).state,
-      unknown: window.HOYAccessible.evaluateFacts([{ ...base, status: 'unknown' }], p, new Date('2026-08-18T12:00:00Z')).state,
-      stale: window.HOYAccessible.evaluateFacts([{ ...base, status: 'yes', stale_after: '2026-08-17T00:00:00Z' }], p, new Date('2026-08-18T12:00:00Z')).state
+      yes: window.HOYAccessible.evaluateFacts([{ ...base, status: 'yes' }], p, now).state,
+      no: window.HOYAccessible.evaluateFacts([{ ...base, status: 'no' }], p, now).state,
+      unknown: window.HOYAccessible.evaluateFacts([{ ...base, status: 'unknown' }], p, now).state,
+      stale: window.HOYAccessible.evaluateFacts([{ ...base, status: 'yes', stale_after: '2026-08-17T00:00:00Z' }], p, now).state,
+      externalYes: window.HOYAccessible.evaluateFacts([{ ...base, status: 'yes', verification_level: 'external_unverified' }], p, now).state,
+      externalNo: window.HOYAccessible.evaluateFacts([{ ...base, status: 'no', verification_level: 'external_unverified' }], p, now).state,
+      disputedYes: window.HOYAccessible.evaluateFacts([{ ...base, status: 'yes', review_state: 'disputed' }], p, now).state
     };
   });
 
@@ -35,6 +38,9 @@ test('HOY Accessible keeps unknown separate from no in MUST matching', async ({ 
   expect(results.no).toBe('no_match');
   expect(results.unknown).toBe('confirmation_required');
   expect(results.stale).toBe('confirmation_required');
+  expect(results.externalYes).toBe('confirmation_required');
+  expect(results.externalNo).toBe('confirmation_required');
+  expect(results.disputedYes).toBe('confirmation_required');
 });
 
 test('restaurant overview shows concrete accessibility facts without a percentage score', async ({ page }) => {
@@ -74,11 +80,13 @@ test('legacy all-unknown audit is not rendered as a negative accessibility claim
   await expect(panel).not.toContainText('Nicht vorhanden');
 });
 
-test('migration protects the hearing-loop unknown correction and RLS exposure', async () => {
+test('migration protects the hearing-loop unknown correction, RLS exposure and legacy sync', async () => {
   const sql = fs.readFileSync(path.join(__dirname, '..', 'supabase', 'migrations', '20260818093100_hoy_accessible_v1.sql'), 'utf8');
   expect(sql).toContain("'access.hearing_loop','unknown'");
   expect(sql).toContain('not publicly listed => unknown, not no');
   expect(sql).toContain('enable row level security');
   expect(sql).toContain('public reads current published accessibility facts');
   expect(sql).toContain('grant select on public.restaurant_accessibility_facts to anon, authenticated');
+  expect(sql).toContain('hoy_sync_accessibility_facts_from_legacy');
+  expect(sql).toContain('security invoker');
 });
