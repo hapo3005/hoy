@@ -137,20 +137,34 @@ test('restaurant overview shows concrete accessibility facts without a percentag
   await expect(panel).not.toContainText('% barrierefrei');
 });
 
-test('legacy all-unknown audit is not rendered as a negative accessibility claim', async ({ page }) => {
+test('all-unknown facts are not rendered as a negative accessibility claim', async ({ page }) => {
   await gotoReady(page);
   await page.waitForFunction(() => window.HOYAccessible?.state?.ready === true);
 
-  const id = await page.evaluate(() => {
-    const core = new Set(['access.step_free','access.wheelchair_seating','access.toilet','access.parking']);
-    for (const [restaurantId, facts] of window.HOYAccessible.state.byRestaurant.entries()) {
-      const relevant = facts.filter(f => core.has(f.feature_key));
-      if (relevant.length === 4 && relevant.every(f => f.status === 'unknown') && DATA.some(p => Number(p.id) === Number(restaurantId))) return restaurantId;
-    }
-    return null;
-  });
-  expect(id).toBeTruthy();
-  await page.evaluate(restaurantId => openDetail(restaurantId), id);
+  const restaurantId = await page.evaluate(() => Number(DATA[0]?.id));
+  expect(restaurantId).toBeTruthy();
+
+  await page.evaluate(id => {
+    const checked_at = '2026-08-18T00:00:00Z';
+    const stale_after = '2027-02-14T00:00:00Z';
+    const fact = feature_key => ({
+      restaurant_id: Number(id),
+      feature_key,
+      status: 'unknown',
+      verification_level: 'external_unverified',
+      source_type: 'test_unknown',
+      checked_at,
+      stale_after,
+      review_state: 'clean'
+    });
+    window.HOYAccessible.state.byRestaurant.set(Number(id), [
+      fact('access.step_free'),
+      fact('access.wheelchair_seating'),
+      fact('access.toilet'),
+      fact('access.parking')
+    ]);
+    openDetail(id);
+  }, restaurantId);
 
   const panel = page.locator('#detail [data-hoya-panel]');
   await expect(panel).toBeVisible();
