@@ -1,6 +1,6 @@
 # RT-004 — IP Chain of Title & Contributor Control
 
-Status: **In progress — evidence gathered, execution package prepared**  
+Status: **In progress — all-history contributor census complete; legal execution pending**  
 Date: 2026-08-18  
 Contact gate: **F0-M remains blocked**
 
@@ -13,19 +13,39 @@ The three core repositories are currently under the personal GitHub account `hap
 - `hapo3005/hoy-lifestyle`
 - `hapo3005/hoy-works`
 
-Current default-branch head metadata on 2026-08-18 identifies the Git author as `hapo3005` using the founder email on all three repositories. This is a strong founder-authorship/control signal, but **not an exhaustive all-history contributor audit** and not a substitute for executed Parent rights.
+## Executed all-history contributor census
+The RT-004 GitHub Actions census was executed successfully on 2026-08-18 against all commits reachable from every branch/tag fetched from each repository origin at workflow runtime.
 
-## Required all-history contributor audit
-For every HOY repository and every branch/tag that contains material code/assets:
-1. enumerate every distinct author name + email from `git log --all`,
-2. enumerate co-authored-by trailers,
-3. map aliases/emails to a legal person or automation account,
-4. classify each contribution as founder / employee / contractor / external contributor / bot / imported third-party code,
-5. identify whether a written IP/confidentiality agreement exists,
-6. review commits with large copied/imported assets separately,
-7. retain the raw audit output and signed contributor disclosure in the diligence room.
+Final successful run:
+- workflow: `Investor Ready RT-004 Contributor Audit`
+- run ID: `32184547569`
+- audited head: `b6d8a80136001c572ee1b7fed34a35b4a10fd8ff`
+- artifact: `hoy-rt004-contributor-audit`
+- artifact ID: `9341958517`
+- artifact SHA-256: `e9d978c70150085bf6cce2b478c7f181d882b2fa7547235ac5bc4f7b6c028a76`
 
-Recommended local audit commands are provided in `scripts/investor-ready/audit-ip-contributors.sh`.
+Result:
+
+| Repository | Unique identities | Founder | Platform/Bot | Review required |
+|---|---:|---:|---:|---:|
+| `hoy` | 4 | 1 | 3 | 0 |
+| `hoy-lifestyle` | 2 | 1 | 1 | 0 |
+| `hoy-works` | 1 | 1 | 0 | 0 |
+
+**No non-founder human contributor identity is currently present in the reachable-history census.**
+
+### Resolved automation identities
+The three non-founder identities in `hoy` are automation/platform identities, not human contributors:
+- `GitHub <noreply@github.com>` — GitHub platform committer.
+- `HOY Menu Image Publisher <actions@users.noreply.github.com>` — configured by `.github/workflows/menu-image-publish.yml`; GitHub account is `actions`; generated commit `8d9a27a06f1b3f4e6d5bb2055e9abb15bdae40af` publishes only the reviewed Bonobo menu image bundle.
+- `HOY Menu Renderer <actions@users.noreply.github.com>` — configured by `.github/workflows/menu-pdf-render.yml`; GitHub account is `actions`; generated commit `7596779664beb4ef810faf3332c3a1e42b531ff3` publishes only reviewed rendered menu pages.
+
+`hoy-lifestyle` additionally contains the GitHub platform committer identity `GitHub <noreply@github.com>`. `hoy-works` contains only the founder identity in the census.
+
+These automation-generated media commits do **not** make the underlying restaurant/menu media founder-owned. Media/source rights remain separately governed by RT-006/RT-007.
+
+## Audit scope caveat
+The census is exhaustive for commits reachable from the branches and tags advertised/fetched from the three GitHub origins at execution time. A fresh remote clone cannot prove the absence of historical objects that are no longer reachable from any advertised ref. This is a normal Git limitation and should be disclosed rather than overstated.
 
 ## Founder/pre-company rights package — schedule
 The future Parent rights agreement should attach a dated asset schedule covering at minimum:
@@ -53,32 +73,31 @@ Evidence required:
 - executed pre-company rights agreement to Parent
 
 ### Human contributor / contractor
-Evidence required:
-- identity
-- period and scope
-- agreement status
-- confidentiality/IP terms
-- third-party/OSS/AI disclosure
-- remediation agreement if rights are incomplete
+Current census: **none identified**. If a future audit reveals one, require identity, period/scope, agreement status, confidentiality/IP terms, third-party/OSS/AI disclosure and remediation if rights are incomplete.
 
-### Automation / GitHub web-flow / bots
-Do not treat a bot/committer identity as a human author. Preserve the underlying Git author and PR/commit provenance.
+### Automation / GitHub platform / bots
+Do not treat an automation/committer identity as a human author. Preserve the underlying workflow, Git account and commit provenance. The currently identified automation identities are documented in `rt004-contributor-audit-evidence.md`.
 
 ### Third-party or imported material
 Must be routed to RT-006 (OSS/SBOM/AI/media rights) and RT-007 (Data Rights) rather than being placed in the founder-owned bucket by default.
 
 ## Current working conclusion
-- Founder authorship/control has a strong current signal on all three default-branch heads.
-- No external human contributor has been proven by the evidence gathered in this pass.
-- **However, absence of proof is not proof of absence.** RT-004 remains open until the all-history audit is run and the contributor disclosure is signed.
+- **Technical contributor census: COMPLETE.**
+- No external human contributor is identified in the reachable history of the three core repositories.
+- Founder authorship/control has strong direct Git evidence.
+- Contributor-specific assignment remediation is currently **not required**, because no such human contributor is identified.
+- Founder-to-Parent rights execution is still mandatory.
+- Third-party software/media/data rights remain separate gates.
 
 ## RT-004 close condition
 RT-004 is DONE only when:
-1. all-history contributor audit is complete for all three core repositories,
-2. every human contributor is resolved to signed rights or documented non-material/no-contribution status,
+1. ~~all-history contributor audit is complete for all three core repositories~~ — **DONE 2026-08-18**,
+2. contributor exception disclosure is retained; current technical result = **NONE IDENTIFIED**, subject to counsel acceptance,
 3. founder/pre-company rights agreement and asset schedule are executed with Parent,
 4. third-party/OSS/AI/media/data items are linked to their separate rights registers,
 5. repository and critical digital-asset control is transferred/controlled according to RT-005,
-6. the diligence room contains signed evidence rather than only internal narrative.
+6. the diligence room contains the signed legal evidence in addition to the technical audit artifact.
+
+Accordingly, **RT-004 remains IN PROGRESS only for legal/entity execution and linked third-party-rights/control gates — not because of an unresolved repository contributor.**
 
 This document is a diligence/control record, not a legal opinion.
