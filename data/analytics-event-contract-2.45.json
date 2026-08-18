@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "version": "2.45.0",
+  "purpose": "Canonical client/server analytics event allowlist. CI must fail when a literal client trackEvent type is not represented here and in the matching database migration.",
+  "event_types": [
+    "profile_view",
+    "menu_view",
+    "route_start",
+    "service_open",
+    "call_click",
+    "website_open",
+    "favorite_toggle",
+    "search",
+    "filter_change",
+    "map_open",
+    "reservation_start",
+    "qr_open",
+    "live_plan_add",
+    "live_plan_remove",
+    "live_plan_clear",
+    "live_nearby_enabled",
+    "family_filter",
+    "family_situation_open"
+  ]
+}
