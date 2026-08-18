@@ -8,7 +8,8 @@
     "master_locale": "de",
     "de_document": {
       "path": "docs/legal/HOY_BUSINESS_DATA_MEDIA_TERMS_v1.0_DE.md",
-      "git_blob_sha": "89e853e6b61cc01e1bf1d5a56320d2b6bfa4fad7",
+      "git_blob_sha": "a3d6ce5bb442667e1ec3ff9fc42939397e675a0a",
+      "registered_in_production_version_row": true,
       "final_sha256": null,
       "legal_review": "pending"
     },
@@ -25,7 +26,8 @@
     "20260818201632_ir02c_business_terms_acceptance_infrastructure",
     "20260818201740_ir02c_business_terms_rpc_security_hardening",
     "20260818201831_ir02c_business_confirmation_ledger",
-    "20260818202531_ir02c_register_spanish_terms_draft"
+    "20260818202531_ir02c_register_spanish_terms_draft",
+    "20260818203021_ir02c_reconcile_de_terms_draft_blob"
   ],
   "production_objects": {
     "private_tables": [
