@@ -135,7 +135,8 @@ test('2.46 is the canonical guest accessibility surface without legacy 2.43 clai
   const panel = page.locator('#detail [data-hoya-panel]');
   await expect(panel).toHaveCount(1);
   await expect(panel).toBeVisible();
-  await expect(page.locator('#detail [data-accessibility-panel]')).toHaveCount(0);
+  await expect(page.locator('#detail [data-accessibility-panel]')).toHaveCount(1);
+  await expect(page.locator('#detail [data-accessibility-panel]:not([data-hoya-panel])')).toHaveCount(0);
   await expect(panel.getByText('Barrierefreiheit für dich')).toBeVisible();
   await expect(panel.getByText('Stufenfreier Zugang')).toBeVisible();
   await expect(panel.getByText('Barrierefreies WC')).toBeVisible();
@@ -175,7 +176,7 @@ test('all-unknown facts are not rendered as a negative accessibility claim', asy
   await expect(panel).toBeVisible();
   await expect(panel).toContainText('Noch nicht bestätigt');
   await expect(panel).not.toContainText('Nicht vorhanden');
-  await expect(page.locator('#detail [data-accessibility-panel]')).toHaveCount(0);
+  await expect(page.locator('#detail [data-accessibility-panel]:not([data-hoya-panel])')).toHaveCount(0);
 });
 
 test('migration protects unknown semantics, RLS, advisor hygiene and operator-to-fact synchronization', async () => {
