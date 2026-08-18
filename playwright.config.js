@@ -23,6 +23,7 @@ module.exports = defineConfig({
   use: {
     baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'https://hapo3005.github.io/hoy/',
     storageState: QA_STORAGE_STATE,
+    extraHTTPHeaders: {'X-HOY-QA':'1'},
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
