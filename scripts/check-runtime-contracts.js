@@ -56,6 +56,8 @@ function checkPwaAssetGraph(){
   console.log(`PWA runtime graph: ${runtimeAssets.length} local index assets; ${core.length} CORE entries; complete.`);
 }
 
+function lineAt(text,index){return text.slice(0,index).split('\n').length}
+
 function checkAnalyticsContract(){
   const contract=JSON.parse(read('data/analytics-event-contract-2.45.json'));
   const allowed=new Set(contract.event_types||[]);
@@ -63,10 +65,20 @@ function checkAnalyticsContract(){
   if(allowed.size!==(contract.event_types||[]).length)fail('Analytics event contract contains duplicate event types');
 
   const usedByFile=new Map();
+  const dynamicCalls=[];
   for(const full of walk(ROOT)){
     if(path.extname(full)!=='.js')continue;
     const text=fs.readFileSync(full,'utf8');
     const rel=path.relative(ROOT,full).replaceAll(path.sep,'/');
+
+    for(const match of text.matchAll(/\btrackEvent\s*\(/g)){
+      const start=match.index||0;
+      const prefix=text.slice(Math.max(0,start-24),start);
+      if(/function\s*$/.test(prefix))continue;
+      const after=text.slice(start+match[0].length);
+      if(!/^\s*["']/.test(after))dynamicCalls.push(`${rel}:${lineAt(text,start)}`);
+    }
+
     for(const match of text.matchAll(/\btrackEvent\s*\(\s*["']([^"']+)["']/g)){
       const type=match[1];
       const files=usedByFile.get(type)||new Set();
@@ -74,6 +86,11 @@ function checkAnalyticsContract(){
       usedByFile.set(type,files);
     }
   }
+
+  if(dynamicCalls.length){
+    fail(`Dynamic analytics event names are forbidden; use a literal registered event type: ${dynamicCalls.join(', ')}`);
+  }
+
   const used=new Set(usedByFile.keys());
   const unsupported=[...used].filter(type=>!allowed.has(type)).sort();
   if(unsupported.length){
@@ -93,13 +110,19 @@ function checkAnalyticsContract(){
     'security definer',
     'set search_path = public, pg_temp',
     'revoke all on function public.log_analytics_event',
-    'grant execute on function public.log_analytics_event'
+    'grant execute on function public.log_analytics_event',
+    "current_setting('request.headers', true)",
+    "request_headers->>'x-hoy-qa'",
+    "request_user_agent like '%headlesschrome%'"
   ];
   const lowerMigration=migration.toLowerCase();
   const missingGuards=requiredGuards.filter(item=>!lowerMigration.includes(item.toLowerCase()));
   if(missingGuards.length)fail(`Analytics migration lost required safety guards: ${missingGuards.join(', ')}`);
 
-  console.log(`Analytics contract: ${used.size} literal client event types; ${allowed.size} allowed server types; aligned.`);
+  const playwright=read('playwright.config.js').toLowerCase();
+  if(!playwright.includes("'x-hoy-qa':'1'"))fail('Playwright QA marker X-HOY-QA=1 is missing');
+
+  console.log(`Analytics contract: ${used.size} literal client event types; ${allowed.size} allowed server types; aligned and fail-closed.`);
 }
 
 checkPwaAssetGraph();
