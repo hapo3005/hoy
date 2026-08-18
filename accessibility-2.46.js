@@ -1,6 +1,6 @@
 /* HOY Accessible v1
  * Cross-HOY accessibility layer for Gastro profiles.
- * Critical rule: unknown/stale is never converted to "no".
+ * Critical rule: unknown/stale/unverified is never converted to a confirmed yes/no.
  */
 (() => {
   'use strict';
@@ -17,9 +17,15 @@
     'access.wheelchair_seating': { label: 'Geeigneter Sitzplatz', short: 'Sitzplatz' },
     'access.toilet': { label: 'Barrierefreies WC', short: 'WC' },
     'access.parking': { label: 'Barrierefreier Parkplatz', short: 'Parkplatz' },
-    'access.hearing_loop': { label: 'Induktive Höranlage', short: 'Höranlage' }
+    'access.hearing_loop': { label: 'Induktive Höranlage', short: 'Höranlage' },
+    'access.entrance_door_width_cm': { label: 'Lichte Türbreite', short: 'Türbreite' },
+    'access.entrance_threshold_cm': { label: 'Schwellenhöhe', short: 'Schwelle' },
+    'access.entrance_steps_count': { label: 'Stufenanzahl', short: 'Stufen' }
   });
   const ALLOWED_IMPORTANCE = new Set(['must', 'prefer', 'ignore']);
+  const ALLOWED_COMPARATORS = new Set(['equals', 'gte', 'lte']);
+  const CONFIRMED_LEVELS = new Set(['hoy_verified', 'business_confirmed', 'community_confirmed']);
+  const MATCH_ORDER = Object.freeze({ match: 3, confirmation_required: 2, unconfigured: 1, no_match: 0 });
   const state = {
     ready: false,
     source: 'none',
@@ -52,18 +58,24 @@
     return !!(staleAt && staleAt.getTime() < now.getTime());
   }
 
+  function factIsConfirmed(fact, now = new Date()) {
+    if (!fact || factIsStale(fact, now)) return false;
+    if ((fact.review_state || 'clean') !== 'clean') return false;
+    return CONFIRMED_LEVELS.has(fact.verification_level);
+  }
+
   function verificationLabel(level) {
     return ({
       hoy_verified: 'HOY Verified',
       business_confirmed: 'Vom Betrieb bestätigt',
       community_confirmed: 'Community bestätigt',
-      external_unverified: 'Öffentliche Quellenprüfung'
+      external_unverified: 'Unverifizierte externe Angabe'
     })[level] || 'Noch nicht verifiziert';
   }
 
   function statusCopy(status) {
     return ({
-      yes: ['✓', 'Bestätigt', 'yes'],
+      yes: ['✓', 'Vorhanden', 'yes'],
       no: ['×', 'Nicht vorhanden', 'no'],
       partial: ['~', 'Teilweise', 'partial'],
       unknown: ['?', 'Noch nicht bestätigt', 'unknown'],
@@ -72,13 +84,26 @@
     })[normalizeStatus(status)] || ['?', 'Noch nicht bestätigt', 'unknown'];
   }
 
+  function normalizeRequirement(value) {
+    if (typeof value === 'string') {
+      return { importance: ALLOWED_IMPORTANCE.has(value) ? value : 'ignore' };
+    }
+    const importance = ALLOWED_IMPORTANCE.has(value?.importance) ? value.importance : 'ignore';
+    const comparator = ALLOWED_COMPARATORS.has(value?.comparator) ? value.comparator : null;
+    return {
+      importance,
+      comparator,
+      targetValue: value?.targetValue ?? null
+    };
+  }
+
   function getPreferences() {
     try {
       const raw = JSON.parse(localStorage.getItem(PREF_KEY) || '{}');
       const clean = {};
       for (const key of CORE_KEYS) {
-        const importance = ALLOWED_IMPORTANCE.has(raw?.[key]) ? raw[key] : 'ignore';
-        clean[key] = importance;
+        const requirement = normalizeRequirement(raw?.[key]);
+        clean[key] = requirement.importance;
       }
       return clean;
     } catch (_) {
@@ -89,7 +114,7 @@
   function setPreferences(next) {
     const clean = {};
     for (const key of CORE_KEYS) {
-      clean[key] = ALLOWED_IMPORTANCE.has(next?.[key]) ? next[key] : 'ignore';
+      clean[key] = normalizeRequirement(next?.[key]).importance;
     }
     localStorage.setItem(PREF_KEY, JSON.stringify(clean));
     return clean;
@@ -103,35 +128,107 @@
     return new Map((facts || []).map(f => [f.feature_key, f]));
   }
 
+  function compareValue(actual, comparator, target) {
+    if (comparator === 'gte') return actual >= target;
+    if (comparator === 'lte') return actual <= target;
+    return actual === target;
+  }
+
+  function evaluateRequirement(fact, rawRequirement, now = new Date()) {
+    const requirement = normalizeRequirement(rawRequirement);
+    if (requirement.importance === 'ignore') return 'ignored';
+    if (!fact || !factIsConfirmed(fact, now)) return 'unresolved';
+
+    const status = normalizeStatus(fact.status);
+    if (status === 'unknown' || status === 'partial') return 'unresolved';
+    if (status === 'no' || status === 'not_applicable' || status === 'temporarily_unavailable') return 'blocked';
+
+    if (requirement.comparator) {
+      const actual = Number(fact.value_number);
+      const target = Number(requirement.targetValue);
+      if (!Number.isFinite(actual) || !Number.isFinite(target)) return 'unresolved';
+      return compareValue(actual, requirement.comparator, target) ? 'matched' : 'blocked';
+    }
+
+    if (requirement.targetValue !== null && requirement.targetValue !== undefined) {
+      const actual = fact.value_text ?? fact.status;
+      return compareValue(actual, 'equals', requirement.targetValue) ? 'matched' : 'blocked';
+    }
+
+    return status === 'yes' ? 'matched' : 'unresolved';
+  }
+
   function evaluateFacts(facts, prefs = getPreferences(), now = new Date()) {
-    const required = CORE_KEYS.filter(key => prefs?.[key] === 'must');
-    if (!required.length) return { state: 'unconfigured', missing: [], blockers: [], matched: [] };
+    const entries = Object.entries(prefs || {}).map(([key, value]) => [key, normalizeRequirement(value)]);
+    const required = entries.filter(([, requirement]) => requirement.importance === 'must');
+    const preferred = entries.filter(([, requirement]) => requirement.importance === 'prefer');
+    if (!required.length && !preferred.length) {
+      return {
+        state: 'unconfigured', missing: [], blockers: [], matched: [],
+        preferMatched: [], preferMissing: [], preferBlocked: []
+      };
+    }
 
     const byKey = factsByKey(facts);
     const missing = [];
     const blockers = [];
     const matched = [];
+    const preferMatched = [];
+    const preferMissing = [];
+    const preferBlocked = [];
 
-    for (const key of required) {
-      const fact = byKey.get(key);
-      if (!fact || factIsStale(fact, now)) {
-        missing.push(key);
-        continue;
-      }
-
-      const status = normalizeStatus(fact.status);
-      if (status === 'yes') matched.push(key);
-      else if (status === 'no' || status === 'not_applicable' || status === 'temporarily_unavailable') blockers.push(key);
-      else missing.push(key); // unknown and partial require confirmation; never infer a negative.
+    for (const [key, requirement] of required) {
+      const outcome = evaluateRequirement(byKey.get(key), requirement, now);
+      if (outcome === 'matched') matched.push(key);
+      else if (outcome === 'blocked') blockers.push(key);
+      else missing.push(key);
     }
 
-    if (blockers.length) return { state: 'no_match', missing, blockers, matched };
-    if (missing.length) return { state: 'confirmation_required', missing, blockers, matched };
-    return { state: 'match', missing, blockers, matched };
+    for (const [key, requirement] of preferred) {
+      const outcome = evaluateRequirement(byKey.get(key), requirement, now);
+      if (outcome === 'matched') preferMatched.push(key);
+      else if (outcome === 'blocked') preferBlocked.push(key);
+      else preferMissing.push(key);
+    }
+
+    const matchState = blockers.length
+      ? 'no_match'
+      : missing.length
+        ? 'confirmation_required'
+        : required.length
+          ? 'match'
+          : 'unconfigured';
+
+    return {
+      state: matchState,
+      missing,
+      blockers,
+      matched,
+      preferMatched,
+      preferMissing,
+      preferBlocked
+    };
   }
 
-  function evaluateRestaurant(restaurantId) {
-    return evaluateFacts(factsForRestaurant(restaurantId));
+  function compareEvaluations(a, b) {
+    const matchDelta = (MATCH_ORDER[b?.state] ?? -1) - (MATCH_ORDER[a?.state] ?? -1);
+    if (matchDelta) return matchDelta;
+    const preferDelta = (b?.preferMatched?.length || 0) - (a?.preferMatched?.length || 0);
+    if (preferDelta) return preferDelta;
+    const preferBlockDelta = (a?.preferBlocked?.length || 0) - (b?.preferBlocked?.length || 0);
+    if (preferBlockDelta) return preferBlockDelta;
+    return (a?.preferMissing?.length || 0) - (b?.preferMissing?.length || 0);
+  }
+
+  function evaluateRestaurant(restaurantId, prefs = getPreferences(), now = new Date()) {
+    return evaluateFacts(factsForRestaurant(restaurantId), prefs, now);
+  }
+
+  function rankRestaurants(restaurants, prefs = getPreferences(), now = new Date()) {
+    return (restaurants || [])
+      .map((restaurant, index) => ({ restaurant, index, evaluation: evaluateRestaurant(restaurant.id, prefs, now) }))
+      .sort((a, b) => compareEvaluations(a.evaluation, b.evaluation) || a.index - b.index)
+      .map(item => item.restaurant);
   }
 
   function normalizedFact(row) {
@@ -235,8 +332,11 @@
   }
 
   function matchSummary(result) {
+    const preferCopy = result.preferMatched?.length
+      ? ` · ${result.preferMatched.length} Wunsch${result.preferMatched.length === 1 ? '' : 'e'} zusätzlich erfüllt`
+      : '';
     if (result.state === 'match') {
-      return `<div class="hoya-match hoya-match--yes"><strong>✓ Passt zu deinen Anforderungen</strong><span>Alle MUSS-Kriterien sind aktuell bestätigt.</span></div>`;
+      return `<div class="hoya-match hoya-match--yes"><strong>✓ Passt zu deinen Anforderungen</strong><span>Alle MUSS-Kriterien sind aktuell bestätigt${esc(preferCopy)}.</span></div>`;
     }
     if (result.state === 'no_match') {
       const labels = result.blockers.map(k => FEATURE_META[k]?.short || k).join(', ');
@@ -244,7 +344,7 @@
     }
     if (result.state === 'confirmation_required') {
       const labels = result.missing.map(k => FEATURE_META[k]?.short || k).join(', ');
-      return `<div class="hoya-match hoya-match--unknown"><strong>? Bestätigung erforderlich</strong><span>Noch offen oder veraltet: ${esc(labels)}.</span></div>`;
+      return `<div class="hoya-match hoya-match--unknown"><strong>? Bestätigung erforderlich</strong><span>Noch offen, veraltet oder nicht ausreichend verifiziert: ${esc(labels)}.</span></div>`;
     }
     return `<div class="hoya-match hoya-match--setup"><strong>Für dich prüfen</strong><span>Lege fest, was für deinen Besuch zwingend oder wünschenswert ist.</span></div>`;
   }
@@ -252,12 +352,14 @@
   function factRow(key, fact) {
     const meta = FEATURE_META[key] || { label: key };
     const stale = fact ? factIsStale(fact) : false;
+    const confirmed = fact ? factIsConfirmed(fact) : false;
     const effectiveStatus = fact?.status || 'unknown';
     const [symbol, label, cls] = statusCopy(effectiveStatus);
     const date = fact?.checked_at ? formatDate(fact.checked_at) : '';
+    const trustNote = fact && !confirmed && normalizeStatus(effectiveStatus) !== 'unknown' ? ' · Bestätigung erforderlich' : '';
     return `<div class="hoya-fact hoya-fact--${cls}${stale ? ' is-stale' : ''}">
       <span class="hoya-fact__icon" aria-hidden="true">${symbol}</span>
-      <span class="hoya-fact__copy"><strong>${esc(meta.label)}</strong><small>${stale ? 'Angabe veraltet · ' : ''}${esc(label)}${date ? ` · geprüft ${esc(date)}` : ''}</small></span>
+      <span class="hoya-fact__copy"><strong>${esc(meta.label)}</strong><small>${stale ? 'Angabe veraltet · ' : ''}${esc(label)}${esc(trustNote)}${date ? ` · geprüft ${esc(date)}` : ''}</small></span>
     </div>`;
   }
 
@@ -397,9 +499,13 @@
     getPreferences,
     setPreferences,
     factsForRestaurant,
+    evaluateRequirement,
     evaluateFacts,
     evaluateRestaurant,
+    compareEvaluations,
+    rankRestaurants,
     factIsStale,
+    factIsConfirmed,
     openPreferences
   });
 })();
