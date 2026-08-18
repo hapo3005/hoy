@@ -26,10 +26,19 @@
     out.client_version='1.8.1';
     return out;
   }
+  function productionAnalyticsAllowed(){
+    const host=String(window.location?.hostname||'').toLowerCase();
+    return !['localhost','127.0.0.1','::1'].includes(host)&&!host.endsWith('.localhost');
+  }
+  window.hoyProductionAnalyticsAllowed181=productionAnalyticsAllowed;
   trackEvent=function(type,restaurantId,meta={}){
     const rows=readEvents();
     rows.push({type,restaurantId:Number(restaurantId)||null,meta,at:new Date().toISOString()});
     localStorage.setItem(ANALYTICS_KEY,JSON.stringify(rows.slice(-500)));
+    // Local development and CI run the real guest app against loopback. They may read
+    // public production data for realistic regression, but they must never contaminate
+    // production analytics with automated test traffic.
+    if(!productionAnalyticsAllowed())return;
     if(!sb||cloud.status!=='online')return;
     const venue=restaurantId?DATA.find(x=>Number(x.id)===Number(restaurantId)):null;
     const metadata={...safeMeta(meta),venue_type:venue?.venue_type||undefined,profile_quality:venue?.profile_quality||undefined};
