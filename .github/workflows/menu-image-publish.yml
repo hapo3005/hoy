@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
       - name: Download only hash-pinned reviewed operator images
@@ -40,7 +40,7 @@ jobs:
           fi
           file menu-pages/4/f9653f87c69d/*.jpg
       - name: Upload pinned menu assets for audit
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: hoy-menu-image-pages-${{ github.run_id }}
           path: |
