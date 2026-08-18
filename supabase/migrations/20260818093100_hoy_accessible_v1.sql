@@ -54,39 +54,64 @@ create index if not exists restaurant_accessibility_facts_feature_idx
 alter table public.accessibility_feature_registry enable row level security;
 alter table public.restaurant_accessibility_facts enable row level security;
 
+-- Keep exactly one permissive SELECT policy per role/action. This avoids the
+-- Supabase multiple_permissive_policies advisor warning while preserving admin visibility.
 drop policy if exists "public reads active accessibility features" on public.accessibility_feature_registry;
-create policy "public reads active accessibility features"
-  on public.accessibility_feature_registry for select to anon, authenticated
-  using (is_active = true);
-
+drop policy if exists "anon reads active accessibility features" on public.accessibility_feature_registry;
+drop policy if exists "authenticated reads active or admin accessibility features" on public.accessibility_feature_registry;
 drop policy if exists "hoy admins manage accessibility features" on public.accessibility_feature_registry;
-create policy "hoy admins manage accessibility features"
-  on public.accessibility_feature_registry for all to authenticated
+drop policy if exists "hoy admins insert accessibility features" on public.accessibility_feature_registry;
+drop policy if exists "hoy admins update accessibility features" on public.accessibility_feature_registry;
+drop policy if exists "hoy admins delete accessibility features" on public.accessibility_feature_registry;
+
+create policy "anon reads active accessibility features"
+  on public.accessibility_feature_registry for select to anon
+  using (is_active = true);
+create policy "authenticated reads active or admin accessibility features"
+  on public.accessibility_feature_registry for select to authenticated
+  using (is_active = true or private.is_hoy_admin());
+create policy "hoy admins insert accessibility features"
+  on public.accessibility_feature_registry for insert to authenticated
+  with check (private.is_hoy_admin());
+create policy "hoy admins update accessibility features"
+  on public.accessibility_feature_registry for update to authenticated
   using (private.is_hoy_admin()) with check (private.is_hoy_admin());
+create policy "hoy admins delete accessibility features"
+  on public.accessibility_feature_registry for delete to authenticated
+  using (private.is_hoy_admin());
 
 drop policy if exists "public reads current published accessibility facts" on public.restaurant_accessibility_facts;
-create policy "public reads current published accessibility facts"
-  on public.restaurant_accessibility_facts for select to anon, authenticated
+drop policy if exists "anon reads current published accessibility facts" on public.restaurant_accessibility_facts;
+drop policy if exists "authenticated reads published or admin accessibility facts" on public.restaurant_accessibility_facts;
+drop policy if exists "hoy admins read all accessibility facts" on public.restaurant_accessibility_facts;
+drop policy if exists "hoy admins insert accessibility facts" on public.restaurant_accessibility_facts;
+drop policy if exists "hoy admins update accessibility facts" on public.restaurant_accessibility_facts;
+drop policy if exists "hoy admins delete accessibility facts" on public.restaurant_accessibility_facts;
+
+create policy "anon reads current published accessibility facts"
+  on public.restaurant_accessibility_facts for select to anon
   using (
     is_current = true and exists (
       select 1 from public.restaurants r
       where r.id = restaurant_accessibility_facts.restaurant_id and r.is_published = true
     )
   );
-
-drop policy if exists "hoy admins read all accessibility facts" on public.restaurant_accessibility_facts;
-create policy "hoy admins read all accessibility facts"
+create policy "authenticated reads published or admin accessibility facts"
   on public.restaurant_accessibility_facts for select to authenticated
-  using (private.is_hoy_admin());
-drop policy if exists "hoy admins insert accessibility facts" on public.restaurant_accessibility_facts;
+  using (
+    private.is_hoy_admin() or (
+      is_current = true and exists (
+        select 1 from public.restaurants r
+        where r.id = restaurant_accessibility_facts.restaurant_id and r.is_published = true
+      )
+    )
+  );
 create policy "hoy admins insert accessibility facts"
   on public.restaurant_accessibility_facts for insert to authenticated
   with check (private.is_hoy_admin());
-drop policy if exists "hoy admins update accessibility facts" on public.restaurant_accessibility_facts;
 create policy "hoy admins update accessibility facts"
   on public.restaurant_accessibility_facts for update to authenticated
   using (private.is_hoy_admin()) with check (private.is_hoy_admin());
-drop policy if exists "hoy admins delete accessibility facts" on public.restaurant_accessibility_facts;
 create policy "hoy admins delete accessibility facts"
   on public.restaurant_accessibility_facts for delete to authenticated
   using (private.is_hoy_admin());
