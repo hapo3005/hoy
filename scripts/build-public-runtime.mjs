@@ -26,13 +26,13 @@ const copyFile = rel => {
   fs.mkdirSync(path.dirname(dst), { recursive: true });
   fs.copyFileSync(src, dst);
 };
-const walk = (dir, base = dir) => {
+const walk = dir => {
   const abs = path.join(root, dir);
   if (!fs.existsSync(abs)) return [];
   const rows = [];
   for (const entry of fs.readdirSync(abs, { withFileTypes: true })) {
     const rel = normalize(path.relative(root, path.join(abs, entry.name)));
-    if (entry.isDirectory()) rows.push(...walk(rel, base));
+    if (entry.isDirectory()) rows.push(...walk(rel));
     else rows.push(rel);
   }
   return rows;
@@ -51,6 +51,19 @@ for (const entry of rootEntries) {
 for (const dir of policy.public_directories) {
   for (const rel of walk(dir)) copyFile(rel);
 }
+
+// Runtime metadata is intentionally generated rather than copying the development
+// package.json. The public app only needs the release identity/version for PWA
+// integrity checks; scripts, dependencies and internal build metadata stay private.
+const sourcePackage = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+if (!/^\d+\.\d+\.\d+$/.test(String(sourcePackage.version || ''))) {
+  throw new Error('invalid source package version for runtime metadata');
+}
+fs.writeFileSync(
+  path.join(out, 'package.json'),
+  JSON.stringify({ name: sourcePackage.name || 'hoy', version: sourcePackage.version }, null, 2) + '\n'
+);
+
 for (const required of policy.required_runtime_files) {
   if (!fs.existsSync(path.join(out, required))) throw new Error(`required runtime file missing: ${required}`);
 }
