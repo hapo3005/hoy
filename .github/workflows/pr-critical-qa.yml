@@ -26,6 +26,8 @@ jobs:
           node-version: 22
       - name: Install QA dependency
         run: npm install --no-audit --no-fund
+      - name: Run critical secret leakage gate
+        run: npm run qa:secrets
       - name: Run source-rights policy gate
         run: npm run qa:rights
       - name: Run Business Terms governance gate
