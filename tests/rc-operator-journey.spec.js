@@ -105,7 +105,9 @@ test('RC operator journey stays connected from free claim to verified workspace 
 
   const partner = page.locator('#view');
   await expect(partner.locator('.onboarding-verified-welcome')).toBeVisible();
-  await expect(partner.locator('.operator-command-center')).toBeVisible();
+  const commandCenter = partner.locator('.operator-command-center');
+  await expect(commandCenter).toBeVisible();
+  await expect(commandCenter).toHaveClass(/operator-simple-center/);
   await expect(partner.locator('.operator-confirmation-290')).toBeVisible();
   await expect(partner.locator('.operator-confirmation-290')).toContainText('Stimmen diese Öffnungszeiten?');
   await partner.locator('.onboarding-verified-welcome [data-onboarding-welcome-dismiss]').click();
@@ -119,9 +121,11 @@ test('RC operator journey stays connected from free claim to verified workspace 
   await expect(hours.locator('[data-special-date],[data-live-notice]')).toHaveCount(0);
   await hours.locator('[data-confirm-close]').first().click();
 
-  // 6) Services must open through the real cockpit and expose only the three fail-closed states.
-  const servicesModule = partner.locator('.hub-module').filter({ hasText: 'Services' });
-  await servicesModule.locator('[data-hub-action="services"]').click();
+  // 6) Services must open through the current simplified cockpit and expose only the three fail-closed states.
+  const servicesRow = commandCenter.locator('.operator-simple-row[data-hub-action="services"]');
+  await expect(servicesRow).toBeVisible();
+  await expect(servicesRow).toContainText('Services');
+  await servicesRow.click();
   const services = page.locator('#operatorServicesFlow[open]');
   await expect(services).toBeVisible();
   await expect(services.locator('.hub-service-row')).toHaveCount(3);
@@ -138,7 +142,9 @@ test('RC operator journey stays connected from free claim to verified workspace 
   await services.locator('[data-op-close]').first().click();
 
   // 7) The verified operator must always be able to return to a real guest preview without publishing or paying.
-  await partner.locator('.hub-bottom-actions [data-hub-action="preview"]').click();
+  const previewButton = commandCenter.locator('[data-hub-action="preview"]').first();
+  await expect(previewButton).toBeVisible();
+  await previewButton.click();
   const preview = page.locator('#claimFlow[open]');
   await expect(preview).toContainText('GASTANSICHT · FREE');
   await expect(preview.locator('h2')).toContainText(target.name);
