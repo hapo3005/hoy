@@ -37,12 +37,12 @@ Scope: technical platform architecture, cross-vertical adoption and related defe
 
 | ID | Claim | Status | Primary evidence | DD note |
 |---|---|---:|---|---|
-| QA-01 | Platform Core candidate passes Gastro critical regression QA on implementation head | PROVEN | HOY Critical PR QA run `32191250746`, head `83996442...`, success | Later documentation-only commits require ordinary final-head checks before merge |
-| QA-02 | Platform Core candidate passes Final Release static integrity on implementation head | PROVEN | HOY Final Release QA run `32191250715`, success | Browser steps were not part of that static-only result |
-| QA-03 | Gastro full PR browser suite is complete on the Platform Core implementation head | PARTIAL | HOY PR Browser QA run `32191250686` | At document creation snapshot the run was still in progress; do not claim complete until result is green |
+| QA-01 | Platform Core / Buyer-Transfer candidate passes Gastro Critical PR QA | PROVEN | HOY Critical PR QA run `32193233009`, head `6bb78f4e...`, success | Documentation-only evidence refresh commits require ordinary final-head QA before merge |
+| QA-02 | Platform Core / Buyer-Transfer candidate passes Final Release static integrity | PROVEN | HOY Final Release QA run `32193232862`, head `6bb78f4e...`, success | Browser steps are separately evidenced by QA-03 |
+| QA-03 | Platform Core / Buyer-Transfer candidate passes Mobile Chrome, Mobile WebKit and Desktop Chromium | PROVEN | HOY PR Browser QA run `32193233277`, head `6bb78f4e...`, all three browser jobs + static integrity success | Full defined Gastro browser matrix green before this evidence-document refresh |
 | QA-04 | Lifestyle Platform Core adoption passed critical/static/unit QA | PROVEN | Lifestyle critical workflow run `32190888498`, success | Includes platform drift/static checks on current Lifestyle core-consumer head |
 | QA-05 | Lifestyle Platform Core adoption passed Mobile WebKit + Mobile/Desktop Chromium | PROVEN | Lifestyle browser workflow run `32190888482`, success | Full defined Lifestyle browser matrix green |
-| QA-06 | Works Platform Core adapter is fully CI/browser certified | PARTIAL | Works PR #3 scripts/tests exist; PR is mergeable | No executable PR workflow on adapter head; explicit open gate |
+| QA-06 | Works Platform Core adapter passed platform lock/static contracts, 12 unit tests and Mobile Chrome/WebKit/Desktop Chromium | PROVEN | Works Platform Core PR QA run `32197153970`, head `5b9b93cf...`, success | Closes the former Works CI/browser evidence gap; Works source-rights/privacy/Production/market gates remain independent |
 
 ## D. Transferability / founder independence
 
@@ -87,11 +87,11 @@ This architecture index is not a substitute for Corporate, IP, Privacy, Trademar
 
 Relevant parallel work includes:
 
-- RT-006 technical DD / software supply-chain candidate (PR #116);
-- RT-008 GDPR/privacy operating pack and fail-closed consent work;
-- RT-009 trademark/brand clearance architecture;
-- Works source-rights / IR-02D gates;
-- separate founder-IP/chain-of-title and corporate/tax gates.
+- RT-006 technical DD / software supply-chain candidate (Core PR #116);
+- clean RT-008 analytics privacy composition candidate (Core PR #120), with broader GDPR operating/legal gates still open;
+- RT-009 trademark/brand clearance architecture (Core PR #108);
+- Works source-rights / IR-02D pre-live gate (Works PR #2);
+- separate founder-IP/chain-of-title, digital-control and transaction/tax gates.
 
 A buyer should treat those as independent closing conditions where applicable.
 
@@ -102,6 +102,7 @@ The following language is allowed now:
 - "HOY has a versioned shared platform core adopted across Gastro, Lifestyle and Works."
 - "The core centralizes product-truth, verification, freshness, MUST/PREFER/IGNORE, safety and commercial-integrity semantics."
 - "Lifestyle and Works vendor copies match the central runtime at the Git-blob level for the documented snapshot."
+- "The defined Platform Core consumer QA paths are green for Gastro, Lifestyle and Works on the documented exact heads."
 - "Platform Core reduces duplicated platform logic and improves technical transferability."
 - "HOY has a documented, machine-checkable technical handoff and founder-independence acceptance process."
 
@@ -122,7 +123,8 @@ Before external circulation:
 2. archive relevant workflow-run references or exported evidence;
 3. update PARTIAL claims to PROVEN only when the missing evidence is attached;
 4. never silently delete OPEN items — close them with dated evidence or leave them visible;
-5. reconcile this index with `platform-claims-register.json`.
+5. reconcile this index with `platform-claims-register.json`;
+6. rerun the central Platform Core final-head QA after evidence-document changes and after final integration/rebase.
 
 ## K. Valuation discipline
 
