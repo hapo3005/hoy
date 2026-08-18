@@ -4,7 +4,8 @@
   "status": "working_dd_baseline_fail_closed",
   "production_migrations": [
     "20260818205155_ir02d_privacy_transferability_governance",
-    "20260818205742_ir02d_repository_visibility_evidence"
+    "20260818205742_ir02d_repository_visibility_evidence",
+    "20260818210151_ir02d_disable_analytics_until_consent_clearance"
   ],
   "privacy_notice": {
     "version": "1.0",
@@ -36,9 +37,11 @@
       "sales_pipeline_rows": 168,
       "sales_pipeline_with_email": 17,
       "sales_pipeline_with_phone": 54,
-      "analytics_events": 28897,
+      "analytics_events_historical": 28897,
       "analytics_identifier_type": ["anonymous_id", "session_id"],
-      "historical_traction_claim": "blocked_pre_2_45"
+      "historical_traction_claim": "blocked_pre_2_45",
+      "production_analytics_rpc_client_roles": "revoked_until_consent_clearance",
+      "client_consent_fail_closed_code": "implemented_in_IR02D_branch_and_isolated_PR_109_pending_QA_merge"
     },
     "works": {
       "auth_users": 0,
@@ -47,7 +50,9 @@
       "provider_applications": 0,
       "work_requests": 0,
       "personal_data_heavy_flows": ["work_requests", "provider_applications"],
-      "pre_live_gate": "blocked"
+      "pre_live_gate": "blocked",
+      "production_trigger_count": 2,
+      "approval_negative_test": "PASS"
     }
   },
   "governance": {
@@ -59,12 +64,14 @@
     "privacy_client_access": "denied",
     "electronic_marketing_spain": "blocked_pending_LSSI_clearance",
     "analytics_cookie_clearance": "review_required",
+    "analytics_transport": "server_blocked_until_clearance",
     "works_customer_request_clearance": "blocked"
   },
   "repository_visibility": {
     "hapo3005/hoy": "public",
     "hapo3005/hoy-lifestyle": "public",
     "hapo3005/hoy-works": "public",
+    "hoy_github_pages_enabled": true,
     "root_license_files_found": 0,
     "ownership": "personal_founder_account",
     "technical_transferability": "verified_yes",
@@ -73,37 +80,19 @@
     "visibility_change_executed": false
   },
   "critical_transferability": [
-    {
-      "code": "TR-GITHUB",
-      "technical_transferability": "verified_yes",
-      "contract_transferability": "review_required",
-      "dd_status": "amber"
-    },
-    {
-      "code": "TR-SUPABASE-GASTRO",
-      "project_ref": "zlscptisdxzxuvllogza",
-      "primary_region": "eu-central-1",
-      "technical_transferability": "verified_yes",
-      "contract_transferability": "review_required",
-      "dd_status": "amber"
-    },
-    {
-      "code": "TR-SUPABASE-WORKS",
-      "project_ref": "dqfouwyclvmpkunmxkun",
-      "primary_region": "eu-central-1",
-      "technical_transferability": "verified_yes",
-      "contract_transferability": "review_required",
-      "dd_status": "amber"
-    },
-    {"code": "TR-DOMAINS", "dd_status": "review_required"},
-    {"code": "TR-BRAND", "dd_status": "review_required"},
-    {"code": "TR-OTHER-VENDORS", "dd_status": "review_required"}
+    {"code":"TR-GITHUB","technical_transferability":"verified_yes","contract_transferability":"review_required","dd_status":"amber"},
+    {"code":"TR-SUPABASE-GASTRO","project_ref":"zlscptisdxzxuvllogza","primary_region":"eu-central-1","technical_transferability":"verified_yes","contract_transferability":"review_required","dd_status":"amber"},
+    {"code":"TR-SUPABASE-WORKS","project_ref":"dqfouwyclvmpkunmxkun","primary_region":"eu-central-1","technical_transferability":"verified_yes","contract_transferability":"review_required","dd_status":"amber"},
+    {"code":"TR-DOMAINS","dd_status":"review_required"},
+    {"code":"TR-BRAND","dd_status":"review_required"},
+    {"code":"TR-OTHER-VENDORS","dd_status":"review_required"}
   ],
   "claim_gate": {
     "allowed": [
       "HOY has an evidence-backed privacy processing and retention baseline",
       "Privacy Notice and DPA activation are technically fail-closed",
       "Works personal-data-heavy flows are blocked before privacy clearance",
+      "production server-side analytics transport is disabled pending consent clearance",
       "GitHub and Supabase have documented technical transfer routes",
       "repository visibility is explicitly audited"
     ],
@@ -113,8 +102,9 @@
       "all professional contacts may receive marketing",
       "all vendors are contract-cleared",
       "all critical systems already belong to a HOY legal entity",
-      "HOY source code has remained confidential"
+      "HOY source code has remained confidential",
+      "the browser consent hotfix is live before PR 109 is QA-approved and merged"
     ]
   },
-  "next_gate": "legal_entity_privacy_bases_retention_vendor_transfers_cookie_consent_brand_domains_repo_visibility_counsel"
+  "next_gate": "merge_isolated_analytics_hotfix_after_QA_then_build_final_consent_UI_and_complete_legal_entity_privacy_bases_retention_vendor_transfers_brand_domains_counsel"
 }
