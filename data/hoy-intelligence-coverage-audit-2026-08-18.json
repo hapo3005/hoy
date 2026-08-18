@@ -1,0 +1,166 @@
+{
+  "audit_version": "2.46.1",
+  "created_at": "2026-08-18",
+  "scope": "Current HOY Gastro production data and analytics coverage versus the canonical HOY Intelligence event families",
+  "status": "architecture_audited_runtime_expansion_blocked",
+  "runtime_tracking_change_allowed": false,
+  "supabase_write_allowed": false,
+  "commercialization_allowed": false,
+  "governance_contracts": [
+    "./hoy-intelligence-event-contract-2026-08-18.json",
+    "./hoy-intelligence-data-governance-2026-08-18.json",
+    "./hoy-intelligence-production-policy-2026-08-18.json"
+  ],
+  "analytics_quality": {
+    "historical_before_cutover": "not_reliable_for_business_analysis_due_to_known_QA_contamination",
+    "clean_cutover_candidate_utc": "2026-08-18T12:31:24Z",
+    "cutover_basis": "PR_77_merge_commit_86ad7fab80672366f912d900f68f710db4b2317c",
+    "post_cutover_status": "clean_observation_available_final_deployed_QA_confirmation_remains_separate",
+    "rule": "No pre-cutover analytics row may be used as trustworthy demand evidence."
+  },
+  "existing_data_assets": {
+    "venue_supply": ["restaurants", "restaurant_services", "offers", "restaurant_live_hours", "restaurant_special_hours"],
+    "provenance": ["restaurant_hours_sources", "menu_sources", "menu_discovery_checks", "restaurant_accessibility"],
+    "menu_supply": ["menu_items", "menu_item_translations", "menu_sources"],
+    "commercial_context": ["event_promotions", "restaurant_entitlements", "subscriptions"],
+    "analytics": ["analytics_events"],
+    "internal_sales_data_excluded_from_intelligence_outputs": ["venue_sales_pipeline"]
+  },
+  "canonical_family_coverage": [
+    {
+      "family": "discovery_intent",
+      "lineage_id": "hoy.intelligence.discovery_intent.v1",
+      "current_runtime_signals": ["search", "filter_change", "live_nearby_enabled", "family_filter"],
+      "derivable_dimensions": {
+        "local_time_bucket": "derive_from_analytics_events.occurred_at_in_Europe/Madrid",
+        "area_bucket": "derive_by_restaurant_join_where_restaurant_id_exists",
+        "language": "metadata.lang",
+        "family_need": "partial_from_family_filter_or_decision_metadata",
+        "delivery_need": "partial_from_filter_change.service_when_present"
+      },
+      "gaps": [
+        "cuisine_not_canonically_structured_for_all_venues",
+        "price_band_not_available_as_guest_supply_truth",
+        "terrace_need_not_canonically_captured",
+        "live_music_need_not_canonically_captured",
+        "open_now_need_not_canonically_captured",
+        "area_bucket_unavailable_for_events_without_restaurant_id_unless_explicitly_added_after_policy_approval"
+      ],
+      "readiness": "partial"
+    },
+    {
+      "family": "consideration",
+      "lineage_id": "hoy.intelligence.consideration.v1",
+      "current_runtime_signals": ["profile_view", "menu_view", "promotion_impression", "promotion_open", "map_focus"],
+      "derivable_dimensions": {
+        "venue_id": "analytics_events.restaurant_id",
+        "venue_type": "restaurant_join_or_metadata.venue_type",
+        "profile_quality": "restaurant_join_or_metadata.profile_quality",
+        "area_bucket": "restaurant_join",
+        "local_time_bucket": "derive_from_occurred_at"
+      },
+      "gaps": ["discovery_context_not_systematically_normalized_across_all_consideration_events"],
+      "readiness": "strong_partial"
+    },
+    {
+      "family": "decision_action",
+      "lineage_id": "hoy.intelligence.decision_action.v1",
+      "current_runtime_signals": ["route_start", "service_open", "call_click", "website_open", "reservation_start", "favorite_toggle", "live_plan_add", "live_plan_remove", "live_plan_clear", "qr_open"],
+      "derivable_dimensions": {
+        "venue_id": "analytics_events.restaurant_id",
+        "action_type": "derive_from_event_type_with_versioned_mapping",
+        "area_bucket": "restaurant_join",
+        "local_time_bucket": "derive_from_occurred_at"
+      },
+      "gaps": ["discovery_context_not_systematically_normalized"],
+      "readiness": "strong_partial"
+    },
+    {
+      "family": "family_demand",
+      "lineage_id": "hoy.intelligence.family_demand.v1",
+      "current_runtime_signals": ["family_context_open", "family_filter", "family_situation_open"],
+      "derivable_dimensions": {
+        "family_need": "partial_from_filter_or_surface_metadata",
+        "area_bucket": "restaurant_join_where_restaurant_id_exists",
+        "local_time_bucket": "derive_from_occurred_at"
+      },
+      "gaps": [
+        "play_context_type_not_canonically_normalized",
+        "customer_access_not_canonically_captured",
+        "distance_band_not_canonically_captured"
+      ],
+      "readiness": "partial"
+    },
+    {
+      "family": "supply_freshness",
+      "lineage_id": "hoy.intelligence.supply_freshness.v1",
+      "current_runtime_signals": [],
+      "derivable_dimensions": {
+        "venue_id": "source_tables.restaurant_id",
+        "field_group": "derive_from_source_table_contract",
+        "verification_age_bucket": "derive_from_checked_at_or_last_checked_at",
+        "authority_tier": "derive_from_source_authority_is_official_verification_source"
+      },
+      "gaps": ["historical_point_in_time_snapshots_are_not_consistent_across_all_supply_domains"],
+      "readiness": "strong_current_state_weak_history"
+    }
+  ],
+  "highest_value_architecture_gaps": [
+    {
+      "priority": 1,
+      "gap": "longitudinal_supply_history",
+      "why_it_matters": "Price, menu, service, hours and verification changes create defensible market intelligence only when historical states are preserved.",
+      "safe_next_action": "design_private_curated_fact_history_after_governance_release_allows_database_migrations",
+      "activation_blocked_by_policy": true
+    },
+    {
+      "priority": 2,
+      "gap": "canonical_discovery_context",
+      "why_it_matters": "Without a normalized discovery context, consideration and decision conversion cannot be compared cleanly across surfaces.",
+      "safe_next_action": "define_allowlisted_context_vocabulary_before_any_new_runtime_field",
+      "activation_blocked_by_policy": true
+    },
+    {
+      "priority": 3,
+      "gap": "complete_discovery_demand_dimensions",
+      "why_it_matters": "Cuisine, price, terrace, live-music and open-now demand are core sellable market questions.",
+      "safe_next_action": "map_each_dimension_to_existing_structured_product_state_or_keep_missing_until_approved",
+      "activation_blocked_by_policy": true
+    },
+    {
+      "priority": 4,
+      "gap": "family_context_normalization",
+      "why_it_matters": "Play context, access and distance bands make Family demand commercially useful without exposing individual journeys.",
+      "safe_next_action": "define_coarse_enum_contracts_and_minimum_aggregation_threshold_before_collection",
+      "activation_blocked_by_policy": true
+    },
+    {
+      "priority": 5,
+      "gap": "external_aggregate_product_layer",
+      "why_it_matters": "Raw pseudonymous events are not a sellable privacy-safe product. Commercial value comes from coarse, thresholded, lineage-backed aggregates.",
+      "safe_next_action": "do_not_build_or_expose_until_legal_privacy_retention_anonymization_and_security_gates_are_approved",
+      "activation_blocked_by_policy": true
+    }
+  ],
+  "external_output_invariants": [
+    "never_export_anonymous_id",
+    "never_export_session_id",
+    "never_export_row_level_user_journeys",
+    "never_export_free_text_or_personal_contact_data",
+    "never_use_venue_sales_pipeline_contact_data_for_intelligence_products",
+    "suppress_sparse_slices_below_future_approved_threshold",
+    "retain_source_lineage_for_every_metric",
+    "treat_pseudonymous_event_level_data_as_personal_until_validated_otherwise"
+  ],
+  "definition_of_done_for_future_activation": [
+    "legal_and_privacy_review_approved",
+    "lawful_basis_and_consent_decision_final_per_family",
+    "retention_and_deletion_or_irreversible_aggregation_implemented",
+    "minimum_aggregation_threshold_numerically_defined_and_tested",
+    "server_and_client_dimension_allowlists_final",
+    "historical_supply_snapshot_design_approved",
+    "data_lineage_from_source_to_metric_tested",
+    "security_review_approved",
+    "deployed_QA_proves_zero_production_contamination"
+  ]
+}
