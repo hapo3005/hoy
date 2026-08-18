@@ -69,7 +69,7 @@ jobs:
         with:
           node-version: 22
       - name: Install QA dependency
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       - name: Install browser
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Start local branch server
