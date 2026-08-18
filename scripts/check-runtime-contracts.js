@@ -225,3 +225,4 @@ function checkAnalyticsContract(){
 
 checkPwaAssetGraph();
 checkAnalyticsContract();
+require('./check-platform-buyer-dd.cjs');
