@@ -49,9 +49,10 @@ Scope: technical platform architecture, cross-vertical adoption and related defe
 | ID | Claim | Status | Primary evidence | DD note |
 |---|---|---:|---|---|
 | TR-01 | Core product invariants are documented outside founder knowledge | PROVEN | Platform Core runtime, README, consumer contract, adoption manifest, this DD pack | Reduces key-person dependency for technical semantics |
-| TR-02 | Platform can be operated without founder involvement | OPEN | Requires operating proof, delegated ownership, SOPs and live operator evidence | Architecture alone does not prove operational independence |
+| TR-02 | Platform can be operated without founder involvement | OPEN | `founder-independence-acceptance.json` currently `NOT_TESTED` | Requires successful non-founder drill plus broader operating proof; architecture/runbooks alone do not prove full operational independence |
 | TR-03 | Buyer can identify vertical-specific vs shared responsibilities | PROVEN | `platform-core/README.md`, `adoption.json`, adapters | Clear technical ownership boundary |
 | TR-04 | Platform architecture supports repository consolidation or continued multi-repo operation | PROVEN | Runtime/adapters are repository-independent by design | Future migration choice remains buyer decision |
+| TR-05 | HOY has a documented and machine-checkable technical handoff / founder-independence acceptance process | PROVEN | `platform-transfer-runbook.md`, `vertical-onboarding-contract.json`, `founder-independence-acceptance.json`, `scripts/check-platform-transfer.cjs` | Existence/quality of the process is proven; successful non-founder execution remains OPEN under TR-02 |
 
 ## E. Defensibility / moat
 
@@ -102,6 +103,7 @@ The following language is allowed now:
 - "The core centralizes product-truth, verification, freshness, MUST/PREFER/IGNORE, safety and commercial-integrity semantics."
 - "Lifestyle and Works vendor copies match the central runtime at the Git-blob level for the documented snapshot."
 - "Platform Core reduces duplicated platform logic and improves technical transferability."
+- "HOY has a documented, machine-checkable technical handoff and founder-independence acceptance process."
 
 The following language is not yet allowed without additional evidence:
 
