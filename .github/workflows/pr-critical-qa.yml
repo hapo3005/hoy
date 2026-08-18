@@ -30,6 +30,8 @@ jobs:
         run: npm run qa:rights
       - name: Run Business Terms governance gate
         run: npm run qa:terms
+      - name: Run Privacy & transferability governance gate
+        run: npm run qa:privacy
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Start branch server
