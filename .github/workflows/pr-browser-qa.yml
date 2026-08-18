@@ -43,18 +43,8 @@ jobs:
           grep -q "'./live-decision-2.39.css'" service-worker.js
           grep -q '@supabase/supabase-js@2.111.0/dist/umd/supabase.js' service-worker.js
           grep -q 'if(!sameOrigin&&!approvedCdn)return' service-worker.js
-      - name: Check duplicate core cache entries
-        run: |
-          node - <<'NODE'
-          const fs=require('fs');
-          const text=fs.readFileSync('service-worker.js','utf8');
-          const m=text.match(/const CORE=\[(.*?)\];/s);
-          if(!m) throw new Error('CORE cache list not found');
-          const items=[...m[1].matchAll(/'([^']+)'/g)].map(x=>x[1]);
-          const duplicates=items.filter((x,i)=>items.indexOf(x)!==i);
-          if(duplicates.length) throw new Error(`Duplicate CORE cache entries: ${[...new Set(duplicates)].join(', ')}`);
-          console.log(`CORE cache entries: ${items.length}; duplicates: 0`);
-          NODE
+      - name: Check complete runtime contracts
+        run: node scripts/check-runtime-contracts.js
 
   browser-e2e:
     needs: static-integrity

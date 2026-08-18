@@ -1,5 +1,14 @@
 const { defineConfig } = require('@playwright/test');
 
+const QA_STORAGE_STATE={
+  cookies:[],
+  origins:[
+    {origin:'http://127.0.0.1:4173',localStorage:[{name:'hoy-qa-runtime',value:'1'}]},
+    {origin:'http://localhost:4173',localStorage:[{name:'hoy-qa-runtime',value:'1'}]},
+    {origin:'https://hapo3005.github.io',localStorage:[{name:'hoy-qa-runtime',value:'1'}]}
+  ]
+};
+
 module.exports = defineConfig({
   testDir: './tests',
   timeout: 45_000,
@@ -13,6 +22,7 @@ module.exports = defineConfig({
   ],
   use: {
     baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'https://hapo3005.github.io/hoy/',
+    storageState: QA_STORAGE_STATE,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
