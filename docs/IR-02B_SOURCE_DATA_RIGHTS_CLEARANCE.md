@@ -2,355 +2,210 @@
 
 **Audit date:** 2026-08-18  
 **Status:** OPERATIONALLY IMPLEMENTED / LEGAL COUNSEL REVIEW STILL REQUIRED  
-**Scope:** HOY Gastro/Core + HOY Works live source inventories  
-**Purpose:** Separate navigational/research sources from reusable, transferable HOY data assets and prevent future source-rights drift.
+**Scope:** HOY Gastro/Core + HOY Works live source inventories
 
-> This file is an operational DD control, not a legal opinion. A source being public does not by itself mean HOY may persist, copy, commercialise, derive from or transfer the source content.
+> IR-02B is an operational DD control, not a legal opinion. Public visibility of data does not by itself establish a right to persist, copy, commercialise, derive from or transfer source content.
 
-## 1. What was implemented
+## 1. Live rights-governance layer
 
-Both live Supabase backends now contain a non-public internal registry:
+Both HOY La Manga and HOY Works now contain internal controls:
 
 - `private.source_rights_registry`
 - `private.source_usage_inventory`
+- RLS enabled
+- explicit deny policies for `anon` and `authenticated`
+- registry access withheld from client roles
+- new/unclassified hosts default to `REVIEW_REQUIRED`
 
-The registry records for each observed source host:
+For every source host the registry can capture source class, GREEN/AMBER/RED/REVIEW_REQUIRED status, lead use, factual-verification permission, persistence/reuse/derivative/commercial/automation permissions, attribution, replacement requirement, transferability and review evidence.
 
-- source class;
-- GREEN / AMBER / RED / REVIEW_REQUIRED status;
-- whether it may be used as a lead;
-- whether factual verification is permitted operationally;
-- whether persistent copying, public reuse, derived use, commercial use and automated collection are permitted;
-- attribution requirements;
-- replacement requirement;
-- transferability status;
-- policy/legal-review status and evidence notes.
+HOY's governing distinction is:
 
-The registry is inside the `private` schema, has RLS enabled and is explicitly unavailable to `public`, `anon` and `authenticated` roles. `service_role` has read access for controlled internal tooling.
+**source exists ≠ HOY owns it ≠ HOY may copy it ≠ HOY may commercialise it ≠ HOY may transfer it at exit.**
 
-## 2. Core rights doctrine
+## 2. Gastro/Core — current live heatmap
 
-HOY now enforces the following distinction:
+After the initial rights registry, explicit client deny policies and a deterministic first-party self-match pass:
 
-**Source available on the internet** ≠ **content free to copy** ≠ **fact free to persist** ≠ **commercial reuse allowed** ≠ **derived use allowed** ≠ **asset transferable at exit**.
-
-Every strategic source must therefore move through:
-
-`Observed → Classified → Rights-reviewed → Evidence-backed → Transferability-known`
-
-Unclassified domains default to `REVIEW_REQUIRED`.
-
-## 3. Current Gastro/Core rights heatmap
-
-Live audit after migration `20260818194908_ir02b_source_rights_registry`:
-
-| Rights status | Distinct hosts | Current source references | Meaning |
+| Rights status | Hosts | Source references | Meaning |
 |---|---:|---:|---|
-| GREEN | 1 | 2 | Explicit reusable/open-data basis captured; conditions still apply |
-| AMBER | 44 | 157 | First-party/vendor reference usable for limited factual verification; broader rights not assumed |
-| RED | 14 | 197 | Restricted platform/aggregator/social source; lead only, replacement required |
-| REVIEW_REQUIRED | 46 | 103 | No sufficient rights decision yet |
+| **GREEN** | 1 | 2 | reusable/open basis captured; licence conditions apply |
+| **AMBER** | 52 | 200 | first-party/operator/vendor evidence usable for limited factual verification; broader rights not assumed |
+| **RED** | 14 | 197 | restricted platform/aggregator/social reference; lead only; replacement required |
+| **REVIEW_REQUIRED** | 38 | 60 | insufficient rights decision so far |
 
-**Total:** 105 distinct hosts / 459 current source references across the audited source-url fields.
+**Total: 105 distinct source hosts / 459 current source references.** These are source-reference counts, not unique businesses or facts.
 
-This is a source-reference count, not a count of unique businesses or unique facts.
+The deterministic self-match pass moved **8 hosts / 43 references** from REVIEW_REQUIRED to AMBER only where the source host exactly matches the stored business website host for the corresponding restaurant. This is evidence of first-party sourcing, not a blanket content licence.
 
-## 4. RED — Google Maps / Google source references
+## 3. RED source classes
 
-Observed current usage:
+### Google Maps / Google-source references
 
-- `www.google.com`: **102 references**
-- contexts: `restaurants`, `restaurant_hours_sources`
+Current concentration includes `www.google.com` with **102 references**. HOY classifies these references as RED for transferable/commercial dataset use: they may remain provenance/lead pointers, but material facts must be re-sourced before being treated as HOY-owned/transferable data.
 
-Operational classification:
+Reason: current Google Maps Platform EEA terms restrict scraping/exporting Google Maps Content, provide examples including copying/saving business names and addresses, and restrict caching/creation of content except where service-specific terms permit it.
 
-- source class: `PLATFORM_RESTRICTED_GOOGLE_MAPS`
-- rights status: **RED**
-- lead/reference: yes
-- persistent copying into HOY as Google-derived content: no
-- commercial reuse: no
-- derived dataset use: no
-- transferability: no
-- replacement required: yes
+### Restaurant Guru
 
-Reason:
-Google Maps Platform EEA terms currently prohibit extracting/scraping Google Maps Content for use outside the services and give examples including copying/saving business names and addresses. Caching and creation of content from Google Maps Content are also restricted except where service-specific terms expressly allow it.
+Current Restaurant Guru-family references include 22 on `es.restaurantguru.com`, 17 on `restaurantguru.com` plus smaller image/menu hosts. Classification: RED / lead only / replacement required.
 
-**HOY action:** Google-origin facts must be re-sourced from operator first-party evidence, HOY field verification or a source with a reusable licence before being counted as a transferable HOY data asset.
+Reason: current Restaurant Guru terms frame content access around personal use and prohibit scraping/copying and incorporation into third-party products/services without the required permission.
 
-Policy evidence checked 2026-08-18:
-`https://cloud.google.com/terms/maps-platform/eea`
+### Tripadvisor
 
-## 5. RED — Restaurant Guru
+Current references span multiple Tripadvisor country domains. Classification: RED / lead only / replacement required.
 
-Observed current usage across hosts:
+Reason: Tripadvisor's published terms restrict copying/redistribution, commercial use outside permitted programs and automated/manual extraction without the required permission.
 
-- `es.restaurantguru.com`: 22 references
-- `restaurantguru.com`: 17 references
-- `img.restaurantguru.com`: 1 reference
-- `menu02.restaurantguru.com`: 1 reference
+### Meta / Facebook / Instagram
 
-Operational classification:
+Current source references include Instagram discovery links and Facebook restaurant/menu links. Classification: RED / lead only / replacement required.
 
-- source class: `AGGREGATOR_RESTRICTED_RESTAURANTGURU`
-- status: **RED**
-- lead only
-- no commercial reuse / incorporation of Restaurant Guru content
-- no automated collection
-- transferability: no
-- replacement required: yes
+Reason: Meta's current automated-data terms require express permission for automated collection and limit subsequent use.
 
-Reason:
-Restaurant Guru's current terms frame the service/content as personal-use and prohibit scraper/robot access, copying/providing access to content, and incorporating Restaurant Guru content into products/services supplied to third parties.
+### Waze
 
-Policy evidence checked 2026-08-18:
-`https://restaurantguru.com/terms_of_use`
+Current Waze references: 5. Classification: **RED conservatively / fail-closed**, pending direct-current-terms evidence for the exact use. This is intentionally a risk-control status rather than a final legal conclusion.
 
-## 6. RED — Tripadvisor
+## 4. GREEN source class — IGN/CNIG
 
-Observed current usage includes:
+`api-features.ign.es` currently contributes 2 mobility-boundary source references.
 
-- `www.tripadvisor.com`: 18 references
-- `www.tripadvisor.co.uk`: 12 references
-- `www.tripadvisor.es`: 4 references
-- `www.tripadvisor.de`: 2 references
-- additional country-domain references
+Classification: **GREEN / YES_WITH_CONDITIONS**.
 
-Operational classification:
+The current IGN/CNIG data policy permits reuse of covered geographic data/derivatives under conditions compatible with CC BY 4.0, including attribution/source requirements. HOY therefore keeps attribution and licence metadata with this data.
 
-- source class: `AGGREGATOR_RESTRICTED_TRIPADVISOR`
-- status: **RED**
-- lead only
-- no scraped/manual commercial content extraction as a HOY dataset without written permission
-- no public reuse of Tripadvisor content
-- transferability: no
-- replacement required: yes
+## 5. AMBER — first-party business references
 
-Reason:
-Tripadvisor's published terms prohibit copying/redistribution without written permission, commercial use outside expressly permitted programs and automated/manual extraction inconsistent with the agreement.
+A business's own website is materially better evidence than a third-party directory, but it does not make the site's creative content HOY property.
 
-Policy evidence checked 2026-08-18:
-`https://tripadvisor.mediaroom.com/DE-terms-of-use`
+AMBER permits HOY's controlled research workflow to use the source for limited factual verification and provenance. It does **not** automatically clear:
 
-## 7. RED — Meta / Facebook / Instagram
-
-Observed current usage:
-
-- Instagram: 7 references in `menu_discovery_checks`
-- Facebook: 4 references across discovery/menu/restaurant contexts
-
-Operational classification:
-
-- source class: `SOCIAL_RESTRICTED_META`
-- status: **RED**
-- lead only
-- automated collection: no without Meta permission
-- data resale/licensing: not an assumed right
-- transferability as a HOY data asset: no
-- replacement required for material facts
-
-Reason:
-Meta's terms prohibit automated access/collection without prior permission. The automated-data terms also require express written permission and narrowly limit use of collected data.
-
-Policy evidence checked 2026-08-18:
-`https://www.facebook.com/legal/automated_data_collection_terms`
-
-## 8. RED — Waze
-
-Observed current usage:
-
-- `www.waze.com`: 5 references
-
-Operational classification:
-
-- source class: `MAP_PLATFORM_RESTRICTED_WAZE`
-- status: **RED** (conservative fail-closed)
-- lead only
-- no copying/saving of Waze database content into the transferable HOY dataset
-- replacement required: yes
-- direct-current-terms capture still pending in the legal evidence vault
-
-This status may only be relaxed after direct terms/licence evidence supports the specific HOY use.
-
-## 9. GREEN — IGN / CNIG geographic data
-
-Observed current usage:
-
-- `api-features.ign.es`: 2 references in `mobility_municipal_boundaries`
-
-Operational classification:
-
-- source class: `OPEN_GOV_IGN`
-- status: **GREEN**
-- persistent reuse: yes, subject to licence conditions
-- derivative use: yes, subject to conditions
-- commercial use: yes, subject to conditions
-- transferability: `YES_WITH_CONDITIONS`
-- attribution required: yes
-
-The IGN/CNIG data policy states that covered geographic data and derivatives are available under a licence compatible with CC BY 4.0 and requires source/ownership recognition plus applicable update/reuse metadata.
-
-Policy evidence checked 2026-08-18:
-`https://www.ign.es/web/ign/portal/politica-datos`
-
-## 10. AMBER — first-party business websites
-
-HOY does **not** classify a business's own website as RED by default. It is a materially better evidence source than a third-party directory.
-
-However, first-party source does not mean HOY owns the website's creative content.
-
-Operational rule:
-
-### Permitted for the research workflow
-
-- limited factual verification;
-- checking whether a business publicly claims a service/property;
-- storing HOY-created provenance metadata and timestamp;
-- using the source as a lead for later Business Confirmation.
-
-### Not automatically cleared
-
-- copying marketing copy;
-- copying photographs/logos;
-- copying complete menus as creative/database content;
+- marketing copy;
+- photographs/logos;
+- wholesale menu/content copying;
 - automated crawling at scale;
-- redistributing original source content;
-- sublicensing the business's original content;
-- claiming exit transferability of the source content.
+- redistribution/sublicensing;
+- exit transferability of the source content.
 
-Status remains **AMBER** until operator/business terms or another legal basis clears the intended use.
+The path from AMBER toward contract-cleared first-party data is **Business Confirmation under HOY Business Terms**, with explicit storage/display/normalisation/analytics/media/change-of-control rights appropriate to each field/content class.
 
-## 11. Gastro menu-specific boundary
+For menu data, `source_authority = first_party` means the operator controls/publishes the source; it does not mean HOY owns the underlying menu content. HOY-created normalization, taxonomy, provenance, trust/freshness history and matching semantics remain separately assessable HOY IP/data.
 
-A `menu_sources.source_authority = first_party` value means the restaurant/operator controls or publishes the source. It does **not** mean HOY owns the source content.
+## 6. Works — current live heatmap
 
-Accordingly:
+| Rights status | Hosts | Source references |
+|---|---:|---:|
+| **AMBER** | 81 | 171 |
+| **REVIEW_REQUIRED** | 3 | 7 |
 
-- first-party menu facts can support research and verification;
-- HOY-created normalization, taxonomy, provenance, matching semantics and freshness history may be HOY IP/data;
-- full menu creative content, images/PDFs and source database structure are not treated as transferable HOY property without rights evidence;
-- operator onboarding/business terms should explicitly license the required storage/display/normalization/translation/transfer uses.
-
-## 12. Works rights heatmap
-
-Live audit after Works migration `20260818194934_ir02b_source_rights_registry`:
-
-| Rights status | Distinct hosts | Current source references | Meaning |
-|---|---:|---:|---|
-| AMBER | 81 | 171 | Business websites / first-party sources |
-| REVIEW_REQUIRED | 3 | 7 | Directory sources requiring replacement or direct terms clearance |
-
-Current Works directory sources requiring review/replacement:
+Works has **84 hosts / 178 current references** in this registry. The three directory review/replacement hosts are:
 
 - `www.love-lamangaclub.es`
 - `www.losbelones.com`
 - `www.paginasamarillas.es`
 
-Works therefore has a substantially cleaner source profile than Gastro, but the first-party material is still not blanket proprietary HOY content.
+The Works production Security Advisor reports **0 findings** after the rights-registry deployment and explicit deny policies.
 
-## 13. EU database-right boundary
+## 7. Database-right boundary
 
-HOY distinguishes individual facts from database rights.
+HOY does not equate 'individual fact' with 'free right to replicate a database'. EU database law can protect qualifying database investment against extraction/re-utilization of substantial parts and, in specified circumstances, repeated/systematic extraction of insubstantial parts.
 
-Under Directive 96/9/EC, a qualifying database maker may prevent extraction/re-utilization of all or a substantial part of a protected database, and repeated/systematic extraction of insubstantial parts can also be restricted when it conflicts with normal exploitation or harms the maker's legitimate interests.
+Therefore HOY's data-moat strategy is deliberately:
 
-Therefore the HOY policy is:
+**third-party lead → first-party/operator confirmation → HOY verification/freshness/history → HOY-created analytics/intelligence**
 
-> Do not build the HOY data moat by systematically replicating a third-party directory, even where many individual facts are mundane.
+rather than copying third-party directories into a proprietary-looking dataset.
 
-The preferred data-moat path is:
+## 8. Replacement and clearance queue
 
-`third-party lead → first-party/operator confirmation → HOY verification/freshness/history → HOY-created analytics/intelligence`
+### R0 — restricted-source replacement
 
-## 14. Replacement queue
+Highest priority:
 
-### Priority R0 — remove restricted-source dependence from material business identity/freshness facts
+1. Google-origin business identity/hours evidence;
+2. Restaurant Guru menu/hours/restaurant evidence;
+3. Tripadvisor hours/restaurant evidence;
+4. Waze restaurant/hours evidence;
+5. Facebook/Instagram evidence where material.
 
-1. Google-origin restaurant master evidence — 101 restaurant references + 1 hours reference.
-2. Restaurant Guru — menu/hours/restaurant references.
-3. Tripadvisor — hours/restaurant references.
-4. Waze — restaurant/hours references.
-5. Facebook/Instagram — menu discovery/restaurant source references.
+A RED URL may remain as historical provenance, but it must not be the legal foundation for a transferable/commercial HOY data claim.
 
-**Important:** replacement does not necessarily mean deleting the historic URL immediately. It means the restricted source may remain as an internal provenance/history pointer, but HOY must not rely on its content as the legal basis for the transferable/commercial dataset.
+### R1 — remaining REVIEW_REQUIRED
 
-### Priority R1 — clear or replace unreviewed directories
+Gastro: **38 hosts / 60 references** remain unresolved and must be reviewed by usage/materiality. Works: 3 hosts / 7 references remain directory review items.
 
-- Gastro `REVIEW_REQUIRED` hosts ordered by usage count.
-- Works directory hosts listed above.
+### R2 — AMBER → Business Confirmed / contract-cleared
 
-### Priority R2 — convert AMBER first-party evidence into business-confirmed rights
+For high-value facts and content, operator onboarding should capture:
 
-During Business Claim/Onboarding:
+- factual confirmation;
+- required data/media licence;
+- confirmation timestamp/version;
+- permitted storage/display/normalisation/translation/analytics use;
+- change-of-control/transferability where appropriate.
 
-- operator confirms factual profile data;
-- operator licenses required data/media uses;
-- HOY stores confirmation timestamp/version;
-- transfer/change-of-control clause is captured;
-- source rights can then move from `AMBER` toward an appropriate `GREEN`/contract-cleared state for the specific fields.
+## 9. Future ingestion gate
 
-## 15. Future ingestion gate
-
-A new domain must not silently inherit rights from another source.
-
-Default:
+Every new source starts:
 
 `new host → REVIEW_REQUIRED`
 
-Only a documented policy/legal review may change:
+No system may infer GREEN from HTTPS, public visibility, an official-looking domain, search-engine presence or successful API access. A documented review must explicitly set permitted use and transferability.
 
-- `rights_status`;
-- permitted uses;
-- transferability;
-- automation permission;
-- attribution requirements.
+The branch now includes `scripts/check-ir02b-source-rights.mjs` and `npm run qa:rights`; Critical PR QA runs this policy gate so RED classes cannot silently gain persistence/commercial/derivative/automation rights or transferability.
 
-No importer should infer `GREEN` merely from:
-
-- HTTPS;
-- public visibility;
-- being an official-looking website;
-- being accessible without login;
-- appearing in a search engine;
-- an API responding successfully.
-
-## 16. Investor / buyer claim boundary
+## 10. Investor / buyer claim boundary
 
 ### Defensible now
 
-HOY has implemented a live rights-governance layer that distinguishes restricted references, first-party evidence, open-licensed data and unresolved sources.
-
-HOY can demonstrate that restricted sources are identified and queued for re-sourcing rather than being falsely marketed as proprietary data.
+> HOY has a live rights-governance layer that separates restricted references, first-party evidence, open-licensed data and unresolved sources, and it has a concrete replacement path for non-transferable dependencies.
 
 ### Not defensible yet
 
-- "All 169 restaurant records are proprietary HOY data."
-- "All menu data is freely transferable."
-- "All public-source data can be sold."
-- "All first-party website content belongs to HOY."
+- all 169 restaurant records are proprietary HOY data;
+- all menu data is freely transferable;
+- all public-source data may be sold;
+- all first-party website content belongs to HOY.
 
 ### Target state
 
-For material product fields, HOY should increasingly rely on:
+The highest-value transferable HOY data layer should increasingly consist of:
 
-1. Business Confirmed data under HOY Business Terms;
-2. HOY Verified/field-research evidence;
-3. licensed/open data with captured conditions;
-4. HOY-created freshness/verification history;
-5. clean post-cutover first-party product analytics;
+1. Business Confirmed data under HOY terms;
+2. HOY Verified field evidence;
+3. open/licensed data with captured conditions;
+4. HOY-created verification/freshness history;
+5. clean first-party product analytics;
 6. lawfully derived aggregated intelligence.
 
-## 17. IR-02B gate
+## 11. Production migrations
+
+HOY La Manga:
+
+- `20260818194908_ir02b_source_rights_registry`
+- `20260818195705_ir02b_source_rights_explicit_deny`
+- `20260818195951_ir02b_first_party_self_match_classification`
+
+HOY Works:
+
+- `20260818194934_ir02b_source_rights_registry`
+- `20260818195713_ir02b_source_rights_explicit_deny`
+
+## 12. IR-02B gate
 
 **Operational rights registry:** COMPLETE  
+**Client-role fail-closed protection:** COMPLETE  
 **High-risk platform policy triage:** COMPLETE  
-**IGN licence classification:** COMPLETE  
+**Deterministic first-party self-match pass:** COMPLETE  
+**IGN conditional open-data classification:** COMPLETE  
 **Works first-party/directory classification:** COMPLETE  
-**Restricted-source replacement:** IN PROGRESS / NOT COMPLETE  
-**Per-domain review of all remaining REVIEW_REQUIRED sources:** NOT COMPLETE  
+**Restricted-source replacement:** NOT COMPLETE  
+**Remaining per-domain review:** NOT COMPLETE  
 **Business contractual rights:** NOT COMPLETE  
 **Final legal counsel sign-off:** NOT COMPLETE
 
-Current DD conclusion:
+Current conclusion:
 
-> HOY has moved from an undocumented-source dataset to a rights-aware dataset with explicit legal/transferability gates. The next value step is to reduce the 197 RED Gastro references and convert AMBER first-party facts into business-confirmed/contract-cleared first-party data.
+> HOY has moved from an undocumented-source dataset to a rights-aware dataset with explicit use and transferability gates. The next valuation-relevant step is to replace the 197 RED Gastro references and convert high-value AMBER facts into business-confirmed, contract-cleared first-party data.
