@@ -41,3 +41,16 @@ jobs:
           set -euo pipefail
           chmod +x scripts/investor-ready/materialize-rt006-supply-chain.sh
           scripts/investor-ready/materialize-rt006-supply-chain.sh
+
+      - name: Upload materialized candidate for controlled GitHub-connector commit
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: rt006-supply-chain-materialized-${{ github.run_id }}
+          path: |
+            package-lock.json
+            .github/workflows/
+            docs/investor-ready/rt006-supply-chain-evidence.md
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 30
