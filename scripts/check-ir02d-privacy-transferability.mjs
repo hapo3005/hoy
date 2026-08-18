@@ -97,7 +97,7 @@ assert(/revoke execute on function public\.log_analytics_event\(text,bigint,uuid
 // Privacy Notice must exist and itself be active before Terms can become active.
 assert(/business_terms_privacy_notice_version_fkey/i.test(termsPrivacyLink), 'Business Terms → Privacy Notice foreign key missing');
 assert(/references private\.privacy_notice_versions\(notice_version\)/i.test(termsPrivacyLink), 'Business Terms must reference registered Privacy Notice version');
-assert(/new\.status='active'[\s\S]*?v_status[\s\S]*?<>'active'/i.test(termsPrivacyLink), 'active Business Terms must require active Privacy Notice');
+assert(/new\.status\s*=\s*['"]active['"][\s\S]*?coalesce\s*\(\s*v_status\s*,\s*['"]['"]\s*\)\s*<>\s*['"]active['"]/i.test(termsPrivacyLink), 'active Business Terms must require active Privacy Notice');
 assert(/trg_business_terms_require_active_privacy/i.test(termsPrivacyLink), 'Business Terms active-privacy trigger missing');
 
 if (process.exitCode) process.exit(1);
