@@ -46,6 +46,10 @@ The audit intentionally checks author metadata instead of inferring authorship f
 
 `web-flow` in the Lifestyle metadata is recorded as the GitHub committer while `hapo3005` is the author. HOY therefore does not classify `web-flow` as a human co-author based on that metadata alone.
 
+### Contributor register
+
+`data/ir-02a-contributor-register-2026-08-18.json` now records the currently evidenced identities, authorship/committer distinction, repository census status and founder questions that must be cleared before O1.
+
 ### Evidence limitation
 
 This is **sampled evidence**, not yet a full history-wide contributor census. The DD file must not say “sole author of every line” until the full census and Founder confirmation are complete.
@@ -85,6 +89,16 @@ Contains:
 - registry assets still requiring evidence;
 - mandatory exclusions;
 - execution dependencies.
+
+### D. Machine-readable Contributor Register
+`data/ir-02a-contributor-register-2026-08-18.json`
+
+Contains:
+- evidenced founder/tool identities;
+- author-versus-committer classification;
+- per-repository census status;
+- required founder disclosure questions;
+- clearance states and O1 gate.
 
 ## 6. Assignment schedule — minimum asset categories
 
@@ -140,7 +154,7 @@ For each repository, the final DD file must retain:
 
 ## 10. Current conclusion
 
-**Repository control + sampled founder authorship + a prepared assignment package now form a materially stronger Chain-of-Title evidence set.**
+**Repository control + sampled founder authorship + a prepared assignment package + explicit contributor register now form a materially stronger Chain-of-Title evidence set.**
 
 However:
 
