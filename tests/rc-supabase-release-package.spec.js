@@ -5,9 +5,14 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const manifestPath = path.join(root, 'supabase', 'release', 'rc1-manifest.json');
 const runbookPath = path.join(root, 'docs', 'RC1_SUPABASE_RELEASE_RUNBOOK.md');
+const ir02cReconciliationPath = path.join(root, 'data', 'ir-02c-live-reconciliation-2026-08-19.json');
 
 function loadManifest() {
   return JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+}
+
+function loadIr02cReconciliation() {
+  return JSON.parse(fs.readFileSync(ir02cReconciliationPath, 'utf8'));
 }
 
 test('RC1 Supabase manifest is fail-closed for production deployment', async () => {
@@ -46,16 +51,31 @@ test('RC1 snapshot semantics are non-self-referential and require final scope re
   expect(m.release_policy.migration_success_requires_no_new_advisor_regressions).toBe(true);
 });
 
-test('RC1 manifest classifies every migration file currently in main', async () => {
+test('every repo migration is classified by the historical RC1 manifest or exact applied IR-02C reconciliation', async () => {
   const m = loadManifest();
+  const ir02c = loadIr02cReconciliation();
   const migrationDir = path.join(root, 'supabase', 'migrations');
   const repoPaths = fs.readdirSync(migrationDir)
     .filter(name => name.endsWith('.sql'))
     .map(name => `supabase/migrations/${name}`)
     .sort();
-  const manifestPaths = m.migrations.map(x => x.repo_path).sort();
+  const manifestPaths = m.migrations.map(x => x.repo_path);
+  const restoredAppliedPaths = ir02c.migrationHistory.map(x => {
+    expect(x.applied).toBe(true);
+    expect(x.repoBlob).toMatch(/^[0-9a-f]{40}$/);
+    const match = fs.readdirSync(migrationDir).find(name => name.startsWith(`${x.version}_`) && name.endsWith('.sql'));
+    expect(match, `restored applied migration ${x.version} must exist exactly once in repo`).toBeTruthy();
+    return `supabase/migrations/${match}`;
+  });
+  const classifiedPaths = [...new Set([...manifestPaths, ...restoredAppliedPaths])].sort();
 
-  expect(manifestPaths).toEqual(repoPaths);
+  // Do not rewrite the historical RC1 snapshot merely because later already-live
+  // migration source files were restored into Git. The separate read-only
+  // reconciliation is allowed to extend classification only for its exact five
+  // applied, blob-pinned IR-02C migration versions.
+  expect(ir02c.inspectionMode).toBe('read_only');
+  expect(restoredAppliedPaths).toHaveLength(5);
+  expect(classifiedPaths).toEqual(repoPaths);
 });
 
 test('RC1 database delta is exactly the curated HOY Accessible migration', async () => {
