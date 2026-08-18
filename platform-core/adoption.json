@@ -1,0 +1,38 @@
+{
+  "platformCore": {
+    "version": "1.0.0",
+    "contract": "HOY-PC-1.0",
+    "sourcePath": "platform-core/hoy-platform-core-v1.js"
+  },
+  "verticals": {
+    "gastro": {
+      "repository": "hapo3005/hoy",
+      "mode": "source+adapter",
+      "adapter": "platform-core/gastro-adapter-v1.js",
+      "runtimeStatus": "conformance-wired",
+      "productionStatus": "existing production gates remain independent"
+    },
+    "lifestyle": {
+      "repository": "hapo3005/hoy-lifestyle",
+      "mode": "locked-vendor+thin-adapter",
+      "lock": "platform-core.lock.json",
+      "runtimeStatus": "consumer-wired",
+      "productionStatus": "Supabase/owner-live gates remain independent"
+    },
+    "works": {
+      "repository": "hapo3005/hoy-works",
+      "mode": "locked-vendor+thin-adapter",
+      "lock": "platform-core.lock.json",
+      "runtimeStatus": "consumer-wired",
+      "productionStatus": "Works PR #2 source-rights/IR-02D gates remain independent"
+    }
+  },
+  "invariants": [
+    "truth and verification remain separate",
+    "unknown/missing/stale/disputed/external evidence does not become confirmed truth",
+    "confirmed failed MUST cannot be rescued by PREFER",
+    "safety is a hard gate",
+    "commercial placement cannot change organic score or rank",
+    "vertical adapters may be stricter but may not weaken Platform Core"
+  ]
+}
