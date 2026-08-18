@@ -226,3 +226,4 @@ function checkAnalyticsContract(){
 checkPwaAssetGraph();
 checkAnalyticsContract();
 require('./check-platform-buyer-dd.cjs');
+require('./check-platform-transfer.cjs');
