@@ -442,15 +442,69 @@
     });
   }
 
+  function stripLegacyGuestAccessibility(html) {
+    return String(html || '').replace(/<div class="access-card-line">[\s\S]*?<\/div>/g, '');
+  }
+
+  function removeLegacyGuestPanel(container) {
+    container?.querySelectorAll?.('[data-accessibility-panel]').forEach(node => node.remove());
+  }
+
+  function injectAccessiblePanel(d, p) {
+    if (!d || !p) return false;
+    removeLegacyGuestPanel(d);
+    if (d.querySelector('[data-hoya-panel]')) return true;
+
+    const flow = d.querySelector('.profile-continuous-flow');
+    const about = flow?.querySelector('#profile-about');
+    if (about) {
+      about.insertAdjacentHTML('afterend', accessibilityPanel(p));
+      wirePanel(d, p);
+      return true;
+    }
+
+    const content = d.querySelector('[data-tab-content]');
+    if (content) {
+      content.insertAdjacentHTML('beforeend', accessibilityPanel(p));
+      wirePanel(d, p);
+      return true;
+    }
+    return false;
+  }
+
+  // 2.43 remains the operator confirmation workflow, but 2.46 is the canonical guest surface.
+  // Strip the older generic card badge so unverified research cannot be mistaken for a confirmed match.
+  if (typeof card === 'function') {
+    const legacyCard = card;
+    card = function hoyAccessibleCard(p) {
+      return stripLegacyGuestAccessibility(legacyCard(p));
+    };
+  }
+  if (typeof listCard === 'function') {
+    const legacyListCard = listCard;
+    listCard = function hoyAccessibleListCard(p) {
+      return stripLegacyGuestAccessibility(legacyListCard(p));
+    };
+  }
+
   const originalSetDetailTab = typeof setDetailTab === 'function' ? setDetailTab : null;
   if (originalSetDetailTab) {
     setDetailTab = function hoyAccessibleDetailTab(d, p, tab) {
       originalSetDetailTab(d, p, tab);
-      if (tab !== 'overview') return;
-      const content = d?.querySelector?.('[data-tab-content]');
-      if (!content || content.querySelector('[data-hoya-panel]')) return;
-      content.insertAdjacentHTML('beforeend', accessibilityPanel(p));
-      wirePanel(content, p);
+      if (tab === 'overview') injectAccessiblePanel(d, p);
+    };
+  }
+
+  // 2.43 wraps openDetail after the legacy tab call so its panel survives the continuous-profile
+  // transformation. Wrap that final function once more: keep its operator mechanics, remove the
+  // legacy guest panel, and inject the Trust-aware 2.46 panel into the final profile DOM.
+  const originalOpenDetail = typeof openDetail === 'function' ? openDetail : null;
+  if (originalOpenDetail) {
+    openDetail = function hoyAccessibleOpenDetail(id) {
+      const result = originalOpenDetail(id);
+      const p = typeof DATA !== 'undefined' ? DATA.find(x => Number(x.id) === Number(id)) : null;
+      if (p) injectAccessiblePanel(document.getElementById('detail'), p);
+      return result;
     };
   }
 
