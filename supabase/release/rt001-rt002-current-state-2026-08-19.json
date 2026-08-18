@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "project": {
+    "name": "HOY La Manga",
+    "projectRef": "zlscptisdxzxuvllogza",
+    "inspectionMode": "read_only"
+  },
+  "migrationState": {
+    "registeredCount": 95,
+    "latest": {
+      "version": "20260818210527",
+      "name": "ir02d_link_terms_to_active_privacy_notice"
+    },
+    "oldPr103SnapshotCount": 78,
+    "oldPr103LatestVersion": "20260818084329",
+    "oldPr103MigrationSnapshotSuperseded": true
+  },
+  "schemaState": {
+    "restaurantAccessibility": true,
+    "accessibilityFeatureRegistry": true,
+    "restaurantAccessibilityFacts": true,
+    "restaurantFamilyFeatures": false,
+    "sourceRightsRegistry": true,
+    "businessTermsVersions": true,
+    "privacyNoticeVersions": true,
+    "accessibilityCounts": {
+      "legacyRows": 166,
+      "registryFeatures": 24,
+      "canonicalFacts": 668
+    }
+  },
+  "analyticsState": {
+    "evidenceTrustColumn": false,
+    "logAnalyticsEvent": {
+      "securityDefiner": true,
+      "searchPath": "public, pg_temp",
+      "definitionMd5": "1e30e78048ad15842ab8600716666fce",
+      "anonExecute": false,
+      "authenticatedExecute": false
+    },
+    "interpretation": "The later privacy gate currently keeps Production analytics RPC execution disabled. Any future security hardening must preserve that disabled state until the independent consent/privacy release gate explicitly authorizes activation."
+  },
+  "securityAdvisor": {
+    "warningCount": 7,
+    "warningType": "authenticated_security_definer_function_executable",
+    "functions": [
+      "public.get_operator_workspace(bigint)",
+      "public.get_venue_media_review(bigint)",
+      "public.operator_archive_offer(uuid)",
+      "public.operator_publish_offer(uuid)",
+      "public.operator_request_upgrade(bigint,plan_code,text)",
+      "public.operator_submit_profile_change(bigint,jsonb,text)",
+      "public.review_venue_media_candidates(bigint,bigint[],bigint[],bigint[])"
+    ]
+  },
+  "functionSnapshot": [
+    {"schema":"private","name":"is_hoy_admin","args":"","securityDefiner":true,"searchPath":"public, private, auth, pg_temp","anonExecute":false,"authenticatedExecute":true,"definitionMd5":"8a761b6b1cce3ef95c6437ea3f9d1791"},
+    {"schema":"private","name":"is_restaurant_member","args":"rid bigint","securityDefiner":true,"searchPath":"public, private","anonExecute":false,"authenticatedExecute":true,"definitionMd5":"b88fe6c0b3e4c1649cf01308ae02e9cf"},
+    {"schema":"public","name":"get_operator_workspace","args":"p_restaurant_id bigint","securityDefiner":true,"searchPath":"public, private, auth, pg_temp","anonExecute":false,"authenticatedExecute":true,"definitionMd5":"d3b4ba7e68da2cba9237bb9ddec728f4"},
+    {"schema":"public","name":"get_venue_media_review","args":"p_restaurant_id bigint","securityDefiner":true,"searchPath":"public, private, pg_temp","anonExecute":false,"authenticatedExecute":true,"definitionMd5":"531feb9e676856f4641e9f9d300c53d0"},
+    {"schema":"public","name":"operator_archive_offer","args":"p_offer_id uuid","securityDefiner":true,"searchPath":"public, private, auth, pg_temp","anonExecute":false,"authenticatedExecute":true,"definitionMd5":"07737aa7c1a1796d87f3670b92282ff5"},
+    {"schema":"public","name":"operator_publish_offer","args":"p_offer_id uuid","securityDefiner":true,"searchPath":"public, private, auth, pg_temp","anonExecute":false,"authenticatedExecute":true,"definitionMd5":"837323f2ae650b5f989910735f624423"},
+    {"schema":"public","name":"operator_request_upgrade","args":"p_restaurant_id bigint, p_plan plan_code, p_note text","securityDefiner":true,"searchPath":"public, private, auth, pg_temp","anonExecute":false,"authenticatedExecute":true,"definitionMd5":"79007c943a05e7acfb8c285aa7084339"},
+    {"schema":"public","name":"operator_submit_profile_change","args":"p_restaurant_id bigint, p_changes jsonb, p_note text","securityDefiner":true,"searchPath":"public, private, auth, pg_temp","anonExecute":false,"authenticatedExecute":true,"definitionMd5":"1ec27d1a85a22834d71355049570db37"},
+    {"schema":"public","name":"review_venue_media_candidates","args":"p_restaurant_id bigint, p_approved_ids bigint[], p_rejected_ids bigint[], p_replace_ids bigint[]","securityDefiner":true,"searchPath":"public, private, pg_temp","anonExecute":false,"authenticatedExecute":true,"definitionMd5":"614677fc24069b77ce415d2926a5a672"}
+  ],
+  "outreachState": {
+    "salesPipelineRows": 168,
+    "sendLockTrueRows": 168,
+    "allLocked": true
+  },
+  "oldPr103Hardening": {
+    "pr": 103,
+    "file": "supabase/release/rt001-security-definer-hardening.sql",
+    "gitBlob": "aaa76eb3211933a4306d9668136d41e5c0ca1d72",
+    "directApplyStatus": "BLOCKED_RECOMPOSE_REQUIRED",
+    "blockingReason": "The historical candidate grants EXECUTE on log_analytics_event to anon/authenticated, while the newer Production privacy gate deliberately revoked both roles. Applying it unchanged would weaken current privacy state."
+  },
+  "boundaries": {
+    "productionMutationPerformed": false,
+    "oldPr103ScriptSafeToApplyUnchanged": false,
+    "analyticsReactivationAuthorized": false,
+    "securityAdvisorWarningsClosed": false,
+    "migrationReconciliationClosed": false,
+    "outreachAuthorized": false
+  }
+}
