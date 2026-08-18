@@ -144,6 +144,9 @@
     if (status === 'no' || status === 'not_applicable' || status === 'temporarily_unavailable') return 'blocked';
 
     if (requirement.comparator) {
+      if (fact.value_number === null || fact.value_number === undefined || requirement.targetValue === null || requirement.targetValue === undefined) {
+        return 'unresolved';
+      }
       const actual = Number(fact.value_number);
       const target = Number(requirement.targetValue);
       if (!Number.isFinite(actual) || !Number.isFinite(target)) return 'unresolved';
