@@ -16,6 +16,11 @@
     "trademarkBrandPr": 108,
     "platformTransferPr": 115,
     "g1MasterPr": 117,
+    "rt005CandidatePr": 119,
+    "privacyCandidatePr": 120,
+    "ir02ePublicRuntimeCandidatePr": 121,
+    "ir02cTermsCandidatePr": 122,
+    "ipExecutionHarvestPr": 123,
     "privacyFinalPr": null,
     "rt005FinalPr": null,
     "ir02cTermsFinalPr": null,
@@ -38,13 +43,13 @@
       "pr": 104,
       "disposition": "KEEP_FOCUSED_RECONCILE",
       "mergeWhole": false,
-      "reason": "Focused corporate/IP candidate; unique founder schedules and assignment material from PR 102 still require harvest."
+      "reason": "Focused corporate/IP candidate; unique founder execution drafts are now preserved separately in PR 123."
     },
     {
       "pr": 105,
       "disposition": "SPLIT_RT005_ONLY",
       "mergeWhole": false,
-      "reason": "RT-006 workflow/lockfile/audit surface is superseded for final integration by PR 116."
+      "reason": "RT-006 workflow/lockfile/audit surface is superseded for final integration by PR 116; clean RT-005-only candidate is PR 119."
     },
     {
       "pr": 106,
@@ -56,7 +61,7 @@
       "pr": 107,
       "disposition": "COMPOSE_PRIVACY_SURVIVOR",
       "mergeWhole": false,
-      "reason": "Provides stronger production-storage boundaries and RT-008 operating pack, but overlaps runtime with PR 109."
+      "reason": "Provides stronger production-storage boundaries and broader RT-008 history; runtime composition candidate exists as PR 120."
     },
     {
       "pr": 108,
@@ -68,7 +73,7 @@
       "pr": 109,
       "disposition": "HARVEST_PRIVACY_API_TESTS",
       "mergeWhole": false,
-      "reason": "Contributes explicit grant/deny/withdraw/clear behavior and regression tests; runtime must be composed with PR 107."
+      "reason": "Explicit grant/deny/withdraw/clear behavior and regression intent were composed into clean privacy candidate PR 120."
     },
     {
       "pr": 115,
@@ -87,6 +92,36 @@
       "disposition": "G1_CONTROL_PLANE",
       "mergeWhole": false,
       "reason": "Tracks canonical survivors and closing status; does not replace subject-matter gates."
+    },
+    {
+      "pr": 119,
+      "disposition": "RT005_CLEAN_CANDIDATE",
+      "mergeWhole": false,
+      "reason": "Current-main RT-005-only split; secret-history subgate is revalidated separately while organizational control/recovery remains open."
+    },
+    {
+      "pr": 120,
+      "disposition": "PRIVACY_COMPOSITION_CANDIDATE",
+      "mergeWhole": false,
+      "reason": "Current-main analytics privacy composition of PR 107 production-storage controls and PR 109 consent lifecycle; wider RT-008 governance/legal/Production gates remain open."
+    },
+    {
+      "pr": 121,
+      "disposition": "IR02E_CLEAN_CANDIDATE",
+      "mergeWhole": false,
+      "reason": "Current-main deterministic public-runtime boundary harvested from PR 102; live deploy-only cutover remains open."
+    },
+    {
+      "pr": 122,
+      "disposition": "IR02C_CLEAN_CANDIDATE",
+      "mergeWhole": false,
+      "reason": "Current-main repository restoration of already-applied Terms migrations/doc blobs; Terms remain draft and unaccepted."
+    },
+    {
+      "pr": 123,
+      "disposition": "IP_EXECUTION_HARVEST_CANDIDATE",
+      "mergeWhole": false,
+      "reason": "Preserves unique founder-IP execution drafts while PR 104 remains current contributor-census authority; execution remains pending."
     }
   ],
   "materialOverlaps": [
@@ -108,46 +143,56 @@
         "scripts/investor-ready/audit-third-party-deps.mjs",
         "scripts/investor-ready/check-github-actions-pins.mjs"
       ],
-      "resolution": "PR 116 is canonical for RT-006. Create a clean RT-005-only survivor from unique PR 105 material."
+      "resolution": "PR 116 is canonical for RT-006. PR 119 is the clean RT-005-only successor from unique PR 105 material."
     },
     {
       "id": "OV-107-109",
-      "prs": [107, 109],
+      "prs": [107, 109, 120],
       "paths": ["analytics-rpc-1.8.1.js"],
-      "resolution": "Create one clean privacy survivor combining PR 107 production-storage constraints with PR 109 explicit consent lifecycle and regression tests."
+      "resolution": "PR 120 is the current-main privacy composition candidate; final RT-008 status still depends on wider governance/legal/Production reconciliation."
     },
     {
       "id": "OV-102-FOCUSED",
-      "prs": [102, 103, 104, 106, 107, 109, 115],
+      "prs": [102, 103, 104, 106, 107, 109, 115, 121, 122, 123],
       "paths": ["multiple historical governance/runtime/migration/package surfaces"],
-      "resolution": "Never merge PR 102 wholesale. Harvest unique assets by gate and reconcile them into focused current-main survivors."
+      "resolution": "Never merge PR 102 wholesale. Unique Public Runtime, Terms and Founder-IP execution assets now have focused current-main candidates; remaining historical source/privacy/schema evidence must still be reconciled by subject gate."
     }
   ],
   "requiredSuccessors": [
     {
       "id": "SC-RT005",
-      "status": "MISSING",
-      "purpose": "Clean current-main RT-005-only candidate from unique PR 105 assets."
+      "status": "IN_PROGRESS",
+      "candidatePr": 119,
+      "purpose": "Clean current-main RT-005-only candidate from unique PR 105 assets.",
+      "qualification": "Candidate exists; technical secret-history evidence and standard exact-head QA must remain current, while company control/recovery execution stays open."
     },
     {
       "id": "SC-PRIVACY",
-      "status": "MISSING",
-      "purpose": "Composed current-main RT-008 privacy runtime/operating candidate from PR 107 + PR 109 + reconciled PR 102 governance evidence."
+      "status": "IN_PROGRESS",
+      "candidatePr": 120,
+      "purpose": "Composed current-main RT-008 privacy runtime/operating candidate from PR 107 + PR 109 plus ongoing governance reconciliation.",
+      "qualification": "Runtime composition exists; consent UX/legal/retention/vendor/DSAR/breach/Production and any still-needed PR 102 governance harvest remain open."
     },
     {
       "id": "SC-IR02C",
-      "status": "MISSING",
-      "purpose": "Focused current-main Business Terms / Business Confirmation candidate harvested from PR 102."
+      "status": "IN_PROGRESS",
+      "candidatePr": 122,
+      "purpose": "Focused current-main Business Terms / Business Confirmation candidate harvested from PR 102.",
+      "qualification": "Applied migration/document history has a clean repo candidate; Terms remain draft with zero acceptances/confirmations and legal/activation gates open."
     },
     {
       "id": "SC-IR02E",
-      "status": "MISSING",
-      "purpose": "Focused current-main public-runtime / proprietary-source boundary candidate harvested from PR 102."
+      "status": "IN_PROGRESS",
+      "candidatePr": 121,
+      "purpose": "Focused current-main public-runtime / proprietary-source boundary candidate harvested from PR 102.",
+      "qualification": "Deterministic packaging candidate exists; live deploy-only cutover and company source control remain open."
     },
     {
       "id": "SC-IP-HARVEST",
-      "status": "MISSING",
-      "purpose": "Reconcile PR 102 founder IP schedules/assignment material into RT-003/004 final path."
+      "status": "IN_PROGRESS",
+      "candidatePr": 123,
+      "purpose": "Reconcile PR 102 founder IP schedules/assignment material into RT-003/004 final path.",
+      "qualification": "Execution drafts are preserved and PR 104 remains contributor-census authority; founder-to-company rights execution is not complete."
     }
   ],
   "recommendedSequence": [
@@ -156,7 +201,7 @@
     "clean RT-005-only successor",
     "PR 102 focused harvest successors",
     "Platform Core rebase/retest on selected base",
-    "composed privacy survivor",
+    "composed privacy survivor and wider RT-008 reconciliation",
     "final integration candidate and acquired-state evidence regeneration"
   ],
   "doneRule": "overallStatus may be DONE only when every requiredSuccessor is COMPLETE, each selected survivor is reconciled to the final integration base, and acquired-state exact-head/executed-state evidence has been regenerated."
