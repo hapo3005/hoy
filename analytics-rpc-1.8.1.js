@@ -58,6 +58,7 @@
   }
   function capturePilotEnrollment(){
     const params=new URLSearchParams(window.location.search||'');
+    const hasPilotParam=params.has('pilot');
     const incoming=pilotCode(params.get('pilot'));
     const stored=pilotCode(localStorage.getItem(PILOT_KEY));
     let selected=stored;
@@ -69,6 +70,11 @@
         localStorage.setItem(PILOT_KEY,incoming);
         selected=incoming;
       }
+    }
+
+    // Always strip the pilot query value, including malformed/free-text values, so
+    // the URL cannot retain accidental personal information or become a second store.
+    if(hasPilotParam){
       params.delete('pilot');
       if(window.history&&typeof window.history.replaceState==='function'){
         const query=params.toString();
