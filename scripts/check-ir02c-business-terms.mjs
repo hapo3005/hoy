@@ -17,8 +17,9 @@ const m1Path = 'supabase/migrations/20260818201632_ir02c_business_terms_acceptan
 const m2Path = 'supabase/migrations/20260818201740_ir02c_business_terms_rpc_security_hardening.sql';
 const m3Path = 'supabase/migrations/20260818201831_ir02c_business_confirmation_ledger.sql';
 const m4Path = 'supabase/migrations/20260818202531_ir02c_register_spanish_terms_draft.sql';
+const m5Path = 'supabase/migrations/20260818203021_ir02c_reconcile_de_terms_draft_blob.sql';
 
-for (const p of [dePath, esPath, specPath, m1Path, m2Path, m3Path, m4Path]) {
+for (const p of [dePath, esPath, specPath, m1Path, m2Path, m3Path, m4Path, m5Path]) {
   assert(fs.existsSync(path.join(root, p)), `required file missing: ${p}`);
 }
 if (process.exitCode) process.exit(1);
@@ -30,6 +31,7 @@ const m1 = read(m1Path);
 const m2 = read(m2Path);
 const m3 = read(m3Path);
 const m4 = read(m4Path);
+const m5 = read(m5Path);
 
 assert(/DRAFT \/ NOT YET ACTIVE/i.test(de), 'German master must remain explicitly DRAFT / NOT YET ACTIVE');
 assert(/DO NOT ACTIVATE/i.test(de), 'German master must contain an explicit do-not-activate gate');
@@ -52,6 +54,7 @@ for (const required of [
 assert(/'1\.0'.*'draft'/s.test(m1), 'Terms v1.0 seed must remain draft');
 assert(m4.includes('HOY_BUSINESS_DATA_MEDIA_TERMS_v1.0_ES_DRAFT.md'), 'Spanish draft path must be registered');
 assert(!/spanish_document_sha256\s*=\s*'[0-9a-f]{64}'/i.test(m4), 'draft migration must not pretend a final Spanish SHA-256 exists');
+assert(m5.includes("document_git_blob_sha='a3d6ce5bb442667e1ec3ff9fc42939397e675a0a'"), 'registered German draft blob must match current reviewed branch draft');
 
 assert(/create or replace function public\.get_business_terms_status[\s\S]*?security invoker/i.test(m2), 'get_business_terms_status must be SECURITY INVOKER');
 assert(/create or replace function public\.operator_accept_business_terms[\s\S]*?security invoker/i.test(m2), 'operator_accept_business_terms must be SECURITY INVOKER');
