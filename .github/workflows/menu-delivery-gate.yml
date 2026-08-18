@@ -41,9 +41,10 @@ jobs:
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 22
+          cache: npm
 
-      - name: Install pinned QA dependency
-        run: npm install --no-audit --no-fund
+      - name: Install locked QA dependencies
+        run: npm ci --ignore-scripts
 
       - name: Install browser engine
         run: npx playwright install --with-deps "${{ matrix.browser }}"
