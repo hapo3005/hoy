@@ -128,7 +128,7 @@ jobs:
           cp investor-ready-audit/third-party-dependencies.csv investor-ready-rt006-release-candidate/
           cp investor-ready-audit/license-files.json investor-ready-rt006-release-candidate/
 
-      - name: Fail closed on runtime drift and package licence risk
+      - name: Fail closed on runtime drift and third-party licence risk
         shell: bash
         run: |
           set -euo pipefail
@@ -137,6 +137,9 @@ jobs:
           root=pathlib.Path('investor-ready-rt006-release-candidate')
           direct=json.loads((root/'third-party-dependencies.json').read_text())
           records=direct.get('records',[])
+          core_pkg=json.loads(pathlib.Path('hoy/package.json').read_text())
+          if core_pkg.get('private') is not True:
+              raise SystemExit('Core package must remain private:true for first-party root-package exclusion')
 
           def exact_runtime(spec):
               if spec.startswith(('npm:','jsr:')):
@@ -154,22 +157,55 @@ jobs:
                   runtime.append(r)
                   if not exact_runtime(spec): unpinned.append(r)
 
-          package_rows=[]; unknown=[]; counsel=[]
+          first_party=[]; package_rows=[]
           risk_re=re.compile(r'(^|[^A-Z])(A?GPL|LGPL|SSPL|BUSL|BSL|Commons Clause|Elastic License|EUPL|CDDL|MPL|EPL)',re.I)
+
+          # Syft may inventory HOY's own private npm root package. Record it as
+          # first-party, but do not misclassify the deliberate lack of a project-wide
+          # OSS licence as an unknown third-party licence.
           for repo in ('hoy','hoy-lifestyle','hoy-works'):
               data=json.loads((root/repo/'syft.json').read_text())
               for a in data.get('artifacts',[]):
                   if a.get('type')=='github-action':
                       continue
-                  licenses=[]
+                  row={'repository':repo,'name':a.get('name'),'version':a.get('version'),'type':a.get('type'),'licenses':[],'evidence':'syft'}
+                  if repo=='hoy' and a.get('type')=='npm' and a.get('name')==core_pkg.get('name') and a.get('version')==core_pkg.get('version'):
+                      row['classification']='FIRST_PARTY_PRIVATE_ROOT'
+                      first_party.append(row)
+                      continue
                   for item in a.get('licenses') or []:
-                      if isinstance(item,str): licenses.append(item)
-                      elif isinstance(item,dict): licenses.append(item.get('spdxExpression') or item.get('value') or item.get('license') or '')
-                  licenses=[x for x in licenses if x]
-                  row={'repository':repo,'name':a.get('name'),'version':a.get('version'),'type':a.get('type'),'licenses':licenses}
+                      if isinstance(item,str): row['licenses'].append(item)
+                      elif isinstance(item,dict): row['licenses'].append(item.get('spdxExpression') or item.get('value') or item.get('license') or '')
+                  row['licenses']=[x for x in row['licenses'] if x]
                   package_rows.append(row)
-                  if not licenses: unknown.append(row)
-                  elif any(risk_re.search(x) for x in licenses): counsel.append(row)
+
+          # Independently inventory the integrity-locked npm dependency graph because
+          # Syft directory cataloguing may represent only the project root for this
+          # minimal QA package. The lock is the authoritative transitive npm evidence.
+          lock=json.loads(pathlib.Path('hoy/package-lock.json').read_text())
+          for key,meta in (lock.get('packages') or {}).items():
+              if not key or not key.startswith('node_modules/'):
+                  continue
+              package_rows.append({
+                  'repository':'hoy',
+                  'name':key[len('node_modules/'):],
+                  'version':meta.get('version'),
+                  'type':'npm-lock',
+                  'licenses':[meta.get('license')] if meta.get('license') else [],
+                  'evidence':'package-lock',
+              })
+
+          # Deduplicate equivalent third-party records while retaining evidence source.
+          dedup={}
+          for row in package_rows:
+              k=(row['repository'],row['name'],row['version'],tuple(row['licenses']))
+              if k not in dedup: dedup[k]=row
+              elif row['evidence'] not in dedup[k]['evidence']:
+                  dedup[k]['evidence'] += '+'+row['evidence']
+          package_rows=list(dedup.values())
+
+          unknown=[x for x in package_rows if not x['licenses']]
+          counsel=[x for x in package_rows if any(risk_re.search(lic) for lic in x['licenses'])]
 
           expected_specs={
               'npm:@supabase/supabase-js@2.111.0',
@@ -182,9 +218,16 @@ jobs:
           observed={r.get('spec','') for r in runtime}
           missing_expected=sorted(expected_specs-observed)
 
+          known_runtime_licence_baseline={
+              '@supabase/supabase-js@2.111.0':'MIT',
+              '@supabase/functions-js@2.111.0':'MIT',
+              '@supabase/server@1.4.1':'MIT',
+              'leaflet@1.9.4':'BSD-2-Clause',
+          }
+
           status='GREEN' if not unpinned and not unknown and not counsel and not missing_expected else 'REVIEW_REQUIRED'
           summary={
-              'schema_version':'1.0',
+              'schema_version':'1.1',
               'core_base':'ops/rt-005-rt-006-assets-sbom-ai',
               'core_runtime_pins':'security/rt006-pin-runtime-dependencies',
               'works':'investor-ready/dependency-pin-2.111.0',
@@ -192,15 +235,18 @@ jobs:
               'direct_dependency_records':len(records),
               'runtime_dependency_records':len(runtime),
               'unpinned_runtime_records':len(unpinned),
-              'syft_non_action_package_records':len(package_rows),
-              'unknown_package_license_records':len(unknown),
+              'first_party_root_records':len(first_party),
+              'third_party_package_records':len(package_rows),
+              'unknown_third_party_license_records':len(unknown),
               'counsel_review_license_records':len(counsel),
               'missing_expected_runtime_specs':missing_expected,
+              'known_runtime_licence_baseline':known_runtime_licence_baseline,
               'status':status,
+              'first_party':first_party,
               'unpinned':unpinned,
               'unknown_packages':unknown,
               'counsel_review_packages':counsel,
-              'packages':package_rows,
+              'third_party_packages':package_rows,
           }
           (root/'SUMMARY.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False)+'\n')
           lines=[
@@ -208,15 +254,17 @@ jobs:
               f"- Direct dependency records: {len(records)}",
               f"- Runtime dependency records: {len(runtime)}",
               f"- Unpinned runtime records: {len(unpinned)}",
-              f"- Syft non-Action package records: {len(package_rows)}",
-              f"- Unknown package-licence records: {len(unknown)}",
+              f"- First-party private root records: {len(first_party)}",
+              f"- Third-party package records: {len(package_rows)}",
+              f"- Unknown third-party licence records: {len(unknown)}",
               f"- Counsel-review licence records: {len(counsel)}",
               f"- Missing expected runtime specs: {len(missing_expected)}",
               f"- Status: **{status}**",'',
+              'HOY private root package is recorded separately and is not treated as a third-party dependency.',
               'This is an ephemeral composed candidate; no merge or Production deploy is performed.'
           ]
           if unknown:
-              lines += ['','## Unknown package licences']+[f"- {x['repository']}: {x['name']} {x['version']} ({x['type']})" for x in unknown]
+              lines += ['','## Unknown third-party licences']+[f"- {x['repository']}: {x['name']} {x['version']} ({x['type']})" for x in unknown]
           if counsel:
               lines += ['','## Counsel-review licences']+[f"- {x['repository']}: {x['name']} {x['version']} — {', '.join(x['licenses'])}" for x in counsel]
           (root/'SUMMARY.md').write_text('\n'.join(lines)+'\n')
