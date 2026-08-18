@@ -1,0 +1,234 @@
+name: Investor Ready RT-006 Release Candidate SBOM
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/investor-ready-rt006-release-candidate-sbom.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/investor-ready/**'
+      - 'docs/investor-ready/rt006-**'
+      - 'docs/investor-ready/third-party-notices-draft.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  composed-release-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SYFT_VERSION: '1.51.0'
+    steps:
+      - name: Checkout RT-005/006 Core candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: hapo3005/hoy
+          ref: ops/rt-005-rt-006-assets-sbom-ai
+          path: hoy
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Checkout Core runtime-pin candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: hapo3005/hoy
+          ref: security/rt006-pin-runtime-dependencies
+          path: hoy-pins
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Compose reviewed Core candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            supabase/functions/admin-ops/index.ts
+            supabase/functions/menu-discovery/index.ts
+            supabase/functions/menu-editorial-import/index.ts
+            supabase/functions/menu-intake-process/index.ts
+            supabase/functions/menu-social-handoff/index.ts
+            supabase/functions/operator-accessibility-confirm/index.ts
+            supabase/functions/operator-hours-confirm/index.ts
+            supabase/functions/promotion-insights/index.ts
+            supabase/functions/venue-media-approve/index.ts
+          )
+          for file in "${files[@]}"; do
+            test -f "hoy-pins/$file"
+            cp "hoy-pins/$file" "hoy/$file"
+          done
+          echo "Composed Core candidate with ${#files[@]} reviewed runtime-pin files."
+
+      - name: Checkout Lifestyle candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: hapo3005/hoy-lifestyle
+          ref: main
+          path: hoy-lifestyle
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Checkout Works runtime-pin candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: hapo3005/hoy-works
+          ref: investor-ready/dependency-pin-2.111.0
+          path: hoy-works
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+
+      - name: Prove locked Core QA install
+        working-directory: hoy
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Verify all Core GitHub Actions use immutable refs
+        working-directory: hoy
+        run: node scripts/investor-ready/check-github-actions-pins.mjs
+
+      - name: Install checksum-verified Syft
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}"
+          archive="syft_${SYFT_VERSION}_linux_amd64.tar.gz"
+          curl -fsSLo /tmp/syft-checksums.txt "${base}/syft_${SYFT_VERSION}_checksums.txt"
+          curl -fsSLo "/tmp/${archive}" "${base}/${archive}"
+          grep " ${archive}$" /tmp/syft-checksums.txt > /tmp/syft-check.txt
+          (cd /tmp && sha256sum -c syft-check.txt)
+          tar -xzf "/tmp/${archive}" -C /tmp syft
+          sudo install -m 0755 /tmp/syft /usr/local/bin/syft
+          syft version
+
+      - name: Generate release-candidate SBOMs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p investor-ready-rt006-release-candidate
+          for repo in hoy hoy-lifestyle hoy-works; do
+            mkdir -p "investor-ready-rt006-release-candidate/$repo"
+            syft "dir:$repo" --source-name "$repo" \
+              -o "syft-json=investor-ready-rt006-release-candidate/$repo/syft.json" \
+              -o "spdx-json=investor-ready-rt006-release-candidate/$repo/spdx.json" \
+              -o "cyclonedx-json=investor-ready-rt006-release-candidate/$repo/cyclonedx.json"
+          done
+
+      - name: Run direct dependency census on composed candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          node hoy/scripts/investor-ready/audit-third-party-deps.mjs hoy hoy-lifestyle hoy-works
+          cp investor-ready-audit/third-party-dependencies.json investor-ready-rt006-release-candidate/
+          cp investor-ready-audit/third-party-dependencies.csv investor-ready-rt006-release-candidate/
+          cp investor-ready-audit/license-files.json investor-ready-rt006-release-candidate/
+
+      - name: Fail closed on runtime drift and package licence risk
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          import json, pathlib, re
+          root=pathlib.Path('investor-ready-rt006-release-candidate')
+          direct=json.loads((root/'third-party-dependencies.json').read_text())
+          records=direct.get('records',[])
+
+          def exact_runtime(spec):
+              if spec.startswith(('npm:','jsr:')):
+                  return bool(re.match(r'^(?:npm:|jsr:)(?:@[^/]+/[^@/]+|[^@/]+)@\d+\.\d+\.\d+(?:/|$)',spec))
+              if 'cdn.jsdelivr.net/npm/' in spec:
+                  tail=spec.split('cdn.jsdelivr.net/npm/',1)[1]
+                  return bool(re.match(r'^(?:@[^/]+/[^@/]+|[^@/]+)@\d+\.\d+\.\d+(?:/|$)',tail))
+              return True
+
+          runtime=[]; unpinned=[]
+          for r in records:
+              spec=r.get('spec',''); kind=r.get('kind','')
+              is_runtime=kind=='external_import' or (kind=='external_html' and 'cdn.jsdelivr.net/npm/' in spec)
+              if is_runtime:
+                  runtime.append(r)
+                  if not exact_runtime(spec): unpinned.append(r)
+
+          package_rows=[]; unknown=[]; counsel=[]
+          risk_re=re.compile(r'(^|[^A-Z])(A?GPL|LGPL|SSPL|BUSL|BSL|Commons Clause|Elastic License|EUPL|CDDL|MPL|EPL)',re.I)
+          for repo in ('hoy','hoy-lifestyle','hoy-works'):
+              data=json.loads((root/repo/'syft.json').read_text())
+              for a in data.get('artifacts',[]):
+                  if a.get('type')=='github-action':
+                      continue
+                  licenses=[]
+                  for item in a.get('licenses') or []:
+                      if isinstance(item,str): licenses.append(item)
+                      elif isinstance(item,dict): licenses.append(item.get('spdxExpression') or item.get('value') or item.get('license') or '')
+                  licenses=[x for x in licenses if x]
+                  row={'repository':repo,'name':a.get('name'),'version':a.get('version'),'type':a.get('type'),'licenses':licenses}
+                  package_rows.append(row)
+                  if not licenses: unknown.append(row)
+                  elif any(risk_re.search(x) for x in licenses): counsel.append(row)
+
+          expected_specs={
+              'npm:@supabase/supabase-js@2.111.0',
+              'jsr:@supabase/functions-js@2.111.0/edge-runtime.d.ts',
+              'npm:@supabase/server@1.4.1',
+              'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.js',
+              'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js',
+              'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css',
+          }
+          observed={r.get('spec','') for r in runtime}
+          missing_expected=sorted(expected_specs-observed)
+
+          status='GREEN' if not unpinned and not unknown and not counsel and not missing_expected else 'REVIEW_REQUIRED'
+          summary={
+              'schema_version':'1.0',
+              'core_base':'ops/rt-005-rt-006-assets-sbom-ai',
+              'core_runtime_pins':'security/rt006-pin-runtime-dependencies',
+              'works':'investor-ready/dependency-pin-2.111.0',
+              'lifestyle':'main',
+              'direct_dependency_records':len(records),
+              'runtime_dependency_records':len(runtime),
+              'unpinned_runtime_records':len(unpinned),
+              'syft_non_action_package_records':len(package_rows),
+              'unknown_package_license_records':len(unknown),
+              'counsel_review_license_records':len(counsel),
+              'missing_expected_runtime_specs':missing_expected,
+              'status':status,
+              'unpinned':unpinned,
+              'unknown_packages':unknown,
+              'counsel_review_packages':counsel,
+              'packages':package_rows,
+          }
+          (root/'SUMMARY.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False)+'\n')
+          lines=[
+              '# HOY RT-006 Composed Release Candidate','',
+              f"- Direct dependency records: {len(records)}",
+              f"- Runtime dependency records: {len(runtime)}",
+              f"- Unpinned runtime records: {len(unpinned)}",
+              f"- Syft non-Action package records: {len(package_rows)}",
+              f"- Unknown package-licence records: {len(unknown)}",
+              f"- Counsel-review licence records: {len(counsel)}",
+              f"- Missing expected runtime specs: {len(missing_expected)}",
+              f"- Status: **{status}**",'',
+              'This is an ephemeral composed candidate; no merge or Production deploy is performed.'
+          ]
+          if unknown:
+              lines += ['','## Unknown package licences']+[f"- {x['repository']}: {x['name']} {x['version']} ({x['type']})" for x in unknown]
+          if counsel:
+              lines += ['','## Counsel-review licences']+[f"- {x['repository']}: {x['name']} {x['version']} — {', '.join(x['licenses'])}" for x in counsel]
+          (root/'SUMMARY.md').write_text('\n'.join(lines)+'\n')
+          print('\n'.join(lines))
+          if status!='GREEN': raise SystemExit(1)
+          PY
+
+      - name: Upload release-candidate evidence
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: hoy-rt006-composed-release-candidate
+          path: investor-ready-rt006-release-candidate/
+          if-no-files-found: error
+          retention-days: 90
