@@ -7,6 +7,7 @@ on:
       - '.github/workflows/investor-ready-rt004-contributor-audit.yml'
       - 'scripts/investor-ready/audit-ip-contributors.sh'
       - 'docs/investor-ready/rt004-ip-chain-of-title.md'
+      - 'docs/investor-ready/rt004-contributor-audit-evidence.md'
   workflow_dispatch:
 
 permissions:
@@ -62,9 +63,6 @@ jobs:
             mkdir -p "$out"
 
             cd "$GITHUB_WORKSPACE/$path"
-
-            # Fetch every currently reachable branch and tag from origin. The resulting
-            # git log --all census is exhaustive for the refs available from GitHub at run time.
             git fetch origin \
               '+refs/heads/*:refs/remotes/origin/*' \
               '+refs/tags/*:refs/tags/*' \
@@ -72,23 +70,15 @@ jobs:
 
             git for-each-ref --format='%(refname)' refs/heads refs/remotes refs/tags \
               | sort -u > "$out/refs.txt"
-
-            git log --all --format='%aN%x09%aE' \
-              | sort -fu > "$out/authors.tsv"
-
-            git log --all --format='%cN%x09%cE' \
-              | sort -fu > "$out/committers.tsv"
-
+            git log --all --format='%aN%x09%aE' | sort -fu > "$out/authors.tsv"
+            git log --all --format='%cN%x09%cE' | sort -fu > "$out/committers.tsv"
             git log --all --reverse --date=iso-strict \
               --format='%H%x09%aN%x09%aE%x09%aI%x09%cN%x09%cE%x09%cI%x09%s' \
               > "$out/commit-history.tsv"
-
             git log --all --format='%H%x09%B%x1e' \
               | awk -v RS='\036' 'BEGIN{IGNORECASE=1} /Co-authored-by:/ {gsub(/\n/," | "); print}' \
               > "$out/coauthor-commits.txt"
 
-            # Persist messages before parsing. Piping git into a Python heredoc under
-            # pipefail causes git to receive SIGPIPE because the heredoc owns stdin.
             git log --all --format='%B%x1e' > "$out/commit-messages.raw"
             python3 - "$out/commit-messages.raw" "$out/coauthors.tsv" <<'PY'
           import re, sys
@@ -115,9 +105,9 @@ jobs:
           import csv, json, os, sys
 
           slug, out = sys.argv[1], sys.argv[2]
-
           founder_names = {'hapo3005', 'jan nikolic', 'jan nikolić'}
           founder_emails = {'jan.nikolic@web.de'}
+          verified_automation_emails = {'actions@users.noreply.github.com'}
 
           def classify(name, email):
               n = (name or '').strip().lower()
@@ -125,7 +115,7 @@ jobs:
               if n in founder_names or e in founder_emails or ('hapo3005' in e and 'users.noreply.github.com' in e):
                   return 'FOUNDER'
               platform_tokens = ('web-flow', 'github-actions', 'dependabot', 'github', '[bot]')
-              if any(t in n for t in platform_tokens) or any(t in e for t in ('github-actions[bot]', 'dependabot[bot]', 'noreply@github.com')):
+              if e in verified_automation_emails or any(t in n for t in platform_tokens) or any(t in e for t in ('github-actions[bot]', 'dependabot[bot]', 'noreply@github.com')):
                   return 'PLATFORM_OR_BOT'
               return 'REVIEW_REQUIRED'
 
@@ -155,7 +145,6 @@ jobs:
           counts = {'FOUNDER': 0, 'PLATFORM_OR_BOT': 0, 'REVIEW_REQUIRED': 0}
           for r in rows:
               counts[r['classification']] += 1
-
           summary = {
               'repository': slug,
               'unique_identities': len(rows),
@@ -177,10 +166,7 @@ jobs:
           python3 <<'PY'
           import json, pathlib
           root = pathlib.Path('investor-ready-audit')
-          summaries = []
-          for p in sorted(root.glob('*/summary.json')):
-              summaries.append(json.loads(p.read_text(encoding='utf-8')))
-
+          summaries = [json.loads(p.read_text(encoding='utf-8')) for p in sorted(root.glob('*/summary.json'))]
           review = sum(x['review_required_identities'] for x in summaries)
           lines = [
               '# HOY RT-004 Contributor Audit Summary', '',
