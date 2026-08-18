@@ -2,6 +2,7 @@
 (function(){
   const ANON_KEY='hoy-anonymous-id-v1';
   const SESSION_KEY='hoy-session-id-v1';
+  const PRODUCTION_HOSTS=new Set(['hapo3005.github.io']);
   function randomId(){
     const c=window.crypto;
     if(c&&typeof c.randomUUID==='function')return c.randomUUID();
@@ -28,16 +29,19 @@
   }
   function productionAnalyticsAllowed(){
     const host=String(window.location?.hostname||'').toLowerCase();
-    return !['localhost','127.0.0.1','::1'].includes(host)&&!host.endsWith('.localhost');
+    if(!PRODUCTION_HOSTS.has(host))return false;
+    if(localStorage.getItem('hoy-qa-runtime')==='1')return false;
+    if(navigator.webdriver===true)return false;
+    return true;
   }
   window.hoyProductionAnalyticsAllowed181=productionAnalyticsAllowed;
   trackEvent=function(type,restaurantId,meta={}){
     const rows=readEvents();
     rows.push({type,restaurantId:Number(restaurantId)||null,meta,at:new Date().toISOString()});
     localStorage.setItem(ANALYTICS_KEY,JSON.stringify(rows.slice(-500)));
-    // Local development and CI run the real guest app against loopback. They may read
-    // public production data for realistic regression, but they must never contaminate
-    // production analytics with automated test traffic.
+    // Production analytics are fail-closed: only the explicit production host and a
+    // real non-QA browser may write. PR, local, preview and deployed Playwright QA
+    // can still exercise the complete guest app without contaminating business data.
     if(!productionAnalyticsAllowed())return;
     if(!sb||cloud.status!=='online')return;
     const venue=restaurantId?DATA.find(x=>Number(x.id)===Number(restaurantId)):null;
