@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "1.0.0",
+  "contract": "HOY-VERTICAL-ONBOARD-1.0",
+  "platformCore": {
+    "version": "1.0.0",
+    "contract": "HOY-PC-1.0"
+  },
+  "purpose": "Define the minimum evidence required before a new HOY vertical may be represented as Platform-Core-adopted.",
+  "requiredStages": [
+    {
+      "id": "VO-01",
+      "name": "ownership_and_scope",
+      "requiredEvidence": ["repository_or_component_owner_role", "vertical_domain_boundary", "shared_vs_vertical_responsibility_map"]
+    },
+    {
+      "id": "VO-02",
+      "name": "core_consumption",
+      "requiredEvidence": ["exact_core_version", "immutable_pin_or_source_reference", "thin_adapter_boundary"]
+    },
+    {
+      "id": "VO-03",
+      "name": "truth_conformance",
+      "requiredEvidence": ["unknown_stale_external_fail_closed_test", "confirmed_failed_must_test", "prefer_cannot_rescue_must_test"]
+    },
+    {
+      "id": "VO-04",
+      "name": "safety_and_commercial_integrity",
+      "requiredEvidence": ["safety_hard_gate_test", "sponsorship_does_not_change_organic_rank_test"]
+    },
+    {
+      "id": "VO-05",
+      "name": "vertical_quality",
+      "requiredEvidence": ["static_contract_gate", "unit_or_contract_tests", "browser_or_runtime_smoke_appropriate_to_vertical"]
+    },
+    {
+      "id": "VO-06",
+      "name": "independent_release_gates",
+      "requiredEvidence": ["production_gate_defined", "privacy_data_gate_defined", "source_rights_gate_defined_if_applicable", "market_activation_gate_defined"]
+    },
+    {
+      "id": "VO-07",
+      "name": "dd_and_adoption_record",
+      "requiredEvidence": ["adoption_manifest_entry", "buyer_dd_evidence_reference", "known_open_items_recorded"]
+    }
+  ],
+  "hardInvariants": [
+    "truth_and_verification_are_separate",
+    "unknown_missing_stale_disputed_external_evidence_is_not_confirmed_truth",
+    "confirmed_failed_must_cannot_be_rescued_by_prefer",
+    "safety_is_a_hard_gate",
+    "commercial_placement_cannot_change_organic_score_or_rank",
+    "vertical_adapter_may_be_stricter_but_may_not_weaken_platform_core"
+  ],
+  "forbiddenPatterns": [
+    "local_reimplementation_of_confirmation_semantics",
+    "local_reimplementation_of_platform_freshness_semantics",
+    "local_reimplementation_of_must_prefer_ignore_semantics",
+    "sponsorship_in_organic_score_formula",
+    "production_or_legal_gate_inferred_from_code_complete"
+  ],
+  "adoptionStatus": {
+    "allowed": ["NOT_STARTED", "IN_PROGRESS", "CODE_CONFORMANT", "QA_CONFORMANT", "PRODUCTION_ELIGIBLE"],
+    "rule": "PRODUCTION_ELIGIBLE requires all independent production/legal/privacy/source-rights gates applicable to the vertical; Platform-Core adoption alone is insufficient."
+  }
+}

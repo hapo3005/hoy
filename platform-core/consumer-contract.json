@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0.0",
+  "coreVersion": "1.0.0",
+  "contractVersion": "HOY-PC-1.0",
+  "runtime": "hoy-platform-core-v1.js",
+  "canonical": {
+    "factValues": ["yes", "no", "partial", "unknown", "not_applicable", "temporarily_unavailable"],
+    "confirmedVerification": ["hoy_verified", "business_confirmed", "community_confirmed"],
+    "requirementLevels": ["MUST", "PREFER", "IGNORE"],
+    "matchStates": ["MATCH", "NO_MATCH", "NEEDS_CONFIRMATION"],
+    "comparators": ["equals", "gte", "lte"],
+    "researchMaxAgeDays": 180,
+    "researchTimestampRequired": true,
+    "commercialAffectsOrganicScore": false,
+    "commercialDisclosureLabel": "Anzeige",
+    "safetyIsHardGate": true
+  },
+  "consumerRules": [
+    "Vertical adapters may translate field names and calculate vertical-specific organic score signals.",
+    "Vertical adapters must not redefine confirmation, freshness, MUST/PREFER/IGNORE, safety or sponsorship semantics.",
+    "Vendored runtime copies are generated artifacts and must match the pinned core checksum.",
+    "Unknown or stale evidence may never become a confirmed positive or negative MUST result.",
+    "Confirmed partial or temporarily_unavailable does not satisfy a default MUST=yes requirement.",
+    "Commercial placement may decorate organic results but may not change organic score or rank."
+  ]
+}

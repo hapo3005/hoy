@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "1.0.0",
+  "testId": "HOY-FI-TECH-1.0",
+  "scope": "Technical Platform Core transferability and vertical onboarding",
+  "overallStatus": "NOT_TESTED",
+  "allowedStatuses": ["NOT_TESTED", "IN_PROGRESS", "PASS", "FAIL"],
+  "executor": {
+    "role": null,
+    "isFounder": null,
+    "executedAt": null
+  },
+  "passRule": "Every required criterion must be PASS, executor.isFounder must be false, and every PASS criterion must include evidence before overallStatus may be PASS.",
+  "criteria": [
+    {
+      "id": "FI-01",
+      "required": true,
+      "name": "source_of_truth_orientation",
+      "status": "NOT_TESTED",
+      "expectedOutcome": "Executor locates Platform Core runtime, consumer contract, adoption manifest and vertical adapter boundaries without founder step-by-step instruction.",
+      "evidence": []
+    },
+    {
+      "id": "FI-02",
+      "required": true,
+      "name": "change_classification",
+      "status": "NOT_TESTED",
+      "expectedOutcome": "Executor correctly classifies platform-semantic, vertical-adapter and presentation-only changes and identifies their required gates.",
+      "evidence": []
+    },
+    {
+      "id": "FI-03",
+      "required": true,
+      "name": "truth_semantics",
+      "status": "NOT_TESTED",
+      "expectedOutcome": "Executor demonstrates that unknown, stale or external-unverified evidence is confirmation-needed and cannot satisfy a confirmed MUST.",
+      "evidence": []
+    },
+    {
+      "id": "FI-04",
+      "required": true,
+      "name": "commercial_integrity",
+      "status": "NOT_TESTED",
+      "expectedOutcome": "Executor demonstrates that sponsorship/disclosure cannot alter organic score or rank.",
+      "evidence": []
+    },
+    {
+      "id": "FI-05",
+      "required": true,
+      "name": "safe_adapter_change",
+      "status": "NOT_TESTED",
+      "expectedOutcome": "Executor can implement or review a domain-adapter change without locally redefining Platform Core confirmation, freshness, matching, safety or sponsorship semantics.",
+      "evidence": []
+    },
+    {
+      "id": "FI-06",
+      "required": true,
+      "name": "qa_execution",
+      "status": "NOT_TESTED",
+      "expectedOutcome": "Executor identifies and runs the applicable Platform Core, Buyer-DD, transfer and vertical QA gates and ties results to an exact head.",
+      "evidence": []
+    },
+    {
+      "id": "FI-07",
+      "required": true,
+      "name": "rollback_dry_run",
+      "status": "NOT_TESTED",
+      "expectedOutcome": "Executor documents a rollback from a candidate core version to a known-good exact core/vendor pin without treating database/data-rights rollback as implicit.",
+      "evidence": []
+    },
+    {
+      "id": "FI-08",
+      "required": true,
+      "name": "new_vertical_onboarding",
+      "status": "NOT_TESTED",
+      "expectedOutcome": "Executor can take a hypothetical new vertical through HOY-VERTICAL-ONBOARD-1.0 and identify all missing evidence before claiming adoption.",
+      "evidence": []
+    },
+    {
+      "id": "FI-09",
+      "required": true,
+      "name": "independent_gate_boundary",
+      "status": "NOT_TESTED",
+      "expectedOutcome": "Executor correctly identifies that production, legal, privacy, source-rights, data-commercialization and market/outreach authority are independent from code completion.",
+      "evidence": []
+    }
+  ],
+  "externalClaimBeforePass": "HOY has documented technical transferability and a defined founder-independence acceptance test; full founder-independent operation is not yet proven.",
+  "externalClaimAfterPass": "Technical Platform Core handoff has been executed by a non-founder against HOY-FI-TECH-1.0. This does not by itself prove founder-independent business operations, sales, local operations or governance."
+}
