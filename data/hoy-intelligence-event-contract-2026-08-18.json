@@ -1,0 +1,97 @@
+{
+  "contract_version": "2.45",
+  "created_at": "2026-08-18",
+  "status": "foundation_only",
+  "runtime_collection_change_allowed": false,
+  "supabase_write_allowed": false,
+  "production_data_sale_allowed": false,
+  "governance_contract": "./hoy-intelligence-data-governance-2026-08-18.json",
+  "purpose": "Define a privacy-first measurement vocabulary for future HOY Intelligence products without enabling new runtime collection, storage, sharing, or sale in this release.",
+  "principles": {
+    "product_value_first": true,
+    "data_minimization": true,
+    "purpose_limitation": true,
+    "privacy_by_design": true,
+    "no_raw_personal_data_for_intelligence": true,
+    "pseudonymous_is_not_anonymous": true,
+    "aggregation_required_before_external_intelligence_use": true,
+    "no_individual_targeting_from_intelligence_exports": true
+  },
+  "event_families": [
+    {
+      "name": "discovery_intent",
+      "examples": ["search", "filter_apply", "now_mode", "nearby_mode", "surprise_me"],
+      "allowed_dimensions": ["local_time_bucket", "area_bucket", "language", "cuisine", "price_band", "family_need", "terrace_need", "delivery_need", "live_music_need", "open_now_need"],
+      "business_questions": ["What are guests trying to find?", "Which demand combinations are underserved?", "How does intent vary by area and time?"]
+    },
+    {
+      "name": "consideration",
+      "examples": ["venue_impression", "venue_open", "menu_open", "special_open", "event_open"],
+      "allowed_dimensions": ["venue_id", "venue_type", "profile_quality", "area_bucket", "local_time_bucket", "discovery_context"],
+      "business_questions": ["Which supply is considered?", "Where does demand fail to convert into deeper consideration?"]
+    },
+    {
+      "name": "decision_action",
+      "examples": ["route_open", "call_intent", "reservation_intent", "delivery_intent", "share", "save"],
+      "allowed_dimensions": ["venue_id", "action_type", "area_bucket", "local_time_bucket", "discovery_context"],
+      "business_questions": ["Which experiences drive high-intent actions?", "Which demand contexts create operator value?"]
+    },
+    {
+      "name": "family_demand",
+      "examples": ["family_filter_apply", "playground_filter_apply", "family_profile_open"],
+      "allowed_dimensions": ["family_need", "play_context_type", "customer_access", "distance_band", "area_bucket", "local_time_bucket"],
+      "business_questions": ["Where is family demand strongest?", "Where are verified family-friendly supply gaps?"]
+    },
+    {
+      "name": "supply_freshness",
+      "examples": ["operator_confirmation", "hours_freshness", "special_freshness", "event_freshness"],
+      "allowed_dimensions": ["venue_id", "field_group", "verification_age_bucket", "authority_tier"],
+      "business_questions": ["Which areas or categories have stale supply data?", "How much of HOY supply is recently verified?"]
+    }
+  ],
+  "prohibited_fields": [
+    "email",
+    "phone",
+    "street_address_of_user",
+    "exact_user_location",
+    "precise_gps_history",
+    "personal_name",
+    "raw_message",
+    "free_text_note",
+    "payment_details",
+    "health_data",
+    "special_category_personal_data",
+    "device_fingerprint",
+    "advertising_identifier"
+  ],
+  "external_intelligence_gate": {
+    "enabled": false,
+    "requirements": [
+      "complete event-level governance inventory",
+      "documented lawful basis and privacy review",
+      "data protection impact assessment where required",
+      "validated anonymization or sufficiently coarse aggregation",
+      "minimum cohort threshold defined and tested",
+      "suppression of sparse or re-identifiable slices",
+      "no raw anonymous_id or session_id in customer-facing outputs",
+      "no row-level user journey export",
+      "clear customer contract restricting re-identification",
+      "retention policy approved and implemented",
+      "data lineage documented",
+      "security review approved",
+      "legal review approved"
+    ]
+  },
+  "future_products": [
+    "HOY Operator Insights",
+    "HOY Area Intelligence",
+    "HOY Tourism Intelligence",
+    "HOY Commercial Intelligence",
+    "HOY Benchmarking",
+    "HOY Intelligence API"
+  ],
+  "release_gate": {
+    "this_release_may": ["document taxonomy", "document event-level governance", "test privacy invariants", "prepare future measurement design"],
+    "this_release_must_not": ["add new tracking calls", "add database migrations", "write production analytics data", "sell or export user-level data", "enable intelligence API"]
+  }
+}
