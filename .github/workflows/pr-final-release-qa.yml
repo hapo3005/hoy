@@ -40,6 +40,7 @@ jobs:
           grep -q '@supabase/supabase-js@2.111.0/dist/umd/supabase.js' admin.html
           grep -q "const CACHE='hoy-v2.39.0'" service-worker.js
           grep -q 'if(!sameOrigin&&!approvedCdn)return' service-worker.js
+          node scripts/check-runtime-contracts.js
 
       # The complete three-browser suite already runs in parallel in HOY PR Browser QA.
       # Keep this serial release rehearsal available for an explicit manual final check,
