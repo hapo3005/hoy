@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "snapshot_date": "2026-08-18",
+  "status": "PREPARED_NOT_DEPLOYED",
+  "target": {
+    "project_name": "HOY La Manga",
+    "project_ref": "zlscptisdxzxuvllogza",
+    "region": "eu-central-1"
+  },
+  "source": {
+    "main_sha": "888b525eff280e7c6ed9eaa98ab9807a56cb21e1",
+    "accessible_integration_pr": 89,
+    "accessible_integration_commit": "888b525eff280e7c6ed9eaa98ab9807a56cb21e1",
+    "accessible_code_integrated": true,
+    "accessible_database_applied": false
+  },
+  "release_policy": {
+    "production_mutations_during_preparation": false,
+    "blind_db_push_include_all_allowed": false,
+    "auto_apply_seeds_to_production": false,
+    "auto_redeploy_edge_functions": false,
+    "outreach_send_lock_must_remain_true": true,
+    "migration_success_requires_no_new_advisor_regressions": true
+  },
+  "production_snapshot": {
+    "legacy_accessibility_rows": 166,
+    "legacy_accessibility_missing_restaurant_id": 0,
+    "legacy_accessibility_missing_checked_at": 0,
+    "legacy_accessibility_public_research_rows": 166,
+    "expected_accessible_initial_facts": 668,
+    "expected_accessible_yes": 300,
+    "expected_accessible_no": 11,
+    "expected_accessible_unknown": 357,
+    "expected_accessible_external_unverified": 668,
+    "sales_pipeline_rows": 168,
+    "sales_pipeline_send_lock_true": 168,
+    "family_features_table_present": false,
+    "accessibility_feature_registry_present": false,
+    "restaurant_accessibility_facts_present": false
+  },
+  "migrations": [
+    {
+      "repo_path": "supabase/migrations/20260809_hoy_admin_cockpit.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260809181616 hoy_admin_cockpit_access"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260809_revoke_anon_venue_media_rpcs.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260809180541 revoke_anon_venue_media_rpcs"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260809_venue_location_verification.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260809182840 venue_location_verification_metadata"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260809_venue_media_operator_review.sql",
+      "status": "LIVE_SUPERSEDED_DO_NOT_APPLY",
+      "production_evidence": ["20260809175135 venue_media_operator_review_v1", "20260809175248 extend_venue_media_operator_review", "20260809175436 link_venue_media_review_to_owner_flow"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260810_async_menu_extraction_and_eval_baseline.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260810075706 async_menu_extraction_and_eval_baseline"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260810_events_and_specials_216.sql",
+      "status": "LIVE_STATE_CONFIRMED_DO_NOT_APPLY",
+      "production_evidence": ["offers.event_kind live", "offers.entry_text live", "offers.reservation_recommended live", "offers.publisher_kind live", "public.operator_publish_offer(uuid) live"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260810_index_menu_eval_cases_restaurant.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260810081351 index_menu_eval_cases_restaurant"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260810_operator_workspace_and_conversion_flow.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260810113042 operator_workspace_and_conversion_flow"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260810_operator_workspace_query_indexes.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260810114714 operator_workspace_query_indexes"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260811053741_opening_hours_provenance_and_now_gate.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260811053741 opening_hours_provenance_and_now_gate"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260811_event_promotion_integrity_and_metrics_218.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260811010706 event_promotion_integrity_and_metrics_218"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260812040733_menu_sources_in_app_display_payload.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260812040733 menu_sources_in_app_display_payload"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260812062453_menu_source_completeness_integrity.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260812062453 menu_source_completeness_integrity"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260812093348_menu_discovery_checks.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260812093348 menu_discovery_checks"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260812_menu_discovery_editorial_pipeline.sql",
+      "status": "LIVE_SPLIT_SUPERSEDED_DO_NOT_APPLY",
+      "production_evidence": ["20260812125120 menu_expectation_by_venue_type", "20260812125418 menu_editorial_import_review_pipeline", "20260812125517 menu_editorial_atomic_publish_gate", "20260812125956 menu_editorial_explicit_deny_client_policies", "20260812130426 index_menu_items_source_for_editorial_publish"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260812_menu_source_authority_tiers.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260812141207 menu_source_authority_tiers"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260815073500_verified_open_ended_events.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260815063201 verified_open_ended_events"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260815084500_public_event_provenance_select.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260815063657 public_event_provenance_select"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260816_family_playgrounds_240.sql",
+      "status": "ROLLED_BACK_BY_DESIGN_DO_NOT_APPLY",
+      "production_evidence": ["20260816044249 family_playgrounds_240", "20260816044310 family_playgrounds_240_policy_tune", "20260816044420 rollback_family_playgrounds_240_premerge", "public.restaurant_family_features absent"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260818090000_hoy_245_analytics_contract.sql",
+      "status": "LIVE_EQUIVALENT_DO_NOT_APPLY",
+      "production_evidence": ["20260818084329 hoy_245_analytics_contract"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260818_accessibility_243.sql",
+      "status": "LIVE_STATE_CONFIRMED_DO_NOT_APPLY",
+      "production_evidence": ["public.restaurant_accessibility present", "166 rows", "2.43 public read policy present"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260818_accessibility_243_policy_fix.sql",
+      "status": "LIVE_STATE_CONFIRMED_DO_NOT_APPLY",
+      "production_evidence": ["separate admin INSERT/UPDATE/DELETE policies live", "anon SELECT only", "authenticated SELECT/INSERT/UPDATE/DELETE grants only"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260818093100_hoy_accessible_v1.sql",
+      "source": "MAIN_PR_89",
+      "status": "PENDING_PRODUCTION_DB_GATE",
+      "production_evidence": ["code integrated in main via PR #89", "public.accessibility_feature_registry absent", "public.restaurant_accessibility_facts absent"],
+      "apply_order": 1,
+      "expected_after_initial_apply": {
+        "feature_registry_rows": 24,
+        "facts_total": 668,
+        "facts_yes": 300,
+        "facts_no": 11,
+        "facts_unknown": 357,
+        "facts_external_unverified": 668,
+        "trigger": "hoy_accessibility_fact_sync",
+        "sync_function_security": "INVOKER"
+      }
+    }
+  ],
+  "edge_functions": {
+    "repo_owned_active_in_production": [
+      "admin-ops",
+      "menu-discovery",
+      "menu-editorial-import",
+      "menu-intake-process",
+      "menu-social-handoff",
+      "operator-accessibility-confirm",
+      "operator-hours-confirm",
+      "promotion-insights",
+      "venue-media-approve"
+    ],
+    "source_parity_verified": ["operator-accessibility-confirm"],
+    "current_rc_redeploy_required": [],
+    "production_only_or_not_currently_repo_owned_do_not_touch": [
+      "claim-submit",
+      "publish-offer",
+      "location-geocode-once",
+      "cartociudad-geocode-once",
+      "cartociudad-debug",
+      "address-fallback-geocode-once",
+      "cartociudad-find-fallback",
+      "cartociudad-locate-debug",
+      "menu-image-once",
+      "mobility-resolve"
+    ]
+  },
+  "seeds": {
+    "production_auto_apply": false,
+    "policy": "Never include seed directories in the production RC automatically. Any future data import requires its own reviewed, idempotent DML step.",
+    "paths": [
+      "supabase/seed/menu-discovery-2.26-core-image-pages.sql",
+      "supabase/seed/menu-discovery-history-2.27.sql",
+      "supabase/seed/menu-inapp-2.31-soul-kitchen.sql",
+      "supabase/seed/menu-integrity-2.32.sql",
+      "supabase/seed/menu-language-2.33-la-finca.sql",
+      "supabase/seed/menu-source-selection-2.34.1.sql",
+      "supabase/seed/menu-source-truth-2.34-cp8.sql",
+      "supabase/seeds/family_features_240_stage2_verified.sql",
+      "supabase/seeds/family_playgrounds_240_verified.sql",
+      "supabase/seeds/family_restaurant_profiles_240_staging.sql",
+      "scripts/seed-menu-eval-gold.sql"
+    ]
+  },
+  "baseline_advisors": {
+    "security": {
+      "status": "PRE_EXISTING_FINDINGS_PRESENT",
+      "rule": "No new security lint may be introduced by the RC migration. Existing SECURITY DEFINER findings must be individually marked intentional or remediated before RC1 sign-off."
+    },
+    "performance": {
+      "status": "PRE_EXISTING_FINDINGS_PRESENT",
+      "rule": "No new multiple-permissive-policy warning may be introduced by the RC migration. Existing warnings are tracked separately from the Accessible delta."
+    }
+  },
+  "release_order": [
+    "Freeze final RC code and regenerate this manifest if main or Supabase assets changed.",
+    "Capture production migration-history, advisor and safety-flag baseline read-only.",
+    "Run rc1-preflight.sql against the isolated release environment cloned from the intended production baseline.",
+    "Apply only migrations whose manifest status is PENDING_PRODUCTION_DB_GATE, in apply_order order.",
+    "Run rc1-postflight.sql and verify exact Accessible initial counts and RLS/grants/trigger invariants.",
+    "In the isolated environment, execute one verified-operator accessibility correction and prove legacy -> versioned business_confirmed facts sync.",
+    "Run Security and Performance Advisors and reject any new RC-caused lint.",
+    "Run all final RC browser/security/PWA gates on one frozen commit after database-gate success and before production release.",
+    "At production release, re-run preflight and apply only still-pending manifest entries. Do not run seeds or historical mirror migrations.",
+    "Run production postflight, smoke tests, advisors, and compare against the captured baseline."
+  ]
+}
