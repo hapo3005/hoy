@@ -121,3 +121,11 @@ Before external circulation:
 3. update PARTIAL claims to PROVEN only when the missing evidence is attached;
 4. never silently delete OPEN items — close them with dated evidence or leave them visible;
 5. reconcile this index with `platform-claims-register.json`.
+
+## K. Valuation discipline
+
+| ID | Claim | Status | Primary evidence | DD note |
+|---|---|---:|---|---|
+| VA-01 | Platform Core by itself increases HOY enterprise value by a fixed euro amount | OPEN | No standalone valuation evidence | Architecture is a quality/risk factor; realized value depends on traction, revenue, buyer synergies and other DD evidence |
+
+Platform Core may strengthen a buyer's risk-adjusted view of HOY, but this index intentionally does not convert an architecture improvement into an unsupported fixed valuation uplift.
