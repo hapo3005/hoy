@@ -1,4 +1,4 @@
-import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
+import 'jsr:@supabase/functions-js@2.111.0/edge-runtime.d.ts'
 import { withSupabase } from 'npm:@supabase/server@1.4.1'
 
 const OPENAI_RESPONSES='https://api.openai.com/v1/responses'
