@@ -1,0 +1,162 @@
+name: Investor Ready RT-006 Candidate Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/investor-ready-rt006-candidate-gate.yml'
+      - 'scripts/investor-ready/audit-third-party-deps.mjs'
+      - 'docs/investor-ready/rt006-oss-sbom-ai.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  candidate-pinning-audit:
+    name: Candidate dependency pinning audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout audit controls
+        uses: actions/checkout@v6
+        with:
+          repository: hapo3005/hoy
+          ref: ops/rt-005-rt-006-assets-sbom-ai
+          path: audit-controls
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Checkout Core pin candidate PR 111
+        uses: actions/checkout@v6
+        with:
+          repository: hapo3005/hoy
+          ref: security/rt006-pin-runtime-dependencies
+          path: hoy
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Checkout Lifestyle current main
+        uses: actions/checkout@v6
+        with:
+          repository: hapo3005/hoy-lifestyle
+          ref: main
+          path: hoy-lifestyle
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Checkout Works pin candidate PR 1
+        uses: actions/checkout@v6
+        with:
+          repository: hapo3005/hoy-works
+          ref: investor-ready/dependency-pin-2.111.0
+          path: hoy-works
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Run direct dependency census
+        shell: bash
+        run: |
+          set -euo pipefail
+          node audit-controls/scripts/investor-ready/audit-third-party-deps.mjs hoy hoy-lifestyle hoy-works
+          mkdir -p investor-ready-rt006-candidate
+          cp investor-ready-audit/third-party-dependencies.json investor-ready-rt006-candidate/
+          cp investor-ready-audit/third-party-dependencies.csv investor-ready-rt006-candidate/
+          cp investor-ready-audit/license-files.json investor-ready-rt006-candidate/
+
+      - name: Verify exact runtime versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          import json, pathlib, re
+
+          data=json.load(open('investor-ready-rt006-candidate/third-party-dependencies.json'))
+          rows=data.get('records',[])
+
+          def exact_semver_runtime(spec):
+              if spec.startswith(('npm:','jsr:')):
+                  return bool(re.match(r'^(?:npm:|jsr:)(?:@[^/]+/[^@/]+|[^@/]+)@\d+\.\d+\.\d+(?:/|$)', spec))
+              if 'cdn.jsdelivr.net/npm/' in spec:
+                  tail=spec.split('cdn.jsdelivr.net/npm/',1)[1]
+                  return bool(re.match(r'^(?:@[^/]+/[^@/]+|[^@/]+)@\d+\.\d+\.\d+(?:/|$)', tail))
+              return True
+
+          runtime=[]
+          unpinned=[]
+          for r in rows:
+              spec=r.get('spec','')
+              kind=r.get('kind','')
+              is_runtime=(kind=='external_import' or (kind=='external_html' and 'cdn.jsdelivr.net/npm/' in spec))
+              if is_runtime:
+                  runtime.append(r)
+                  if not exact_semver_runtime(spec): unpinned.append(r)
+
+          expected={
+              'npm:@supabase/supabase-js@2.111.0',
+              'jsr:@supabase/functions-js@2.111.0/edge-runtime.d.ts',
+              'npm:@supabase/server@1.4.1',
+              'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.js',
+              'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js',
+              'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css',
+          }
+          observed={r.get('spec','') for r in runtime}
+          observed_expected=sorted(expected & observed)
+
+          summary={
+              'candidate_core_ref':'security/rt006-pin-runtime-dependencies',
+              'candidate_works_ref':'investor-ready/dependency-pin-2.111.0',
+              'lifestyle_ref':'main',
+              'direct_dependency_records':len(rows),
+              'runtime_dependency_records':len(runtime),
+              'unpinned_runtime_count':len(unpinned),
+              'unpinned_runtime':unpinned,
+              'observed_expected_exact_specs':observed_expected,
+              'status':'GREEN' if not unpinned else 'REVIEW_REQUIRED',
+          }
+          pathlib.Path('investor-ready-rt006-candidate/SUMMARY.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False)+'\n')
+
+          lines=[
+              '# HOY RT-006 Candidate Pinning Gate','',
+              'Candidate set:',
+              '- Core: `security/rt006-pin-runtime-dependencies` (PR #111)',
+              '- Works: `investor-ready/dependency-pin-2.111.0` (PR #1)',
+              '- Lifestyle: current `main`','',
+              f"Direct dependency records: {len(rows)}",
+              f"Runtime dependency records: {len(runtime)}",
+              f"Unpinned runtime records: {len(unpinned)}",
+              f"Status: **{summary['status']}**",'',
+              'Observed exact runtime specs:'
+          ]
+          for x in observed_expected: lines.append(f'- `{x}`')
+          if unpinned:
+              lines += ['', '## Review required']
+              for r in unpinned: lines.append(f"- {pathlib.Path(r['root']).name}/{r['file']}: `{r['spec']}`")
+          pathlib.Path('investor-ready-rt006-candidate/SUMMARY.md').write_text('\n'.join(lines)+'\n')
+          print('\n'.join(lines))
+          PY
+
+      - name: Upload candidate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hoy-rt006-candidate-pinning-gate
+          path: investor-ready-rt006-candidate/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Fail closed on unpinned runtime dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          count="$(python3 - <<'PY'
+          import json
+          print(json.load(open('investor-ready-rt006-candidate/SUMMARY.json'))['unpinned_runtime_count'])
+          PY
+          )"
+          if [ "$count" -ne 0 ]; then
+            echo "RT-006 candidate set still contains $count unpinned runtime dependency record(s)."
+            exit 1
+          fi
+          echo "RT-006 candidate pinning gate GREEN: zero unpinned runtime dependency records."
