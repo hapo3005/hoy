@@ -1,0 +1,214 @@
+name: Investor Ready RT-004 Contributor Audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/investor-ready-rt004-contributor-audit.yml'
+      - 'scripts/investor-ready/audit-ip-contributors.sh'
+      - 'docs/investor-ready/rt004-ip-chain-of-title.md'
+      - 'docs/investor-ready/rt004-contributor-audit-evidence.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contributor-audit:
+    name: All-history contributor census
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout HOY Core/Gastro history
+        uses: actions/checkout@v4
+        with:
+          repository: hapo3005/hoy
+          ref: main
+          path: hoy
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Checkout HOY Lifestyle history
+        uses: actions/checkout@v4
+        with:
+          repository: hapo3005/hoy-lifestyle
+          ref: main
+          path: hoy-lifestyle
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Checkout HOY Works history
+        uses: actions/checkout@v4
+        with:
+          repository: hapo3005/hoy-works
+          ref: main
+          path: hoy-works
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Build exhaustive reachable-history audit package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p investor-ready-audit
+
+          audit_repo() {
+            local path="$1"
+            local slug="$2"
+            local out="$GITHUB_WORKSPACE/investor-ready-audit/$slug"
+            mkdir -p "$out"
+
+            cd "$GITHUB_WORKSPACE/$path"
+            git fetch origin \
+              '+refs/heads/*:refs/remotes/origin/*' \
+              '+refs/tags/*:refs/tags/*' \
+              --force --prune
+
+            git for-each-ref --format='%(refname)' refs/heads refs/remotes refs/tags \
+              | sort -u > "$out/refs.txt"
+            git log --all --format='%aN%x09%aE' | sort -fu > "$out/authors.tsv"
+            git log --all --format='%cN%x09%cE' | sort -fu > "$out/committers.tsv"
+            git log --all --reverse --date=iso-strict \
+              --format='%H%x09%aN%x09%aE%x09%aI%x09%cN%x09%cE%x09%cI%x09%s' \
+              > "$out/commit-history.tsv"
+            git log --all --format='%H%x09%B%x1e' \
+              | awk -v RS='\036' 'BEGIN{IGNORECASE=1} /Co-authored-by:/ {gsub(/\n/," | "); print}' \
+              > "$out/coauthor-commits.txt"
+
+            git log --all --format='%B%x1e' > "$out/commit-messages.raw"
+            python3 - "$out/commit-messages.raw" "$out/coauthors.tsv" <<'PY'
+          import re, sys
+          source, out = sys.argv[1], sys.argv[2]
+          with open(source, encoding='utf-8', errors='replace') as f:
+              text = f.read()
+          found = set()
+          for block in text.split('\x1e'):
+              for m in re.finditer(r'(?im)^Co-authored-by:\s*(.*?)\s*<([^>]+)>\s*$', block):
+                  found.add((m.group(1).strip(), m.group(2).strip()))
+          with open(out, 'w', encoding='utf-8') as f:
+              for name, email in sorted(found, key=lambda x: (x[0].lower(), x[1].lower())):
+                  f.write(f'{name}\t{email}\n')
+          PY
+            rm -f "$out/commit-messages.raw"
+
+            find . -maxdepth 5 -type f \( \
+              -name 'package.json' -o -name 'package-lock.json' -o -name 'pnpm-lock.yaml' -o -name 'yarn.lock' -o \
+              -name 'requirements.txt' -o -name 'poetry.lock' -o -name 'Cargo.toml' -o -name 'Cargo.lock' -o \
+              -name 'go.mod' -o -name 'go.sum' -o -name 'LICENSE*' -o -name 'COPYING*' -o -name '.gitmodules' \
+            \) -print | sort > "$out/dependency-rights-files.txt"
+
+            python3 - "$slug" "$out" <<'PY'
+          import csv, json, os, sys
+
+          slug, out = sys.argv[1], sys.argv[2]
+          founder_names = {'hapo3005', 'jan nikolic', 'jan nikolić'}
+          founder_emails = {'jan.nikolic@web.de'}
+          verified_automation_emails = {'actions@users.noreply.github.com'}
+
+          def classify(name, email):
+              n = (name or '').strip().lower()
+              e = (email or '').strip().lower()
+              if n in founder_names or e in founder_emails or ('hapo3005' in e and 'users.noreply.github.com' in e):
+                  return 'FOUNDER'
+              platform_tokens = ('web-flow', 'github-actions', 'dependabot', 'github', '[bot]')
+              if e in verified_automation_emails or any(t in n for t in platform_tokens) or any(t in e for t in ('github-actions[bot]', 'dependabot[bot]', 'noreply@github.com')):
+                  return 'PLATFORM_OR_BOT'
+              return 'REVIEW_REQUIRED'
+
+          identities = {}
+          for source in ('authors.tsv', 'committers.tsv', 'coauthors.tsv'):
+              path = os.path.join(out, source)
+              if not os.path.exists(path):
+                  continue
+              with open(path, encoding='utf-8') as f:
+                  for row in csv.reader(f, delimiter='\t'):
+                      if len(row) < 2:
+                          continue
+                      name, email = row[0].strip(), row[1].strip()
+                      key = (name.lower(), email.lower())
+                      item = identities.setdefault(key, {
+                          'name': name, 'email': email, 'classification': classify(name, email), 'sources': []
+                      })
+                      item['sources'].append(source)
+
+          rows = sorted(identities.values(), key=lambda x: (x['classification'], x['name'].lower(), x['email'].lower()))
+          with open(os.path.join(out, 'identity-classification.tsv'), 'w', encoding='utf-8', newline='') as f:
+              w = csv.writer(f, delimiter='\t')
+              w.writerow(['name', 'email', 'classification', 'sources'])
+              for r in rows:
+                  w.writerow([r['name'], r['email'], r['classification'], ','.join(sorted(set(r['sources'])))])
+
+          counts = {'FOUNDER': 0, 'PLATFORM_OR_BOT': 0, 'REVIEW_REQUIRED': 0}
+          for r in rows:
+              counts[r['classification']] += 1
+          summary = {
+              'repository': slug,
+              'unique_identities': len(rows),
+              'founder_identities': counts['FOUNDER'],
+              'platform_or_bot_identities': counts['PLATFORM_OR_BOT'],
+              'review_required_identities': counts['REVIEW_REQUIRED'],
+              'review_required': [r for r in rows if r['classification'] == 'REVIEW_REQUIRED'],
+          }
+          with open(os.path.join(out, 'summary.json'), 'w', encoding='utf-8') as f:
+              json.dump(summary, f, indent=2, ensure_ascii=False)
+          PY
+          }
+
+          audit_repo hoy hoy
+          audit_repo hoy-lifestyle hoy-lifestyle
+          audit_repo hoy-works hoy-works
+
+          cd "$GITHUB_WORKSPACE"
+          python3 <<'PY'
+          import json, pathlib
+          root = pathlib.Path('investor-ready-audit')
+          summaries = [json.loads(p.read_text(encoding='utf-8')) for p in sorted(root.glob('*/summary.json'))]
+          review = sum(x['review_required_identities'] for x in summaries)
+          lines = [
+              '# HOY RT-004 Contributor Audit Summary', '',
+              'Scope: all commits reachable from every branch/tag fetched from each GitHub origin at workflow runtime.', '',
+              '| Repository | Unique identities | Founder | Platform/Bot | Review required |',
+              '|---|---:|---:|---:|---:|',
+          ]
+          for x in summaries:
+              lines.append(f"| {x['repository']} | {x['unique_identities']} | {x['founder_identities']} | {x['platform_or_bot_identities']} | {x['review_required_identities']} |")
+          lines += ['', f'**Total review-required identities: {review}**', '']
+          if review:
+              lines.append('## Review-required identities')
+              for x in summaries:
+                  for r in x['review_required']:
+                      lines.append(f"- {x['repository']}: {r['name']} <{r['email']}> ({','.join(r['sources'])})")
+          else:
+              lines.append('No non-founder human identity is currently classified as review-required by this mechanical census.')
+          lines += ['', 'Legal note: this workflow is evidence collection, not a legal conclusion. Founder-to-company IP assignment remains a separate gate.']
+          (root / 'SUMMARY.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
+          print('\n'.join(lines))
+          PY
+
+      - name: Upload RT-004 DD evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hoy-rt004-contributor-audit
+          path: investor-ready-audit/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Fail closed on unidentified identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          review_count="$(python3 - <<'PY'
+          import json, pathlib
+          print(sum(json.loads(p.read_text())['review_required_identities'] for p in pathlib.Path('investor-ready-audit').glob('*/summary.json')))
+          PY
+          )"
+          if [ "$review_count" -ne 0 ]; then
+            echo "RT-004 requires review of $review_count unidentified contributor/committer identity record(s)."
+            exit 1
+          fi
+          echo "RT-004 mechanical contributor census found no review-required identity."
