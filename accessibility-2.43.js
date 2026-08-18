@@ -43,7 +43,7 @@
     const m=statusMeta(a);
     const checked=fmtDate(a?.checked_at);
     const source=a?.verification_source==='operator'?'Vom verifizierten Betrieb bestätigt':a?.source_label||'HOY-Prüfung öffentlicher Angaben';
-    return `<section class="access-panel ${m.cls}" data-accessibility-panel>
+    return `<section id="profile-accessibility" class="access-panel ${m.cls}" data-accessibility-panel>
       <div class="access-head">
         <div>
           <div class="eyebrow">BARRIEREFREIHEIT & ZUGANG</div>
@@ -56,6 +56,22 @@
       ${a?.accessibility_note?`<div class="access-note">${esc(a.accessibility_note)}</div>`:''}
       <div class="access-source"><b>${esc(source)}</b>${checked?` · geprüft ${esc(checked)}`:''}<br><span>Aktueller Schwerpunkt: Mobilität/Rollstuhlnutzung. „Nicht bestätigt“ ist kein Negativurteil.</span></div>
     </section>`;
+  }
+
+  function injectAccessibilityPanel(d,p){
+    if(!d||!p||d.querySelector('[data-accessibility-panel]'))return false;
+    const flow=d.querySelector('.profile-continuous-flow');
+    const about=flow?.querySelector('#profile-about');
+    if(about){
+      about.insertAdjacentHTML('afterend',accessibilityPanel(p));
+      return true;
+    }
+    const c=d.querySelector('[data-tab-content]');
+    if(c){
+      c.insertAdjacentHTML('beforeend',accessibilityPanel(p));
+      return true;
+    }
+    return false;
   }
 
   async function loadAccessibility(){
@@ -94,9 +110,20 @@
     const baseTab243=setDetailTab;
     setDetailTab=function(d,p,tab){
       baseTab243(d,p,tab);
-      if(tab!=='overview')return;
-      const c=d.querySelector('[data-tab-content]');
-      if(c&&!c.querySelector('[data-accessibility-panel]'))c.insertAdjacentHTML('beforeend',accessibilityPanel(p));
+      if(tab==='overview')injectAccessibilityPanel(d,p);
+    };
+  }
+
+  // The current HOY profile is transformed from the legacy tab shell into a continuous profile
+  // after setDetailTab() runs. Inject once more after the complete openDetail() chain so the
+  // accessibility panel survives that replacement and sits between About and Menu.
+  if(typeof openDetail==='function'){
+    const baseOpenDetail243=openDetail;
+    openDetail=function(id){
+      const result=baseOpenDetail243(id);
+      const p=DATA.find(x=>Number(x.id)===Number(id));
+      if(p)injectAccessibilityPanel(document.getElementById('detail'),p);
+      return result;
     };
   }
 
