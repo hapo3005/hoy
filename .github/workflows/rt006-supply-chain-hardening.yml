@@ -1,0 +1,78 @@
+name: RT-006 Supply Chain Hardening
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'docs/investor-ready/rt006-supply-chain-evidence.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify QA lock and immutable Actions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Verify reproducible QA dependency graph
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s package-lock.json
+          npm ci --ignore-scripts
+          npm ls --all --json > /tmp/rt006-npm-tree.json
+          test "$(node -p "require('./package-lock.json').lockfileVersion")" = "3"
+          test "$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" = "1.62.0"
+
+      - name: Verify every external GitHub Action is immutable-SHA pinned
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          import pathlib, re
+          sha = re.compile(r'^[0-9a-fA-F]{40}$')
+          pat = re.compile(r'\buses:\s*[\"\']?([^\"\'\s#]+)@([^\"\'\s#]+)')
+          bad=[]
+          checked=0
+          for p in sorted(list(pathlib.Path('.github/workflows').glob('*.yml')) + list(pathlib.Path('.github/workflows').glob('*.yaml'))):
+              for n,line in enumerate(p.read_text(encoding='utf-8').splitlines(),1):
+                  m=pat.search(line)
+                  if not m:
+                      continue
+                  target,ref=m.group(1),m.group(2)
+                  if target.startswith('./') or target.startswith('docker://'):
+                      continue
+                  checked += 1
+                  if not sha.fullmatch(ref):
+                      bad.append(f'{p}:{n}: {target}@{ref}')
+          if bad:
+              raise SystemExit('Mutable external Action refs remain:\n'+'\n'.join(bad))
+          print(f'All {checked} external uses entries are immutable-SHA pinned.')
+          PY
+
+      - name: Verify recorded supply-chain evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s docs/investor-ready/rt006-supply-chain-evidence.md
+          lock_sha="$(sha256sum package-lock.json | awk '{print $1}')"
+          grep -q "$lock_sha" docs/investor-ready/rt006-supply-chain-evidence.md
+          grep -q 'd23441a48e516b6c34aea4fa41551a30e30af803' docs/investor-ready/rt006-supply-chain-evidence.md
+          grep -q '249970729cb0ef3589644e2896645e5dc5ba9c38' docs/investor-ready/rt006-supply-chain-evidence.md
+          grep -q '330a01c490aca151604b8cf639adc76d48f6c5d4' docs/investor-ready/rt006-supply-chain-evidence.md
