@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "qa:e2e": "playwright test",
-    "qa:e2e:report": "playwright show-report"
+    "qa:e2e:report": "playwright show-report",
+    "qa:privacy": "node scripts/investor-ready/rt008-privacy-static-check.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.62.0"
