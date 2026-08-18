@@ -3,7 +3,7 @@
 --
 -- This migration intentionally does NOT widen the RPC to arbitrary event names.
 -- QA is blocked twice: the client should never call this RPC, and the RPC itself
--- silently discards explicitly marked QA traffic before any analytics insert.
+-- silently discards QA-marked or headless-Chromium traffic before any insert.
 
 create or replace function public.log_analytics_event(
   p_event_type text,
@@ -19,13 +19,24 @@ set search_path = public, pg_temp
 as $$
 declare
   request_headers jsonb := coalesce(nullif(current_setting('request.headers', true), ''), '{}')::jsonb;
-  request_qa text := lower(coalesce(request_headers->>'x-hoy-qa', ''));
   request_user_agent text := lower(coalesce(request_headers->>'user-agent', ''));
+  qa_runtime text;
 begin
-  -- Defense in depth for automated QA. The Playwright client is expected not to
-  -- call this RPC at all; this gate protects production metrics if that client
-  -- invariant regresses. Headless Chromium is also discarded as a second guard.
-  if request_qa in ('1','true','yes') or request_user_agent like '%headlesschrome%' then
+  if p_metadata is not null and jsonb_typeof(p_metadata) <> 'object' then
+    raise exception 'Analytics metadata must be an object';
+  end if;
+
+  if p_metadata is not null and pg_column_size(p_metadata) > 4096 then
+    raise exception 'Analytics metadata too large';
+  end if;
+
+  qa_runtime := lower(coalesce(p_metadata->>'qa_runtime', ''));
+
+  -- Defense in depth for automated QA. The client is expected to stop before
+  -- transport; this server gate protects production metrics if that invariant
+  -- regresses. The QA marker lives only in the analytics payload, never as a
+  -- global browser header that could alter unrelated CDN/API behavior.
+  if qa_runtime in ('1','true','yes') or request_user_agent like '%headlesschrome%' then
     return;
   end if;
 
@@ -37,14 +48,6 @@ begin
     'family_context_open','family_filter','family_situation_open'
   ) then
     raise exception 'Unsupported analytics event type';
-  end if;
-
-  if p_metadata is not null and jsonb_typeof(p_metadata) <> 'object' then
-    raise exception 'Analytics metadata must be an object';
-  end if;
-
-  if p_metadata is not null and pg_column_size(p_metadata) > 4096 then
-    raise exception 'Analytics metadata too large';
   end if;
 
   if p_restaurant_id is not null and not exists (
