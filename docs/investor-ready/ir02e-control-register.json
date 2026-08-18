@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "overallStatus": "GREEN_CANDIDATE",
+  "scope": "Deterministic public runtime packaging and proprietary-source boundary",
+  "candidateControls": [
+    {"id":"IR02E-01","name":"allowlist_public_runtime_policy","status":"CANDIDATE"},
+    {"id":"IR02E-02","name":"internal_dd_source_exclusion","status":"CANDIDATE"},
+    {"id":"IR02E-03","name":"secret_pattern_runtime_gate","status":"CANDIDATE"},
+    {"id":"IR02E-04","name":"content_addressed_manifest","status":"CANDIDATE"},
+    {"id":"IR02E-05","name":"deterministic_rebuild","status":"CANDIDATE"},
+    {"id":"IR02E-06","name":"platform_core_explicit_runtime_only","status":"CANDIDATE"}
+  ],
+  "openControls": [
+    {"id":"IR02E-O1","name":"live_deploy_only_cutover","status":"OPEN"},
+    {"id":"IR02E-O2","name":"company_source_repo_control","status":"OPEN"},
+    {"id":"IR02E-O3","name":"live_artifact_smoke","status":"OPEN"},
+    {"id":"IR02E-O4","name":"acquired_state_manifest_archive","status":"OPEN"}
+  ],
+  "boundaries": {
+    "historicalPublicSourceRetroactivelyConfidential": false,
+    "livePagesCutoverExecuted": false,
+    "repositoryVisibilityChanged": false,
+    "repositoryOwnershipTransferred": false,
+    "productionDeploymentAuthorized": false,
+    "outreachAuthorized": false
+  },
+  "doneRule": "IR-02E may become DONE only after exact-head packaging QA, deploy-only live cutover, live artifact smoke, source/control decision and acquired-state manifest archival are evidenced."
+}
