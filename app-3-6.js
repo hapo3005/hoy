@@ -16,3 +16,4 @@ initCloud();
   document.body.appendChild(script);
 })();
 if('serviceWorker' in navigator && location.protocol!=='file:')navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+// RC revalidation marker: current base includes validated PR #77 analytics cache hardening.
