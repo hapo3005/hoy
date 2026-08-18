@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "overallStatus": "IN_PROGRESS",
+  "scope": "Client analytics consent/storage/transport runtime; broader GDPR operating/legal gates remain independent",
+  "sourcesComposed": [
+    {"pr":107,"role":"stronger production storage and pre-payload fail-closed boundary"},
+    {"pr":109,"role":"explicit consent lifecycle API and withdrawal regression intent"}
+  ],
+  "runtime": {
+    "file": "analytics-rpc-1.8.1.js",
+    "clientVersion": "1.8.4",
+    "consentKey": "hoy-privacy-analytics-consent-v1",
+    "productionDefault": "OFF_UNLESS_EXPLICIT_GRANTED",
+    "rawProductionLocalEventHistory": false,
+    "productionIdentifiersWithoutConsent": false,
+    "productionPilotPersistenceWithoutConsent": false,
+    "productionRpcWithoutConsent": false
+  },
+  "controls": [
+    {"id":"RT008-R01","name":"explicit_consent_gate","status":"CANDIDATE","evidence":["analytics-rpc-1.8.1.js","tests/privacy-analytics-consent-2.48.spec.js","scripts/investor-ready/rt008-privacy-static-check.mjs"]},
+    {"id":"RT008-R02","name":"legacy_identifier_cleanup_without_consent","status":"CANDIDATE","evidence":["analytics-rpc-1.8.1.js","tests/privacy-analytics-consent-2.48.spec.js"]},
+    {"id":"RT008-R03","name":"no_raw_production_event_history","status":"CANDIDATE","evidence":["analytics-rpc-1.8.1.js","tests/privacy-analytics-consent-2.48.spec.js"]},
+    {"id":"RT008-R04","name":"deny_withdraw_cleanup","status":"CANDIDATE","evidence":["analytics-rpc-1.8.1.js","tests/privacy-analytics-consent-2.48.spec.js"]},
+    {"id":"RT008-R05","name":"pilot_attribution_consent_gate","status":"CANDIDATE","evidence":["analytics-rpc-1.8.1.js","tests/privacy-analytics-consent-2.48.spec.js"]},
+    {"id":"RT008-R06","name":"production_transport_consent_gate","status":"CANDIDATE","evidence":["analytics-rpc-1.8.1.js","scripts/investor-ready/rt008-privacy-static-check.mjs"]},
+    {"id":"RT008-O01","name":"consent_ui_notice_and_granularity","status":"OPEN","evidence":[]},
+    {"id":"RT008-O02","name":"lawful_basis_retention_article14_review","status":"OPEN","evidence":[]},
+    {"id":"RT008-O03","name":"processor_transfer_vendor_register_final","status":"OPEN","evidence":[]},
+    {"id":"RT008-O04","name":"dsar_delete_test_and_breach_tabletop","status":"OPEN","evidence":[]},
+    {"id":"RT008-O05","name":"qualified_de_es_legal_review","status":"OPEN","evidence":[]},
+    {"id":"RT008-O06","name":"production_release_of_candidate","status":"OPEN","evidence":[]}
+  ],
+  "claimBoundary": {
+    "allowed": "A fail-closed analytics privacy runtime candidate exists and requires explicit consent before Production analytics state/transport.",
+    "forbidden": "HOY is fully GDPR compliant or analytics may be activated without the independent legal/UX/production gates."
+  },
+  "boundaries": {
+    "consentUiImplemented": false,
+    "productionDeployAuthorized": false,
+    "legalApprovalGranted": false,
+    "marketingOutreachAuthorized": false,
+    "dataCommercializationAuthorized": false
+  }
+}
