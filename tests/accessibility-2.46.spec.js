@@ -121,16 +121,21 @@ test('PREFER changes ordering but can never compensate a failed MUST', async ({ 
   expect(results.c.state).toBe('no_match');
 });
 
-test('restaurant overview shows concrete accessibility facts without a percentage score', async ({ page }) => {
+test('2.46 is the canonical guest accessibility surface without legacy 2.43 claims', async ({ page }) => {
   await gotoReady(page);
   await page.waitForFunction(() => window.HOYAccessible?.state?.ready === true);
+  await page.evaluate(() => render());
+
+  await expect(page.locator('.access-card-line')).toHaveCount(0);
 
   const restaurantId = await page.evaluate(() => DATA[0]?.id);
   expect(restaurantId).toBeTruthy();
   await page.evaluate(id => openDetail(id), restaurantId);
 
   const panel = page.locator('#detail [data-hoya-panel]');
+  await expect(panel).toHaveCount(1);
   await expect(panel).toBeVisible();
+  await expect(page.locator('#detail [data-accessibility-panel]')).toHaveCount(0);
   await expect(panel.getByText('Barrierefreiheit für dich')).toBeVisible();
   await expect(panel.getByText('Stufenfreier Zugang')).toBeVisible();
   await expect(panel.getByText('Barrierefreies WC')).toBeVisible();
@@ -170,6 +175,7 @@ test('all-unknown facts are not rendered as a negative accessibility claim', asy
   await expect(panel).toBeVisible();
   await expect(panel).toContainText('Noch nicht bestätigt');
   await expect(panel).not.toContainText('Nicht vorhanden');
+  await expect(page.locator('#detail [data-accessibility-panel]')).toHaveCount(0);
 });
 
 test('migration protects unknown semantics, RLS, advisor hygiene and operator-to-fact synchronization', async () => {
