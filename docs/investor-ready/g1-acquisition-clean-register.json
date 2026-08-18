@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "snapshotDate": "2026-08-19",
   "gate": "G1_ACQUISITION_CLEAN",
   "overallStatus": "IN_PROGRESS",
@@ -14,28 +14,36 @@
   ],
   "items": [
     {
+      "id": "G1-INTEGRATION",
+      "topic": "Investor-Ready branch reconciliation and acquired-state survivor control",
+      "canonical": ["hapo3005/hoy#118"],
+      "status": "IN_PROGRESS",
+      "evidence": ["PR #118 integration reconciliation", "focused successor map #119-#123"],
+      "closeCriteria": ["every selected survivor reconciled to the final integration base", "all superseded umbrella/runtime paths explicitly retired or reference-only", "acquired-state evidence regenerated after final integration"]
+    },
+    {
       "id": "G1-SEC-MIG",
       "topic": "Security Definer and migration reconciliation",
       "canonical": ["hapo3005/hoy#103"],
       "status": "IN_PROGRESS",
       "evidence": ["PR #103"],
-      "closeCriteria": ["isolated database validation", "read-only audits", "auth/IDOR negative tests", "security advisor recheck", "canonical migration and final release manifest"]
+      "closeCriteria": ["refresh migration reconciliation against current Production history", "isolated database validation", "read-only audits", "auth/IDOR negative tests", "security advisor recheck", "canonical final migration and release manifest"]
     },
     {
       "id": "G1-CORP-IP",
-      "topic": "Corporate structure and IP chain of title",
-      "canonical": ["hapo3005/hoy#104"],
+      "topic": "Corporate structure, IP chain of title and founder execution package",
+      "canonical": ["hapo3005/hoy#104", "hapo3005/hoy#123"],
       "status": "IN_PROGRESS",
-      "evidence": ["PR #104", "technical contributor census green"],
-      "closeCriteria": ["final entity decision", "founder/pre-company rights agreement", "asset schedule", "executed company rights transfer or licence structure", "qualified legal/tax review"]
+      "evidence": ["PR #104 full-history contributor census and corporate/IP architecture", "PR #123 exact-blob founder execution-draft harvest"],
+      "closeCriteria": ["final entity decision", "founder/pre-company rights agreement", "asset schedule", "executed company rights transfer or licence structure", "qualified legal/tax review", "private execution evidence archived"]
     },
     {
       "id": "G1-DIGITAL-CONTROL",
       "topic": "Company-controlled digital assets, accounts, recovery and secrets",
-      "canonical": ["hapo3005/hoy#105"],
+      "canonical": ["hapo3005/hoy#119"],
       "status": "IN_PROGRESS",
-      "evidence": ["PR #105", "secret-history subgate green"],
-      "closeCriteria": ["company-controlled GitHub ownership model", "Supabase ownership/billing continuity", "domain/DNS/registrar inventory and recovery", "vendor billing/recovery ownership", "secrets-vault and rotation evidence", "backup/recovery drill"]
+      "evidence": ["PR #119 clean RT-005 candidate", "clean exact-head secret-history audit: 14/14 classified, 0 unclassified"],
+      "closeCriteria": ["company-controlled GitHub ownership model", "Supabase ownership/billing continuity", "domain/DNS/registrar inventory and recovery", "vendor billing/recovery ownership", "secrets-vault and rotation evidence", "two-admin continuity", "backup/recovery drill"]
     },
     {
       "id": "G1-OSS-SBOM",
@@ -43,7 +51,7 @@
       "canonical": ["hapo3005/hoy#116"],
       "status": "GREEN_CANDIDATE",
       "evidence": ["PR #116 clean RT-006 candidate"],
-      "closeCriteria": ["exact-head SBOM/licence and supply-chain QA green", "final distribution NOTICE/licence package", "reconcile company-controlled vendor/account evidence"]
+      "closeCriteria": ["exact-head SBOM/licence and supply-chain QA green", "final distribution NOTICE/licence package", "reconcile company-controlled vendor/account evidence", "regenerate acquired-state SBOM after final integration"]
     },
     {
       "id": "G1-DATA-RIGHTS",
@@ -51,15 +59,31 @@
       "canonical": ["hapo3005/hoy#106", "hapo3005/hoy-works#2"],
       "status": "IN_PROGRESS",
       "evidence": ["PR #106", "Works PR #2"],
-      "closeCriteria": ["launch-critical RED/review replacement or documented carve-out", "business-term/first-party rights path", "transferable-vs-restricted export evidence", "Works source-rights close"]
+      "closeCriteria": ["launch-critical RED/review replacement or documented carve-out", "first-party/business-term rights path", "transferable-vs-restricted export evidence", "Works source-rights close", "reconcile still-needed historical source-rights implementation evidence from PR #102"]
+    },
+    {
+      "id": "G1-BUSINESS-TERMS",
+      "topic": "Business Terms, acceptance evidence and Business Confirmation",
+      "canonical": ["hapo3005/hoy#122"],
+      "status": "IN_PROGRESS",
+      "evidence": ["PR #122 exact historical blob restoration", "read-only Production reconciliation: five migrations applied, Terms v1.0 draft, 0 acceptances, 0 confirmations"],
+      "closeCriteria": ["final entity/controller details", "final DE/ES legal review", "final document hashes", "linked active Privacy Notice", "governing law/jurisdiction and counsel evidence", "approved acceptance UX/E2E", "explicit activation decision"]
     },
     {
       "id": "G1-PRIVACY",
       "topic": "GDPR, privacy operations, retention, DPA and analytics consent",
-      "canonical": ["hapo3005/hoy#107", "hapo3005/hoy#109"],
+      "canonical": ["hapo3005/hoy#120"],
       "status": "IN_PROGRESS",
-      "evidence": ["PR #107 operating pack", "PR #109 consent fail-closed client hotfix"],
-      "closeCriteria": ["consent/withdrawal UX and release evidence where required", "Article 14/contact-retention decisions", "ROPA/LIA and qualified review", "DSAR/delete test", "breach tabletop", "processor/transfer register", "Works DPIA screen before personal-data launch"]
+      "evidence": ["PR #120 clean analytics privacy composition candidate", "historical PR #107/#109 retained as source evidence only"],
+      "closeCriteria": ["clean exact-head runtime/browser QA", "consent/withdrawal UX and notice where required", "Article 14/contact-retention decisions", "ROPA/LIA and qualified review", "DSAR/delete test", "breach tabletop", "processor/transfer register", "Works DPIA screen before personal-data launch", "Production release verification"]
+    },
+    {
+      "id": "G1-PUBLIC-RUNTIME",
+      "topic": "Public runtime versus proprietary/internal source boundary",
+      "canonical": ["hapo3005/hoy#121"],
+      "status": "IN_PROGRESS",
+      "evidence": ["PR #121 deterministic allowlist public-runtime candidate"],
+      "closeCriteria": ["exact-head deterministic packaging QA", "deploy-only live cutover", "live artifact smoke", "company source-repository control decision", "acquired-state runtime manifest archived"]
     },
     {
       "id": "G1-BRAND",
@@ -74,16 +98,16 @@
       "topic": "Platform architecture, buyer DD and technical transferability",
       "canonical": ["hapo3005/hoy#115", "hapo3005/hoy-lifestyle#1", "hapo3005/hoy-works#3"],
       "status": "GREEN_CANDIDATE",
-      "evidence": ["PR #115 Platform Core/Buyer-DD/transfer pack", "Lifestyle PR #1 green Platform-Core consumer QA", "Works PR #3 code-contract adoption with browser CI gate open"],
-      "closeCriteria": ["exact final-head Core QA", "Works adapter browser/CI evidence", "non-founder technical handoff drill for founder-independence claim"]
+      "evidence": ["PR #115 Platform Core/Buyer-DD/transfer pack with Core exact-head Critical/Final/three-browser QA green", "Lifestyle PR #1 green Platform-Core consumer QA", "Works PR #3 code-contract adoption with browser CI gate open"],
+      "closeCriteria": ["Works adapter browser/CI evidence", "non-founder technical handoff drill for founder-independence claim", "rebase/retest Platform Core on selected final integration base"]
     },
     {
       "id": "G1-UMBRELLA",
-      "topic": "Historical Investor Ready umbrella",
+      "topic": "Historical Investor Ready umbrella and superseded combined branches",
       "canonical": ["hapo3005/hoy#102"],
       "status": "REFERENCE_ONLY",
-      "evidence": ["PR #102"],
-      "closeCriteria": ["use focused current gate PRs for final merge/evidence decisions", "reconcile any unique evidence before closing or superseding the umbrella branch"]
+      "evidence": ["PR #102 historical umbrella", "PR #105 historical combined RT-005/RT-006 input", "PR #107/#109 historical privacy inputs"],
+      "closeCriteria": ["use focused current-main survivors for final merge/evidence decisions", "harvest remaining unique evidence by subject gate", "never use historical umbrella or combined branches as blind wholesale merge sources"]
     }
   ],
   "g1ReadyRule": {
