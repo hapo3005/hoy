@@ -5,7 +5,8 @@
   "production_migrations": [
     "20260818205155_ir02d_privacy_transferability_governance",
     "20260818205742_ir02d_repository_visibility_evidence",
-    "20260818210151_ir02d_disable_analytics_until_consent_clearance"
+    "20260818210151_ir02d_disable_analytics_until_consent_clearance",
+    "20260818210527_ir02d_link_terms_to_active_privacy_notice"
   ],
   "privacy_notice": {
     "version": "1.0",
@@ -65,6 +66,7 @@
     "electronic_marketing_spain": "blocked_pending_LSSI_clearance",
     "analytics_cookie_clearance": "review_required",
     "analytics_transport": "server_blocked_until_clearance",
+    "terms_privacy_cross_gate": "active_business_terms_require_registered_active_privacy_notice",
     "works_customer_request_clearance": "blocked"
   },
   "repository_visibility": {
@@ -91,6 +93,7 @@
     "allowed": [
       "HOY has an evidence-backed privacy processing and retention baseline",
       "Privacy Notice and DPA activation are technically fail-closed",
+      "Business Terms activation is technically dependent on an active registered Privacy Notice",
       "Works personal-data-heavy flows are blocked before privacy clearance",
       "production server-side analytics transport is disabled pending consent clearance",
       "GitHub and Supabase have documented technical transfer routes",
@@ -106,5 +109,5 @@
       "the browser consent hotfix is live before PR 109 is QA-approved and merged"
     ]
   },
-  "next_gate": "merge_isolated_analytics_hotfix_after_QA_then_build_final_consent_UI_and_complete_legal_entity_privacy_bases_retention_vendor_transfers_brand_domains_counsel"
+  "next_gate": "merge_isolated_analytics_hotfix_after_QA_then_build_final_consent_UI_and_complete_legal_entity_privacy_bases_retention_vendor_transfers_brand_domains_repo_visibility_counsel"
 }
