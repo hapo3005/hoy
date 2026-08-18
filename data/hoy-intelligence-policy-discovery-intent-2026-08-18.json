@@ -1,0 +1,20 @@
+{
+  "event_family": "discovery_intent",
+  "data_lineage_id": "hoy.intelligence.discovery_intent.v1",
+  "status": "blocked",
+  "lawful_basis": "pending_legal_review",
+  "consent_decision": "pending_legal_review",
+  "retention": {"status": "pending_policy_approval", "event_level_period": null, "aggregate_period": null},
+  "deletion_or_aggregation_path": "pending_policy_approval",
+  "client_allowed_fields": ["event_type", "local_time_bucket", "area_bucket", "language", "cuisine", "price_band", "family_need", "terrace_need", "delivery_need", "live_music_need", "open_now_need"],
+  "server_allowed_fields": ["event_type", "local_time_bucket", "area_bucket", "language", "cuisine", "price_band", "family_need", "terrace_need", "delivery_need", "live_music_need", "open_now_need"],
+  "unlisted_fields": "reject",
+  "product_owner": "HOY_product_owner",
+  "privacy_owner": "HOY_privacy_owner",
+  "security_review": "pending",
+  "legal_privacy_review": "pending",
+  "qa_status": "policy_contract_only",
+  "commercial_reuse_review": "not_started",
+  "production_collection_allowed": false,
+  "commercialization_allowed": false
+}

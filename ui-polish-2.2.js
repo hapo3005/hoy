@@ -98,14 +98,15 @@
 
   function enhanceDetail(p,d){
     if(!p||!d)return;
+    // Accessible icon controls and the dialog name are core profile capabilities for every venue.
+    d.setAttribute('aria-label',`${p.name} auf HOY`);
+    d.querySelector('[data-close]')?.setAttribute('aria-label','Profil schließen');
+    d.querySelectorAll('[data-share]').forEach(btn=>btn.setAttribute('aria-label','Profil teilen'));
+    d.querySelector('[data-favdialog]')?.setAttribute('aria-label','Als Favorit speichern');
     // Direct location/service actions are a core profile capability, not a showcase-only perk.
     primaryBar(p,d);
     if(!isShowcase(p))return;
     d.classList.add('ux22-detail');
-    d.setAttribute('aria-label',`${p.name} auf HOY`);
-    d.querySelector('[data-close]')?.setAttribute('aria-label','Profil schließen');
-    d.querySelector('[data-share]')?.setAttribute('aria-label','Profil teilen');
-    d.querySelector('[data-favdialog]')?.setAttribute('aria-label','Als Favorit speichern');
     const menuBtn=d.querySelector('[data-tab="menu"]');
     if(menuBtn&&menuFor(p)?.status==='partial')menuBtn.textContent='Speisekarte · Auswahl';
   }
