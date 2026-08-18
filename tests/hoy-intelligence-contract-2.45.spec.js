@@ -61,7 +61,7 @@ test('external commercialization fails closed until privacy and cohort gates are
     'minimum cohort threshold defined and tested',
     'suppression of sparse or re-identifiable slices',
     'clear customer contract restricting re-identification',
-    'retention policy approved',
+    'retention policy approved and implemented',
     'security review approved'
   ]));
 });
