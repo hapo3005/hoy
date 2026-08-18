@@ -87,11 +87,14 @@ jobs:
               | awk -v RS='\036' 'BEGIN{IGNORECASE=1} /Co-authored-by:/ {gsub(/\n/," | "); print}' \
               > "$out/coauthor-commits.txt"
 
-            git log --all --format='%B%x1e' \
-              | python3 - "$out/coauthors.tsv" <<'PY'
+            # Persist messages before parsing. Piping git into a Python heredoc under
+            # pipefail causes git to receive SIGPIPE because the heredoc owns stdin.
+            git log --all --format='%B%x1e' > "$out/commit-messages.raw"
+            python3 - "$out/commit-messages.raw" "$out/coauthors.tsv" <<'PY'
           import re, sys
-          out = sys.argv[1]
-          text = sys.stdin.read()
+          source, out = sys.argv[1], sys.argv[2]
+          with open(source, encoding='utf-8', errors='replace') as f:
+              text = f.read()
           found = set()
           for block in text.split('\x1e'):
               for m in re.finditer(r'(?im)^Co-authored-by:\s*(.*?)\s*<([^>]+)>\s*$', block):
@@ -100,6 +103,7 @@ jobs:
               for name, email in sorted(found, key=lambda x: (x[0].lower(), x[1].lower())):
                   f.write(f'{name}\t{email}\n')
           PY
+            rm -f "$out/commit-messages.raw"
 
             find . -maxdepth 5 -type f \( \
               -name 'package.json' -o -name 'package-lock.json' -o -name 'pnpm-lock.yaml' -o -name 'yarn.lock' -o \
@@ -169,6 +173,7 @@ jobs:
           audit_repo hoy-lifestyle hoy-lifestyle
           audit_repo hoy-works hoy-works
 
+          cd "$GITHUB_WORKSPACE"
           python3 <<'PY'
           import json, pathlib
           root = pathlib.Path('investor-ready-audit')
