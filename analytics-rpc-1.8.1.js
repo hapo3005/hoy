@@ -1,7 +1,9 @@
-/* HOY 1.8.1 — validated Supabase RPC analytics hotfix */
+/* HOY 1.8.2 — validated Supabase RPC analytics + proof-gate enrollment */
 (function(){
   const ANON_KEY='hoy-anonymous-id-v1';
   const SESSION_KEY='hoy-session-id-v1';
+  const PILOT_KEY='hoy-proof-pilot-code-v1';
+  const PILOT_SENT_KEY='hoy-proof-pilot-enrolled-v1';
   const PRODUCTION_HOSTS=new Set(['hapo3005.github.io']);
   function randomId(){
     const c=window.crypto;
@@ -24,7 +26,7 @@
     }
     out.lang=state.lang;
     out.view=state.view;
-    out.client_version='1.8.1';
+    out.client_version='1.8.2';
     return out;
   }
   function qaRuntimeDetected(){
@@ -50,6 +52,55 @@
       p_metadata:metadata
     };
   }
+  function pilotCode(raw){
+    const value=String(raw||'').trim().toUpperCase();
+    return /^P(?:0[1-9]|[12][0-9]|30)$/.test(value)?value:null;
+  }
+  function capturePilotEnrollment(){
+    const params=new URLSearchParams(window.location.search||'');
+    const incoming=pilotCode(params.get('pilot'));
+    const stored=pilotCode(localStorage.getItem(PILOT_KEY));
+    let selected=stored;
+
+    if(incoming){
+      if(stored&&stored!==incoming){
+        console.warn('HOY proof-gate pilot code conflict ignored');
+      }else if(!stored){
+        localStorage.setItem(PILOT_KEY,incoming);
+        selected=incoming;
+      }
+      params.delete('pilot');
+      if(window.history&&typeof window.history.replaceState==='function'){
+        const query=params.toString();
+        const clean=`${window.location.pathname}${query?`?${query}`:''}${window.location.hash||''}`;
+        window.history.replaceState(window.history.state,'',clean);
+      }
+    }
+    return selected||incoming||null;
+  }
+  function schedulePilotEnrollment(code,attempt=0){
+    if(!code||localStorage.getItem(PILOT_SENT_KEY)===code)return;
+
+    // Local/preview/Playwright runs exercise the sanitized payload once for QA, but
+    // never retry or write to Production. The production isolation rule stays intact.
+    if(!productionAnalyticsAllowed()){
+      if(qaRuntimeDetected()&&attempt===0)trackEvent('qr_open',null,{source:'proof_gate',pilot_code:code});
+      return;
+    }
+
+    // Analytics loads before the final cloud initialization in the current shell.
+    // Retry briefly instead of losing the one-time enrollment event while Supabase
+    // is still connecting. Mark as enrolled only after the RPC confirms success.
+    if(!sb||cloud.status!=='online'){
+      if(attempt<30)setTimeout(()=>schedulePilotEnrollment(code,attempt+1),1000);
+      return;
+    }
+    Promise.resolve(trackEvent('qr_open',null,{source:'proof_gate',pilot_code:code})).then(sent=>{
+      if(sent)localStorage.setItem(PILOT_SENT_KEY,code);
+      else if(attempt<30)setTimeout(()=>schedulePilotEnrollment(code,attempt+1),1000);
+    });
+  }
+
   window.hoyProductionAnalyticsAllowed181=productionAnalyticsAllowed;
   trackEvent=function(type,restaurantId,meta={}){
     const rows=readEvents();
@@ -66,8 +117,17 @@
     // Production analytics are fail-closed: only the explicit production host and
     // a real non-QA browser may write. Local, preview and Playwright runs still
     // exercise the complete analytics enrichment path but stop before transport.
-    if(!productionAnalyticsAllowed())return;
-    if(!sb||cloud.status!=='online')return;
-    sb.rpc('log_analytics_event',payload).then(({error})=>{if(error)console.warn('HOY analytics RPC rejected',error.message)});
+    if(!productionAnalyticsAllowed())return Promise.resolve(false);
+    if(!sb||cloud.status!=='online')return Promise.resolve(false);
+    return sb.rpc('log_analytics_event',payload).then(({error})=>{
+      if(error){console.warn('HOY analytics RPC rejected',error.message);return false}
+      return true;
+    }).catch(error=>{
+      console.warn('HOY analytics RPC failed',error?.message||error);
+      return false;
+    });
   };
+
+  const proofPilotCode=capturePilotEnrollment();
+  if(proofPilotCode)schedulePilotEnrollment(proofPilotCode);
 })();
