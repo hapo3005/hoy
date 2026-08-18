@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import { execFileSync } from 'node:child_process';
 import { test, expect } from '@playwright/test';
 
 const source=fs.readFileSync(path.join(process.cwd(),'analytics-rpc-1.8.1.js'),'utf8');
@@ -54,6 +55,14 @@ function boot({host='hapo3005.github.io',search='',local={},session={}}={}){
   vm.runInContext(source,context,{filename:'analytics-rpc-1.8.1.js'});
   return {context,localStorage,sessionStorage,replaced,getReadEventsCalls:()=>readEventsCalls};
 }
+
+test('RT-008 static privacy invariants pass', async () => {
+  const output=execFileSync(process.execPath,['scripts/investor-ready/rt008-privacy-static-check.mjs'],{
+    cwd:process.cwd(),encoding:'utf8'
+  });
+  expect(output).toContain('"ok": true');
+  expect(output).toContain('"rawProductionEventHistory": false');
+});
 
 test('production without consent clears legacy analytics state and exits before event/payload storage', async () => {
   const app=boot({
