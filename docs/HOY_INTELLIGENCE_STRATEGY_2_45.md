@@ -34,11 +34,40 @@ The canonical taxonomy and prohibited fields live in `data/hoy-intelligence-even
 
 HOY already contains an analytics RPC layer that creates pseudonymous anonymous/session IDs and strips common personal-data metadata keys before RPC logging. That is useful operational infrastructure, but pseudonymous identifiers are **not** treated as anonymous intelligence exports. Future external products must never expose those IDs or row-level journeys.
 
+## Data Governance Gate 2.45.1
+
+Before any new or materially expanded production Intelligence collection is activated, every event family and later every concrete event must have an approved inventory record in `data/hoy-intelligence-data-governance-2026-08-18.json`.
+
+Each inventory record must document at least:
+
+- event and event family;
+- business and product purpose;
+- data-subject context and personal-data status;
+- exact dimensions;
+- lawful-basis and consent-requirement status;
+- transparency surface;
+- retention class and deletion trigger;
+- allowed internal uses and external-use class;
+- minimum aggregation threshold;
+- sparse-slice suppression;
+- re-identification, security and legal review status;
+- explicit production-collection and commercialization flags.
+
+A commercially useful signal is never treated as a legal basis by itself. New or materially changed personal-data processing defaults to `pending_legal_review`. Pseudonymous event-level data is treated as personal until a validated anonymization process establishes otherwise.
+
+HOY does not pre-select one legal basis for all analytics. The applicable basis depends on context and must be validated before activation. If legitimate interests is considered, the governance contract requires necessity, balancing and reasonable-expectations review. If consent is required, collection may not activate before a valid signal and a withdrawal path exists. Special-category personal data is prohibited from Intelligence event payloads.
+
+## Retention and deletion
+
+No generic long retention period is approved by 2.45.1. Each event must receive a purpose-specific retention class, deletion trigger and review interval before activation.
+
+The future implementation must define the shortest justified event-level retention period, an automatic deletion or irreversible aggregation path, backup deletion treatment, periodic review and documented exception handling. Until those controls are approved and implemented, runtime collection expansion remains disabled.
+
 ## Product ladder
 
 ### Stage 0 — Measurement readiness
 
-Define taxonomy, privacy invariants, data-quality expectations, and future aggregation gates. No new collection simply because a field might be monetizable later.
+Define taxonomy, privacy invariants, data-quality expectations, event-level governance and future aggregation gates. No new collection simply because a field might be monetizable later.
 
 ### Stage 1 — Internal product analytics
 
@@ -54,7 +83,7 @@ Sell aggregated reports and dashboards about demand gaps, seasonality, category 
 
 ### Stage 4 — Intelligence API
 
-Only after legal, privacy, security, aggregation, retention, and anti-re-identification controls are mature. API customers receive aggregate market signals, never raw user telemetry.
+Only after legal, privacy, security, aggregation, retention, data-lineage and anti-re-identification controls are mature. API customers receive aggregate market signals, never raw user telemetry.
 
 ## Non-negotiable privacy rules
 
@@ -67,6 +96,23 @@ Only after legal, privacy, security, aggregation, retention, and anti-re-identif
 - Re-identification attempts must be contractually prohibited for B2B customers.
 - New collection requires a concrete product purpose; "might be valuable someday" is not sufficient.
 
+## Commercialization gate
+
+Commercialization remains disabled until all required controls are approved and implemented, including:
+
+- complete event inventory and source-to-metric data lineage;
+- validated lawful basis and transparency implementation;
+- consent or preference controls where required;
+- implemented retention and deletion;
+- a numerical minimum cohort threshold;
+- sparse-slice and differencing-attack suppression;
+- removal of pseudonymous identifiers from customer-facing data;
+- no row-level user journey export;
+- contractual prohibition of re-identification;
+- security and legal approval.
+
+Any missing, pending or failed requirement keeps `commercialization_allowed=false`.
+
 ## Exit-value logic
 
 The defensible asset is the combination of:
@@ -76,7 +122,7 @@ The defensible asset is the combination of:
 - structured context around guest decisions;
 - operator performance and freshness signals;
 - proven ability to turn those signals into recurring B2B revenue;
-- privacy and data-rights documentation a buyer can diligence.
+- privacy, legal-basis, retention and data-rights documentation a buyer can diligence.
 
 This means product decisions should ask two questions, in this order:
 
@@ -89,11 +135,12 @@ A feature must never exist only to harvest data.
 
 The dataset becomes strategically stronger when the same taxonomy works across multiple regions. New regions should reuse stable event definitions and area/time bucketing so that demand and supply patterns can be compared without leaking precise individual behavior.
 
-## 2.45 release boundary
+## 2.45 / 2.45.1 release boundary
 
 Allowed now:
 
 - contract and taxonomy;
+- event-level governance inventory;
 - privacy and commercialization gates;
 - tests that prevent accidental weakening;
 - documentation of the staged product ladder.
@@ -107,4 +154,4 @@ Not allowed now:
 - data-sale enablement;
 - HOY Intelligence API exposure.
 
-The next implementation step should only happen after HOY has a concrete product-analytics question that justifies each collected signal.
+The next runtime implementation may only proceed after the corresponding inventory entries have passed the required legal, privacy, retention and security gates.
