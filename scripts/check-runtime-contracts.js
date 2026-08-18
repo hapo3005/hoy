@@ -81,7 +81,7 @@ function checkAnalyticsContract(){
     fail(`Client trackEvent types missing from analytics contract: ${detail}`);
   }
 
-  const migration=read('supabase/migrations/20260818090000_hoy_245_family_analytics_contract.sql');
+  const migration=read('supabase/migrations/20260818090000_hoy_245_analytics_contract.sql');
   const missingFromMigration=[...allowed].filter(type=>!migration.includes(`'${type}'`));
   if(missingFromMigration.length)fail(`Analytics contract types missing from 2.45 RPC migration: ${missingFromMigration.join(', ')}`);
 
