@@ -47,7 +47,7 @@ jobs:
       # but do not repeat the same long suite on every pull request.
       - name: Install QA dependency
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Install release browsers
         if: ${{ github.event_name == 'workflow_dispatch' }}
