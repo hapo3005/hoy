@@ -10,7 +10,7 @@
 **Master language:** German (`de`)  
 **Launch languages:** Spanish localization required; English optional/supporting  
 
-> **Important:** This is an investor-/product-ready execution draft, not final legal advice and not yet a live contract. It must not be activated until the definitive HOY legal entity, governing law, contact details, privacy notices and counsel review are complete.
+> **Important:** This is an investor-/product-ready execution draft, not final legal advice and not yet a live contract. It must not be activated until the definitive HOY legal entity, governing law, contact details, privacy notices, final document hashes, Spanish legal localization and counsel review are complete.
 
 ---
 
@@ -432,7 +432,8 @@ The final governing-law clause, jurisdiction clause and full legal identity of t
 - governing law;
 - jurisdiction/dispute venue;
 - final Spanish localization;
-- final counsel review status.
+- final counsel review status;
+- final document hashes.
 
 ---
 
