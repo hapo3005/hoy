@@ -30,24 +30,8 @@
     "20260818203021_ir02c_reconcile_de_terms_draft_blob"
   ],
   "production_objects": {
-    "private_tables": [
-      "private.business_terms_versions",
-      "private.business_terms_acceptances",
-      "private.business_data_confirmations"
-    ],
-    "public_security_invoker_rpcs": [
-      "public.get_business_terms_status",
-      "public.operator_accept_business_terms",
-      "public.operator_record_business_confirmation"
-    ],
-    "private_helpers": [
-      "private.business_terms_gate_required",
-      "private.has_active_business_terms",
-      "private.enforce_business_terms_on_operator_write",
-      "private.get_business_terms_status_internal",
-      "private.operator_accept_business_terms_internal",
-      "private.operator_record_business_confirmation_internal"
-    ],
+    "private_tables": ["private.business_terms_versions","private.business_terms_acceptances","private.business_data_confirmations"],
+    "public_security_invoker_rpcs": ["public.get_business_terms_status","public.operator_accept_business_terms","public.operator_record_business_confirmation"],
     "operator_terms_triggers": 10
   },
   "current_live_state": {
@@ -59,38 +43,7 @@
     "operator_behavior_changed_by_terms_gate": false,
     "activation_constraint_negative_test": "PASS"
   },
-  "ci_governance": {
-    "command": "npm run qa:terms",
-    "critical_pr_gate": true,
-    "guards": [
-      "draft markers remain present",
-      "activation clearance constraint remains present",
-      "public Terms RPCs remain SECURITY INVOKER",
-      "exact terms/document hash binding remains present",
-      "exact Business Confirmation payload hash remains present",
-      "change-of-control clause remains present",
-      "raw-content standalone resale limitation remains present",
-      "Article 28 DPA boundary remains present",
-      "Spanish draft is not falsely assigned a final SHA-256"
-    ]
-  },
-  "activation_clearance_required": [
-    "final_de_sha256",
-    "final_es_sha256",
-    "definitive_hoy_legal_entity",
-    "registered_address",
-    "legal_contact",
-    "privacy_notice_version",
-    "governing_law",
-    "jurisdiction",
-    "counsel_review_timestamp_and_reference",
-    "final_spanish_legal_localization",
-    "operator_terms_presentation_and_archive_ui",
-    "acceptance_receipt_ui",
-    "input_error_correction_flow",
-    "canonical_payload_hashing",
-    "end_to_end_acceptance_and_confirmation_tests"
-  ],
+  "ci_governance": {"command":"npm run qa:terms","critical_pr_gate":true},
   "rights_doctrine": {
     "business_retains_source_content_rights": true,
     "hoy_operational_license": "non_exclusive_royalty_free_defined_purposes",
@@ -99,20 +52,6 @@
     "personal_data_ownership_claim": false,
     "article_28_dpa_separate_where_required": true,
     "business_confirmed_requires_exact_snapshot_confirmation": true
-  },
-  "dd_claim_gate": {
-    "allowed": [
-      "HOY has versioned Business Terms and evidence infrastructure",
-      "Terms activation is technically fail-closed pending legal/entity/localization evidence",
-      "future acceptance is bound to exact version and document hash",
-      "Business Confirmed data has an exact-snapshot confirmation ledger"
-    ],
-    "not_allowed": [
-      "Business Terms v1.0 is active",
-      "current AMBER data is automatically Business Confirmed",
-      "HOY already has contract-cleared operator data",
-      "all business content is transferable or owned by HOY"
-    ]
   },
   "next_gate": "complete_entity_privacy_counsel_hash_ui_and_e2e_activation_requirements"
 }
