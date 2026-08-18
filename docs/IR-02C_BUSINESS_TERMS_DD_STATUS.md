@@ -89,6 +89,7 @@ Therefore the deployed infrastructure does **not** activate or impose the curren
 - Business Terms acceptances: `0`
 - Business data confirmations: `0`
 - verified restaurant memberships: `0`
+- operator Terms triggers: `10`
 
 The operator-write trigger layer is therefore dormant and changes no current business/operator behavior.
 
@@ -188,7 +189,9 @@ The branch includes:
 
 `npm run qa:terms`
 
-The critical PR workflow executes this gate. It fails if key safeguards drift, including:
+and Critical PR QA executes it before the browser regression suite.
+
+It fails if key safeguards drift, including:
 
 - removal of explicit draft/non-active language;
 - weakening of the activation-clearance constraint;
@@ -196,7 +199,8 @@ The critical PR workflow executes this gate. It fails if key safeguards drift, i
 - removal of exact Terms/document-hash evidence;
 - removal of exact Business Confirmation payload hashing;
 - removal of change-of-control or raw-content boundaries;
-- removal of the separate GDPR Article 28/DPA boundary.
+- removal of the separate GDPR Article 28/DPA boundary;
+- pretending the Spanish draft already has a final SHA-256.
 
 ## 12. Remaining activation blockers
 
@@ -241,6 +245,7 @@ P0 before Business Terms activation:
 **Business Confirmation Ledger:** LIVE  
 **Public RPC security hardening:** COMPLETE  
 **Activation constraint negative test:** PASS  
+**Business Terms governance CI gate:** IMPLEMENTED  
 **Business Terms active:** NO  
 **Current acceptances/confirmations:** NONE  
 **Privacy/DPA package:** NOT COMPLETE  
