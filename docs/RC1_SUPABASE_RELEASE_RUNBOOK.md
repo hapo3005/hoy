@@ -3,8 +3,24 @@
 Status: **PREPARED / NOT DEPLOYED**  
 Snapshot: 2026-08-18  
 Target: HOY La Manga (`zlscptisdxzxuvllogza`)  
-Code baseline: `main` = `888b525eff280e7c6ed9eaa98ab9807a56cb21e1`  
+Application / release-input baseline: `888b525eff280e7c6ed9eaa98ab9807a56cb21e1`  
 HOY Accessible code: integrated via PR #89; **database migration still unapplied in Production**
+
+## 0. Snapshot semantics — important
+
+`supabase/release/rc1-manifest.json` is schema v1 and still calls the application/release-input baseline `source.main_sha`. That field name is historical and must **not** be interpreted as a requirement that the repository's current `main` ref forever equals that SHA.
+
+The stored SHA is the code/database-scope input from which this release package was prepared. Committing or merging the release package itself necessarily creates a newer repository commit and therefore cannot invalidate its own input snapshot merely by existing.
+
+The protection rule is instead:
+
+1. the final RC must contain/follow the reviewed application baseline;
+2. every release-relevant migration currently in the repository must remain classified by the manifest;
+3. no intended Edge Function, seed/data import, RLS/grant contract or database-dependent application behavior may change unnoticed after the snapshot;
+4. Production must still match the captured preflight baseline;
+5. before the actual Production rollout, regenerate/verify the manifest against the **frozen final RC scope** and capture that final commit in release evidence.
+
+A future manifest schema may rename `source.main_sha` to `application_baseline_sha`; schema v1 keeps the key for compatibility while this runbook defines its unambiguous meaning.
 
 ## 1. Purpose
 
@@ -15,9 +31,9 @@ Therefore:
 - never perform a blind all-history production push from the current migration directory;
 - never automatically include `supabase/seed/`, `supabase/seeds/` or `scripts/seed-menu-eval-gold.sql`;
 - never reapply a file marked `*_DO_NOT_APPLY` in `supabase/release/rc1-manifest.json`;
-- regenerate the manifest before the final release if `main`, Supabase schema, Edge Functions or intended RC scope changes.
+- regenerate the manifest before the final release if the intended RC scope, Supabase schema, relevant Edge Functions, intended data imports, RLS/grants or expected safety counts change.
 
-The manifest is the machine-readable source of truth. This document explains the operator sequence and abort criteria.
+The manifest is the machine-readable source of truth for the snapshot. This document defines its operator semantics and abort criteria.
 
 ## 2. Current production baseline
 
@@ -30,7 +46,7 @@ Read-only verification on 2026-08-18 established:
 - `public.accessibility_feature_registry` does not exist;
 - `public.restaurant_accessibility_facts` does not exist;
 - the Accessible transformation produces 668 initial facts: 300 `yes`, 11 `no`, 357 `unknown`; all 668 are initially `external_unverified`;
-- `public.restaurant_family_features` does not exist after the deliberate family rollback;
+- `public.restaurant_family_features` does not exist after the deliberate Family rollback;
 - `venue_sales_pipeline.send_lock` is `true` for 168/168 rows;
 - the deployed `operator-accessibility-confirm` function is active, JWT-protected and source-equivalent to the repository version.
 
@@ -50,7 +66,7 @@ Other bundled repository files are represented by split Production migrations or
 
 `supabase/migrations/20260816_family_playgrounds_240.sql`
 
-Production history contains the original family migration, a policy tune and the deliberate rollback. The table is currently absent. Family research/preview remains fail-closed. Its associated seeds are excluded from RC1.
+Production history contains the original Family migration, a policy tune and the deliberate rollback. The table is currently absent. Family research/preview remains fail-closed. Its associated seeds are excluded from RC1.
 
 ### C. Genuine pending Production database change
 
@@ -58,7 +74,7 @@ At this snapshot there is exactly one intended new database migration:
 
 `supabase/migrations/20260818093100_hoy_accessible_v1.sql`
 
-The file is now part of `main` through PR #89, while the corresponding database objects are still absent in Production. It is additive and creates:
+The file is part of the reviewed application baseline through PR #89, while the corresponding database objects are still absent in Production. It is additive and creates:
 
 - `accessibility_feature_registry`;
 - `restaurant_accessibility_facts`;
@@ -68,7 +84,7 @@ The file is now part of `main` through PR #89, while the corresponding database 
 - `hoy_sync_accessibility_facts_from_legacy()` as `SECURITY INVOKER`;
 - trigger `hoy_accessibility_fact_sync` so existing operator confirmations create versioned facts.
 
-The legacy `restaurant_accessibility` table remains the fallback and existing operator write path. Because the frontend has a legacy fallback, code integration does not imply permission to mutate Production early.
+The legacy `restaurant_accessibility` table remains the fallback and existing operator write path. Code integration never implies permission to mutate Production early.
 
 ## 4. Edge Functions
 
@@ -101,16 +117,16 @@ Hard abort conditions:
 - target project/ref is not the intended HOY La Manga project;
 - either new Accessible table already exists unexpectedly;
 - `restaurant_accessibility` is missing;
-- legacy accessibility count is not the expected baseline unless the manifest was deliberately regenerated;
+- legacy accessibility count differs from the current approved manifest baseline without deliberate regeneration;
 - any legacy row lacks `restaurant_id` or `checked_at`;
 - `send_lock` has any false or null row;
 - migration history contains an unexpected new equivalent of the Accessible migration;
-- a new RC migration exists that is not classified in the manifest;
-- Production schema changed after the isolated dry-run without regenerating this package.
+- a new repository migration exists that is not classified in the manifest;
+- Production schema or another release-relevant asset changed after the isolated dry-run without regenerating/revalidating the package.
 
 ## 7. Isolated database gate
 
-The fact that Accessible code is already on `main` does **not** waive the database gate. The sequence is:
+The fact that Accessible code is already in the application baseline does **not** waive the database gate. The sequence is:
 
 1. clone/reproduce the intended Production baseline in an isolated Supabase environment;
 2. run preflight;
@@ -141,23 +157,25 @@ RC1 acceptance has two layers:
 
 The Accessible schema was deliberately written with one permissive SELECT policy per role/action to avoid adding new multiple-policy warnings.
 
-## 9. Final code QA
+## 9. Final code QA and release-snapshot refresh
 
 After the isolated database gate succeeds and before Production release:
 
-1. ensure `main` still equals the manifest baseline or regenerate the manifest;
-2. freeze one final RC commit;
-3. run Final Release, Static Integrity, Critical PR QA, Desktop Chromium, Mobile Chrome and Mobile WebKit on that same commit;
-4. run remaining 320px/overflow, keyboard/focus, offline/PWA and analytics-isolation gates;
-5. no known P0/P1 regression may remain.
+1. freeze the intended final RC scope;
+2. verify that the final RC contains/follows the reviewed application baseline and that every release-relevant database/Function/seed/RLS/grant change since the snapshot is explicitly classified;
+3. regenerate/verify the manifest against the current Production baseline and the frozen RC scope;
+4. capture the frozen final RC commit in release evidence — do **not** require an embedded file to equal the commit that contains that same file;
+5. run Final Release, Static Integrity, Critical PR QA, Desktop Chromium, Mobile Chrome and Mobile WebKit on that same frozen code commit;
+6. run remaining 320px/overflow, keyboard/focus, offline/PWA and analytics-isolation gates;
+7. no known P0/P1 regression may remain.
 
 ## 10. Production release sequence
 
 On the eventual production release day:
 
-1. freeze code and regenerate/verify this manifest;
+1. freeze code and regenerate/verify the manifest for the actual RC scope;
 2. confirm database backup/recovery readiness appropriate to the current Supabase plan;
-3. capture migration history, advisors and preflight output;
+3. capture migration history, advisors, current safety flags and preflight output;
 4. apply only still-pending manifest migrations in order;
 5. do **not** run historical mirrors;
 6. do **not** run seeds;
@@ -165,7 +183,7 @@ On the eventual production release day:
 8. run postflight immediately;
 9. deploy/confirm the matching final HOY frontend/code release;
 10. smoke-test guest and operator critical paths;
-11. run advisors again and compare delta;
+11. run advisors again and compare against the captured baseline;
 12. release only if all hard gates pass.
 
 ## 11. Forward-fix / rollback strategy for Accessible v1
@@ -178,11 +196,11 @@ The migration is additive and intentionally leaves the 2.43 table intact. Prefer
 - let the frontend fail back to legacy data if the normalized facts query is unavailable;
 - ship a reviewed corrective migration.
 
-Dropping the new tables in Production should be a last resort because it destroys the newly accumulated history. A destructive rollback may be rehearsed in the isolated environment, but Production should prefer an additive corrective migration.
+Dropping the new tables in Production should be a last resort because it destroys newly accumulated history. A destructive rollback may be rehearsed in the isolated environment, but Production should prefer an additive corrective migration.
 
 ## 12. Package invalidation rule
 
-This snapshot is valid only for the recorded `main` and Production baseline. Any of the following invalidates it and requires regeneration before release:
+The snapshot remains a prepared release input, not a perpetual approval. It must be regenerated/revalidated before Production if any release-relevant assumption changes, including:
 
 - new/changed migration;
 - changed Edge Function intended for RC1;
@@ -191,6 +209,8 @@ This snapshot is valid only for the recorded `main` and Production baseline. Any
 - new Production migration outside this manifest;
 - changed expected accessibility counts;
 - changed outreach safety policy;
-- changed final RC scope.
+- changed database-dependent application contract or intended final RC scope.
 
-No technical progress should be converted into Production risk merely because the package once passed. The final release uses the current manifest, not historical approval.
+A commit that only adds or hardens the release package does not recursively invalidate the baseline from which that package was generated. Conversely, a later application commit is not automatically safe merely because it is a descendant: release-relevant deltas still require explicit classification and final manifest refresh.
+
+No technical progress should be converted into Production risk merely because an older package once passed. The final release uses the current reviewed scope and current Production baseline, not historical approval.
