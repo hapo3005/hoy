@@ -5,171 +5,49 @@
   "doctrine": "Value + Origin + Rights + Time + Trust",
   "default_new_source_status": "REVIEW_REQUIRED",
   "policy_classes": [
-    {
-      "code": "PLATFORM_RESTRICTED_GOOGLE_MAPS",
-      "rights_status": "RED",
-      "use_as_lead": true,
-      "factual_verification_allowed": false,
-      "persistent_copy_allowed": false,
-      "public_reuse_allowed": false,
-      "derivative_use_allowed": false,
-      "commercial_use_allowed": false,
-      "automated_collection_allowed": false,
-      "transferability": "NO",
-      "replacement_required": true,
-      "evidence": "Google Maps Platform EEA Terms checked 2026-08-18"
-    },
-    {
-      "code": "AGGREGATOR_RESTRICTED_RESTAURANTGURU",
-      "rights_status": "RED",
-      "use_as_lead": true,
-      "factual_verification_allowed": false,
-      "persistent_copy_allowed": false,
-      "public_reuse_allowed": false,
-      "derivative_use_allowed": false,
-      "commercial_use_allowed": false,
-      "automated_collection_allowed": false,
-      "transferability": "NO",
-      "replacement_required": true,
-      "evidence": "Restaurant Guru Terms of Use checked 2026-08-18"
-    },
-    {
-      "code": "AGGREGATOR_RESTRICTED_TRIPADVISOR",
-      "rights_status": "RED",
-      "use_as_lead": true,
-      "factual_verification_allowed": false,
-      "persistent_copy_allowed": false,
-      "public_reuse_allowed": false,
-      "derivative_use_allowed": false,
-      "commercial_use_allowed": false,
-      "automated_collection_allowed": false,
-      "transferability": "NO",
-      "replacement_required": true,
-      "evidence": "Tripadvisor Terms of Use checked 2026-08-18"
-    },
-    {
-      "code": "SOCIAL_RESTRICTED_META",
-      "rights_status": "RED",
-      "use_as_lead": true,
-      "factual_verification_allowed": false,
-      "persistent_copy_allowed": false,
-      "public_reuse_allowed": false,
-      "derivative_use_allowed": false,
-      "commercial_use_allowed": false,
-      "automated_collection_allowed": false,
-      "transferability": "NO",
-      "replacement_required": true,
-      "evidence": "Meta Terms and Automated Data Collection Terms checked 2026-08-18"
-    },
-    {
-      "code": "MAP_PLATFORM_RESTRICTED_WAZE",
-      "rights_status": "RED",
-      "use_as_lead": true,
-      "factual_verification_allowed": false,
-      "persistent_copy_allowed": false,
-      "public_reuse_allowed": false,
-      "derivative_use_allowed": false,
-      "commercial_use_allowed": false,
-      "automated_collection_allowed": false,
-      "transferability": "NO",
-      "replacement_required": true,
-      "evidence": "conservative fail-closed classification; direct-current-terms evidence still required"
-    },
-    {
-      "code": "OPEN_GOV_IGN",
-      "rights_status": "GREEN",
-      "use_as_lead": true,
-      "factual_verification_allowed": true,
-      "persistent_copy_allowed": true,
-      "public_reuse_allowed": true,
-      "derivative_use_allowed": true,
-      "commercial_use_allowed": true,
-      "automated_collection_allowed": true,
-      "attribution_required": true,
-      "transferability": "YES_WITH_CONDITIONS",
-      "replacement_required": false,
-      "evidence": "IGN/CNIG data policy; licence compatible with CC BY 4.0, checked 2026-08-18"
-    },
-    {
-      "code": "FIRST_PARTY_BUSINESS_REFERENCE",
-      "rights_status": "AMBER",
-      "use_as_lead": true,
-      "factual_verification_allowed": true,
-      "persistent_copy_allowed": false,
-      "public_reuse_allowed": false,
-      "derivative_use_allowed": false,
-      "commercial_use_allowed": false,
-      "automated_collection_allowed": false,
-      "transferability": "UNKNOWN",
-      "replacement_required": false,
-      "evidence": "operator/business terms or explicit licence required for broader content reuse"
-    },
-    {
-      "code": "DIRECTORY_UNREVIEWED",
-      "rights_status": "REVIEW_REQUIRED",
-      "use_as_lead": true,
-      "factual_verification_allowed": false,
-      "persistent_copy_allowed": false,
-      "public_reuse_allowed": false,
-      "derivative_use_allowed": false,
-      "commercial_use_allowed": false,
-      "automated_collection_allowed": false,
-      "transferability": "UNKNOWN",
-      "replacement_required": true,
-      "evidence": "direct terms/licence review required"
-    }
+    {"code":"PLATFORM_RESTRICTED_GOOGLE_MAPS","rights_status":"RED","use_as_lead":true,"factual_verification_allowed":false,"persistent_copy_allowed":false,"public_reuse_allowed":false,"derivative_use_allowed":false,"commercial_use_allowed":false,"automated_collection_allowed":false,"transferability":"NO","replacement_required":true,"evidence":"Google Maps Platform EEA Terms checked 2026-08-18"},
+    {"code":"AGGREGATOR_RESTRICTED_RESTAURANTGURU","rights_status":"RED","use_as_lead":true,"factual_verification_allowed":false,"persistent_copy_allowed":false,"public_reuse_allowed":false,"derivative_use_allowed":false,"commercial_use_allowed":false,"automated_collection_allowed":false,"transferability":"NO","replacement_required":true,"evidence":"Restaurant Guru Terms of Use checked 2026-08-18"},
+    {"code":"AGGREGATOR_RESTRICTED_TRIPADVISOR","rights_status":"RED","use_as_lead":true,"factual_verification_allowed":false,"persistent_copy_allowed":false,"public_reuse_allowed":false,"derivative_use_allowed":false,"commercial_use_allowed":false,"automated_collection_allowed":false,"transferability":"NO","replacement_required":true,"evidence":"Tripadvisor Terms of Use checked 2026-08-18"},
+    {"code":"SOCIAL_RESTRICTED_META","rights_status":"RED","use_as_lead":true,"factual_verification_allowed":false,"persistent_copy_allowed":false,"public_reuse_allowed":false,"derivative_use_allowed":false,"commercial_use_allowed":false,"automated_collection_allowed":false,"transferability":"NO","replacement_required":true,"evidence":"Meta Terms and Automated Data Collection Terms checked 2026-08-18"},
+    {"code":"MAP_PLATFORM_RESTRICTED_WAZE","rights_status":"RED","use_as_lead":true,"factual_verification_allowed":false,"persistent_copy_allowed":false,"public_reuse_allowed":false,"derivative_use_allowed":false,"commercial_use_allowed":false,"automated_collection_allowed":false,"transferability":"NO","replacement_required":true,"evidence":"conservative fail-closed classification; direct-current-terms evidence still required"},
+    {"code":"OPEN_GOV_IGN","rights_status":"GREEN","use_as_lead":true,"factual_verification_allowed":true,"persistent_copy_allowed":true,"public_reuse_allowed":true,"derivative_use_allowed":true,"commercial_use_allowed":true,"automated_collection_allowed":true,"attribution_required":true,"transferability":"YES_WITH_CONDITIONS","replacement_required":false,"evidence":"IGN/CNIG data policy; licence compatible with CC BY 4.0, checked 2026-08-18"},
+    {"code":"FIRST_PARTY_BUSINESS_REFERENCE","rights_status":"AMBER","use_as_lead":true,"factual_verification_allowed":true,"persistent_copy_allowed":false,"public_reuse_allowed":false,"derivative_use_allowed":false,"commercial_use_allowed":false,"automated_collection_allowed":false,"transferability":"UNKNOWN","replacement_required":false,"evidence":"operator/business terms or explicit licence required for broader content reuse"},
+    {"code":"OFFICIAL_OR_OPERATOR_AUTHORIZED_REFERENCE","rights_status":"AMBER","use_as_lead":true,"factual_verification_allowed":true,"persistent_copy_allowed":false,"public_reuse_allowed":false,"derivative_use_allowed":false,"commercial_use_allowed":false,"automated_collection_allowed":false,"transferability":"UNKNOWN","replacement_required":false,"evidence":"HOY source evidence marks source official/authorized; broader use still requires terms/authority"},
+    {"code":"OFFICIAL_GOV_REFERENCE","rights_status":"AMBER","use_as_lead":true,"factual_verification_allowed":true,"persistent_copy_allowed":false,"public_reuse_allowed":false,"derivative_use_allowed":false,"commercial_use_allowed":false,"automated_collection_allowed":false,"attribution_required":true,"transferability":"UNKNOWN","replacement_required":false,"evidence":"official municipal source; exact referenced material must be linked to an applicable reuse/open-data licence before GREEN"},
+    {"code":"DIRECTORY_UNCLEARED","rights_status":"REVIEW_REQUIRED","use_as_lead":true,"factual_verification_allowed":false,"persistent_copy_allowed":false,"public_reuse_allowed":false,"derivative_use_allowed":false,"commercial_use_allowed":false,"automated_collection_allowed":false,"transferability":"UNKNOWN","replacement_required":true,"evidence":"direct terms/licence review or re-sourcing required"}
   ],
   "live_snapshot": {
     "gastro": {
       "distinct_hosts": 105,
       "source_references": 459,
       "status": {
-        "GREEN": {"hosts": 1, "refs": 2},
-        "AMBER": {"hosts": 52, "refs": 200},
-        "RED": {"hosts": 14, "refs": 197},
-        "REVIEW_REQUIRED": {"hosts": 38, "refs": 60}
+        "GREEN": {"hosts":1,"refs":2},
+        "AMBER": {"hosts":64,"refs":216},
+        "RED": {"hosts":14,"refs":197},
+        "REVIEW_REQUIRED": {"hosts":26,"refs":44}
       },
-      "deterministic_self_match_upgrade": {"hosts": 8, "refs": 43, "from": "REVIEW_REQUIRED", "to": "AMBER"},
-      "restricted_high_concentration": {
-        "www.google.com": 102,
-        "es.restaurantguru.com": 22,
-        "www.tripadvisor.com": 18,
-        "restaurantguru.com": 17,
-        "www.tripadvisor.co.uk": 12,
-        "www.instagram.com": 7,
-        "www.waze.com": 5,
-        "www.facebook.com": 4
+      "review_required_breakdown": {
+        "DIRECTORY_UNCLEARED": {"hosts":19,"refs":36},
+        "EDITORIAL_THIRD_PARTY": {"hosts":2,"refs":3},
+        "PLATFORM_VENDOR_UNCLEARED": {"hosts":3,"refs":3},
+        "DIRECTORY_OR_EDITORIAL_UNCLEARED": {"hosts":1,"refs":1},
+        "FIRST_PARTY_OTHER_ENTITY_REFERENCE": {"hosts":1,"refs":1}
       },
-      "open_licensed": {"api-features.ign.es": 2}
+      "unreviewed_hosts": 0,
+      "restricted_high_concentration": {"www.google.com":102,"es.restaurantguru.com":22,"www.tripadvisor.com":18,"restaurantguru.com":17,"www.tripadvisor.co.uk":12,"www.instagram.com":7,"www.waze.com":5,"www.facebook.com":4},
+      "open_licensed": {"api-features.ign.es":2}
     },
     "works": {
-      "distinct_hosts": 84,
-      "source_references": 178,
-      "status": {
-        "AMBER": {"hosts": 81, "refs": 171},
-        "REVIEW_REQUIRED": {"hosts": 3, "refs": 7}
-      },
-      "directory_review_queue": [
-        "www.love-lamangaclub.es",
-        "www.losbelones.com",
-        "www.paginasamarillas.es"
-      ]
+      "distinct_hosts":84,
+      "source_references":178,
+      "status":{"AMBER":{"hosts":81,"refs":171},"REVIEW_REQUIRED":{"hosts":3,"refs":7}},
+      "directory_review_queue":["www.love-lamangaclub.es","www.losbelones.com","www.paginasamarillas.es"],
+      "security_advisor_findings":0
     }
   },
   "investor_claim_gate": {
-    "allowed": "HOY has a live rights-governance layer and can separate restricted references, first-party evidence, open-licensed data and unresolved sources.",
-    "not_allowed": [
-      "all public-source data is proprietary HOY data",
-      "all restaurant/menu data is freely transferable",
-      "all first-party website content belongs to HOY"
-    ]
+    "allowed":"HOY has a live rights-governance layer and can separate restricted references, first-party/official evidence, open-licensed data and specifically typed unresolved sources.",
+    "not_allowed":["all public-source data is proprietary HOY data","all restaurant/menu data is freely transferable","all first-party website content belongs to HOY"]
   },
-  "next_actions": [
-    "replace Google-origin material facts with operator/HOY/open-licensed evidence",
-    "replace Restaurant Guru and Tripadvisor dependencies",
-    "replace social/Waze facts where material",
-    "review remaining 38 Gastro REVIEW_REQUIRED domains in descending usage/materiality order",
-    "convert AMBER business facts to Business Confirmed under HOY Business Terms",
-    "capture change-of-control and transferability rights for operator-supplied data/media"
-  ]
+  "next_actions":["replace 197 RED Gastro source references with operator/HOY/open-licensed evidence","clear or replace the 26 REVIEW_REQUIRED Gastro hosts / 44 refs","convert high-value AMBER facts to Business Confirmed under HOY Business Terms","capture change-of-control and transferability rights for operator-supplied data/media"]
 }
