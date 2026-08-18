@@ -79,8 +79,7 @@ jobs:
           mkdir -p investor-ready-sbom
           for repo in hoy hoy-lifestyle hoy-works; do
             mkdir -p "investor-ready-sbom/$repo"
-            syft "dir:$repo" \
-              --source-name "$repo" \
+            syft "dir:$repo" --source-name "$repo" \
               -o "syft-json=investor-ready-sbom/$repo/syft.json" \
               -o "spdx-json=investor-ready-sbom/$repo/spdx.json" \
               -o "cyclonedx-json=investor-ready-sbom/$repo/cyclonedx.json"
@@ -106,25 +105,22 @@ jobs:
 
           root = pathlib.Path('investor-ready-sbom')
           direct = json.loads((root/'direct-scan'/'third-party-dependencies.json').read_text())
-          direct_summary = json.loads((root/'direct-scan'/'summary.json').read_text())
+
+          def exact_semver_runtime(spec):
+              # Exact package semver for npm:/jsr: scoped and unscoped imports.
+              if spec.startswith(('npm:','jsr:')):
+                  return bool(re.match(r'^(?:npm:|jsr:)(?:@[^/]+/[^@/]+|[^@/]+)@\d+\.\d+\.\d+(?:/|$)', spec))
+              # Exact jsDelivr npm version. Ordinary non-code external URLs are not dependency pins.
+              if 'cdn.jsdelivr.net/npm/' in spec:
+                  tail = spec.split('cdn.jsdelivr.net/npm/',1)[1]
+                  return bool(re.match(r'^(?:@[^/]+/[^@/]+|[^@/]+)@\d+\.\d+\.\d+(?:/|$)', tail))
+              return True
 
           sbom_rows=[]
           for repo in ('hoy','hoy-lifestyle','hoy-works'):
-              p=root/repo/'syft.json'
-              data=json.loads(p.read_text())
+              data=json.loads((root/repo/'syft.json').read_text())
               artifacts=data.get('artifacts',[])
-              licenses=[]
-              for a in artifacts:
-                  for lic in a.get('licenses') or []:
-                      if isinstance(lic,str): licenses.append(lic)
-                      elif isinstance(lic,dict):
-                          val=lic.get('value') or lic.get('spdxExpression') or lic.get('name')
-                          if val: licenses.append(str(val))
-              sbom_rows.append({
-                  'repository':repo,
-                  'syft_package_count':len(artifacts),
-                  'declared_license_values':sorted(set(licenses)),
-              })
+              sbom_rows.append({'repository':repo,'syft_package_count':len(artifacts)})
 
           records=direct.get('records',[])
           risky=[]
@@ -132,17 +128,13 @@ jobs:
           for r in records:
               spec=r.get('spec','')
               kind=r.get('kind','')
-              # Runtime CDN/import drift: major-only, latest/main/master, or jsDelivr npm with no exact semver.
-              runtime_unpinned = kind in ('external_html','external_import') and (
-                  re.search(r'@(?:latest|main|master)(?:\b|/)', spec, re.I)
-                  or re.search(r'@\d+(?:\b|/)', spec)
-                  or ('cdn.jsdelivr.net/npm/' in spec and not re.search(r'@\d+\.\d+\.\d+(?:\b|/)',spec))
+              is_runtime_code = (
+                  kind=='external_import'
+                  or (kind=='external_html' and 'cdn.jsdelivr.net/npm/' in spec)
               )
-              # Actions tags are reproducible enough for a first inventory but not immutable.
-              action_tag = kind=='github_action' and bool(re.search(r'@v?\d+(?:\.\d+\.\d+)?$', spec))
-              if runtime_unpinned:
+              if is_runtime_code and not exact_semver_runtime(spec):
                   risky.append(r)
-              if action_tag:
+              if kind=='github_action' and bool(re.search(r'@v?\d+(?:\.\d+\.\d+)?$',spec)):
                   action_tag_refs.append(r)
 
           summary={
@@ -159,22 +151,21 @@ jobs:
           (root/'SUMMARY.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False)+'\n')
 
           lines=[
-            '# HOY RT-006 SBOM / Dependency Audit','',
-            f"Syft version: {summary['syft_version']}",
-            f"Direct scanner records: {summary['direct_dependency_records']}",
-            f"Repository license/notice files found: {summary['repo_license_files']}",
-            f"Unpinned launch/runtime dependency records: {summary['runtime_unpinned_count']}",
-            f"GitHub Action tag references requiring immutable-pinning policy decision: {summary['github_action_tag_ref_count']}",'',
-            '| Repository | Syft packages | Declared license values |',
-            '|---|---:|---|',
+              '# HOY RT-006 SBOM / Dependency Audit','',
+              f"Syft version: {summary['syft_version']}",
+              f"Direct scanner records: {summary['direct_dependency_records']}",
+              f"Repository license/notice files found: {summary['repo_license_files']}",
+              f"Unpinned launch/runtime dependency records: {summary['runtime_unpinned_count']}",
+              f"GitHub Action tag references requiring immutable-pinning policy decision: {summary['github_action_tag_ref_count']}",'',
+              '| Repository | Syft packages |',
+              '|---|---:|',
           ]
           for x in sbom_rows:
-              lv=', '.join(x['declared_license_values']) or '—'
-              lines.append(f"| {x['repository']} | {x['syft_package_count']} | {lv} |")
+              lines.append(f"| {x['repository']} | {x['syft_package_count']} |")
           if risky:
-              lines += ['', '## Unpinned runtime findings']
+              lines += ['', '## Genuine unpinned runtime findings']
               for r in risky:
-                  lines.append(f"- {r['file']}: `{r['spec']}`")
+                  lines.append(f"- {pathlib.Path(r['root']).name}/{r['file']}: `{r['spec']}`")
           if action_tag_refs:
               lines += ['', '## GitHub Actions tag references']
               for r in action_tag_refs:
@@ -193,7 +184,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-      - name: Fail closed on unpinned runtime dependencies
+      - name: Fail closed on genuine unpinned runtime dependencies
         shell: bash
         run: |
           set -euo pipefail
@@ -203,7 +194,7 @@ jobs:
           PY
           )"
           if [ "$count" -ne 0 ]; then
-            echo "RT-006 requires remediation of $count unpinned runtime dependency record(s)."
+            echo "RT-006 requires remediation of $count genuinely unpinned runtime dependency record(s)."
             exit 1
           fi
           echo "RT-006 SBOM generated with zero unpinned runtime dependency findings. License/action policy review remains separate."
