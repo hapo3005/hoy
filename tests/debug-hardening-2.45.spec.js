@@ -45,3 +45,25 @@ test('320px guest shell stays horizontally safe and structurally accessible',asy
   await expectDomIntegrity(page,'profile');
   expect(errors).toEqual([]);
 });
+
+test('current PWA shell survives a real offline reload',async({page,context},testInfo)=>{
+  test.skip(testInfo.project.name==='mobile-webkit','Chromium-only service-worker/offline smoke');
+  const errors=watchPageErrors(page);
+  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await expect(page.locator('#bottom')).toBeVisible();
+
+  await page.evaluate(async()=>{await navigator.serviceWorker.ready});
+  await page.reload({waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>Boolean(navigator.serviceWorker.controller)),{timeout:10_000}).toBe(true);
+
+  try{
+    await context.setOffline(true);
+    await page.reload({waitUntil:'domcontentloaded'});
+    await expect(page).toHaveTitle(/HOY La Manga/i);
+    await expect(page.locator('#view')).toBeVisible();
+    await expect(page.locator('#bottom')).toBeVisible();
+    expect(errors).toEqual([]);
+  }finally{
+    await context.setOffline(false);
+  }
+});
