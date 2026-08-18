@@ -45,7 +45,8 @@
       "private.get_business_terms_status_internal",
       "private.operator_accept_business_terms_internal",
       "private.operator_record_business_confirmation_internal"
-    ]
+    ],
+    "operator_terms_triggers": 10
   },
   "current_live_state": {
     "active_terms_gate": false,
@@ -55,6 +56,21 @@
     "verified_restaurant_memberships": 0,
     "operator_behavior_changed_by_terms_gate": false,
     "activation_constraint_negative_test": "PASS"
+  },
+  "ci_governance": {
+    "command": "npm run qa:terms",
+    "critical_pr_gate": true,
+    "guards": [
+      "draft markers remain present",
+      "activation clearance constraint remains present",
+      "public Terms RPCs remain SECURITY INVOKER",
+      "exact terms/document hash binding remains present",
+      "exact Business Confirmation payload hash remains present",
+      "change-of-control clause remains present",
+      "raw-content standalone resale limitation remains present",
+      "Article 28 DPA boundary remains present",
+      "Spanish draft is not falsely assigned a final SHA-256"
+    ]
   },
   "activation_clearance_required": [
     "final_de_sha256",
