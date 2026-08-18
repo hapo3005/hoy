@@ -1,0 +1,31 @@
+name: Investor Ready RT-006 Actions Pin Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+      - 'scripts/investor-ready/check-github-actions-pins.mjs'
+      - 'docs/investor-ready/rt006-github-actions-supply-chain-policy.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  immutable-action-pins:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Verify every external action is immutable
+        run: node scripts/investor-ready/check-github-actions-pins.mjs
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: hoy-rt006-actions-pin-audit
+          path: investor-ready-actions-pin-audit/
+          if-no-files-found: error
+          retention-days: 90
