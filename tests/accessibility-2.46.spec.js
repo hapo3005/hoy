@@ -43,6 +43,84 @@ test('HOY Accessible keeps unknown, stale and unverified facts out of confirmed 
   expect(results.disputedYes).toBe('confirmation_required');
 });
 
+test('numeric comparator evaluates confirmed measurements and requires trust', async ({ page }) => {
+  await gotoReady(page);
+  await page.waitForFunction(() => window.HOYAccessible?.state?.ready === true);
+
+  const results = await page.evaluate(() => {
+    const now = new Date('2026-08-18T12:00:00Z');
+    const base = {
+      restaurant_id: 999,
+      feature_key: 'access.entrance_door_width_cm',
+      status: 'yes',
+      unit: 'cm',
+      stale_after: '2027-08-18T00:00:00Z',
+      verification_level: 'hoy_verified',
+      review_state: 'clean'
+    };
+    const requirement = {
+      'access.entrance_door_width_cm': { importance: 'must', comparator: 'gte', targetValue: 85 }
+    };
+    return {
+      wide: window.HOYAccessible.evaluateFacts([{ ...base, value_number: 91 }], requirement, now).state,
+      narrow: window.HOYAccessible.evaluateFacts([{ ...base, value_number: 79 }], requirement, now).state,
+      missing: window.HOYAccessible.evaluateFacts([{ ...base, value_number: null }], requirement, now).state,
+      unverifiedWide: window.HOYAccessible.evaluateFacts([{ ...base, value_number: 91, verification_level: 'external_unverified' }], requirement, now).state
+    };
+  });
+
+  expect(results.wide).toBe('match');
+  expect(results.narrow).toBe('no_match');
+  expect(results.missing).toBe('confirmation_required');
+  expect(results.unverifiedWide).toBe('confirmation_required');
+});
+
+test('PREFER changes ordering but can never compensate a failed MUST', async ({ page }) => {
+  await gotoReady(page);
+  await page.waitForFunction(() => window.HOYAccessible?.state?.ready === true);
+
+  const results = await page.evaluate(() => {
+    const now = new Date('2026-08-18T12:00:00Z');
+    const fact = (restaurant_id, feature_key, status) => ({
+      restaurant_id,
+      feature_key,
+      status,
+      verification_level: 'business_confirmed',
+      stale_after: '2027-02-14T00:00:00Z',
+      review_state: 'clean'
+    });
+    const prefs = {
+      'access.step_free': 'must',
+      'access.parking': 'prefer'
+    };
+    const a = window.HOYAccessible.evaluateFacts([
+      fact(1, 'access.step_free', 'yes'),
+      fact(1, 'access.parking', 'no')
+    ], prefs, now);
+    const b = window.HOYAccessible.evaluateFacts([
+      fact(2, 'access.step_free', 'yes'),
+      fact(2, 'access.parking', 'yes')
+    ], prefs, now);
+    const c = window.HOYAccessible.evaluateFacts([
+      fact(3, 'access.step_free', 'no'),
+      fact(3, 'access.parking', 'yes')
+    ], prefs, now);
+    return {
+      a,
+      b,
+      c,
+      preferRanksBFirst: window.HOYAccessible.compareEvaluations(a, b) > 0
+    };
+  });
+
+  expect(results.a.state).toBe('match');
+  expect(results.a.preferBlocked).toEqual(['access.parking']);
+  expect(results.b.state).toBe('match');
+  expect(results.b.preferMatched).toEqual(['access.parking']);
+  expect(results.preferRanksBFirst).toBeTruthy();
+  expect(results.c.state).toBe('no_match');
+});
+
 test('restaurant overview shows concrete accessibility facts without a percentage score', async ({ page }) => {
   await gotoReady(page);
   await page.waitForFunction(() => window.HOYAccessible?.state?.ready === true);
@@ -80,7 +158,7 @@ test('legacy all-unknown audit is not rendered as a negative accessibility claim
   await expect(panel).not.toContainText('Nicht vorhanden');
 });
 
-test('migration protects the hearing-loop unknown correction, RLS exposure and legacy sync', async () => {
+test('migration protects unknown semantics, RLS and operator-to-fact synchronization', async () => {
   const sql = fs.readFileSync(path.join(__dirname, '..', 'supabase', 'migrations', '20260818093100_hoy_accessible_v1.sql'), 'utf8');
   expect(sql).toContain("'access.hearing_loop','unknown'");
   expect(sql).toContain('not publicly listed => unknown, not no');
@@ -89,4 +167,7 @@ test('migration protects the hearing-loop unknown correction, RLS exposure and l
   expect(sql).toContain('grant select on public.restaurant_accessibility_facts to anon, authenticated');
   expect(sql).toContain('hoy_sync_accessibility_facts_from_legacy');
   expect(sql).toContain('security invoker');
+  expect(sql).toContain('set is_current = false');
+  expect(sql).toContain("when 'operator' then 'business_confirmed'");
+  expect(sql).toContain('create trigger hoy_accessibility_fact_sync');
 });
