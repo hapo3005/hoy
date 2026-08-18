@@ -1,10 +1,51 @@
-/* HOY 1.8.2 — validated Supabase RPC analytics + proof-gate enrollment */
+/* HOY 1.8.4 — explicit-consent, fail-closed production analytics */
 (function(){
   const ANON_KEY='hoy-anonymous-id-v1';
   const SESSION_KEY='hoy-session-id-v1';
   const PILOT_KEY='hoy-proof-pilot-code-v1';
   const PILOT_SENT_KEY='hoy-proof-pilot-enrolled-v1';
+  const CONSENT_KEY='hoy-privacy-analytics-consent-v1';
   const PRODUCTION_HOSTS=new Set(['hapo3005.github.io']);
+
+  function productionHost(){
+    const host=String(window.location?.hostname||'').toLowerCase();
+    return PRODUCTION_HOSTS.has(host);
+  }
+  function safeGet(storage,key){
+    try{return storage.getItem(key)}catch{return null}
+  }
+  function safeSet(storage,key,value){
+    try{storage.setItem(key,value);return true}catch{return false}
+  }
+  function safeRemove(storage,key){
+    try{storage.removeItem(key)}catch{}
+  }
+  function analyticsConsentStatus(){
+    const value=safeGet(localStorage,CONSENT_KEY);
+    return value==='granted'||value==='denied'?value:'unset';
+  }
+  function analyticsConsentGranted(){
+    return analyticsConsentStatus()==='granted';
+  }
+  function qaRuntimeDetected(){
+    if(navigator.webdriver===true)return true;
+    // Production must not touch the QA localStorage marker before consent.
+    if(productionHost())return false;
+    return safeGet(localStorage,'hoy-qa-runtime')==='1';
+  }
+  function analyticsStorageAllowed(){
+    return !productionHost()||analyticsConsentGranted();
+  }
+  function productionAnalyticsAllowed(){
+    return productionHost()&&!qaRuntimeDetected()&&analyticsConsentGranted();
+  }
+  function clearAnalyticsIdentifiers(){
+    safeRemove(localStorage,ANON_KEY);
+    safeRemove(sessionStorage,SESSION_KEY);
+    safeRemove(localStorage,PILOT_KEY);
+    safeRemove(localStorage,PILOT_SENT_KEY);
+    if(typeof ANALYTICS_KEY==='string'&&ANALYTICS_KEY)safeRemove(localStorage,ANALYTICS_KEY);
+  }
   function randomId(){
     const c=window.crypto;
     if(c&&typeof c.randomUUID==='function')return c.randomUUID();
@@ -13,8 +54,12 @@
     });
   }
   function storedUuid(storage,key){
-    let value=storage.getItem(key);
-    if(!value){value=randomId();storage.setItem(key,value)}
+    if(!analyticsStorageAllowed())return null;
+    let value=safeGet(storage,key);
+    if(!value){
+      value=randomId();
+      if(!safeSet(storage,key,value))return null;
+    }
     return value;
   }
   function safeMeta(meta={}){
@@ -26,17 +71,14 @@
     }
     out.lang=state.lang;
     out.view=state.view;
-    out.client_version='1.8.2';
+    out.client_version='1.8.4';
     return out;
   }
-  function qaRuntimeDetected(){
-    return localStorage.getItem('hoy-qa-runtime')==='1'||navigator.webdriver===true;
-  }
-  function productionAnalyticsAllowed(){
-    const host=String(window.location?.hostname||'').toLowerCase();
-    return PRODUCTION_HOSTS.has(host)&&!qaRuntimeDetected();
-  }
   function buildPayload(type,restaurantId,meta={}){
+    if(productionHost()&&!analyticsConsentGranted())return null;
+    const anonymousId=storedUuid(localStorage,ANON_KEY);
+    const sessionId=storedUuid(sessionStorage,SESSION_KEY);
+    if(!anonymousId||!sessionId)return null;
     const venue=restaurantId?DATA.find(x=>Number(x.id)===Number(restaurantId)):null;
     const metadata={
       ...safeMeta(meta),
@@ -47,8 +89,8 @@
     return {
       p_event_type:type,
       p_restaurant_id:Number(restaurantId)||null,
-      p_anonymous_id:storedUuid(localStorage,ANON_KEY),
-      p_session_id:storedUuid(sessionStorage,SESSION_KEY),
+      p_anonymous_id:anonymousId,
+      p_session_id:sessionId,
       p_metadata:metadata
     };
   }
@@ -56,73 +98,111 @@
     const value=String(raw||'').trim().toUpperCase();
     return /^P(?:0[1-9]|[12][0-9]|30)$/.test(value)?value:null;
   }
+  function stripPilotQuery(params,hasPilotParam){
+    if(!hasPilotParam)return;
+    params.delete('pilot');
+    if(window.history&&typeof window.history.replaceState==='function'){
+      const query=params.toString();
+      const clean=`${window.location.pathname}${query?`?${query}`:''}${window.location.hash||''}`;
+      window.history.replaceState(window.history.state,'',clean);
+    }
+  }
   function capturePilotEnrollment(){
     const params=new URLSearchParams(window.location.search||'');
     const hasPilotParam=params.has('pilot');
     const incoming=pilotCode(params.get('pilot'));
-    const stored=pilotCode(localStorage.getItem(PILOT_KEY));
-    let selected=stored;
 
+    // Remove the URL parameter regardless of consent so it cannot become a second store.
+    stripPilotQuery(params,hasPilotParam);
+
+    // On Production, pilot attribution is analytics state and must remain absent
+    // until explicit analytics consent exists.
+    if(!analyticsStorageAllowed())return null;
+
+    const stored=pilotCode(safeGet(localStorage,PILOT_KEY));
+    let selected=stored;
     if(incoming){
       if(stored&&stored!==incoming){
         console.warn('HOY proof-gate pilot code conflict ignored');
-      }else if(!stored){
-        localStorage.setItem(PILOT_KEY,incoming);
+      }else if(!stored&&safeSet(localStorage,PILOT_KEY,incoming)){
         selected=incoming;
-      }
-    }
-
-    // Always strip the pilot query value, including malformed/free-text values, so
-    // the URL cannot retain accidental personal information or become a second store.
-    if(hasPilotParam){
-      params.delete('pilot');
-      if(window.history&&typeof window.history.replaceState==='function'){
-        const query=params.toString();
-        const clean=`${window.location.pathname}${query?`?${query}`:''}${window.location.hash||''}`;
-        window.history.replaceState(window.history.state,'',clean);
       }
     }
     return selected||incoming||null;
   }
   function schedulePilotEnrollment(code,attempt=0){
-    if(!code||localStorage.getItem(PILOT_SENT_KEY)===code)return;
+    if(!code||!analyticsStorageAllowed())return;
+    if(safeGet(localStorage,PILOT_SENT_KEY)===code)return;
 
-    // Local/preview/Playwright runs exercise the sanitized payload once for QA, but
-    // never retry or write to Production. The production isolation rule stays intact.
+    // Preview/Playwright may exercise the sanitized analytics path, but cannot
+    // reach the Production RPC transport gate.
     if(!productionAnalyticsAllowed()){
-      if(qaRuntimeDetected()&&attempt===0)trackEvent('qr_open',null,{source:'proof_gate',pilot_code:code});
+      if(!productionHost()&&qaRuntimeDetected()&&attempt===0){
+        trackEvent('qr_open',null,{source:'proof_gate',pilot_code:code});
+      }
       return;
     }
 
-    // Analytics loads before the final cloud initialization in the current shell.
-    // Retry briefly instead of losing the one-time enrollment event while Supabase
-    // is still connecting. Mark as enrolled only after the RPC confirms success.
     if(!sb||cloud.status!=='online'){
       if(attempt<30)setTimeout(()=>schedulePilotEnrollment(code,attempt+1),1000);
       return;
     }
     Promise.resolve(trackEvent('qr_open',null,{source:'proof_gate',pilot_code:code})).then(sent=>{
-      if(sent)localStorage.setItem(PILOT_SENT_KEY,code);
+      if(sent)safeSet(localStorage,PILOT_SENT_KEY,code);
       else if(attempt<30)setTimeout(()=>schedulePilotEnrollment(code,attempt+1),1000);
     });
   }
 
-  window.hoyProductionAnalyticsAllowed181=productionAnalyticsAllowed;
-  trackEvent=function(type,restaurantId,meta={}){
-    const rows=readEvents();
-    rows.push({type,restaurantId:Number(restaurantId)||null,meta,at:new Date().toISOString()});
-    localStorage.setItem(ANALYTICS_KEY,JSON.stringify(rows.slice(-500)));
+  // Upgrade cleanup: Production without explicit consent must not retain identifiers
+  // or raw event history left by older client versions.
+  if(productionHost()&&!analyticsConsentGranted())clearAnalyticsIdentifiers();
 
-    // Build the exact sanitized payload before deciding on transport. In QA this
-    // creates a test-only snapshot so attribution/metadata can be verified without
-    // calling the production RPC. Real production sessions expose no debug snapshot.
+  window.hoyAnalyticsPrivacy181={
+    consentKey:CONSENT_KEY,
+    status:analyticsConsentStatus,
+    granted:analyticsConsentGranted,
+    grant:()=>{
+      safeSet(localStorage,CONSENT_KEY,'granted');
+      return analyticsConsentStatus();
+    },
+    deny:()=>{
+      safeSet(localStorage,CONSENT_KEY,'denied');
+      clearAnalyticsIdentifiers();
+      return analyticsConsentStatus();
+    },
+    withdraw:()=>{
+      safeSet(localStorage,CONSENT_KEY,'denied');
+      clearAnalyticsIdentifiers();
+      return analyticsConsentStatus();
+    },
+    clear:()=>{
+      safeRemove(localStorage,CONSENT_KEY);
+      clearAnalyticsIdentifiers();
+      return analyticsConsentStatus();
+    }
+  };
+  window.hoyAnalyticsConsentGranted181=analyticsConsentGranted;
+  window.hoyProductionAnalyticsAllowed181=productionAnalyticsAllowed;
+
+  trackEvent=function(type,restaurantId,meta={}){
+    // Critical invariant: on Production, absence of explicit consent exits before
+    // readEvents(), buildPayload(), UUID creation or any analytics persistence.
+    if(productionHost()&&!analyticsConsentGranted())return Promise.resolve(false);
+
+    // Raw local analytics history is a QA/preview facility only. Production never
+    // persists the raw event queue in localStorage, even after consent.
+    if(!productionHost()){
+      const rows=readEvents();
+      rows.push({type,restaurantId:Number(restaurantId)||null,meta,at:new Date().toISOString()});
+      safeSet(localStorage,ANALYTICS_KEY,JSON.stringify(rows.slice(-500)));
+    }
+
     const payload=buildPayload(type,restaurantId,meta);
+    if(!payload)return Promise.resolve(false);
+
     if(qaRuntimeDetected())window.hoyLastQaAnalyticsPayload181=payload;
     else if('hoyLastQaAnalyticsPayload181' in window)delete window.hoyLastQaAnalyticsPayload181;
 
-    // Production analytics are fail-closed: only the explicit production host and
-    // a real non-QA browser may write. Local, preview and Playwright runs still
-    // exercise the complete analytics enrichment path but stop before transport.
     if(!productionAnalyticsAllowed())return Promise.resolve(false);
     if(!sb||cloud.status!=='online')return Promise.resolve(false);
     return sb.rpc('log_analytics_event',payload).then(({error})=>{
