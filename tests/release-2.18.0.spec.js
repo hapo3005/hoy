@@ -52,14 +52,12 @@ test('explicit sponsored open starts a 30 minute same-venue attribution window',
   expect(attribution?.promotion_id).toBe('22222222-2222-4222-8222-222222222222');
   expect(attribution?.restaurant_id).toBe(1);
   expect(attribution?.expires_at - attribution?.opened_at).toBe(30 * 60 * 1000);
-
   await page.evaluate(() => trackEvent('website_open', 1, { qa: true }));
   const website=await qaPayload(page,'website_open');
   expect(website.p_metadata.promotion_id).toBe('22222222-2222-4222-8222-222222222222');
   expect(website.p_metadata.promotion_attribution).toBe('sponsored_open_30m_same_venue');
   expect(website.p_metadata.sponsored).toBe('true');
   expect(website.p_metadata.qa_runtime).toBe('1');
-
   await page.evaluate(() => trackEvent('call_click', 1, { qa: 'phone' }));
   const phone=await qaPayload(page,'call_click');
   expect(phone.p_metadata.promotion_id).toBe('22222222-2222-4222-8222-222222222222');
@@ -70,12 +68,10 @@ test('promotion attribution never leaks to another venue or past its expiry', as
   await page.goto('./', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.hoy-promo-highlight')).toBeVisible({ timeout: 20_000 });
   await page.locator('[data-promotion-open]').click();
-
   await page.evaluate(() => trackEvent('website_open', 2, { qa: 'other-venue' }));
   const otherVenue=await qaPayload(page,'website_open');
   expect(otherVenue.p_restaurant_id).toBe(2);
   expect(otherVenue.p_metadata.promotion_id).toBeUndefined();
-
   await page.evaluate(() => {
     const a = window.hoyPromotionAttribution218();
     sessionStorage.setItem('hoy-promo-attribution-v1', JSON.stringify({ ...a, expires_at: Date.now() - 1 }));
@@ -105,30 +101,74 @@ test('restaurant profile still opens after a visible discover card is replaced w
   await detail.locator('[data-close]').first().click();
   await expect(detail).not.toBeVisible();
   await page.evaluate(() => {
-    const card = [...document.querySelectorAll('.list-card[data-open]')].find(x => (x.textContent || '').includes('Agua Salá'));
-    if (card) card.remove();
+    const old = [...document.querySelectorAll('.list-card[data-open]')].find(x => (x.textContent || '').includes('Agua Salá'));
+    if (!old) throw new Error('Agua Salá card missing after close');
+    old.replaceWith(old.cloneNode(true));
   });
+  await card.focus();
+  await card.press('Enter');
+  await expect(detail).toBeVisible({ timeout: 12_000 });
+  await expect(detail).toContainText('Agua Salá');
 });
 
 test('menu refresh stays observer-free and preserves the active profile section', async ({ page }) => {
-  await openAguaSala(page);
-  const detail=page.locator('#detail[open]');
-  const menuTab=detail.locator('[data-tab="menu"]');
-  await menuTab.click();
-  await expect(detail.locator('[data-section="menu"]')).toBeVisible();
-  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('hoy-menu-refresh')));
-  await expect(detail.locator('[data-section="menu"]')).toBeVisible();
+  const detail = await openAguaSala(page);
+  const active = detail.locator('.profile-premium-nav a.active');
+  await expect(active).toContainText(/Überblick/i);
+  const immediate = await page.evaluate(() => {
+    const d = document.querySelector('#detail[open]');
+    window.__hoyQaRealIntersectionObserver = window.IntersectionObserver;
+    window.__hoyQaObserverConstructed = 0;
+    window.IntersectionObserver = class {
+      constructor(){ window.__hoyQaObserverConstructed += 1; }
+      observe(){}
+      disconnect(){}
+      unobserve(){}
+      takeRecords(){ return []; }
+    };
+    const started = performance.now();
+    window.dispatchEvent(new CustomEvent('hoy:profile-menu-refreshed', { detail: { restaurantId: Number(d?.dataset.restaurantId || 0), qa: true } }));
+    return {
+      dispatchMs: performance.now() - started,
+      activeHref: d?.querySelector('.profile-premium-nav a.active')?.getAttribute('href') || '',
+      activeText: d?.querySelector('.profile-premium-nav a.active')?.textContent || ''
+    };
+  });
+  expect(immediate.dispatchMs).toBeLessThan(250);
+  expect(immediate.activeHref).toBe('#profile-about');
+  expect(immediate.activeText).toMatch(/Überblick/i);
+  await page.waitForTimeout(200);
+  const observerCount = await page.evaluate(() => {
+    const count = Number(window.__hoyQaObserverConstructed || 0);
+    if (window.__hoyQaRealIntersectionObserver) window.IntersectionObserver = window.__hoyQaRealIntersectionObserver;
+    delete window.__hoyQaRealIntersectionObserver;
+    delete window.__hoyQaObserverConstructed;
+    return count;
+  });
+  expect(observerCount).toBe(0);
+  await expect(active).toContainText(/Überblick/i);
 });
 
 test('2.18.5 pricing, insights and lifecycle assets remain real deployed resources after later releases', async ({ request }) => {
-  for (const path of [
-    './promotion-insights-2.18.js',
-    './promotion-insights-2.18.css',
-    './supabase/functions/promotion-insights/index.ts',
-    './supabase/migrations/20260811010706_event_promotion_integrity_and_metrics_218.sql'
-  ]) {
-    const response=await request.get(path);
-    expect(response.ok(),`${path} should be deployed`).toBeTruthy();
+  const pkg = await request.get('./package.json');
+  expect(pkg.ok()).toBeTruthy();
+  const { version } = await pkg.json();
+  expect(version).toBe(CURRENT_RELEASE);
+  for (const asset of ['./promotion-insights-2.18.js','./promotion-insights-2.18.css','./profile-open-stability-2.18.1.js','./profile-premium-2.12.js','./menu-signature-2.13.js','./admin-promotion-2.18.js','./admin-promotion-2.18.css']) {
+    const res = await request.get(asset);
+    expect(res.ok(), `${asset} should load`).toBeTruthy();
+    expect((res.headers()['content-type'] || '')).not.toMatch(/text\/html/i);
   }
-  expect(CURRENT_RELEASE).toBeTruthy();
+  const workerText = await (await request.get('./service-worker.js')).text();
+  expect(workerText).toContain(`const CACHE='hoy-v${version}'`);
+  expect(workerText).toContain('./promotion-insights-2.18.js');
+  expect(workerText).toContain('./profile-open-stability-2.18.1.js');
+  const appText = await (await request.get('./index.html')).text();
+  expect(appText).toContain('profile-premium-2.12.js?v=2.20.2');
+  expect(appText).toContain('menu-signature-2.13.js?v=2.20.1');
+  expect(appText).toContain('profile-flow-2.7.js?v=2.20.1');
+  const adminText = await (await request.get('./admin.html')).text();
+  expect(adminText).toContain(`HOY Control Center · ${CURRENT_RELEASE}`);
+  expect(adminText).toContain('admin-promotion-2.18.js?v=2.18.5');
+  expect(adminText).not.toContain('admin-promotion-2.17.js');
 });
