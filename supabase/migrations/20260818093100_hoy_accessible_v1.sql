@@ -173,5 +173,92 @@ from public.restaurant_accessibility a
 where a.restaurant_id in (22,112,145,174)
 on conflict (fact_ref) do nothing;
 
+-- Keep the new fact layer synchronized with the existing operator workflow.
+-- The trigger is SECURITY INVOKER and therefore preserves the caller's existing authorization model.
+create or replace function public.hoy_sync_accessibility_facts_from_legacy()
+returns trigger
+language plpgsql
+security invoker
+set search_path = public, pg_temp
+as $$
+declare
+  v_verification text;
+  v_source_type text;
+  v_checked_at timestamptz;
+  v_verified_at timestamptz;
+  v_revision text;
+begin
+  v_verification := case new.verification_source
+    when 'operator' then 'business_confirmed'
+    when 'onsite' then 'hoy_verified'
+    else 'external_unverified'
+  end;
+  v_source_type := case new.verification_source
+    when 'operator' then 'operator_confirmation'
+    when 'onsite' then 'hoy_onsite_verification'
+    else 'public_structured_business_data'
+  end;
+  v_checked_at := coalesce(new.checked_at, now());
+  v_verified_at := case when v_verification in ('business_confirmed','hoy_verified') then v_checked_at else null end;
+  v_revision := replace(extract(epoch from clock_timestamp())::numeric::text, '.', '');
+
+  update public.restaurant_accessibility_facts
+  set is_current = false, updated_at = now()
+  where restaurant_id = new.restaurant_id
+    and feature_key in ('access.step_free','access.wheelchair_seating','access.toilet','access.parking','access.hearing_loop')
+    and is_current = true;
+
+  insert into public.restaurant_accessibility_facts (
+    fact_ref,restaurant_id,feature_key,status,source_type,verification_level,evidence_type,source_url,
+    checked_at,verified_at,stale_after,review_state,legacy_class,secondary_hint,legacy_restrictions,evidence,is_current
+  )
+  select
+    'gastro-sync-'||new.restaurant_id::text||'-'||replace(v.feature_key,'.','-')||'-'||v_revision,
+    new.restaurant_id,
+    v.feature_key,
+    v.status,
+    v_source_type,
+    v_verification,
+    new.evidence_type,
+    new.source_url,
+    v_checked_at,
+    v_verified_at,
+    v_checked_at + make_interval(days => case
+      when v_verification in ('hoy_verified','business_confirmed','community_confirmed')
+        then registry.freshness_verified_days
+      else registry.freshness_external_days
+    end),
+    'clean',
+    new.overall_status,
+    new.secondary_note,
+    new.accessibility_note,
+    jsonb_build_object(
+      'sync_source','restaurant_accessibility',
+      'verification_source',new.verification_source,
+      'synced_at',now()
+    ),
+    true
+  from (values
+    ('access.step_free'::text,new.wheelchair_entrance_state::text),
+    ('access.wheelchair_seating'::text,new.wheelchair_seating_state::text),
+    ('access.toilet'::text,new.wheelchair_toilet_state::text),
+    ('access.parking'::text,new.accessible_parking_state::text),
+    ('access.hearing_loop'::text,new.hearing_loop_state::text)
+  ) as v(feature_key,status)
+  join public.accessibility_feature_registry registry on registry.feature_key = v.feature_key;
+
+  return new;
+end;
+$$;
+
+revoke all on function public.hoy_sync_accessibility_facts_from_legacy() from public, anon, authenticated;
+
+drop trigger if exists hoy_accessibility_fact_sync on public.restaurant_accessibility;
+create trigger hoy_accessibility_fact_sync
+after insert or update of wheelchair_entrance_state,wheelchair_seating_state,wheelchair_toilet_state,accessible_parking_state,hearing_loop_state,verification_source,source_url,evidence_type,checked_at,accessibility_note
+on public.restaurant_accessibility
+for each row execute function public.hoy_sync_accessibility_facts_from_legacy();
+
 comment on table public.accessibility_feature_registry is 'Canonical HOY Accessible feature registry shared across HOY verticals.';
-comment on table public.restaurant_accessibility_facts is 'Per-feature accessibility facts. Unknown is never interpreted as no; is_current selects the active fact while older rows can be retained.';
+comment on table public.restaurant_accessibility_facts is 'Per-feature accessibility facts. Unknown is never interpreted as no; is_current selects the active fact while older rows are retained for audit/history.';
+comment on function public.hoy_sync_accessibility_facts_from_legacy() is 'Synchronizes existing operator accessibility confirmations into versioned per-feature HOY Accessible facts.';
