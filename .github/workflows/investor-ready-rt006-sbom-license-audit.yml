@@ -1,0 +1,198 @@
+name: Investor Ready RT-006 SBOM License Audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/investor-ready-rt006-sbom-license-audit.yml'
+      - 'scripts/investor-ready/audit-third-party-deps.mjs'
+      - 'docs/investor-ready/rt006-oss-sbom-ai.md'
+      - 'docs/investor-ready/third-party-notices-draft.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sbom-license-audit:
+    name: SBOM + direct dependency census
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SYFT_VERSION: '1.51.0'
+
+    steps:
+      - name: Checkout audit controls
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: hapo3005/hoy
+          ref: ops/rt-005-rt-006-assets-sbom-ai
+          path: audit-controls
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Checkout HOY Core/Gastro
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: hapo3005/hoy
+          ref: main
+          path: hoy
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Checkout HOY Lifestyle
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: hapo3005/hoy-lifestyle
+          ref: main
+          path: hoy-lifestyle
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Checkout HOY Works
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: hapo3005/hoy-works
+          ref: main
+          path: hoy-works
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Install checksum-verified Syft
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}"
+          archive="syft_${SYFT_VERSION}_linux_amd64.tar.gz"
+          curl -fsSLo /tmp/syft-checksums.txt "${base}/syft_${SYFT_VERSION}_checksums.txt"
+          curl -fsSLo "/tmp/${archive}" "${base}/${archive}"
+          grep " ${archive}$" /tmp/syft-checksums.txt > /tmp/syft-check.txt
+          (cd /tmp && sha256sum -c syft-check.txt)
+          tar -xzf "/tmp/${archive}" -C /tmp syft
+          sudo install -m 0755 /tmp/syft /usr/local/bin/syft
+          syft version
+
+      - name: Generate standard SBOMs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p investor-ready-sbom
+          for repo in hoy hoy-lifestyle hoy-works; do
+            mkdir -p "investor-ready-sbom/$repo"
+            syft "dir:$repo" --source-name "$repo" \
+              -o "syft-json=investor-ready-sbom/$repo/syft.json" \
+              -o "spdx-json=investor-ready-sbom/$repo/spdx.json" \
+              -o "cyclonedx-json=investor-ready-sbom/$repo/cyclonedx.json"
+          done
+
+      - name: Run HOY direct dependency scanner
+        shell: bash
+        run: |
+          set -euo pipefail
+          node audit-controls/scripts/investor-ready/audit-third-party-deps.mjs hoy hoy-lifestyle hoy-works
+          mkdir -p investor-ready-sbom/direct-scan
+          cp investor-ready-audit/third-party-dependencies.json investor-ready-sbom/direct-scan/
+          cp investor-ready-audit/third-party-dependencies.csv investor-ready-sbom/direct-scan/
+          cp investor-ready-audit/license-files.json investor-ready-sbom/direct-scan/
+          cp investor-ready-audit/summary.json investor-ready-sbom/direct-scan/
+
+      - name: Build SBOM and pinning summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          import json, pathlib, re
+
+          root = pathlib.Path('investor-ready-sbom')
+          direct = json.loads((root/'direct-scan'/'third-party-dependencies.json').read_text())
+
+          def exact_semver_runtime(spec):
+              if spec.startswith(('npm:','jsr:')):
+                  return bool(re.match(r'^(?:npm:|jsr:)(?:@[^/]+/[^@/]+|[^@/]+)@\d+\.\d+\.\d+(?:/|$)', spec))
+              if 'cdn.jsdelivr.net/npm/' in spec:
+                  tail = spec.split('cdn.jsdelivr.net/npm/',1)[1]
+                  return bool(re.match(r'^(?:@[^/]+/[^@/]+|[^@/]+)@\d+\.\d+\.\d+(?:/|$)', tail))
+              return True
+
+          sbom_rows=[]
+          for repo in ('hoy','hoy-lifestyle','hoy-works'):
+              data=json.loads((root/repo/'syft.json').read_text())
+              artifacts=data.get('artifacts',[])
+              sbom_rows.append({'repository':repo,'syft_package_count':len(artifacts)})
+
+          records=direct.get('records',[])
+          risky=[]
+          action_tag_refs=[]
+          for r in records:
+              spec=r.get('spec','')
+              kind=r.get('kind','')
+              is_runtime_code = (
+                  kind=='external_import'
+                  or (kind=='external_html' and 'cdn.jsdelivr.net/npm/' in spec)
+              )
+              if is_runtime_code and not exact_semver_runtime(spec):
+                  risky.append(r)
+              if kind=='github_action' and bool(re.search(r'@v?\d+(?:\.\d+\.\d+)?$',spec)):
+                  action_tag_refs.append(r)
+
+          summary={
+              'syft_version':'1.51.0',
+              'repositories':sbom_rows,
+              'direct_dependency_records':len(records),
+              'repo_license_files':len(direct.get('license_files',[])),
+              'runtime_unpinned_count':len(risky),
+              'github_action_tag_ref_count':len(action_tag_refs),
+              'runtime_unpinned':risky,
+              'github_action_tag_refs':action_tag_refs,
+              'technical_status':'REVIEW_REQUIRED' if risky else 'SBOM_GENERATED_PINNING_REVIEW_OPEN',
+          }
+          (root/'SUMMARY.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False)+'\n')
+
+          lines=[
+              '# HOY RT-006 SBOM / Dependency Audit','',
+              f"Syft version: {summary['syft_version']}",
+              f"Direct scanner records: {summary['direct_dependency_records']}",
+              f"Repository license/notice files found: {summary['repo_license_files']}",
+              f"Unpinned launch/runtime dependency records: {summary['runtime_unpinned_count']}",
+              f"GitHub Action tag references requiring immutable-pinning policy decision: {summary['github_action_tag_ref_count']}",'',
+              '| Repository | Syft packages |',
+              '|---|---:|',
+          ]
+          for x in sbom_rows:
+              lines.append(f"| {x['repository']} | {x['syft_package_count']} |")
+          if risky:
+              lines += ['', '## Genuine unpinned runtime findings']
+              for r in risky:
+                  lines.append(f"- {pathlib.Path(r['root']).name}/{r['file']}: `{r['spec']}`")
+          if action_tag_refs:
+              lines += ['', '## GitHub Actions tag references']
+              for r in action_tag_refs:
+                  lines.append(f"- {r['file']}: `{r['spec']}`")
+          lines += ['', f"Technical status: **{summary['technical_status']}**"]
+          (root/'SUMMARY.md').write_text('\n'.join(lines)+'\n')
+          print('\n'.join(lines))
+          PY
+
+      - name: Upload RT-006 SBOM evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: hoy-rt006-sbom-license-audit
+          path: investor-ready-sbom/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Fail closed on genuine unpinned runtime dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          count="$(python3 - <<'PY'
+          import json
+          print(json.load(open('investor-ready-sbom/SUMMARY.json'))['runtime_unpinned_count'])
+          PY
+          )"
+          if [ "$count" -ne 0 ]; then
+            echo "RT-006 requires remediation of $count genuinely unpinned runtime dependency record(s)."
+            exit 1
+          fi
+          echo "RT-006 SBOM generated with zero unpinned runtime dependency findings. License/action policy review remains separate."

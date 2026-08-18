@@ -1,0 +1,73 @@
+name: Investor Ready RT-006 Lockfile Audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/investor-ready-rt006-lockfile-audit.yml'
+      - 'docs/investor-ready/rt006-oss-sbom-ai.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lockfile-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - name: Generate deterministic npm lock candidate
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Validate lock semantics
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs=require('fs');
+          const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
+          const lock=JSON.parse(fs.readFileSync('package-lock.json','utf8'));
+          if(lock.lockfileVersion < 3) throw new Error(`lockfileVersion ${lock.lockfileVersion} < 3`);
+          if(lock.packages?.['']?.devDependencies?.['@playwright/test'] !== pkg.devDependencies['@playwright/test']) {
+            throw new Error('root Playwright declaration differs between package.json and package-lock.json');
+          }
+          const p=lock.packages?.['node_modules/@playwright/test'];
+          if(!p?.version || !/^1\.62\.0$/.test(p.version)) throw new Error(`unexpected Playwright resolution: ${p?.version}`);
+          if(!p.integrity || !p.resolved) throw new Error('Playwright lock entry lacks resolved/integrity evidence');
+          console.log(`Lockfile PASS: v${lock.lockfileVersion}, @playwright/test ${p.version}`);
+          NODE
+      - name: Build lock evidence summary
+        shell: bash
+        run: |
+          mkdir -p investor-ready-lockfile
+          cp package-lock.json investor-ready-lockfile/package-lock.json
+          node <<'NODE'
+          const fs=require('fs'),crypto=require('crypto');
+          const body=fs.readFileSync('package-lock.json');
+          const lock=JSON.parse(body);
+          const summary={
+            schema_version:'1.0',
+            node_major:22,
+            lockfile_version:lock.lockfileVersion,
+            package_records:Object.keys(lock.packages||{}).length,
+            sha256:crypto.createHash('sha256').update(body).digest('hex'),
+            root_dev_dependencies:lock.packages?.['']?.devDependencies||{},
+            status:'GREEN'
+          };
+          fs.writeFileSync('investor-ready-lockfile/SUMMARY.json',JSON.stringify(summary,null,2)+'\n');
+          fs.writeFileSync('investor-ready-lockfile/SUMMARY.md',`# RT-006 npm lock evidence\n\n- Lockfile version: ${summary.lockfile_version}\n- Package records: ${summary.package_records}\n- SHA-256: \`${summary.sha256}\`\n- Status: **GREEN**\n`);
+          NODE
+      - name: Upload lock evidence
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: hoy-rt006-lockfile-evidence
+          path: investor-ready-lockfile/
+          if-no-files-found: error
+          retention-days: 90

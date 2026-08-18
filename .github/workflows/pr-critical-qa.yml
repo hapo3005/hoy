@@ -20,12 +20,12 @@ jobs:
       PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:4173/
       CI: 'true'
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 22
       - name: Install QA dependency
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Start branch server
@@ -69,7 +69,7 @@ jobs:
           --retries=0
       - name: Upload critical failure traces
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: hoy-critical-failures-${{ github.run_id }}
           path: test-results/
