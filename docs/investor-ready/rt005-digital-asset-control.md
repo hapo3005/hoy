@@ -1,6 +1,6 @@
 # HOY Investor Ready — RT-005 Digital Asset Control
 
-Status: **IN PROGRESS / preparation complete, transfers not executed**
+Status: **IN PROGRESS / secret-history technical gate GREEN; organizational transfers not executed**
 
 This control exists to ensure HOY can be financed, operated, recovered and later transferred without depending on the founder's personal accounts.
 
@@ -25,6 +25,32 @@ The HOY Core workflows currently reference at least:
 - `HOY_SUPABASE_SECRET_KEY`
 
 These are referenced as GitHub Actions secrets rather than committed plaintext in the reviewed workflow, but the account owner, billing owner, recovery method, second administrator and rotation evidence are not yet corporate DD evidence.
+
+#### RT-005 all-history secret audit — technical gate GREEN
+A reproducible fail-closed GitHub Actions audit now scans all commits reachable from every currently advertised branch/tag of the three core repositories. The scanner is accepted only after a synthetic canary proves detector health. Raw scanner output is deleted after sanitization so DD artifacts contain no matched secret value or source-line text.
+
+Successful reference run:
+- workflow: `Investor Ready RT-005 Secret History Audit`
+- run ID: `32185575422`
+- audited head: `3f5d2d112a94933eb94ac76c1b44191808a6423a`
+- artifact ID: `9342313653`
+- artifact SHA-256: `16f64661beb8a22c352a785f0c94b98578a954428e7aa251369f80cf63bca400`
+
+Final classification:
+- 14 total scanner findings;
+- 14 exact-fingerprint classifications;
+- 0 unclassified findings;
+- 7 benign browser/local-storage key identifiers;
+- 6 expected public Supabase `sb_publishable_...` client keys;
+- 1 deliberately synthetic detector canary.
+
+The exact-fingerprint registry is `rt005-secret-findings-classification.json`. Any new scanner fingerprint defaults to `REVIEW_REQUIRED` and fails the gate.
+
+**Current technical conclusion:** no unclassified credential/secret finding remains in the currently reachable Git history of the three audited repositories.
+
+This does not close the broader secrets-control problem. Privileged GitHub Actions secrets, Supabase secret/service credentials, OpenAI/vendor credentials, password-manager records, billing/recovery ownership and rotation evidence remain corporate-control items. The scan also cannot enumerate Git objects that are no longer reachable from any advertised remote ref.
+
+Evidence: `docs/investor-ready/rt005-secret-history-evidence.md`.
 
 ### Domains / DNS / email / social / billing
 A canonical registrant/admin/recovery inventory is not yet present in the DD room. These remain P0 inventory items even if the assets are operational today.
