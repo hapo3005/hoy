@@ -172,12 +172,15 @@ test('all-unknown facts are not rendered as a negative accessibility claim', asy
   await expect(panel).not.toContainText('Nicht vorhanden');
 });
 
-test('migration protects unknown semantics, RLS and operator-to-fact synchronization', async () => {
+test('migration protects unknown semantics, RLS, advisor hygiene and operator-to-fact synchronization', async () => {
   const sql = fs.readFileSync(path.join(__dirname, '..', 'supabase', 'migrations', '20260818093100_hoy_accessible_v1.sql'), 'utf8');
   expect(sql).toContain("'access.hearing_loop','unknown'");
   expect(sql).toContain('not publicly listed => unknown, not no');
   expect(sql).toContain('enable row level security');
-  expect(sql).toContain('public reads current published accessibility facts');
+  expect(sql).toContain('anon reads current published accessibility facts');
+  expect(sql).toContain('authenticated reads published or admin accessibility facts');
+  expect(sql).toContain('authenticated reads active or admin accessibility features');
+  expect(sql).not.toContain('for all to authenticated');
   expect(sql).toContain('grant select on public.restaurant_accessibility_facts to anon, authenticated');
   expect(sql).toContain('hoy_sync_accessibility_facts_from_legacy');
   expect(sql).toContain('security invoker');
