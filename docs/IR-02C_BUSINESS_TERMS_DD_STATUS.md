@@ -4,29 +4,21 @@
 **Status:** TECHNICAL INFRASTRUCTURE LIVE / TERMS NOT ACTIVE  
 **Scope:** HOY Gastro/Core operator relationship and Business Confirmed data evidence  
 
-## 1. Objective
+IR-02C converts the IR-02B target state `AMBER research → Business Confirmed / contract-cleared first-party data` into a versioned contract/evidence architecture.
 
-IR-02C converts the IR-02B target state — `AMBER research → Business Confirmed / contract-cleared first-party data` — into a versioned contract/evidence architecture.
+## Implemented package
 
-> A business website, public listing or operator account does not by itself create a transferable HOY first-party data asset.
+- German Business Data & Media Terms v1.0 execution draft.
+- Spanish legal-localization draft.
+- Electronic acceptance/evidence specification.
+- `private.business_terms_versions`.
+- `private.business_terms_acceptances`.
+- `private.business_data_confirmations`.
+- Public authenticated `SECURITY INVOKER` wrappers for status, acceptance and exact-snapshot confirmation.
+- Ten dormant operator-write gates.
+- `npm run qa:terms` in Critical PR QA.
 
-HOY requires an evidence chain linking authorization, exact contract version and exact confirmed data snapshot.
-
-## 2. Legal/document package
-
-Prepared:
-
-- `docs/legal/HOY_BUSINESS_DATA_MEDIA_TERMS_v1.0_DE.md`
-- `docs/legal/HOY_BUSINESS_DATA_MEDIA_TERMS_v1.0_ES_DRAFT.md`
-- `docs/legal/HOY_BUSINESS_TERMS_ACCEPTANCE_SPEC_v1.0.md`
-
-Both contract texts are explicitly non-active drafts. The Spanish document is a legal-localization draft, not a counsel-approved final version.
-
-The draft architecture covers Business Content ownership, defined HOY operational licence, technical formatting/localization/hosting, limited service-provider sublicensing, change-of-control continuity, a no-blanket-raw-content-resale boundary, HOY-created metadata/normalization/provenance, lawful derived/aggregated data, Business Confirmed evidence, accessibility specificity, media/menu/offer/event/live-data handling, termination/history, privacy-role separation and exact-version electronic acceptance.
-
-## 3. Production infrastructure
-
-Production migrations:
+## Production migrations
 
 1. `20260818201632_ir02c_business_terms_acceptance_infrastructure`
 2. `20260818201740_ir02c_business_terms_rpc_security_hardening`
@@ -34,138 +26,64 @@ Production migrations:
 4. `20260818202531_ir02c_register_spanish_terms_draft`
 5. `20260818203021_ir02c_reconcile_de_terms_draft_blob`
 
-### Internal tables
+## Fail-closed activation
 
-- `private.business_terms_versions`
-- `private.business_terms_acceptances`
-- `private.business_data_confirmations`
+Terms v1.0 remains `draft`. A database constraint prevents activation until final DE/ES hashes, definitive HOY entity/address/contact, privacy-notice version, governing law/jurisdiction, counsel evidence and activation dates exist.
 
-All three are non-public evidence/control assets. Client roles do not receive direct table access.
+The Spanish draft path and current German Git blob are registered in Production, but final SHA-256 values remain intentionally unset.
 
-## 4. Fail-closed contract activation
+A live negative test attempted to activate the incomplete v1.0. PostgreSQL rejected the transition and retained `draft` status.
 
-`private.business_terms_versions` has an activation constraint.
+## Live state
 
-A Terms version cannot become `active` unless critical evidence is present, including valid final DE and ES SHA-256 values, definitive HOY legal entity/address/contact, privacy-notice version, governing law, jurisdiction, counsel-review evidence and activation/effective timestamps.
-
-Current version `1.0` is `draft`.
-
-The Spanish draft path is registered in Production, but its final SHA-256 remains intentionally empty until legal localization/review is complete. The current German draft Git blob is also explicitly reconciled to Production; final SHA-256 remains intentionally unset.
-
-A negative activation test was executed after deployment: an attempted switch of incomplete v1.0 to `active` was rejected by the database constraint and the row remained `draft`.
-
-Therefore the deployed infrastructure does **not** activate or impose the current draft contract.
-
-## 5. Current live state at implementation
-
-- Terms version 1.0: `draft`
 - active Terms gate: `false`
-- Business Terms acceptances: `0`
-- Business data confirmations: `0`
+- acceptances: `0`
+- Business Confirmed records: `0`
 - verified restaurant memberships: `0`
 - operator Terms triggers: `10`
+- current operator behavior changed by Terms gate: **no**
 
-The operator-write trigger layer is therefore dormant and changes no current business/operator behavior.
+## Business Confirmed evidence chain
 
-## 6. Acceptance receipt
+`AMBER observation → verified operator → active exact-version Terms acceptance → exact payload SHA-256 confirmation → Business Confirmed + freshness/history`
 
-When an approved Terms version is eventually active, `operator_accept_business_terms(...)` requires an authenticated user, verified restaurant membership, the exact active Terms version, locale, declared role/method and affirmative authority/content/media/change-of-control/privacy acknowledgements.
+Terms acceptance by itself never confirms existing research, and merely observing a business website never creates Business Confirmed data.
 
-The resulting receipt stores the exact Terms version and document SHA-256 and is audit-linked. Draft/inactive Terms cannot be accepted through the endpoint.
+## Contract/data-rights boundary
 
-## 7. Security architecture
+The drafts preserve Business/third-party source rights while granting defined operational rights to HOY. They include change-of-control continuity, but do not treat raw Business photos, logos, marketing copy or menu artwork as a standalone HOY resale library by default. Personal data is not framed as owned content; privacy-law roles remain separate and an Article 28 DPA is required where HOY is genuinely acting as processor on behalf of a Business.
 
-Public Terms RPCs are `SECURITY INVOKER` wrappers:
+## Remaining P0 activation blockers
 
-- `public.get_business_terms_status(...)`
-- `public.operator_accept_business_terms(...)`
-- `public.operator_record_business_confirmation(...)`
+- definitive HOY contracting entity and legal details;
+- governing law/jurisdiction;
+- final German counsel review;
+- final Spanish legal localization/counsel review;
+- Privacy Notice and controller/processor mapping;
+- DPA where required;
+- final DE/ES SHA-256 hashes;
+- Terms display/download/archive UX;
+- error-correction and acceptance-receipt UX;
+- canonical JSON payload hashing;
+- end-to-end acceptance + Business Confirmation tests.
 
-Privileged table access is isolated inside non-public `private` helper functions with explicit authenticated membership checks.
+## Investor/buyer claim gate
 
-The initial public Terms RPCs were converted from `SECURITY DEFINER` after the Supabase Security Advisor identified them. After hardening, IR-02C does not add new public `SECURITY DEFINER` warnings. Pre-existing reviewed Gastro RPC warnings remain separately tracked under IR-02A.
+**Defensible:** HOY has versioned, fail-closed Business Terms, acceptance and exact-snapshot confirmation infrastructure.
 
-## 8. Dormant operator-write gates
+**Not defensible yet:** current AMBER data is automatically contract-cleared, Business Terms v1.0 is active, or all current business/content rights survive an exit.
 
-Terms gates cover profile changes, upgrade requests, offers, event promotions, menu intake, live/special hours, services and media write paths.
+## Gate
 
-Behavior:
-
-- no active Terms version → no contract gate;
-- active Terms version + verified member → current matching acceptance required.
-
-## 9. Business Confirmation Ledger
-
-The live `private.business_data_confirmations` table records exact Business Confirmed snapshots.
-
-Each record binds Business/restaurant, authenticated representative, exact Terms acceptance receipt, confirmation type, subject/ref, payload SHA-256, source channel and timestamp/evidence. New confirmations supersede old current confirmations for the same subject rather than deleting history.
-
-This creates a DD-verifiable distinction between observation, operator identity, contract acceptance and exact-data confirmation.
-
-## 10. Data-asset effect
-
-IR-02C does not automatically upgrade the current AMBER source inventory.
-
-Target path:
-
-`AMBER first-party observation → verified operator → active Terms acceptance → exact data confirmation → Business Confirmed + freshness/history → transferable HOY evidence layer`
-
-This avoids falsely upgrading historical research simply because a business later creates an account.
-
-## 11. Automated governance
-
-The branch includes `npm run qa:terms`, executed by Critical PR QA before browser regression.
-
-It fails if key safeguards drift, including removal of draft markers, weakening of activation clearance, public Terms RPCs reverting to `SECURITY DEFINER`, loss of exact version/hash evidence, loss of Business Confirmation payload hashing, removal of change-of-control/raw-content/DPA boundaries, or false assignment of a final Spanish SHA-256.
-
-## 12. Remaining activation blockers
-
-P0 before Business Terms activation:
-
-1. definitive HOY contracting entity and registered/legal details;
-2. governing law and jurisdiction decision;
-3. final German legal review;
-4. final Spanish legal localization/review;
-5. Privacy Notice version;
-6. controller/processor mapping + DPA where required;
-7. final DE/ES document SHA-256 hashes;
-8. operator UI to present/store/reproduce exact Terms;
-9. electronic acceptance receipt UX;
-10. input/error-correction flow;
-11. canonical payload hashing implementation;
-12. end-to-end contract acceptance and Business Confirmation tests.
-
-## 13. Investor/buyer claim boundary
-
-### Defensible now
-
-- HOY has versioned Business Terms and acceptance infrastructure.
-- Activation is technically fail-closed pending legal/entity/localization evidence.
-- Acceptance will be bound to an exact document version/hash.
-- Business Confirmed data has a separate exact-snapshot evidence ledger.
-- Change-of-control continuity is addressed in the contractual draft and designed into acceptance evidence.
-
-### Not defensible yet
-
-- “HOY already has contract-cleared Business Confirmed restaurant data.”
-- “All AMBER first-party data is now GREEN.”
-- “Business Terms v1.0 is legally active.”
-- “All current business/content rights survive an exit.”
-
-## 14. Gate
-
-**Business Terms DE execution draft:** PREPARED  
-**Spanish legal-localization draft:** PREPARED / NOT FINAL  
-**Terms version/receipt infrastructure:** LIVE  
+**DE execution draft:** PREPARED  
+**ES localization draft:** PREPARED / NOT FINAL  
+**Acceptance infrastructure:** LIVE  
 **Business Confirmation Ledger:** LIVE  
-**Public RPC security hardening:** COMPLETE  
+**Public RPC hardening:** COMPLETE  
 **Production ↔ Git migration reconciliation:** COMPLETE  
-**Activation constraint negative test:** PASS  
-**Business Terms governance CI gate:** IMPLEMENTED  
-**Business Terms active:** NO  
-**Current acceptances/confirmations:** NONE  
+**Activation negative test:** PASS  
+**CI governance:** IMPLEMENTED  
+**Terms active:** NO  
 **Privacy/DPA package:** NOT COMPLETE  
 **Counsel sign-off:** NOT COMPLETE  
 **IR-02C activation-ready:** NOT YET
-
-IR-02C is therefore an **execution-ready, fail-closed contract/data-rights architecture**, not a claim that the unfinished contract is already legally in force.
