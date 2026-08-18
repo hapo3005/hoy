@@ -378,7 +378,7 @@
       || known[0]
       || facts[0];
 
-    return `<section class="hoya-panel" data-hoya-panel aria-labelledby="hoya-title-${Number(p.id)}">
+    return `<section class="hoya-panel" data-hoya-panel data-accessibility-panel aria-labelledby="hoya-title-${Number(p.id)}">
       <div class="hoya-head">
         <div>
           <div class="eyebrow">HOY ACCESSIBLE</div>
@@ -447,7 +447,7 @@
   }
 
   function removeLegacyGuestPanel(container) {
-    container?.querySelectorAll?.('[data-accessibility-panel]').forEach(node => node.remove());
+    container?.querySelectorAll?.('[data-accessibility-panel]:not([data-hoya-panel])').forEach(node => node.remove());
   }
 
   function injectAccessiblePanel(d, p) {
