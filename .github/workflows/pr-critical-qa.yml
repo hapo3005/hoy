@@ -28,6 +28,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Run source-rights policy gate
         run: npm run qa:rights
+      - name: Run Business Terms governance gate
+        run: npm run qa:terms
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Start branch server
