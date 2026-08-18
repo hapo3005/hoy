@@ -135,8 +135,16 @@
       "category": "founder_independence",
       "claim": "HOY can currently be operated fully without founder involvement.",
       "status": "OPEN",
-      "evidence": [],
-      "qualification": "Requires delegated operating proof, SOP execution and live founder-independent operations."
+      "evidence": ["docs/investor-ready/founder-independence-acceptance.json"],
+      "qualification": "The technical handoff test is currently NOT_TESTED; full founder independence also requires delegated business/local operating proof."
+    },
+    {
+      "id": "TR-05",
+      "category": "founder_independence",
+      "claim": "HOY has a documented and machine-checkable technical handoff and founder-independence acceptance process.",
+      "status": "PROVEN",
+      "evidence": ["docs/investor-ready/platform-transfer-runbook.md", "docs/investor-ready/vertical-onboarding-contract.json", "docs/investor-ready/founder-independence-acceptance.json", "scripts/check-platform-transfer.cjs"],
+      "qualification": "Existence and structure of the process are proven; successful non-founder execution remains open under TR-02."
     },
     {
       "id": "DF-02",
