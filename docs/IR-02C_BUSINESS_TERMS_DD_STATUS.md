@@ -8,8 +8,6 @@
 
 IR-02C converts the IR-02B target state — `AMBER research → Business Confirmed / contract-cleared first-party data` — into a versioned contract/evidence architecture.
 
-The key rule is:
-
 > A business website, public listing or operator account does not by itself create a transferable HOY first-party data asset.
 
 HOY requires an evidence chain linking authorization, exact contract version and exact confirmed data snapshot.
@@ -19,11 +17,12 @@ HOY requires an evidence chain linking authorization, exact contract version and
 Prepared:
 
 - `docs/legal/HOY_BUSINESS_DATA_MEDIA_TERMS_v1.0_DE.md`
+- `docs/legal/HOY_BUSINESS_DATA_MEDIA_TERMS_v1.0_ES_DRAFT.md`
 - `docs/legal/HOY_BUSINESS_TERMS_ACCEPTANCE_SPEC_v1.0.md`
 
-The German Business Terms master is deliberately marked **DRAFT / NOT YET ACTIVE**.
+Both contract texts are explicitly non-active drafts. The Spanish document is a legal-localization draft, not a counsel-approved final version.
 
-It covers, among other matters:
+The draft architecture covers, among other matters:
 
 - Business Content ownership remains with the Business/rights holder;
 - defined licence to HOY for platform operation;
@@ -48,6 +47,7 @@ Production migrations:
 1. `20260818201632_ir02c_business_terms_acceptance_infrastructure`
 2. `20260818201740_ir02c_business_terms_rpc_security_hardening`
 3. `20260818201831_ir02c_business_confirmation_ledger`
+4. `20260818202531_ir02c_register_spanish_terms_draft`
 
 ### Internal tables
 
@@ -75,6 +75,10 @@ A Terms version cannot become `active` unless critical evidence is present, incl
 - effective/activation times.
 
 Current version `1.0` is `draft`.
+
+The Spanish draft path is registered in Production, but its final SHA-256 remains intentionally empty until legal localization/review is complete.
+
+A negative activation test was executed after deployment: an attempted switch of incomplete v1.0 to `active` was rejected by the database constraint and the row remained `draft`.
 
 Therefore the deployed infrastructure does **not** activate or impose the current draft contract.
 
@@ -178,7 +182,23 @@ Target path:
 
 This avoids falsely upgrading historical research simply because a business later creates an account.
 
-## 11. Remaining activation blockers
+## 11. Automated governance
+
+The branch includes:
+
+`npm run qa:terms`
+
+The critical PR workflow executes this gate. It fails if key safeguards drift, including:
+
+- removal of explicit draft/non-active language;
+- weakening of the activation-clearance constraint;
+- public Terms RPCs reverting to `SECURITY DEFINER`;
+- removal of exact Terms/document-hash evidence;
+- removal of exact Business Confirmation payload hashing;
+- removal of change-of-control or raw-content boundaries;
+- removal of the separate GDPR Article 28/DPA boundary.
+
+## 12. Remaining activation blockers
 
 P0 before Business Terms activation:
 
@@ -186,17 +206,17 @@ P0 before Business Terms activation:
 2. registered/legal details;
 3. governing law and jurisdiction decision;
 4. final German legal review;
-5. Spanish legal localization and review;
+5. final Spanish legal localization and review;
 6. Privacy Notice version;
 7. controller/processor mapping + DPA where required;
-8. final document SHA-256 hashes;
+8. final DE/ES document SHA-256 hashes;
 9. operator UI to present/store/reproduce exact Terms;
 10. electronic acceptance receipt UX;
 11. input/error-correction flow;
 12. canonical payload hashing implementation;
 13. end-to-end contract acceptance and Business Confirmation tests.
 
-## 12. Investor/buyer claim boundary
+## 13. Investor/buyer claim boundary
 
 ### Defensible now
 
@@ -213,15 +233,16 @@ P0 before Business Terms activation:
 - “Business Terms v1.0 is legally active.”
 - “All current business/content rights survive an exit.”
 
-## 13. Gate
+## 14. Gate
 
 **Business Terms DE execution draft:** PREPARED  
+**Spanish legal-localization draft:** PREPARED / NOT FINAL  
 **Terms version/receipt infrastructure:** LIVE  
 **Business Confirmation Ledger:** LIVE  
 **Public RPC security hardening:** COMPLETE  
+**Activation constraint negative test:** PASS  
 **Business Terms active:** NO  
 **Current acceptances/confirmations:** NONE  
-**Spanish legal version:** NOT FINAL  
 **Privacy/DPA package:** NOT COMPLETE  
 **Counsel sign-off:** NOT COMPLETE  
 **IR-02C activation-ready:** NOT YET
