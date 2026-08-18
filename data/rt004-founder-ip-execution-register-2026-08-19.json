@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "status": "EXECUTION_PENDING",
+  "purpose": "Current control register for founder/pre-company IP execution evidence; historical drafts are preserved but not treated as executed rights.",
+  "historicalSource": {
+    "schedulePath": "data/ir-02a-founder-ip-schedule-2026-08-18.json",
+    "scheduleBlob": "f68275a6565ce5172de13e4365fe8e782695cfcc",
+    "note": "Historical schedule contains a partial-sample contributor census field that is superseded by RT-004 full-history evidence in PR #104."
+  },
+  "preservedDrafts": [
+    {"path":"docs/IR-02A_FOUNDER_IP_ASSIGNMENT_DRAFT.md","blob":"e5bf95407781f85e6dab41229c20c1d2c7ae9d87","status":"DRAFT_NOT_EXECUTED"},
+    {"path":"docs/IR-02A_FOUNDER_IP_OWNERSHIP_DECLARATION_DRAFT.md","blob":"480443a96c0454af59ef8e4ea9463ef9472e848a","status":"DRAFT_NOT_EXECUTED"},
+    {"path":"docs/IR-02A_CHAIN_OF_TITLE_EVIDENCE.md","blob":"4ddbb12c37bbc865af632a4a41c959c1eecfe127","status":"HISTORICAL_EVIDENCE_INPUT"}
+  ],
+  "currentContributorEvidence": {
+    "canonicalPr": 104,
+    "referenceRun": 32184547569,
+    "referenceArtifact": 9341958517,
+    "artifactSha256": "e9d978c70150085bf6cce2b478c7f181d882b2fa7547235ac5bc4f7b6c028a76",
+    "status": "TECHNICAL_CENSUS_GREEN",
+    "externalHumanContributorIdentified": false,
+    "reviewRequiredIdentityCount": 0,
+    "qualification": "Repository-history contributor census does not itself prove title to third-party media, data, AI inputs or vendor assets."
+  },
+  "executionState": {
+    "finalCompanyEntity": null,
+    "founderToCompanyRightsInstrumentExecuted": false,
+    "ownershipDeclarationExecuted": false,
+    "assetScheduleFinalized": false,
+    "considerationTaxAccountingTreatmentConfirmed": false,
+    "qualifiedLegalReviewCompleted": false,
+    "privateSignatureEvidenceArchived": false,
+    "coveredAssetsClassifiedAsCompanyOwned": false
+  },
+  "linkedGates": {
+    "corporateAndChainOfTitle": "PR #104",
+    "digitalAssetControl": "clean RT-005 candidate PR #119",
+    "ossAiMediaRights": "RT-006 candidate PR #116",
+    "dataSourceRights": "RT-007 PR #106 + Works rights gate",
+    "brandTrademark": "RT-009 PR #108",
+    "taxResidency": "independent EXIT-TAX/transaction gate"
+  },
+  "claimBoundary": {
+    "allowed": "Founder-IP execution drafts and a technical contributor census exist; formal founder-to-company rights execution remains pending.",
+    "forbidden": "All HOY IP is already owned by a HOY company or all third-party/data/media rights are cleared."
+  },
+  "boundaries": {
+    "companyFormationAuthorized": false,
+    "ipTransferAuthorized": false,
+    "accountTransferAuthorized": false,
+    "productionChangeAuthorized": false,
+    "outreachAuthorized": false
+  }
+}
