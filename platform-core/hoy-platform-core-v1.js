@@ -1,13 +1,13 @@
 /* HOY Platform Core v1.0.0
  * Canonical cross-vertical truth, matching, freshness, live-status,
  * safety and commercial-integrity contract for HOY Gastro/Lifestyle/Works.
- * Runtime: browser global window.HOYPlatformCore + CommonJS require().
+ * Runtime: globalThis.HOYPlatformCore in browsers/ESM + CommonJS require().
  */
 (function(root,factory){
   const api=factory();
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   if(root)root.HOYPlatformCore=Object.freeze(api);
-})(typeof window!=='undefined'?window:null,function(){
+})(typeof globalThis!=='undefined'?globalThis:null,function(){
   'use strict';
 
   const CORE_VERSION='1.0.0';
