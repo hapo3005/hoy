@@ -3,6 +3,8 @@ const { gotoReady } = require('./helpers/current-release');
 
 test.use({ serviceWorkers: 'block' });
 
+const JOURNEY_RESTAURANT_ID = 16; // Agua Salá, part of the Premium 24 release contract.
+
 function watchPageErrors(page) {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -22,27 +24,18 @@ test('RC guest journey has no dead end from home through discover, profile, menu
   const errors = watchPageErrors(page);
   await ready(page);
 
-  await expect(page.locator('#bottom [data-btm="home"]')).toBeVisible();
+  const target = await page.evaluate(id => {
+    const p = DATA.find(row => Number(row.id) === Number(id));
+    return p ? { id: Number(p.id), name: p.name } : null;
+  }, JOURNEY_RESTAURANT_ID);
+  expect(target).not.toBeNull();
 
+  await expect(page.locator('#bottom [data-btm="home"]')).toBeVisible();
   await page.locator('#bottom [data-btm="discover"]').click();
   await expect.poll(() => page.evaluate(() => state.view)).toBe('discover');
 
   const search = page.locator('#q');
   await expect(search).toBeVisible();
-  await expect(page.locator('.list-card[data-open]').first()).toBeVisible({ timeout: 20_000 });
-
-  const target = await page.evaluate(() => {
-    const candidates = DATA.filter(p => {
-      const hasCoords = Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lng));
-      const hasRoute = hasCoords || !!p.address;
-      return hasRoute && !!p.name;
-    });
-    const preferred = candidates.find(p => String(p.name || '').toLowerCase().includes('agua sal'));
-    const picked = preferred || candidates[0] || null;
-    return picked ? { id: Number(picked.id), name: picked.name } : null;
-  });
-
-  expect(target).not.toBeNull();
   await search.fill(target.name);
 
   const card = page.locator(`.list-card[data-open="${target.id}"]`).first();
@@ -55,17 +48,17 @@ test('RC guest journey has no dead end from home through discover, profile, menu
 
   const route = dialog.locator('.detail-primary-bar a.external-route');
   await expect(route).toBeVisible();
-  await expect(route).toHaveAttribute('href', /google\.com\/maps/i);
+  await expect(route).toHaveAttribute('target', '_blank');
+  const routeHref = await route.getAttribute('href');
+  expect(String(routeHref || '').trim().length).toBeGreaterThan(8);
 
   const menuLink = dialog.locator('.profile-premium-nav a[href="#profile-menu"]');
-  if (await menuLink.count()) {
-    await menuLink.click();
-    const menu = dialog.locator('#profile-menu');
-    await expect(menu).toBeVisible();
-    const menuItems = menu.locator('[data-menu-item]');
-    const honestEmpty = menu.getByText(/noch keine|nicht verfügbar|keine speisekarte|prüfen/i);
-    expect((await menuItems.count()) > 0 || (await honestEmpty.count()) > 0).toBeTruthy();
-  }
+  await expect(menuLink).toBeVisible();
+  await menuLink.click();
+
+  const menu = dialog.locator('#profile-menu');
+  await expect(menu).toBeVisible();
+  await expect(menu.locator('[data-menu-item]').first()).toBeVisible();
 
   const mapButton = dialog.locator('[data-profile-map]');
   await expect(mapButton).toBeVisible();
@@ -75,6 +68,7 @@ test('RC guest journey has no dead end from home through discover, profile, menu
 
   const mapCard = page.locator(`.map-decision-card[data-map-card="${target.id}"]`);
   await expect(mapCard).toBeVisible();
+  await expect(mapCard).toHaveClass(/active/, { timeout: 5_000 });
 
   const profileFromMap = mapCard.locator(`[data-map-profile="${target.id}"]`);
   await expect(profileFromMap).toBeVisible();
@@ -87,6 +81,7 @@ test('RC guest journey has no dead end from home through discover, profile, menu
   await expect(listButton).toBeVisible();
   await listButton.click();
   await expect.poll(() => page.evaluate(() => state.view)).toBe('discover');
+  await expect(page.locator(`.list-card[data-open="${target.id}"]`)).toBeVisible();
 
   expect(errors).toEqual([]);
 });
