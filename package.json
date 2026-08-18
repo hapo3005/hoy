@@ -6,7 +6,8 @@
     "qa:e2e": "playwright test",
     "qa:e2e:report": "playwright show-report",
     "qa:rights": "node scripts/check-ir02b-source-rights.mjs",
-    "qa:terms": "node scripts/check-ir02c-business-terms.mjs"
+    "qa:terms": "node scripts/check-ir02c-business-terms.mjs",
+    "qa:privacy": "node scripts/check-ir02d-privacy-transferability.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.62.0"
