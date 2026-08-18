@@ -15,6 +15,7 @@
     "es_document": {
       "path": "docs/legal/HOY_BUSINESS_DATA_MEDIA_TERMS_v1.0_ES_DRAFT.md",
       "git_blob_sha": "abc9634727e7c1b577a8a90b68bc61b03c2893e8",
+      "registered_in_production_version_row": true,
       "final_sha256": null,
       "legal_review": "pending",
       "status": "legal_localization_draft"
@@ -23,7 +24,8 @@
   "production_migrations": [
     "20260818201632_ir02c_business_terms_acceptance_infrastructure",
     "20260818201740_ir02c_business_terms_rpc_security_hardening",
-    "20260818201831_ir02c_business_confirmation_ledger"
+    "20260818201831_ir02c_business_confirmation_ledger",
+    "20260818202531_ir02c_register_spanish_terms_draft"
   ],
   "production_objects": {
     "private_tables": [
@@ -51,7 +53,8 @@
     "acceptances": 0,
     "business_data_confirmations": 0,
     "verified_restaurant_memberships": 0,
-    "operator_behavior_changed_by_terms_gate": false
+    "operator_behavior_changed_by_terms_gate": false,
+    "activation_constraint_negative_test": "PASS"
   },
   "activation_clearance_required": [
     "final_de_sha256",
