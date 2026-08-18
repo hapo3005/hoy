@@ -1,0 +1,191 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "scope": "HOY Platform Core v1.0 across Gastro, Lifestyle and Works",
+  "statusEnum": ["PROVEN", "PARTIAL", "OPEN", "PROVEN_FALSE"],
+  "claimRules": {
+    "proven": "May be used externally if the referenced evidence is included and still matches the circulated commit/release.",
+    "partial": "May be described only with the stated qualification; must not be promoted to an unqualified claim.",
+    "open": "Not an externally supportable claim yet.",
+    "provenFalse": "An explicitly prohibited or disproven claim; buyer materials must not imply it."
+  },
+  "claims": [
+    {
+      "id": "PC-01",
+      "category": "platform_core",
+      "claim": "HOY has a versioned cross-vertical platform contract.",
+      "status": "PROVEN",
+      "evidence": ["platform-core/hoy-platform-core-v1.js", "platform-core/consumer-contract.json"],
+      "qualification": null
+    },
+    {
+      "id": "PC-03",
+      "category": "product_truth",
+      "claim": "Missing, unknown, stale, disputed or externally unverified evidence cannot become confirmed truth under Platform Core.",
+      "status": "PROVEN",
+      "evidence": ["platform-core/hoy-platform-core-v1.js", "platform-core/tests/core.test.cjs"],
+      "qualification": null
+    },
+    {
+      "id": "PC-04",
+      "category": "matching",
+      "claim": "A confirmed failed MUST cannot be rescued by PREFER.",
+      "status": "PROVEN",
+      "evidence": ["platform-core/consumer-contract.json", "platform-core/tests/core.test.cjs"],
+      "qualification": null
+    },
+    {
+      "id": "PC-06",
+      "category": "commercial_integrity",
+      "claim": "Commercial placement cannot change organic score or rank.",
+      "status": "PROVEN",
+      "evidence": ["platform-core/consumer-contract.json", "platform-core/hoy-platform-core-v1.js", "platform-core/tests/core.test.cjs"],
+      "qualification": null
+    },
+    {
+      "id": "AD-01",
+      "category": "adoption",
+      "claim": "Gastro consumes Platform Core through a domain adapter.",
+      "status": "PROVEN",
+      "evidence": ["platform-core/gastro-adapter-v1.js", "index.html", "service-worker.js"],
+      "qualification": null
+    },
+    {
+      "id": "AD-02",
+      "category": "adoption",
+      "claim": "Lifestyle consumes the same Platform Core runtime through a locked vendor artifact and thin adapters.",
+      "status": "PROVEN",
+      "evidence": ["hapo3005/hoy-lifestyle:vendor/hoy-platform-core-v1.js", "hapo3005/hoy-lifestyle:platform-core.lock.json"],
+      "qualification": "Evidence is repository-crossing and must be archived with the data-room snapshot."
+    },
+    {
+      "id": "AD-03",
+      "category": "adoption",
+      "claim": "Works consumes the same Platform Core runtime through a locked vendor artifact and thin adapter.",
+      "status": "PROVEN",
+      "evidence": ["hapo3005/hoy-works:vendor/hoy-platform-core-v1.js", "hapo3005/hoy-works:platform-core.lock.json"],
+      "qualification": "Evidence is repository-crossing and must be archived with the data-room snapshot."
+    },
+    {
+      "id": "AD-04",
+      "category": "anti_drift",
+      "claim": "The documented central, Lifestyle and Works Platform Core runtime copies are identical at Git-blob level.",
+      "status": "PROVEN",
+      "evidence": ["git-blob:c1740b652bc22af2beb868dc8c36049411692474"],
+      "qualification": "Snapshot claim; must be refreshed when Platform Core version changes."
+    },
+    {
+      "id": "AD-06",
+      "category": "scalability",
+      "claim": "Platform Core materially reduces time and cost for every future vertical launch.",
+      "status": "PARTIAL",
+      "evidence": ["platform-core/README.md", "platform-core/adoption.json"],
+      "qualification": "Technical reuse is implemented, but actual launch-time/cost reduction requires observed expansion evidence."
+    },
+    {
+      "id": "QA-01",
+      "category": "qa",
+      "claim": "The Platform Core implementation candidate passed Gastro Critical PR QA on implementation head 83996442d5686d07b454710df67fb13752732bef.",
+      "status": "PROVEN",
+      "evidence": ["github-actions:32191250746"],
+      "qualification": "Later documentation commits require normal final-head QA before merge/release."
+    },
+    {
+      "id": "QA-03",
+      "category": "qa",
+      "claim": "Full Gastro browser QA is green for Platform Core.",
+      "status": "PARTIAL",
+      "evidence": ["github-actions:32191250686"],
+      "qualification": "Workflow was still in progress at this snapshot. Refresh before external circulation."
+    },
+    {
+      "id": "QA-04",
+      "category": "qa",
+      "claim": "Lifestyle Platform Core adoption passed critical/static/unit QA.",
+      "status": "PROVEN",
+      "evidence": ["github-actions:hoy-lifestyle/32190888498"],
+      "qualification": null
+    },
+    {
+      "id": "QA-05",
+      "category": "qa",
+      "claim": "Lifestyle Platform Core adoption passed its defined Mobile WebKit and Chromium browser matrix.",
+      "status": "PROVEN",
+      "evidence": ["github-actions:hoy-lifestyle/32190888482"],
+      "qualification": null
+    },
+    {
+      "id": "QA-06",
+      "category": "qa",
+      "claim": "Works Platform Core adapter is fully CI/browser certified.",
+      "status": "PARTIAL",
+      "evidence": ["hapo3005/hoy-works:PR#3"],
+      "qualification": "Static/unit/browser scripts exist, but no executable PR workflow is available on the adapter head."
+    },
+    {
+      "id": "TR-01",
+      "category": "transferability",
+      "claim": "Core technical product invariants are documented outside founder knowledge.",
+      "status": "PROVEN",
+      "evidence": ["platform-core/README.md", "platform-core/consumer-contract.json", "platform-core/adoption.json", "docs/investor-ready/platform-evidence-index.md"],
+      "qualification": "This is technical transferability, not proof of fully founder-independent operations."
+    },
+    {
+      "id": "TR-02",
+      "category": "founder_independence",
+      "claim": "HOY can currently be operated fully without founder involvement.",
+      "status": "OPEN",
+      "evidence": [],
+      "qualification": "Requires delegated operating proof, SOP execution and live founder-independent operations."
+    },
+    {
+      "id": "DF-02",
+      "category": "defensibility",
+      "claim": "Platform Core alone proves a durable market moat.",
+      "status": "OPEN",
+      "evidence": [],
+      "qualification": "Architecture is an execution/risk advantage; durable market moat requires external commercial evidence."
+    },
+    {
+      "id": "DF-03",
+      "category": "data_defensibility",
+      "claim": "Shared semantics support more comparable cross-vertical and cross-region data.",
+      "status": "PARTIAL",
+      "evidence": ["platform-core/consumer-contract.json", "docs/HOY_INTELLIGENCE_STRATEGY_2_45.md"],
+      "qualification": "Architecture supports comparability; longitudinal multi-region scale is not yet proven."
+    },
+    {
+      "id": "DI-03",
+      "category": "privacy",
+      "claim": "HOY approves sale/export of row-level identifiable or pseudonymous user journeys as an intelligence product.",
+      "status": "PROVEN_FALSE",
+      "evidence": ["docs/HOY_INTELLIGENCE_STRATEGY_2_45.md"],
+      "qualification": "Buyer materials must describe the preferred model as sufficiently aggregated, rights-cleared intelligence rather than user-level brokerage."
+    },
+    {
+      "id": "DI-04",
+      "category": "data_moat",
+      "claim": "HOY already has a commercially proven hard-to-recreate longitudinal data moat at scale.",
+      "status": "OPEN",
+      "evidence": [],
+      "qualification": "Requires live, rights-cleared longitudinal data quality, multi-region scale and commercial proof."
+    },
+    {
+      "id": "VA-01",
+      "category": "valuation",
+      "claim": "Platform Core by itself increases HOY enterprise value by a fixed euro amount.",
+      "status": "OPEN",
+      "evidence": [],
+      "qualification": "Architecture should be treated as a risk/quality factor; realized valuation impact depends on buyer context and external proof."
+    }
+  ],
+  "externalUse": {
+    "allowedOnlyWhen": [
+      "evidence still matches the circulated commit/release",
+      "all PARTIAL qualifications are preserved",
+      "OPEN claims are not presented as facts",
+      "legal/privacy/IP/market DD registers are reconciled separately"
+    ],
+    "refreshBeforeCirculation": true
+  }
+}
