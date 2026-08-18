@@ -125,10 +125,11 @@
       "source_references": 459,
       "status": {
         "GREEN": {"hosts": 1, "refs": 2},
-        "AMBER": {"hosts": 44, "refs": 157},
+        "AMBER": {"hosts": 52, "refs": 200},
         "RED": {"hosts": 14, "refs": 197},
-        "REVIEW_REQUIRED": {"hosts": 46, "refs": 103}
+        "REVIEW_REQUIRED": {"hosts": 38, "refs": 60}
       },
+      "deterministic_self_match_upgrade": {"hosts": 8, "refs": 43, "from": "REVIEW_REQUIRED", "to": "AMBER"},
       "restricted_high_concentration": {
         "www.google.com": 102,
         "es.restaurantguru.com": 22,
@@ -167,7 +168,7 @@
     "replace Google-origin material facts with operator/HOY/open-licensed evidence",
     "replace Restaurant Guru and Tripadvisor dependencies",
     "replace social/Waze facts where material",
-    "review remaining Gastro REVIEW_REQUIRED domains in descending usage order",
+    "review remaining 38 Gastro REVIEW_REQUIRED domains in descending usage/materiality order",
     "convert AMBER business facts to Business Confirmed under HOY Business Terms",
     "capture change-of-control and transferability rights for operator-supplied data/media"
   ]
