@@ -62,14 +62,24 @@ function checkAnalyticsContract(){
   if(!allowed.size)fail('Analytics event contract is empty');
   if(allowed.size!==(contract.event_types||[]).length)fail('Analytics event contract contains duplicate event types');
 
-  const used=new Set();
+  const usedByFile=new Map();
   for(const full of walk(ROOT)){
     if(path.extname(full)!=='.js')continue;
     const text=fs.readFileSync(full,'utf8');
-    for(const match of text.matchAll(/\btrackEvent\s*\(\s*["']([^"']+)["']/g))used.add(match[1]);
+    const rel=path.relative(ROOT,full).replaceAll(path.sep,'/');
+    for(const match of text.matchAll(/\btrackEvent\s*\(\s*["']([^"']+)["']/g)){
+      const type=match[1];
+      const files=usedByFile.get(type)||new Set();
+      files.add(rel);
+      usedByFile.set(type,files);
+    }
   }
+  const used=new Set(usedByFile.keys());
   const unsupported=[...used].filter(type=>!allowed.has(type)).sort();
-  if(unsupported.length)fail(`Client trackEvent types missing from analytics contract: ${unsupported.join(', ')}`);
+  if(unsupported.length){
+    const detail=unsupported.map(type=>`${type} <- ${[...usedByFile.get(type)].sort().join(', ')}`).join('; ');
+    fail(`Client trackEvent types missing from analytics contract: ${detail}`);
+  }
 
   const migration=read('supabase/migrations/20260818090000_hoy_245_family_analytics_contract.sql');
   const missingFromMigration=[...allowed].filter(type=>!migration.includes(`'${type}'`));
