@@ -63,6 +63,10 @@ A database constraint prevents `status='active'` unless all critical activation 
 
 Version 1.0 is currently `draft` and therefore cannot trigger operator acceptance gates.
 
+The Spanish localization draft is registered at `docs/legal/HOY_BUSINESS_DATA_MEDIA_TERMS_v1.0_ES_DRAFT.md`; its final SHA-256 remains intentionally unset until legal review is complete.
+
+A live negative activation test confirmed that incomplete v1.0 cannot be switched to `active`: PostgreSQL rejected the transition and retained `draft` status.
+
 ## 4. Electronic acceptance receipt
 
 Production table:
@@ -113,7 +117,7 @@ Production trigger function:
 
 `private.enforce_business_terms_on_operator_write()`
 
-The gate is attached to operator-relevant tables including:
+The gate is attached to **10** operator-relevant write paths covering:
 
 - profile changes;
 - upgrades;
@@ -240,6 +244,8 @@ Version 1.0 must remain draft until all are complete:
 **Current acceptances:** none at implementation time.  
 **Current verified restaurant memberships:** none at implementation time.  
 **Business Confirmation ledger live:** yes, empty at implementation time.  
+**Operator Terms triggers:** 10.  
+**Activation negative test:** passed.  
 **Impact on current operator behavior:** none while no active Terms version exists.
 
 ## 16. Source references for final legal review
