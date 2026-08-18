@@ -20,9 +20,9 @@ jobs:
       PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:4173/
       CI: 'true'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 22
 
@@ -47,7 +47,7 @@ jobs:
       # but do not repeat the same long suite on every pull request.
       - name: Install QA dependency
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: npm install --no-audit --no-fund
+        run: npm ci --ignore-scripts
 
       - name: Install release browsers
         if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -80,7 +80,7 @@ jobs:
 
       - name: Upload final Playwright report
         if: ${{ github.event_name == 'workflow_dispatch' && !cancelled() }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: hoy-final-release-report-${{ github.run_id }}
           path: playwright-report/
@@ -89,7 +89,7 @@ jobs:
 
       - name: Upload final failure traces
         if: ${{ github.event_name == 'workflow_dispatch' && failure() }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: hoy-final-release-failures-${{ github.run_id }}
           path: test-results/
