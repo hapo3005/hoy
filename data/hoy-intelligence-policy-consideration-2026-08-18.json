@@ -1,0 +1,20 @@
+{
+  "event_family": "consideration",
+  "data_lineage_id": "hoy.intelligence.consideration.v1",
+  "status": "blocked",
+  "lawful_basis": "pending_legal_review",
+  "consent_decision": "pending_legal_review",
+  "retention": {"status": "pending_policy_approval", "event_level_period": null, "aggregate_period": null},
+  "deletion_or_aggregation_path": "pending_policy_approval",
+  "client_allowed_fields": ["event_type", "venue_id", "venue_type", "profile_quality", "area_bucket", "local_time_bucket", "discovery_context"],
+  "server_allowed_fields": ["event_type", "venue_id", "venue_type", "profile_quality", "area_bucket", "local_time_bucket", "discovery_context"],
+  "unlisted_fields": "reject",
+  "product_owner": "HOY_product_owner",
+  "privacy_owner": "HOY_privacy_owner",
+  "security_review": "pending",
+  "legal_privacy_review": "pending",
+  "qa_status": "policy_contract_only",
+  "commercial_reuse_review": "not_started",
+  "production_collection_allowed": false,
+  "commercialization_allowed": false
+}
