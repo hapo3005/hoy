@@ -3,6 +3,7 @@
   "version": "2.39.0",
   "private": true,
   "scripts": {
+    "qa:g1": "node scripts/check-acquisition-clean.cjs",
     "qa:e2e": "playwright test",
     "qa:e2e:report": "playwright show-report"
   },
