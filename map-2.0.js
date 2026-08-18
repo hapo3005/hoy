@@ -2,6 +2,7 @@
 (function(){
   let locationMeta=new Map();
   let activeMap=null;
+  let invalidateTimer20=null;
 
   const AREA_MAP_LABELS={
     'La Manga del Mar Menor':'La Manga','Cabo de Palos':'Cabo de Palos','Los Alcázares / Los Narejos':'Los Alcázares',
@@ -27,6 +28,24 @@
     if(!m?.location_source_url)return '';
     return `<a href="${esc(m.location_source_url)}" target="_blank" rel="noopener">Quelle ↗</a>`;
   };
+
+  function destroyHoyMap20(){
+    if(invalidateTimer20){clearTimeout(invalidateTimer20);invalidateTimer20=null}
+    const map=activeMap;
+    activeMap=null;
+    if(!map)return;
+    try{map.stop?.()}catch{}
+    try{map.remove()}catch{}
+    if(window.__hoyMapJourney215===map)window.__hoyMapJourney215=null;
+  }
+  window.__hoyMapCleanup20=destroyHoyMap20;
+
+  const renderMap20=render;
+  render=function(){
+    destroyHoyMap20();
+    return renderMap20();
+  };
+
   async function loadLocationMeta(){
     if(!sb)return;
     const {data,error}=await sb.from('restaurants').select('id,location_status,location_precision,location_checked_at,location_source_label,location_source_url,location_geocode_source').eq('is_published',true);
@@ -80,7 +99,7 @@
 
   function initHoyMap(){
     const el=document.getElementById('hoyMap');if(!el)return;
-    if(activeMap){try{activeMap.remove()}catch{}activeMap=null}
+    destroyHoyMap20();
     if(typeof L==='undefined'){el.innerHTML='<div class="map-load-error">Die Kartenbibliothek konnte nicht geladen werden. Die geprüften Standortangaben bleiben in den Profilen verfügbar.</div>';return}
     const rows=mapRows();if(!rows.length){el.innerHTML='<div class="map-load-error">Für diese Auswahl sind keine Kartenpunkte vorhanden.</div>';return}
     const map=L.map(el,{zoomControl:true,scrollWheelZoom:false,preferCanvas:true});activeMap=map;
@@ -92,7 +111,11 @@
     }
     if(bounds.length===1)map.setView(bounds[0],15);else map.fitBounds(bounds,{padding:[24,24],maxZoom:15});
     el.addEventListener('click',e=>{const b=e.target.closest?.('[data-map-open]');if(!b)return;e.preventDefault();openDetail(Number(b.dataset.mapOpen))});
-    setTimeout(()=>map.invalidateSize(),80);
+    invalidateTimer20=setTimeout(()=>{
+      invalidateTimer20=null;
+      if(activeMap!==map||!el.isConnected)return;
+      try{map.invalidateSize()}catch{}
+    },80);
   }
 
   const wireMap20=wire;
