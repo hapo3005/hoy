@@ -1,0 +1,163 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "overallStatus": "IN_PROGRESS",
+  "rules": {
+    "exactHeadEvidenceRequired": true,
+    "historicalGreenDoesNotProveLaterHead": true,
+    "databaseBranchPresenceDoesNotProveLiveState": true,
+    "productionLegalTaxOutreachRemainIndependent": true
+  },
+  "canonical": {
+    "rt006TechnicalDdPr": 116,
+    "corporateIpPr": 104,
+    "securityMigrationPr": 103,
+    "dataRightsPr": 106,
+    "trademarkBrandPr": 108,
+    "platformTransferPr": 115,
+    "g1MasterPr": 117,
+    "privacyFinalPr": null,
+    "rt005FinalPr": null,
+    "ir02cTermsFinalPr": null,
+    "ir02ePublicRuntimeFinalPr": null
+  },
+  "dispositions": [
+    {
+      "pr": 102,
+      "disposition": "REFERENCE_HARVEST_ONLY",
+      "mergeWhole": false,
+      "reason": "Broad 106-commit umbrella diverged from current main; unique assets must be harvested into focused current-main survivors."
+    },
+    {
+      "pr": 103,
+      "disposition": "KEEP_FOCUSED_RECONCILE",
+      "mergeWhole": false,
+      "reason": "Focused security/migration candidate; requires current-main and database-state reconciliation before acceptance."
+    },
+    {
+      "pr": 104,
+      "disposition": "KEEP_FOCUSED_RECONCILE",
+      "mergeWhole": false,
+      "reason": "Focused corporate/IP candidate; unique founder schedules and assignment material from PR 102 still require harvest."
+    },
+    {
+      "pr": 105,
+      "disposition": "SPLIT_RT005_ONLY",
+      "mergeWhole": false,
+      "reason": "RT-006 workflow/lockfile/audit surface is superseded for final integration by PR 116."
+    },
+    {
+      "pr": 106,
+      "disposition": "KEEP_FOCUSED_RECONCILE",
+      "mergeWhole": false,
+      "reason": "Canonical RT-007 path; historical/live implementation evidence from PR 102 must be reconciled."
+    },
+    {
+      "pr": 107,
+      "disposition": "COMPOSE_PRIVACY_SURVIVOR",
+      "mergeWhole": false,
+      "reason": "Provides stronger production-storage boundaries and RT-008 operating pack, but overlaps runtime with PR 109."
+    },
+    {
+      "pr": 108,
+      "disposition": "KEEP_FOCUSED_RECONCILE",
+      "mergeWhole": false,
+      "reason": "Focused trademark/brand DD architecture; legal/registry execution remains independent."
+    },
+    {
+      "pr": 109,
+      "disposition": "HARVEST_PRIVACY_API_TESTS",
+      "mergeWhole": false,
+      "reason": "Contributes explicit grant/deny/withdraw/clear behavior and regression tests; runtime must be composed with PR 107."
+    },
+    {
+      "pr": 115,
+      "disposition": "KEEP_PLATFORM_SURVIVOR_REBASE",
+      "mergeWhole": false,
+      "reason": "Canonical Platform Core/transfer path; rerun exact-head QA after selected supply-chain/investor-ready base is established."
+    },
+    {
+      "pr": 116,
+      "disposition": "CANONICAL_RT006_SURVIVOR",
+      "mergeWhole": false,
+      "reason": "Clean current-main RT-006 candidate; final acceptance still requires exact-head evidence and acquired-state package."
+    },
+    {
+      "pr": 117,
+      "disposition": "G1_CONTROL_PLANE",
+      "mergeWhole": false,
+      "reason": "Tracks canonical survivors and closing status; does not replace subject-matter gates."
+    }
+  ],
+  "materialOverlaps": [
+    {
+      "id": "OV-105-116",
+      "prs": [105, 116],
+      "paths": [
+        ".github/workflows/browser-qa.yml",
+        ".github/workflows/menu-browser-discovery.yml",
+        ".github/workflows/menu-delivery-gate.yml",
+        ".github/workflows/menu-eval.yml",
+        ".github/workflows/menu-image-publish.yml",
+        ".github/workflows/menu-pdf-render.yml",
+        ".github/workflows/pr-browser-qa.yml",
+        ".github/workflows/pr-critical-qa.yml",
+        ".github/workflows/pr-final-release-qa.yml",
+        "package-lock.json",
+        "docs/investor-ready/rt006-ai-asset-register.md",
+        "scripts/investor-ready/audit-third-party-deps.mjs",
+        "scripts/investor-ready/check-github-actions-pins.mjs"
+      ],
+      "resolution": "PR 116 is canonical for RT-006. Create a clean RT-005-only survivor from unique PR 105 material."
+    },
+    {
+      "id": "OV-107-109",
+      "prs": [107, 109],
+      "paths": ["analytics-rpc-1.8.1.js"],
+      "resolution": "Create one clean privacy survivor combining PR 107 production-storage constraints with PR 109 explicit consent lifecycle and regression tests."
+    },
+    {
+      "id": "OV-102-FOCUSED",
+      "prs": [102, 103, 104, 106, 107, 109, 115],
+      "paths": ["multiple historical governance/runtime/migration/package surfaces"],
+      "resolution": "Never merge PR 102 wholesale. Harvest unique assets by gate and reconcile them into focused current-main survivors."
+    }
+  ],
+  "requiredSuccessors": [
+    {
+      "id": "SC-RT005",
+      "status": "MISSING",
+      "purpose": "Clean current-main RT-005-only candidate from unique PR 105 assets."
+    },
+    {
+      "id": "SC-PRIVACY",
+      "status": "MISSING",
+      "purpose": "Composed current-main RT-008 privacy runtime/operating candidate from PR 107 + PR 109 + reconciled PR 102 governance evidence."
+    },
+    {
+      "id": "SC-IR02C",
+      "status": "MISSING",
+      "purpose": "Focused current-main Business Terms / Business Confirmation candidate harvested from PR 102."
+    },
+    {
+      "id": "SC-IR02E",
+      "status": "MISSING",
+      "purpose": "Focused current-main public-runtime / proprietary-source boundary candidate harvested from PR 102."
+    },
+    {
+      "id": "SC-IP-HARVEST",
+      "status": "MISSING",
+      "purpose": "Reconcile PR 102 founder IP schedules/assignment material into RT-003/004 final path."
+    }
+  ],
+  "recommendedSequence": [
+    "G1 control plane and low-overlap focused reconciliation",
+    "RT-006 canonical technical supply-chain baseline",
+    "clean RT-005-only successor",
+    "PR 102 focused harvest successors",
+    "Platform Core rebase/retest on selected base",
+    "composed privacy survivor",
+    "final integration candidate and acquired-state evidence regeneration"
+  ],
+  "doneRule": "overallStatus may be DONE only when every requiredSuccessor is COMPLETE, each selected survivor is reconciled to the final integration base, and acquired-state exact-head/executed-state evidence has been regenerated."
+}
