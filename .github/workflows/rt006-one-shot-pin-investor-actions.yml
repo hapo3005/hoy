@@ -1,5 +1,6 @@
 name: RT-006 One-Shot Pin Investor Actions
 
+# One-shot normalization trigger: 2026-08-18T21:46Z
 on:
   push:
     branches:
