@@ -62,6 +62,7 @@ test('RT-008 static privacy invariants pass', async () => {
   });
   expect(output).toContain('"ok": true');
   expect(output).toContain('"rawProductionEventHistory": false');
+  expect(output).toContain('"sourceOrderCheck": "executable-statements-only"');
 });
 
 test('production without consent clears legacy analytics state and exits before event/payload storage', async () => {
@@ -137,10 +138,10 @@ test('source contract has one canonical consent key and production-only raw-hist
 
   const trackStart=source.indexOf('trackEvent=function');
   const guard=source.indexOf("if(productionHost()&&!analyticsConsentGranted())return Promise.resolve(false);",trackStart);
-  const read=source.indexOf('readEvents()',trackStart);
-  const payload=source.indexOf('buildPayload(type,restaurantId,meta)',trackStart);
+  const read=source.indexOf('const rows=readEvents();',trackStart);
+  const payload=source.indexOf('const payload=buildPayload(type,restaurantId,meta);',trackStart);
   expect(guard).toBeGreaterThan(trackStart);
   expect(guard).toBeLessThan(read);
   expect(guard).toBeLessThan(payload);
-  expect(source.slice(trackStart,payload)).toContain('if(!productionHost())');
+  expect(source.slice(guard,payload)).toContain('if(!productionHost())');
 });
