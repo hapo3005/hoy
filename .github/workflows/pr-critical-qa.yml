@@ -26,6 +26,8 @@ jobs:
           node-version: 22
       - name: Install QA dependency
         run: npm install --no-audit --no-fund
+      - name: Run source-rights policy gate
+        run: npm run qa:rights
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Start branch server
