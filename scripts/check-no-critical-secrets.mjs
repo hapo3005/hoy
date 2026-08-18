@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
+const selfRel = 'scripts/check-no-critical-secrets.mjs';
 const skipDirs = new Set(['.git','node_modules','playwright-report','test-results','dist-public','.tmp-public-runtime-qa']);
 const textExt = new Set(['.js','.mjs','.ts','.json','.yml','.yaml','.md','.sql','.html','.css','.txt','.toml','.env','.webmanifest']);
 const patterns = [
@@ -26,6 +27,7 @@ const walk = dir => {
 const findings = [];
 for (const abs of walk(root)) {
   const rel = path.relative(root, abs).split(path.sep).join('/');
+  if (rel === selfRel) continue;
   const ext = path.extname(abs).toLowerCase();
   if (!textExt.has(ext) && !path.basename(abs).startsWith('.env')) continue;
   let text;
