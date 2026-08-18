@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "audit_date": "2026-08-18",
+  "status": "implemented_foundation_cutover_pending",
+  "current_state": {
+    "repositories": [
+      {"repo":"hapo3005/hoy","visibility":"public","owner_type":"personal_founder","github_pages":true},
+      {"repo":"hapo3005/hoy-lifestyle","visibility":"public","owner_type":"personal_founder"},
+      {"repo":"hapo3005/hoy-works","visibility":"public","owner_type":"personal_founder"}
+    ],
+    "github_organization_memberships": 0,
+    "root_license_files_found": 0,
+    "historical_confidentiality_recoverable": false
+  },
+  "implemented": {
+    "policy":"deploy/public-runtime-policy.json",
+    "builder":"scripts/build-public-runtime.mjs",
+    "qa_gate":"scripts/check-ir02e-public-runtime.mjs",
+    "package_workflow":".github/workflows/public-runtime-package.yml",
+    "critical_pr_qa":true,
+    "allowlist_mode":"fail_closed",
+    "runtime_manifest_sha256_per_file":true
+  },
+  "never_publish": [
+    ".github",
+    "data",
+    "docs",
+    "scripts",
+    "supabase",
+    "tests",
+    "test-results",
+    "playwright-report",
+    "node_modules"
+  ],
+  "target_architecture": {
+    "source":"private company-controlled GitHub organization/repositories",
+    "delivery":"deploy-only public runtime repository or approved static host/CDN",
+    "browser_runtime_confidential":false,
+    "backend_internal_ip_confidential":true
+  },
+  "cutover_gates": {
+    "E1_runtime_boundary":"complete",
+    "E2_shadow_runtime_e2e":"pending",
+    "E3_company_org_ownership":"blocked_no_org_entity_decision",
+    "E4_public_delivery_cutover":"pending",
+    "E5_private_source_transition":"pending"
+  },
+  "claim_gate": {
+    "allowed":[
+      "HOY has a reproducible fail-closed public-runtime packaging boundary",
+      "internal backend/DD/test/data paths are excluded from future public runtime artifacts",
+      "public-runtime leakage is a Critical PR QA condition"
+    ],
+    "not_allowed":[
+      "HOY source has always been confidential",
+      "all HOY repositories are private/company-owned",
+      "current GitHub Pages already uses deploy-only runtime",
+      "making repositories private removes historical public copies/forks"
+    ]
+  },
+  "next_gate":"shadow_build_e2e_then_company_org_and_deploy_target_cutover"
+}

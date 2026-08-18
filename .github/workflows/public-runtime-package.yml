@@ -1,0 +1,30 @@
+name: HOY Public Runtime Package
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  package-public-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Build fail-closed public runtime
+        run: node scripts/build-public-runtime.mjs
+      - name: Verify proprietary/public boundary
+        run: node scripts/check-ir02e-public-runtime.mjs
+      - name: Upload public runtime artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: hoy-public-runtime-${{ github.sha }}
+          path: dist-public/
+          retention-days: 30
+          if-no-files-found: error

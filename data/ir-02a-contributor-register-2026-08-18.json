@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "audit_date": "2026-08-18",
+  "status": "PARTIAL_EVIDENCE_REGISTER_FULL_HISTORY_CENSUS_PENDING",
+  "rules": {
+    "repository_owner_is_not_automatic_authorship": true,
+    "committer_is_not_automatically_author": true,
+    "bots_tools_are_not_human_contributors_without_separate_evidence": true,
+    "unknown_human_contribution_requires_review": true
+  },
+  "identities": [
+    {
+      "identity": "hapo3005",
+      "github_user_id": 291578495,
+      "classification": "FOUNDER_ACCOUNT",
+      "relationship": "Founder / repository owner",
+      "rights_status": "ASSIGNMENT_REQUIRED_TO_HOY_ENTITY",
+      "evidence": [
+        "repo owner for hapo3005/hoy",
+        "repo owner for hapo3005/hoy-lifestyle",
+        "repo owner for hapo3005/hoy-works",
+        "sample authored Gastro/Core commit eed49f4897c499b1c3f8c7ca5ad02ab4a4f5520d",
+        "sample authored Lifestyle commits 03281eb10c5d01be79b815d86ee7faaea0c1333f and bc3ca419bf350ecf42560e3379342ce36a34a56c",
+        "sample authored Works commit a76aa87416a57dbfd8c079b534b2e064e3654516"
+      ]
+    },
+    {
+      "identity": "web-flow",
+      "github_user_id": 19864447,
+      "classification": "GITHUB_PLATFORM_COMMITTER_TOOL",
+      "relationship": "GitHub web-flow committer observed on sampled Lifestyle commit",
+      "rights_status": "NOT_CLASSIFIED_AS_HUMAN_AUTHOR_FROM_COMMITTER_METADATA_ALONE",
+      "evidence": [
+        "Lifestyle commit 03281eb10c5d01be79b815d86ee7faaea0c1333f has author hapo3005 and committer web-flow"
+      ]
+    }
+  ],
+  "repository_census": [
+    {
+      "repository": "hapo3005/hoy",
+      "owner": "hapo3005",
+      "admin_control_observed": true,
+      "sample_founder_authorship_observed": true,
+      "full_history_census": "PENDING",
+      "risk": "Cannot yet represent sole authorship of every file/commit"
+    },
+    {
+      "repository": "hapo3005/hoy-lifestyle",
+      "owner": "hapo3005",
+      "admin_control_observed": true,
+      "sample_initial_and_recent_founder_authorship_observed": true,
+      "full_history_census": "PENDING",
+      "risk": "Cannot yet represent sole authorship of every file/commit"
+    },
+    {
+      "repository": "hapo3005/hoy-works",
+      "owner": "hapo3005",
+      "admin_control_observed": true,
+      "sample_founder_authorship_observed": true,
+      "full_history_census": "PENDING",
+      "risk": "Cannot yet represent sole authorship of every file/commit"
+    }
+  ],
+  "human_contributor_questions_for_founder": [
+    "Has any freelancer, agency, developer, designer, translator or researcher contributed protectable HOY work outside the sampled GitHub authorship?",
+    "Was any HOY work created while subject to an employer/client IP clause that could claim rights?",
+    "Has any third party supplied code/design/documentation that was copied or adapted into HOY rather than merely referenced/licensed?",
+    "Has any human contributor used a shared GitHub identity or supplied work that the Founder later committed under the Founder account?"
+  ],
+  "clearance_states": [
+    "CLEAR",
+    "ASSIGNMENT_REQUIRED",
+    "LICENSE_REQUIRED",
+    "REVIEW_REQUIRED",
+    "EXCLUDED_THIRD_PARTY",
+    "TOOL_BOT_NOT_AUTHOR"
+  ],
+  "dd_gate": "FULL_CONTRIBUTOR_CENSUS_AND_FOUNDER_CONFIRMATION_REQUIRED_BEFORE_O1"
+}

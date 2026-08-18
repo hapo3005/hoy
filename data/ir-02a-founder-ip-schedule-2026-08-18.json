@@ -1,0 +1,146 @@
+{
+  "schema_version": "1.0",
+  "audit_date": "2026-08-18",
+  "status": "assignment_schedule_prepared_execution_pending",
+  "founder": {
+    "name": "Jan Nikolic",
+    "public_repo_identity": "hapo3005",
+    "private_execution_details": "PRIVATE_LEGAL_DATA_ROOM_ONLY"
+  },
+  "legal_model": {
+    "copyright": "exclusive_usage_rights_not_copyright_title_transfer_under_german_law",
+    "other_ip": "assign_transferable_rights_only_to_extent_founder_owns_them",
+    "company_entity": "TBD",
+    "execution_gate": "do_not_mark_O1_until_valid_company_assignment_is_signed_and_evidenced"
+  },
+  "repositories": [
+    {
+      "id": "FIP-REP-01",
+      "repository": "hapo3005/hoy",
+      "repository_id": "1328826771",
+      "owner_login": "hapo3005",
+      "owner_type": "User",
+      "founder_admin_control_observed": true,
+      "scope": "HOY Gastro/Core application, migrations, tests, product/data/trust/analytics documentation and related founder-created assets",
+      "ownership_class": "O2_O8",
+      "assignment_status": "ASSIGNMENT_REQUIRED",
+      "sample_authorship": [
+        {
+          "commit": "eed49f4897c499b1c3f8c7ca5ad02ab4a4f5520d",
+          "author_login": "hapo3005",
+          "evidence_type": "sample_current_commit"
+        }
+      ],
+      "census_status": "PARTIAL_SAMPLE_NOT_FULL_HISTORY"
+    },
+    {
+      "id": "FIP-REP-02",
+      "repository": "hapo3005/hoy-lifestyle",
+      "repository_id": "1330175210",
+      "owner_login": "hapo3005",
+      "owner_type": "User",
+      "founder_admin_control_observed": true,
+      "scope": "HOY Lifestyle product architecture, research structures, original documentation and founder-created research methodology/data organisation",
+      "ownership_class": "O2_O8",
+      "assignment_status": "ASSIGNMENT_REQUIRED",
+      "sample_authorship": [
+        {
+          "commit": "03281eb10c5d01be79b815d86ee7faaea0c1333f",
+          "author_login": "hapo3005",
+          "committer_login": "web-flow",
+          "note": "GitHub web-flow committer is not treated as a separate author merely from commit metadata",
+          "evidence_type": "sample_initial_repository_commit"
+        },
+        {
+          "commit": "bc3ca419bf350ecf42560e3379342ce36a34a56c",
+          "author_login": "hapo3005",
+          "committer_login": "hapo3005",
+          "evidence_type": "sample_recent_commit"
+        }
+      ],
+      "census_status": "PARTIAL_SAMPLE_NOT_FULL_HISTORY"
+    },
+    {
+      "id": "FIP-REP-03",
+      "repository": "hapo3005/hoy-works",
+      "repository_id": "1331755652",
+      "owner_login": "hapo3005",
+      "owner_type": "User",
+      "founder_admin_control_observed": true,
+      "scope": "HOY Works application, schema/Edge Function logic, provider/matching/trust/live-status architecture and original documentation",
+      "ownership_class": "O2_O8",
+      "assignment_status": "ASSIGNMENT_REQUIRED",
+      "sample_authorship": [
+        {
+          "commit": "a76aa87416a57dbfd8c079b534b2e064e3654516",
+          "author_login": "hapo3005",
+          "committer_login": "hapo3005",
+          "evidence_type": "sample_recent_commit"
+        }
+      ],
+      "census_status": "PARTIAL_SAMPLE_NOT_FULL_HISTORY"
+    }
+  ],
+  "backend_assets": [
+    {
+      "id": "FIP-BE-01",
+      "system": "Supabase",
+      "project_name": "HOY La Manga",
+      "project_ref": "zlscptisdxzxuvllogza",
+      "scope": "Founder-controlled original schema/migration/configuration logic and database organisation; Supabase platform excluded",
+      "ownership_class": "O2_O8",
+      "assignment_status": "ASSIGNMENT_AND_ACCOUNT_TRANSFER_EVIDENCE_REQUIRED"
+    },
+    {
+      "id": "FIP-BE-02",
+      "system": "Supabase",
+      "project_name": "HOY Works",
+      "project_ref": "dqfouwyclvmpkunmxkun",
+      "scope": "Founder-controlled original schema/Edge Function/configuration logic and database organisation; Supabase platform excluded",
+      "ownership_class": "O2_O8",
+      "assignment_status": "ASSIGNMENT_AND_ACCOUNT_TRANSFER_EVIDENCE_REQUIRED"
+    }
+  ],
+  "product_ip_categories": [
+    {"id":"FIP-P01","name":"HOY Core architecture","status":"ASSIGNMENT_REQUIRED","exclusions":"third_party_libraries_and_vendor_platforms"},
+    {"id":"FIP-P02","name":"HOY Gastro product IP","status":"ASSIGNMENT_REQUIRED","exclusions":"third_party_business_source_content"},
+    {"id":"FIP-P03","name":"HOY Lifestyle product/research IP","status":"ASSIGNMENT_REQUIRED","exclusions":"third_party_marketplace_directory_and_source_content"},
+    {"id":"FIP-P04","name":"HOY Works product IP","status":"ASSIGNMENT_REQUIRED","exclusions":"third_party_provider_source_content"},
+    {"id":"FIP-P05","name":"HOY NOW realtime semantics and workflows","status":"ASSIGNMENT_REQUIRED"},
+    {"id":"FIP-P06","name":"Trust and Verification Standard","status":"ASSIGNMENT_REQUIRED"},
+    {"id":"FIP-P07","name":"HOY Accessibility Standard and matching semantics","status":"ASSIGNMENT_REQUIRED"},
+    {"id":"FIP-P08","name":"HOY Intelligence analytics governance/event contracts","status":"ASSIGNMENT_REQUIRED"},
+    {"id":"FIP-P09","name":"Region and multi-region operating architecture","status":"ASSIGNMENT_REQUIRED"},
+    {"id":"FIP-P10","name":"HOY-created commercial/business funnel architecture","status":"ASSIGNMENT_REQUIRED"},
+    {"id":"FIP-P11","name":"Investor Ready and Buyer Ready original documentation","status":"ASSIGNMENT_REQUIRED"},
+    {"id":"FIP-P12","name":"HOY-created data provenance/rights/trust schemas","status":"ASSIGNMENT_REQUIRED"}
+  ],
+  "registry_assets": [
+    {"id":"FIP-R01","name":"HOY trademark/trade-name rights","status":"TBD_BRAND_REGISTER_REQUIRED"},
+    {"id":"FIP-R02","name":"HOY domains","status":"TBD_DOMAIN_REGISTER_REQUIRED"},
+    {"id":"FIP-R03","name":"HOY social handles","status":"TBD_HANDLE_REGISTER_REQUIRED"},
+    {"id":"FIP-R04","name":"patent/design/application rights","status":"TBD_NO_RIGHT_ASSUMED"}
+  ],
+  "mandatory_exclusions": [
+    "open_source_and_commercial_third_party_software_except_licensed_use_rights",
+    "third_party_business_facts_and_source_content",
+    "operator_or_third_party_media_without_assignment_or_license",
+    "external_directory_marketplace_content",
+    "personal_data_as_property_or_IP",
+    "open_public_data_beyond_applicable_license_or_statutory_rights",
+    "AI_generated_elements_beyond_rights_legally_available",
+    "human_contributor_work_not_yet_validly_assigned_or_licensed"
+  ],
+  "execution_dependencies": [
+    "identify_final_HOY_legal_entity",
+    "complete_private_founder_identity_and_signature_copy",
+    "founder_confirms_prior_assignment_employer_client_and_contributor_disclosures",
+    "complete_history_wide_contributor_census",
+    "complete_brand_domain_registry_schedule",
+    "confirm_consideration_and_tax_accounting_treatment",
+    "german_counsel_reviews_unknown_use_form_moral_rights_and_transfer_language",
+    "sign_assignment_and_store_private_evidence",
+    "change_covered_assets_to_O1_only_after_execution"
+  ],
+  "dd_gate": "FOUNDER_ASSIGNMENT_PACKAGE_READY_EXECUTION_PENDING"
+}

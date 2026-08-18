@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "audit_date": "2026-08-18",
+  "status": "technical_infrastructure_live_terms_not_active",
+  "terms": {
+    "version": "1.0",
+    "status": "draft",
+    "master_locale": "de",
+    "de_document": {"path":"docs/legal/HOY_BUSINESS_DATA_MEDIA_TERMS_v1.0_DE.md","git_blob_sha":"a3d6ce5bb442667e1ec3ff9fc42939397e675a0a","registered_in_production_version_row":true,"final_sha256":null,"legal_review":"pending"},
+    "es_document": {"path":"docs/legal/HOY_BUSINESS_DATA_MEDIA_TERMS_v1.0_ES_DRAFT.md","git_blob_sha":"abc9634727e7c1b577a8a90b68bc61b03c2893e8","registered_in_production_version_row":true,"final_sha256":null,"legal_review":"pending","status":"legal_localization_draft"}
+  },
+  "production_migrations": [
+    "20260818201632_ir02c_business_terms_acceptance_infrastructure",
+    "20260818201740_ir02c_business_terms_rpc_security_hardening",
+    "20260818201831_ir02c_business_confirmation_ledger",
+    "20260818202531_ir02c_register_spanish_terms_draft",
+    "20260818203021_ir02c_reconcile_de_terms_draft_blob"
+  ],
+  "production_objects": {
+    "private_tables": ["private.business_terms_versions","private.business_terms_acceptances","private.business_data_confirmations"],
+    "public_security_invoker_rpcs": ["public.get_business_terms_status","public.operator_accept_business_terms","public.operator_record_business_confirmation"],
+    "operator_terms_triggers": 10
+  },
+  "current_live_state": {"active_terms_gate":false,"terms_1_0_status":"draft","acceptances":0,"business_data_confirmations":0,"verified_restaurant_memberships":0,"operator_behavior_changed_by_terms_gate":false,"activation_constraint_negative_test":"PASS"},
+  "ci_governance": {"command":"npm run qa:terms","critical_pr_gate":true},
+  "rights_doctrine": {"business_retains_source_content_rights":true,"hoy_operational_license":"non_exclusive_royalty_free_defined_purposes","raw_business_content_standalone_resale_by_default":false,"change_of_control_continuity_drafted":true,"personal_data_ownership_claim":false,"article_28_dpa_separate_where_required":true,"business_confirmed_requires_exact_snapshot_confirmation":true},
+  "next_gate": "complete_entity_privacy_counsel_hash_ui_and_e2e_activation_requirements"
+}

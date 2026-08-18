@@ -1,0 +1,129 @@
+{
+  "schema_version": "1.1",
+  "audit_date": "2026-08-18",
+  "status": "technical_production_hardening_complete_full_dd_open",
+  "scope": {
+    "repositories": [
+      "hapo3005/hoy",
+      "hapo3005/hoy-lifestyle",
+      "hapo3005/hoy-works"
+    ],
+    "supabase_projects": [
+      {"name": "HOY La Manga", "ref": "zlscptisdxzxuvllogza", "status": "ACTIVE_HEALTHY"},
+      {"name": "HOY Works", "ref": "dqfouwyclvmpkunmxkun", "status": "ACTIVE_HEALTHY"}
+    ]
+  },
+  "assets": [
+    {"id":"IP-G01","asset":"HOY Gastro/Core repository","ownership":"O2_O8","dd_status":"AMBER","action":"founder_assignment_and_contributor_audit"},
+    {"id":"IP-W01","asset":"HOY Works repository","ownership":"O2_O8","dd_status":"AMBER","action":"founder_assignment_and_contributor_audit"},
+    {"id":"IP-L01","asset":"HOY Lifestyle research/product repository","ownership":"O2_O8","dd_status":"AMBER","action":"founder_assignment_and_contributor_audit"},
+    {"id":"IP-G02","asset":"HOY La Manga Supabase backend","ownership":"O2_O8","dd_status":"AMBER","action":"account_control_and_transferability_evidence"},
+    {"id":"IP-W02","asset":"HOY Works Supabase backend","ownership":"O2_O8","dd_status":"AMBER","action":"account_control_and_transferability_evidence"}
+  ],
+  "datasets": [
+    {"id":"G-D01","name":"restaurants","vertical":"gastro","rows":169,"data_class":["C","A-derived"],"rights_status":"AMBER","evidence":{"with_source_url":169,"source_checked":169,"location_verified":71,"hours_verified":23}},
+    {"id":"G-D02","name":"menu_sources","vertical":"gastro","rows":83,"data_class":["C","A-derived"],"rights_status":"AMBER","evidence":{"official":67,"first_party_source_authority":67,"authorized_transactional":1,"verified_public_snapshot":15,"unknown_authority":0}},
+    {"id":"G-D03","name":"menu_items","vertical":"gastro","rows":2104,"data_class":["C","A-derived"],"rights_status":"AMBER"},
+    {"id":"G-D04","name":"menu_item_translations","vertical":"gastro","rows":902,"data_class":["A","C-derived"],"rights_status":"REVIEW_REQUIRED"},
+    {"id":"G-D05","name":"restaurant_hours_sources","vertical":"gastro","rows":170,"data_class":["C"],"rights_status":"AMBER_REVIEW_REQUIRED","evidence":{"official":78,"official_website":73,"directory":92,"booking":2,"other":3}},
+    {"id":"G-D06","name":"restaurant_accessibility","vertical":"gastro","rows":166,"data_class":["C","A-derived"],"rights_status":"REVIEW_REQUIRED","evidence_status":"RESEARCH_ONLY_FAIL_CLOSED","evidence":{"public_research":166,"operator":0,"onsite":0,"with_source_url":0}},
+    {"id":"G-D06C","name":"restaurant_accessibility_facts","vertical":"gastro_core","rows":668,"current_rows":668,"data_class":["A","C-derived"],"rights_status":"FAIL_CLOSED_OPERATIONAL","evidence":{"feature_registry":24,"review_needed":311,"unsafe_clean_external_without_source":0,"anon_visible_facts":357,"anon_visible_unknown":357,"anon_visible_nonunknown":0}},
+    {"id":"G-D07","name":"venue_media_candidates","vertical":"gastro","rows":97,"data_class":["C"],"rights_status":"AMBER","publication_control":"GREEN","evidence":{"awaiting_operator_approval":97,"operator_approved":0,"licensed":0,"public":0}},
+    {"id":"G-D08","name":"media_assets","vertical":"gastro","rows":0,"data_class":["A","C"],"rights_status":"NOT_APPLICABLE_CURRENTLY"},
+    {"id":"G-D09","name":"analytics_events","vertical":"gastro","rows":28897,"data_class":["A","D"],"rights_status":"AMBER","traction_quality":"RED_PRE_2_45","evidence":{"with_anonymous_id":28897,"with_session_id":28897}},
+    {"id":"G-D10","name":"venue_sales_pipeline","vertical":"gastro","rows":168,"data_class":["C","D-possible"],"rights_status":"REVIEW_REQUIRED","outreach_control":"GREEN","evidence":{"send_locked":168,"send_authorized":0}},
+    {"id":"W-D01","name":"providers","vertical":"works","rows":85,"data_class":["C","A-derived"],"rights_status":"AMBER","evidence":{"source_checked":82,"directory_only":3,"business_verified":0,"hoy_verified":0,"active_partners":0,"with_website":81,"with_public_source":77}},
+    {"id":"W-D02","name":"source_provenance","vertical":"works","rows":102,"data_class":["C"],"rights_status":"AMBER","provenance_quality":"GREEN","evidence":{"checked":102,"business_website":98,"directory":3,"business_profile":1,"provider_submission":0}},
+    {"id":"W-D03","name":"provider_coverage","vertical":"works","rows":170,"data_class":["C","A-derived"],"rights_status":"AMBER","evidence":{"verified":167}},
+    {"id":"W-D04","name":"services","vertical":"works","rows":20,"data_class":["A"],"rights_status":"GREEN_OPERATIONAL","ownership":"O2"},
+    {"id":"W-D05","name":"provider_pilot_pipeline","vertical":"works","rows":12,"data_class":["A","C"],"rights_status":"REVIEW_REQUIRED","evidence":{"contacted":0,"active":0,"ready_to_contact":0}},
+    {"id":"W-D06","name":"work_requests","vertical":"works","rows":0,"data_class":["D"],"rights_status":"REVIEW_REQUIRED_BEFORE_LIVE"},
+    {"id":"W-D07","name":"provider_live_status","vertical":"works","rows":0,"data_class":["A"],"rights_status":"FUTURE_FIRST_PARTY"},
+    {"id":"L-D01","name":"rentals-research-v0.1.csv","vertical":"lifestyle","rows":15,"data_class":["C"],"rights_status":"REVIEW_REQUIRED","note":"heterogeneous research rows including marketplace and gap records"},
+    {"id":"L-D02","name":"special-vehicles-research-v0.1.csv","vertical":"lifestyle","rows":12,"data_class":["C"],"rights_status":"REVIEW_REQUIRED","note":"heterogeneous research rows including first-party, legacy, marketplace, official-tourism and gap records"}
+  ],
+  "production_hardening": {
+    "project":"HOY La Manga",
+    "applied_migrations":[
+      "20260818192515_hoy_accessible_v1_canonical_fact_layer",
+      "20260818192549_accessibility_provenance_constraint_repair",
+      "20260818192607_ir02a_dd_hardening_v2"
+    ],
+    "accessibility": {
+      "feature_count":24,
+      "fact_count":668,
+      "current_fact_count":668,
+      "review_needed_count":311,
+      "unsafe_clean_external_without_source":0,
+      "constraint_exists":true,
+      "sync_trigger_exists":true,
+      "anon_visible_facts":357,
+      "anon_visible_unknown":357,
+      "anon_visible_nonunknown":0,
+      "authenticated_nojwt_visible_facts":357,
+      "authenticated_nojwt_visible_unknown":357,
+      "authenticated_nojwt_visible_nonunknown":0
+    },
+    "initial_hardening_attempt":"ABORTED_ATOMICALLY_CONSTRAINT_TOO_STRICT",
+    "repair_result":"SUCCESS",
+    "hardening_v2_result":"SUCCESS"
+  },
+  "security": {
+    "gastro": {
+      "advisor_status":"INTENTIONAL_PRIVILEGED_RPC_WARNINGS_REMAIN",
+      "rls_enabled_no_policy_findings":0,
+      "security_definer_review":"SOURCE_LEVEL_REVIEWED_GRANTS_RESTRICTED",
+      "remaining_advisor_warnings":[
+        "anon: log_analytics_event",
+        "authenticated: get_operator_workspace",
+        "authenticated: get_venue_media_review",
+        "authenticated: log_analytics_event",
+        "authenticated: operator_archive_offer",
+        "authenticated: operator_publish_offer",
+        "authenticated: operator_request_upgrade",
+        "authenticated: operator_submit_profile_change",
+        "authenticated: review_venue_media_candidates"
+      ]
+    },
+    "works": {
+      "advisor_status":"ZERO_CURRENT_FINDINGS_AT_AUDIT",
+      "edge_functions_active":7,
+      "edge_functions_platform_verify_jwt_false":7,
+      "manually_reviewed_custom_auth":["provider-live-status"],
+      "remaining_source_auth_review":6,
+      "dependency_pin_pr":"hapo3005/hoy-works#1"
+    }
+  },
+  "corrections": {
+    "gastro_master_rows":169,
+    "gastro_166_meaning":"legacy restaurant_accessibility rows, not restaurant master rows",
+    "works_provider_rows":85,
+    "lifestyle_current_repo_research_rows":27,
+    "lifestyle_101_records":"not substantiated by currently audited connected repo/projects",
+    "global_352_351_328_counts":"do not use in investor materials until exact reproducible source and deduplication method are identified"
+  },
+  "closed_technical_actions": [
+    "accessibility_canonical_fact_layer_deployed",
+    "accessibility_source_less_external_claims_fail_closed",
+    "accessibility_provenance_constraint_active",
+    "accessibility_legacy_sync_trigger_active",
+    "menu_eval_rls_no_policy_findings_closed",
+    "gastro_security_definer_source_review_completed",
+    "gastro_rpc_grants_restricted_to_intended_roles",
+    "production_migration_history_reconciled_in_pr"
+  ],
+  "priority_actions": [
+    "founder_ip_assignment",
+    "full_contributor_chain_audit",
+    "source_domain_rights_legal_review",
+    "actual_accessibility_evidence_or_operator_onsite_confirmation",
+    "privacy_legal_basis_retention_ropa_mapping",
+    "business_data_and_media_terms_with_transferability",
+    "open_data_license_evidence_including_ign",
+    "remaining_works_edge_function_auth_review",
+    "critical_service_account_transferability",
+    "brand_domain_trademark_register",
+    "latest_final_pr_ci_completion"
+  ],
+  "dd_gate": "TECHNICAL_PRODUCTION_HARDENING_COMPLETE_FULL_INVESTOR_DD_NOT_YET_COMPLETE"
+}

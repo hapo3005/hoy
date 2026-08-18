@@ -1,8 +1,8 @@
-/* HOY 2.43.0 — granular accessibility facts, consumer disclosure and free operator verification */
+/* HOY 2.43.1 — granular accessibility facts, consumer disclosure and free operator verification */
 (function(){
   if(window.__hoyAccessibility243)return;
   window.__hoyAccessibility243=true;
-  window.hoyAccessibilityVersion='2.43.0';
+  window.hoyAccessibilityVersion='2.43.1';
 
   const coreKeys=['wheelchair_entrance_state','wheelchair_seating_state','wheelchair_toilet_state'];
   const labels={
@@ -15,7 +15,27 @@
   const stateLabel=v=>v==='yes'?'Bestätigt':v==='no'?'Einschränkung':'Noch nicht bestätigt';
   const stateMark=v=>v==='yes'?'✓':v==='no'?'!':'?';
   const fmtDate=v=>{try{return v?new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date(v)):''}catch{return ''}};
-  const accOf=p=>p?.accessibility||null;
+  const hasEvidenceUrl=a=>!!String(a?.source_url||'').trim();
+  const trustedDirectEvidence=a=>a?.verification_source==='operator'||a?.verification_source==='onsite';
+  function ddSafeAccessibility(a){
+    if(!a||trustedDirectEvidence(a)||hasEvidenceUrl(a))return a;
+    if(a.verification_source!=='public_research')return a;
+    return {
+      ...a,
+      wheelchair_entrance_state:'unknown',
+      wheelchair_seating_state:'unknown',
+      wheelchair_toilet_state:'unknown',
+      accessible_parking_state:'unknown',
+      hearing_loop_state:'unknown',
+      overall_status:'D',
+      source_label:'HOY-Prüfung: konkrete Quelle noch nicht DD-verifiziert',
+      evidence_type:'provenance_pending',
+      accessibility_note:null,
+      secondary_note:null,
+      dd_provenance_pending:true,
+    };
+  }
+  const accOf=p=>ddSafeAccessibility(p?.accessibility||null);
 
   function statusMeta(a){
     if(!a)return {label:'Barrierefreiheit noch nicht bestätigt',cls:'unknown',lead:'Für diesen Betrieb liegen noch keine belastbaren Detailangaben vor.'};
@@ -42,7 +62,7 @@
     const a=accOf(p);
     const m=statusMeta(a);
     const checked=fmtDate(a?.checked_at);
-    const source=a?.verification_source==='operator'?'Vom verifizierten Betrieb bestätigt':a?.source_label||'HOY-Prüfung öffentlicher Angaben';
+    const source=a?.verification_source==='operator'?'Vom verifizierten Betrieb bestätigt':a?.verification_source==='onsite'?'Von HOY vor Ort verifiziert':a?.source_label||'HOY-Prüfung öffentlicher Angaben';
     return `<section id="profile-accessibility" class="access-panel ${m.cls}" data-accessibility-panel>
       <div class="access-head">
         <div>
@@ -76,9 +96,9 @@
 
   async function loadAccessibility(){
     if(!sb)return;
-    const {data,error}=await sb.from('restaurant_accessibility').select('restaurant_id,wheelchair_entrance_state,wheelchair_seating_state,wheelchair_toilet_state,accessible_parking_state,hearing_loop_state,overall_status,verification_source,source_label,evidence_type,secondary_note,accessibility_note,checked_at,operator_confirmed_at,updated_at');
+    const {data,error}=await sb.from('restaurant_accessibility').select('restaurant_id,wheelchair_entrance_state,wheelchair_seating_state,wheelchair_toilet_state,accessible_parking_state,hearing_loop_state,overall_status,verification_source,source_url,source_label,evidence_type,secondary_note,accessibility_note,checked_at,operator_confirmed_at,updated_at');
     if(error){console.warn('HOY accessibility load failed',error);return}
-    const byId=new Map((data||[]).map(x=>[Number(x.restaurant_id),x]));
+    const byId=new Map((data||[]).map(x=>[Number(x.restaurant_id),ddSafeAccessibility(x)]));
     DATA.forEach(p=>{p.accessibility=byId.get(Number(p.id))||null});
   }
 
@@ -114,9 +134,6 @@
     };
   }
 
-  // The current HOY profile is transformed from the legacy tab shell into a continuous profile
-  // after setDetailTab() runs. Inject once more after the complete openDetail() chain so the
-  // accessibility panel survives that replacement and sits between About and Menu.
   if(typeof openDetail==='function'){
     const baseOpenDetail243=openDetail;
     openDetail=function(id){
@@ -201,7 +218,7 @@
   }
 
   async function refreshAccessibility(p,row){
-    if(row)p.accessibility=row;
+    if(row)p.accessibility=ddSafeAccessibility(row);
     await loadAccessibility();
     render();
   }
@@ -251,4 +268,5 @@
 
   window.hoyLoadAccessibility=loadAccessibility;
   window.hoyAccessibilityPanel=accessibilityPanel;
+  window.hoyAccessibilityDDSafe=ddSafeAccessibility;
 })();

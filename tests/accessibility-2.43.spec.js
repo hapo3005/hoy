@@ -5,7 +5,7 @@ test.use({serviceWorkers:'block'});
 async function openApp(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>
-    window.hoyAccessibilityVersion==='2.43.0' &&
+    window.hoyAccessibilityVersion==='2.43.1' &&
     Array.isArray(DATA) && DATA.length>0 &&
     cloud?.status==='online' &&
     DATA.every(p=>p.accessibility&&p.accessibility.restaurant_id),
@@ -13,8 +13,8 @@ async function openApp(page){
   );
 }
 
-async function renderSyntheticState(page,status){
-  await page.evaluate(status=>{
+async function renderSyntheticState(page,status,{sourceUrl='https://example.com/evidence',verificationSource='public_research'}={}){
+  await page.evaluate(({status,sourceUrl,verificationSource})=>{
     document.getElementById('accessibility-test-host')?.remove();
     const byStatus={
       A:{wheelchair_entrance_state:'yes',wheelchair_seating_state:'yes',wheelchair_toilet_state:'yes',accessible_parking_state:'unknown',hearing_loop_state:'unknown'},
@@ -27,13 +27,14 @@ async function renderSyntheticState(page,status){
     host.innerHTML=hoyAccessibilityPanel({accessibility:{
       restaurant_id:999999,
       overall_status:status,
-      verification_source:'public_research',
+      verification_source:verificationSource,
+      source_url:sourceUrl,
       source_label:'HOY Test',
       checked_at:'2026-08-18T00:00:00+02:00',
       ...byStatus[status],
     }});
     document.body.appendChild(host);
-  },status);
+  },{status,sourceUrl,verificationSource});
   return page.locator('#accessibility-test-host [data-accessibility-panel]');
 }
 
@@ -50,6 +51,34 @@ test('every loaded HOY-Gastro venue receives a granular accessibility record',as
   const firstId=await page.evaluate(()=>DATA[0].id);
   await page.evaluate(id=>openDetail(id),firstId);
   await expect(page.locator('#detail [data-accessibility-panel]')).toBeVisible();
+});
+
+test('unverified public accessibility claims fail closed without a concrete evidence URL',async({page})=>{
+  await openApp(page);
+  const audit=await page.evaluate(()=>({
+    unsafe:DATA.filter(p=>p.accessibility?.verification_source==='public_research' && !String(p.accessibility?.source_url||'').trim() && p.accessibility?.overall_status!=='D').map(p=>p.id),
+    unprovenStates:DATA.filter(p=>p.accessibility?.verification_source==='public_research' && !String(p.accessibility?.source_url||'').trim()).flatMap(p=>[
+      p.accessibility.wheelchair_entrance_state,
+      p.accessibility.wheelchair_seating_state,
+      p.accessibility.wheelchair_toilet_state,
+      p.accessibility.accessible_parking_state,
+      p.accessibility.hearing_loop_state,
+    ]).filter(v=>v!=='unknown'),
+  }));
+  expect(audit.unsafe).toEqual([]);
+  expect(audit.unprovenStates).toEqual([]);
+
+  const panel=await renderSyntheticState(page,'A',{sourceUrl:''});
+  await expect(panel).toHaveClass(/unknown/);
+  await expect(panel).toContainText('noch nicht bestätigt');
+  await expect(panel).toContainText('konkrete Quelle noch nicht DD-verifiziert');
+});
+
+test('operator-confirmed accessibility remains publishable without an external source URL',async({page})=>{
+  await openApp(page);
+  const panel=await renderSyntheticState(page,'A',{sourceUrl:'',verificationSource:'operator'});
+  await expect(panel).toHaveClass(/good/);
+  await expect(panel).toContainText('Vom verifizierten Betrieb bestätigt');
 });
 
 test('profile communicates confirmed, partial, barrier and unknown states without overclaiming',async({page})=>{

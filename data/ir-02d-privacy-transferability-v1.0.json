@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0",
+  "audit_date": "2026-08-18",
+  "status": "working_dd_baseline_fail_closed",
+  "production_migrations": [
+    "20260818205155_ir02d_privacy_transferability_governance",
+    "20260818205742_ir02d_repository_visibility_evidence",
+    "20260818210151_ir02d_disable_analytics_until_consent_clearance",
+    "20260818210527_ir02d_link_terms_to_active_privacy_notice"
+  ],
+  "privacy_notice": {
+    "version": "1.0",
+    "status": "draft",
+    "de_path": "docs/legal/HOY_PRIVACY_NOTICE_v1.0_DE_DRAFT.md",
+    "de_git_blob_sha": "8a687c172593f1b1118d98dfb5a6a9c9e1f8d81f",
+    "es_path": "docs/legal/HOY_PRIVACY_NOTICE_v1.0_ES_DRAFT.md",
+    "es_git_blob_sha": "eb591d3aee937b4974214cf9449ad7d9fc6dd3d2",
+    "activation_negative_test": "PASS",
+    "final_hashes": null,
+    "counsel_review": "pending"
+  },
+  "dpa": {
+    "version": "1.0",
+    "status": "draft",
+    "path": "docs/legal/HOY_DPA_ART28_v1.0_DE_DRAFT.md",
+    "git_blob_sha": "a1ae76d1419ef8fe5b511910c2f9492831743c46",
+    "activation_negative_test": "PASS",
+    "rule": "use_only_for_factually_confirmed_processor_use_cases",
+    "counsel_review": "pending"
+  },
+  "live_privacy_snapshot": {
+    "gastro": {
+      "auth_users": 0,
+      "business_claims": 0,
+      "verified_memberships": 0,
+      "terms_acceptances": 0,
+      "business_confirmations": 0,
+      "sales_pipeline_rows": 168,
+      "sales_pipeline_with_email": 17,
+      "sales_pipeline_with_phone": 54,
+      "analytics_events_historical": 28897,
+      "analytics_identifier_type": ["anonymous_id", "session_id"],
+      "historical_traction_claim": "blocked_pre_2_45",
+      "production_analytics_rpc_client_roles": "revoked_until_consent_clearance",
+      "client_consent_fail_closed_code": "implemented_in_IR02D_branch_and_isolated_PR_109_pending_QA_merge"
+    },
+    "works": {
+      "auth_users": 0,
+      "profiles": 0,
+      "provider_members": 0,
+      "provider_applications": 0,
+      "work_requests": 0,
+      "personal_data_heavy_flows": ["work_requests", "provider_applications"],
+      "pre_live_gate": "blocked",
+      "production_trigger_count": 2,
+      "approval_negative_test": "PASS"
+    }
+  },
+  "governance": {
+    "processing_activities": 8,
+    "retention_rules": 7,
+    "transferability_dependencies": 6,
+    "incidents": 0,
+    "data_subject_requests": 0,
+    "privacy_client_access": "denied",
+    "electronic_marketing_spain": "blocked_pending_LSSI_clearance",
+    "analytics_cookie_clearance": "review_required",
+    "analytics_transport": "server_blocked_until_clearance",
+    "terms_privacy_cross_gate": "active_business_terms_require_registered_active_privacy_notice",
+    "works_customer_request_clearance": "blocked"
+  },
+  "repository_visibility": {
+    "hapo3005/hoy": "public",
+    "hapo3005/hoy-lifestyle": "public",
+    "hapo3005/hoy-works": "public",
+    "hoy_github_pages_enabled": true,
+    "root_license_files_found": 0,
+    "ownership": "personal_founder_account",
+    "technical_transferability": "verified_yes",
+    "buyer_readiness": "amber",
+    "confidentiality_moat": "p0_review_required",
+    "visibility_change_executed": false
+  },
+  "critical_transferability": [
+    {"code":"TR-GITHUB","technical_transferability":"verified_yes","contract_transferability":"review_required","dd_status":"amber"},
+    {"code":"TR-SUPABASE-GASTRO","project_ref":"zlscptisdxzxuvllogza","primary_region":"eu-central-1","technical_transferability":"verified_yes","contract_transferability":"review_required","dd_status":"amber"},
+    {"code":"TR-SUPABASE-WORKS","project_ref":"dqfouwyclvmpkunmxkun","primary_region":"eu-central-1","technical_transferability":"verified_yes","contract_transferability":"review_required","dd_status":"amber"},
+    {"code":"TR-DOMAINS","dd_status":"review_required"},
+    {"code":"TR-BRAND","dd_status":"review_required"},
+    {"code":"TR-OTHER-VENDORS","dd_status":"review_required"}
+  ],
+  "claim_gate": {
+    "allowed": [
+      "HOY has an evidence-backed privacy processing and retention baseline",
+      "Privacy Notice and DPA activation are technically fail-closed",
+      "Business Terms activation is technically dependent on an active registered Privacy Notice",
+      "Works personal-data-heavy flows are blocked before privacy clearance",
+      "production server-side analytics transport is disabled pending consent clearance",
+      "GitHub and Supabase have documented technical transfer routes",
+      "repository visibility is explicitly audited"
+    ],
+    "not_allowed": [
+      "HOY is fully GDPR compliant",
+      "all analytics is consent-exempt",
+      "all professional contacts may receive marketing",
+      "all vendors are contract-cleared",
+      "all critical systems already belong to a HOY legal entity",
+      "HOY source code has remained confidential",
+      "the browser consent hotfix is live before PR 109 is QA-approved and merged"
+    ]
+  },
+  "next_gate": "merge_isolated_analytics_hotfix_after_QA_then_build_final_consent_UI_and_complete_legal_entity_privacy_bases_retention_vendor_transfers_brand_domains_repo_visibility_counsel"
+}
