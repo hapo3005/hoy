@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "1.0.0",
+  "control": "ACQ-06",
+  "title": "HOY Region-2 Replication Proof",
+  "status": "DESIGN_READY_NOT_PROVEN",
+  "asOf": "2026-08-19",
+  "claimBoundary": {
+    "regionalRepeatabilityClaimed": false,
+    "region2Launched": false,
+    "efficiencyClaimed": false,
+    "buyerInterestClaimed": false,
+    "contactFreeze": true,
+    "productionMutationAuthorized": false,
+    "note": "A pre-registered test design is not evidence that HOY has already replicated a second region."
+  },
+  "region1T0": {
+    "scopeName": "HOY Region 1 — Mar Menor",
+    "scopeRule": "The defined Mar Menor region is the full nine-area operating footprint below. It is explicitly not limited to La Manga del Mar Menor and Cabo de Palos.",
+    "snapshotDate": "2026-08-19",
+    "areas": [
+      {"area":"Cabo de Palos","published":21,"total":23},
+      {"area":"La Manga Club / Atamaría","published":19,"total":19},
+      {"area":"La Manga del Mar Menor","published":41,"total":42},
+      {"area":"Los Alcázares / Los Narejos","published":34,"total":34},
+      {"area":"Los Belones","published":5,"total":5},
+      {"area":"Los Urrutias / Estrella de Mar / Los Nietos","published":6,"total":6},
+      {"area":"Mar de Cristal / Islas Menores","published":6,"total":6},
+      {"area":"San Pedro del Pinatar / Lo Pagán","published":17,"total":17},
+      {"area":"Santiago de la Ribera / San Javier","published":17,"total":17}
+    ],
+    "population": {
+      "restaurantsTotal": 169,
+      "restaurantsPublished": 166
+    },
+    "dataQuality": {
+      "publishedWithPhone": 140,
+      "publishedWithWebsite": 54,
+      "publishedWithCoordinates": 166,
+      "publishedLocationVerified": 70,
+      "publishedWithStructuredHours": 25,
+      "publishedHoursVerified": 22,
+      "publishedProfilePremium": 35,
+      "restaurantsWithMenuSource": 68,
+      "restaurantsWithOfficialMenuSource": 52,
+      "restaurantsWithSufficientMenuSource": 28,
+      "restaurantsWithAccessibilityRow": 166,
+      "restaurantsWithCurrentAccessibilityFact": 166,
+      "currentAccessibilityFacts": 668
+    },
+    "merchantProof": {
+      "restaurantsWithVerifiedMembership": 0,
+      "operatorVerifiedEntitlements": 0,
+      "liveHoursRows": 0,
+      "servicesConfirmedRows": 0,
+      "activeRightsBackedConfirmations": 0
+    },
+    "commercialReadiness": {
+      "salesPipelineRows": 166,
+      "rowsWithDirectContact": 55,
+      "effectivelySendLocked": 166,
+      "sendAuthorized": 0
+    },
+    "historicalEfficiency": {
+      "calendarDaysToCurrentState": "UNKNOWN_RECONSTRUCT_REQUIRED",
+      "founderHoursToCurrentState": "UNKNOWN_RECONSTRUCT_REQUIRED",
+      "localOperatorHoursToCurrentState": "UNKNOWN_RECONSTRUCT_REQUIRED",
+      "cashSpendToCurrentState": "UNKNOWN_RECONSTRUCT_REQUIRED",
+      "firstSettledRecurringBusinessPayment": "NOT_YET_OBSERVED",
+      "rule": "No faster/cheaper Region-2 claim may be made against invented or estimated Region-1 effort data."
+    }
+  },
+  "region2Candidate": {
+    "name": "Bernkastel-Kues / Mittelmosel",
+    "status": "PRESELECTED_INTERNAL_BOUNDARY_NOT_FROZEN",
+    "dataIngestAuthorized": false,
+    "outreachAuthorized": false,
+    "rule": "Freeze the exact geography and cohort before first Region-2 data ingest."
+  },
+  "proofDesign": {
+    "proofVertical": "GASTRO_FIRST_MEASURABLE_VERTICAL_WITH_PLATFORM_WIDE_PORTABILITY",
+    "thresholdDisclaimer": "INTERNAL_TEST_THRESHOLDS_NOT_MARKET_STANDARD",
+    "stages": [
+      {
+        "id": "R2-0",
+        "name": "Pre-registered design",
+        "status": "PROVEN",
+        "criteria": ["T0 Region-1 scope frozen", "claim rules frozen before Region-2 execution", "quality-ratchet rules frozen"]
+      },
+      {
+        "id": "R2-1",
+        "name": "Region boundary freeze",
+        "status": "NOT_STARTED",
+        "criteria": ["exact Region-2 geography frozen", "launch cohort definition frozen", "measurement clock start recorded before ingest"]
+      },
+      {
+        "id": "R2-2",
+        "name": "Technical portability",
+        "status": "NOT_STARTED",
+        "criteria": ["same deployable core", "zero region-specific core forks", "zero region-specific schema forks", "same auth/privacy/security/public-runtime contracts", "region differences expressed as config/data or reusable adapters"]
+      },
+      {
+        "id": "R2-3",
+        "name": "Supply replication cohort",
+        "status": "NOT_STARTED",
+        "criteria": ["at least 50 published businesses in the frozen cohort", "100% published cohort has coordinates", "100% direct provenance references are registered before buyer-facing publication", "no quality gate is weakened to hit speed"]
+      },
+      {
+        "id": "R2-4",
+        "name": "First-party merchant replication",
+        "status": "NOT_STARTED",
+        "criteria": ["at least 10 distinct businesses reach verified operator membership or factual operator confirmation", "F1 factual confirmation is not presented as rights clearance", "R1 receipts count only when active accepted terms actually exist"]
+      },
+      {
+        "id": "R2-5",
+        "name": "Economic replication",
+        "status": "NOT_STARTED",
+        "criteria": ["at least 3 distinct external businesses have reconciled settled recurring payments under ACQ-03 rules", "at least 1 independent renewal is observed", "one-off Highlight revenue is excluded from recurring MRR"]
+      },
+      {
+        "id": "R2-6",
+        "name": "Efficiency measurement",
+        "status": "NOT_STARTED",
+        "criteria": ["calendar time captured from R2-1", "founder hours captured", "local-operator hours captured", "cash spend captured", "per-published-business metrics calculated", "Region-1 comparison stays UNKNOWN until Region-1 historical effort is reconstructed comparably"]
+      },
+      {
+        "id": "R2-7",
+        "name": "Buyer-grade regional repeatability",
+        "status": "NOT_STARTED",
+        "criteria": ["R2-2 through R2-6 evidenced", "quality ratchet has no regression", "founder-independent handoff evidence exists", "no buyer-grade repeatability claim relies on lower standards or unmeasured effort"]
+      }
+    ],
+    "qualityRatchet": [
+      "No region-specific core fork",
+      "No region-specific database-schema fork",
+      "Privacy, consent, security and public-runtime gates may not be weakened",
+      "Unknown source rights fail closed and all direct provenance references must be registered",
+      "Accessibility uses the same structured state and verification model",
+      "Merchant outcomes follow the ACQ-04 confirmation ladder",
+      "Paying-business and recurring-revenue claims follow ACQ-03 settled-payment rules",
+      "A faster launch obtained by reducing data quality, rights discipline or QA does not count as replication success"
+    ],
+    "efficiencyMetrics": [
+      "calendar_days_to_25_published",
+      "calendar_days_to_50_published",
+      "founder_hours_per_published_business",
+      "local_operator_hours_per_published_business",
+      "cash_cost_per_published_business",
+      "days_to_first_f1_confirmation",
+      "days_to_first_settled_recurring_payment",
+      "days_to_first_renewal",
+      "region_specific_core_forks",
+      "region_specific_schema_forks"
+    ],
+    "claimRules": {
+      "PORTABLE": "Only after R2-2 is evidenced.",
+      "REPLICATED": "Only after R2-3, R2-4 and R2-5 are evidenced with the quality ratchet intact.",
+      "EFFICIENTLY_REPLICATED": "Only after comparable Region-1 and Region-2 effort/cost data show lower Region-2 effort without quality regression.",
+      "BUYER_GRADE_REPEATABILITY": "Only after R2-7 is evidenced."
+    }
+  },
+  "nextActions": [
+    "Reconstruct Region-1 historical founder hours, operator hours, cash spend and calendar milestones only from auditable evidence; keep unknown if not reconstructable.",
+    "Freeze the exact Region-2 geography and launch cohort before any ingest.",
+    "Instrument Region-2 effort from minute one instead of reconstructing it later.",
+    "Do not lift Contact Freeze or start outreach through ACQ-06."
+  ]
+}
