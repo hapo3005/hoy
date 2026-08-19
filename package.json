@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "qa:e2e": "playwright test",
-    "qa:e2e:report": "playwright show-report"
+    "qa:e2e:report": "playwright show-report",
+    "qa:g1-closing-board": "node scripts/check-g1-closing-board.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.62.0"
