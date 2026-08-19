@@ -1,0 +1,170 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "status": "DRY_RUN_CANDIDATE_NOT_APPLIED",
+  "productionMutationPerformed": false,
+  "purpose": "Replace nine restricted/review-required signature provenance references with conservative first-party factual references while rewriting each signature to only claims directly supported by the venue's own current website.",
+  "baseline": {
+    "liveHardDirectReferences": 329,
+    "candidateSignatureReferences": 9,
+    "exactProductionRowsVerified": 9,
+    "conservativeFirstPartyHostsVerified": 9,
+    "verifiedAt": "2026-08-19",
+    "firstPartyRightsState": "AMBER",
+    "firstPartySourceClass": "FIRST_PARTY_BUSINESS_REFERENCE",
+    "firstPartyFactualVerificationAllowed": true,
+    "firstPartyReplacementRequired": false,
+    "firstPartyTransferability": "UNKNOWN",
+    "businessTermsStillRequired": true
+  },
+  "replacements": [
+    {
+      "restaurantId": 7,
+      "restaurantName": "Escuela de Pieter",
+      "oldHost": "www.tripadvisor.com",
+      "newSourceUrl": "https://escueladepieter.com/",
+      "newSourceHost": "escueladepieter.com",
+      "newTitle": "Mediterrane Küche am Mar Menor",
+      "newText": "Escuela de Pieter kocht seit 1975 am Mar Menor. Die eigene Website beschreibt eine mediterrane Küche, die traditionelle und Fusionselemente verbindet, sowie eine Terrasse direkt am Strand.",
+      "newTags": ["Mar Menor", "Mediterran", "Seit 1975"],
+      "claimScope": "Since 1975; Mediterranean inspiration; traditional/fusion cooking; beachfront terrace."
+    },
+    {
+      "restaurantId": 13,
+      "restaurantName": "El Rancho de Cabo de Palos",
+      "oldHost": "www.tripadvisor.co",
+      "newSourceUrl": "https://www.elranchodecabodepalos.com/",
+      "newSourceHost": "www.elranchodecabodepalos.com",
+      "newTitle": "Argentinischer Asador mit Holzfeuer",
+      "newText": "El Rancho positioniert sich als argentinischer Asador. Im Mittelpunkt stehen Rindfleisch aus Argentinien und Spanien sowie Fleisch- und Reisgerichte vom Holzfeuer.",
+      "newTags": ["Argentinischer Asador", "Fleisch", "Holzfeuer"],
+      "claimScope": "Argentine grill positioning; Argentine and Spanish beef; meat and rice dishes cooked over wood fire."
+    },
+    {
+      "restaurantId": 15,
+      "restaurantName": "Gran Torino",
+      "oldHost": "www.tripadvisor.de",
+      "newSourceUrl": "https://grantorino.es/",
+      "newSourceHost": "grantorino.es",
+      "newTitle": "Italienisch & handwerklich",
+      "newText": "Gran Torino setzt auf italienische Küche mit handwerklicher Zubereitung. Die eigene Karte führt frische Pasta und Pizza; Betreiber Roberto Chiale verweist auf seine piemontesischen Wurzeln.",
+      "newTags": ["Italienisch", "Frische Pasta", "Pizza"],
+      "claimScope": "Italian positioning; artisanal preparation; fresh pasta and pizza; Piemonte roots of the operator."
+    },
+    {
+      "restaurantId": 16,
+      "restaurantName": "Agua Salá",
+      "oldHost": "www.tripadvisor.co",
+      "newSourceUrl": "https://aguasalacabodepalos.com/",
+      "newSourceHost": "aguasalacabodepalos.com",
+      "newTitle": "Eklektischer Restobar in Cabo de Palos",
+      "newText": "Agua Salá beschreibt sich als Restobar mit eklektischer Karte. Sushi, Tapas, Burger und mediterrane Pasta gehören ausdrücklich zum eigenen Angebot.",
+      "newTags": ["Restobar", "Eklektisch", "Mediterrane Pasta"],
+      "claimScope": "Restobar positioning; eclectic menu; sushi, tapas, burgers and Mediterranean pasta."
+    },
+    {
+      "restaurantId": 17,
+      "restaurantName": "Restaurante Miramar",
+      "oldHost": "www.tripadvisor.co",
+      "newSourceUrl": "https://www.restaurantemiramar.net/nuestra-carta",
+      "newSourceHost": "www.restaurantemiramar.net",
+      "newTitle": "Arroces, Fisch & Meeresfrüchte",
+      "newText": "Miramar führt Arroces als eine seiner Hausspezialitäten und bietet Caldero, Paellas, Meeresfrüchte und frischen Fisch. Der Familienbetrieb verweist auf seine Tradition seit 1969 in Cabo de Palos.",
+      "newTags": ["Arroces", "Fisch", "Meeresfrüchte"],
+      "claimScope": "Rice dishes as house specialty; caldero, paella, seafood and fresh fish; family tradition since 1969."
+    },
+    {
+      "restaurantId": 18,
+      "restaurantName": "CP8 Restaurante",
+      "oldHost": "www.tripadvisor.com",
+      "newSourceUrl": "https://cp8restaurante.com/",
+      "newSourceHost": "cp8restaurante.com",
+      "newTitle": "Mediterrane Küche mit Meerblick",
+      "newText": "CP8 beschreibt seine Küche als mediterran, mit Produkten aus Region und Meer und einem innovativen Akzent. Die eigene Website hebt außerdem die Lage mit Blick auf das Mittelmeer hervor.",
+      "newTags": ["Mediterran", "Regionale Produkte", "Meerblick"],
+      "claimScope": "Mediterranean positioning; products from region and sea; innovative touch; Mediterranean views."
+    },
+    {
+      "restaurantId": 20,
+      "restaurantName": "Restaurante La Tana",
+      "oldHost": "www.tripadvisor.co",
+      "newSourceUrl": "https://restaurantelatana.es/carta/",
+      "newSourceHost": "restaurantelatana.es",
+      "newTitle": "Tradition, Arroces & Fisch",
+      "newText": "La Tana führt Caldero, Paella, Fisch und Meeresfrüchte auf der eigenen Karte. Die Betreiberseite beschreibt eine lange Geschichte in Cabo de Palos und die Weiterentwicklung zum Restaurant ab 1965.",
+      "newTags": ["Caldero", "Fisch", "Tradition"],
+      "claimScope": "Caldero, paella, fish and seafood; long Cabo de Palos history; restaurant development from 1965."
+    },
+    {
+      "restaurantId": 135,
+      "restaurantName": "Annapurna Nepali Restaurant",
+      "oldHost": "lasgastrocronicas.com",
+      "newSourceUrl": "https://www.annapurnanepali.com/",
+      "newSourceHost": "www.annapurnanepali.com",
+      "newTitle": "Nepalesisch & indisch in Los Belones",
+      "newText": "Annapurna beschreibt seine Küche mit nepalesischen und indischen Aromen. Die eigene Karte führt unter anderem Tandoori-Gerichte sowie mehrere vegetarische Vorspeisen.",
+      "newTags": ["Nepalesisch", "Indisch", "Tandoori"],
+      "claimScope": "Nepali and Indian flavours; tandoori dishes; vegetarian starters."
+    },
+    {
+      "restaurantId": 215,
+      "restaurantName": "Cabo de Sal",
+      "oldHost": "www.tripadvisor.com",
+      "newSourceUrl": "https://cabodesal.com/",
+      "newSourceHost": "cabodesal.com",
+      "newTitle": "Mediterrane Küche am Hafen",
+      "newText": "Cabo de Sal liegt im Hafen von Cabo de Palos mit Blick auf das Mittelmeer. Die eigene Karte verbindet Fisch und Seafood mit Reisgerichten wie dem Arroz Cabo de Sal.",
+      "newTags": ["Hafen", "Mediterran", "Arroces"],
+      "claimScope": "Cabo de Palos harbour location; Mediterranean view; fish/seafood and rice dishes including Arroz Cabo de Sal."
+    }
+  ],
+  "excludedFromWave2": [
+    {
+      "restaurantId": 1,
+      "restaurantName": "El Camarote de la Martinique",
+      "reason": "No sufficiently reliable current first-party page retrieval in this verification pass."
+    },
+    {
+      "restaurantId": 3,
+      "restaurantName": "El Parador del Mar Menor",
+      "reason": "Current first-party website content is compromised/spam-contaminated and cannot serve as trustworthy factual evidence."
+    },
+    {
+      "restaurantId": 14,
+      "restaurantName": "Bocana de Palos",
+      "reason": "No sufficiently reliable first-party page retrieval in this verification pass."
+    },
+    {
+      "restaurantId": 19,
+      "restaurantName": "Restaurante El Pez Rojo",
+      "reason": "Available operator page is stale and conflicts with current closure/retirement status; no signature replacement without current evidence."
+    }
+  ],
+  "expectedIfLaterApprovedAndAppliedAlone": {
+    "hardDirectProvenanceQueueBefore": 329,
+    "hardDirectProvenanceQueueAfter": 320,
+    "hardQueueReduction": 9,
+    "newFirstPartyAmberReferences": 9,
+    "transferClearReferencesCreated": 0
+  },
+  "combinedPreparedPotential": {
+    "genericSourceUrlWave1": 12,
+    "signatureWave1": 3,
+    "signatureWave2": 9,
+    "locationWave1": 4,
+    "locationWave2": 2,
+    "locationWave3": 4,
+    "totalPreparedReferences": 34,
+    "projectedHardQueueAfterRequiredRebase": 295,
+    "rebaseRequired": true
+  },
+  "approvalBoundary": {
+    "copyPreservedWithoutSourceSupport": false,
+    "pageContentRecheckBeforeApplyRequired": true,
+    "legalClearanceClaimed": false,
+    "businessTermsActivated": false,
+    "canonicalMigrationCreated": false,
+    "productionApplyAuthorized": false,
+    "outreachAuthorized": false
+  }
+}
