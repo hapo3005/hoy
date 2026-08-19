@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.0.1",
   "snapshotDate": "2026-08-19",
   "status": "CANDIDATE_NOT_APPLIED",
   "base": {
@@ -11,8 +11,8 @@
   },
   "design": {
     "functionBodyRewrite": false,
-    "searchPath": "pg_catalog, public",
-    "searchPathRationale": "Current bodies contain public-owned custom enum references. The candidate keeps public only behind a fail-closed invariant that PUBLIC, anon and authenticated have no CREATE privilege in public/private/auth.",
+    "searchPath": "pg_catalog, public, pg_temp",
+    "searchPathRationale": "PostgreSQL searches the temporary schema first when pg_temp is omitted. The candidate therefore lists pg_temp explicitly last. public remains before it because current bodies contain public-owned custom enum references, behind a fail-closed invariant that PUBLIC, anon and authenticated have no CREATE privilege in public/private/auth.",
     "grantPolicy": "PUBLIC and anon revoked on all ten targets; authenticated retained only for the nine existing operator/helper APIs; analytics remains revoked for authenticated too.",
     "analyticsReactivation": false,
     "productionMutationPerformed": false,
