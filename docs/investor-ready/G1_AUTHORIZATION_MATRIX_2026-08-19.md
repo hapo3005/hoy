@@ -38,7 +38,7 @@ All seven active Edge Functions currently have metadata `verify_jwt=false`, but 
 | `operator_publish_offer(uuid)` | authenticated | `auth.uid()` + verified membership + verified entitlement | membership tied to offer restaurant; plan must be `pro` or `business`; expiry/event checks | audited write |
 | `operator_request_upgrade(bigint, plan_code, text)` | authenticated | `auth.uid()` + verified membership | membership scoped to supplied restaurant_id | only allowed target plans `pro`/`business` |
 | `operator_submit_profile_change(bigint,jsonb,text)` | authenticated | `auth.uid()` + verified membership | membership scoped to supplied restaurant_id | field allowlist and length/HTTPS validation before insert |
-| `review_venue_media_candidates(bigint,bigint[],bigint[],bigint[],bigint[])` | authenticated | `auth.uid()` + verified restaurant member | every candidate id must belong to supplied restaurant_id; overlapping decision arrays rejected | audited operator decision path |
+| `review_venue_media_candidates(bigint,bigint[],bigint[],bigint[])` | authenticated | `auth.uid()` + verified restaurant member | every candidate id must belong to supplied restaurant_id; overlapping decision arrays rejected | audited operator decision path |
 
 ### Gastro negative-access production test
 
