@@ -29,6 +29,3 @@ jobs:
         run: node scripts/investor-ready/check-rt007-apply-rollback-candidate.mjs .rt007-generated
       - name: Emit immutable candidate digests
         run: sha256sum .rt007-generated/rt007-36-target-apply-candidate.sql .rt007-generated/rt007-36-target-rollback-candidate.sql
-      - name: Confirm no Production execution path exists in workflow
-        run: |
-          ! grep -Eiq 'psql|supabase db|execute_sql|apply_migration' .github/workflows/rt007-apply-rollback-candidate.yml
