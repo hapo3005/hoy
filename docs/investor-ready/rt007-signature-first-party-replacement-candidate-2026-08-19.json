@@ -1,11 +1,13 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.0.1",
   "snapshotDate": "2026-08-19",
   "status": "DRY_RUN_CANDIDATE_NOT_APPLIED",
   "productionMutationPerformed": false,
   "purpose": "Replace three restricted direct signature provenance references with conservative first-party factual references while rewriting the signature copy to only what those first-party sources support.",
   "baseline": {
-    "hardDirectProvenanceQueue": 343,
+    "liveSnapshot": "docs/investor-ready/rt007-live-rights-snapshot-2026-08-19.json",
+    "hardDirectProvenanceQueue": 329,
+    "hardDirectProvenanceRestaurants": 149,
     "candidateRestrictedSignatureReferences": 3,
     "candidateRestaurants": [8, 9, 22],
     "firstPartyRightsState": "AMBER",
@@ -50,13 +52,13 @@
     }
   ],
   "expectedIfLaterApprovedAndApplied": {
-    "hardDirectProvenanceQueueBefore": 343,
-    "hardDirectProvenanceQueueAfter": 340,
+    "hardDirectProvenanceQueueBefore": 329,
+    "hardDirectProvenanceQueueAfter": 326,
     "hardQueueReduction": 3,
     "noRegistryDirectReferencesAfter": 0,
     "newFirstPartyAmberReferences": 3,
     "transferClearReferencesCreated": 0,
-    "reason": "The replacement removes restricted/unregistered direct provenance, but AMBER first-party references still require business terms for broader reuse/transfer rights."
+    "reason": "The replacement removes three currently hard NO_REGISTRY signature references from the direct provenance queue, but the resulting AMBER first-party references still require business terms for broader reuse/transfer rights."
   },
   "approvalBoundary": {
     "copyPreservedWithoutSourceSupport": false,
