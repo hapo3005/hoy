@@ -108,7 +108,8 @@
     const query=oldInput?.value||'';
     const inputFocused=!!oldInput&&document.activeElement===oldInput;
     const oldWrap=old.querySelector('[data-inline-menu-wrap]');
-    const expanded=!!oldWrap&&!oldWrap.classList.contains('is-collapsed');
+    const oldExpand=old.querySelector('[data-menu-expand]');
+    const expanded=!!oldWrap&&!!oldExpand&&oldExpand.getAttribute('aria-expanded')==='true'&&!oldWrap.classList.contains('is-collapsed');
     const scrollTop=d.scrollTop;
     // Geometry remains the normal source of truth. A very recent explicit navigation click is the
     // exception: replacing the menu while smooth scrolling can otherwise cancel the user's target
