@@ -19,6 +19,10 @@ ACL check on 19.08.2026:
 - `authenticated`: EXECUTE = true on all seven RPCs
 - `service_role`: EXECUTE = true on all seven RPCs
 
+Live identity baseline on 19.08.2026:
+- `auth.users`: 0
+- `restaurant_memberships`: 0
+
 ### HOY Works
 Project ref: `dqfouwyclvmpkunmxkun`
 Security Advisor: 0 findings.
@@ -34,7 +38,7 @@ All seven active Edge Functions currently have metadata `verify_jwt=false`, but 
 | `operator_publish_offer(uuid)` | authenticated | `auth.uid()` + verified membership + verified entitlement | membership tied to offer restaurant; plan must be `pro` or `business`; expiry/event checks | audited write |
 | `operator_request_upgrade(bigint, plan_code, text)` | authenticated | `auth.uid()` + verified membership | membership scoped to supplied restaurant_id | only allowed target plans `pro`/`business` |
 | `operator_submit_profile_change(bigint,jsonb,text)` | authenticated | `auth.uid()` + verified membership | membership scoped to supplied restaurant_id | field allowlist and length/HTTPS validation before insert |
-| `review_venue_media_candidates(bigint,bigint[],bigint[],bigint[])` | authenticated | `auth.uid()` + verified restaurant member | every candidate id must belong to supplied restaurant_id; overlapping decision arrays rejected | audited operator decision path |
+| `review_venue_media_candidates(bigint,bigint[],bigint[],bigint[],bigint[])` | authenticated | `auth.uid()` + verified restaurant member | every candidate id must belong to supplied restaurant_id; overlapping decision arrays rejected | audited operator decision path |
 
 ### Gastro negative-access production test
 
@@ -50,6 +54,17 @@ Result:
 - `review_venue_media_candidates` denied
 
 No privileged write was reached. This is a negative BOLA/IDOR boundary test, not a positive-path operator acceptance test.
+
+### Positive/cross-tenant test boundary
+
+A positive-path test was attempted using a transaction-scoped synthetic subject. The database correctly refused insertion of a synthetic `restaurant_memberships` row because `restaurant_memberships.user_id` has a foreign-key dependency on `auth.users`. At the time of the check, both `auth.users` and `restaurant_memberships` contained zero rows.
+
+HOY deliberately did **not** bypass that foreign key, disable constraints, insert directly into `auth.users`, or otherwise weaken Production controls just to make the test pass.
+
+Therefore the controlled positive-path test remains pending until a legitimate test operator identity exists. Required assertion when that identity is available:
+- own restaurant succeeds;
+- second/unrelated restaurant is denied;
+- test evidence records exact identity purpose and is not market/user proof.
 
 ## Works Edge Function matrix
 
@@ -85,8 +100,8 @@ These policies are security-critical because several Works Edge Functions delibe
 Strong evidence now exists for anonymous denial and cross-tenant negative denial. The seven advisor WARNs are not dismissed; they remain explicit because Supabase recommends special scrutiny for public-schema SECURITY DEFINER functions and restricted EXECUTE grants.
 
 Residual technical actions before calling this fully GREEN:
-1. positive-path acceptance test with a controlled real test operator/member identity;
-2. explicit regression test for a valid operator attempting a second restaurant;
+1. positive-path acceptance test with a legitimate controlled test operator/member identity;
+2. explicit regression test for that valid operator attempting a second restaurant;
 3. evaluate a compatibility-safe hardening candidate for SECURITY DEFINER placement/search_path without breaking the operator API;
 4. rerun Security Advisor after any DDL/function change.
 
