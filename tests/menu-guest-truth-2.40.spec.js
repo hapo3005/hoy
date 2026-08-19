@@ -72,10 +72,12 @@ test('snapshot and ordering sources create no full-menu guest signal, raw PDF CT
     };
     openDetail(id);
   },id);
-  await expect(menu).toContainText('Bestellangebot und Vor-Ort-Speisekarte bleiben getrennte Wahrheiten');
+  await expect(menu).toContainText('Quellenbeleg');
+  await expect(menu).toContainText('Speisekarte wird in HOY aufbereitet');
   await expect(menu).not.toContainText('Speisekarte verfügbar');
   await expect(kicker).toHaveText('KARTENQUELLE');
   await expect(title).toHaveText('Speisekarten-Quelle');
+  await expect(menu.locator('a[href="https://example.com/order"]')).toHaveCount(0);
   const transactionalSignals=await page.evaluate(id=>window.hoyDecision280For(DATA.find(x=>Number(x.id)===Number(id))).reasons.map(x=>x.label),id);
   expect(transactionalSignals).not.toContain('Speisekarte verfügbar');
 });
