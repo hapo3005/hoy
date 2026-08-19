@@ -1,0 +1,37 @@
+name: HOY Public Runtime Package
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  package-public-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked repository dependencies
+        run: npm ci --ignore-scripts
+      - name: Run critical secret leakage gate
+        run: npm run qa:secrets
+      - name: Build fail-closed public runtime
+        run: npm run build:public-runtime
+      - name: Verify proprietary/public boundary
+        run: npm run qa:public-runtime
+      - name: Upload public runtime artifact
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: hoy-public-runtime-${{ github.sha }}
+          path: dist-public/
+          retention-days: 30
+          if-no-files-found: error
