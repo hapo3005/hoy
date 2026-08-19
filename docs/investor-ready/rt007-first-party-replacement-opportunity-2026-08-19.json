@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "status": "SCREENED_NOT_APPROVED",
+  "liveHardDirectReferences": 329,
+  "screenedCandidateReferences": 64,
+  "screenedCandidateShare": 0.1945,
+  "preparedDryRunReferences": 15,
+  "factVerificationStillRequired": 49,
+  "byField": {
+    "source_url": {
+      "candidateReferences": 12,
+      "verificationMode": "GENERIC_FIRST_PARTY_SWAP_CANDIDATE",
+      "preparedDryRunReferences": 12
+    },
+    "location_source_url": {
+      "candidateReferences": 24,
+      "verificationMode": "VERIFY_OFFICIAL_PAGE_SHOWS_LOCATION_OR_ADDRESS",
+      "preparedDryRunReferences": 0
+    },
+    "hours_source_url": {
+      "candidateReferences": 12,
+      "verificationMode": "VERIFY_OFFICIAL_PAGE_SHOWS_CURRENT_HOURS",
+      "preparedDryRunReferences": 0
+    },
+    "signature_source_url": {
+      "candidateReferences": 16,
+      "verificationMode": "VERIFY_AND_REWRITE_SIGNATURE_TO_SUPPORTED_FACTS",
+      "preparedDryRunReferences": 3
+    }
+  },
+  "preparedCandidates": {
+    "genericSourceUrlWave1": {
+      "references": 12,
+      "projectedHardQueueIfAppliedAlone": 317,
+      "artifact": "docs/investor-ready/rt007-source-url-first-party-wave1-candidate-2026-08-19.json"
+    },
+    "signatureWave1": {
+      "references": 3,
+      "projectedHardQueueIfAppliedAlone": 326,
+      "artifact": "docs/investor-ready/rt007-signature-first-party-replacement-candidate-2026-08-19.json"
+    },
+    "combinedAfterRequiredRebase": {
+      "references": 15,
+      "projectedHardQueue": 314,
+      "rebaseRequired": true
+    }
+  },
+  "opportunityCeiling": {
+    "ifAll64CandidatesWereIndividuallyVerifiedAndApproved": 265,
+    "isForecast": false,
+    "isPromise": false,
+    "qualification": "This is only an arithmetic screening ceiling. Location, hours and signature candidates remain hard references unless the specific official page proves the exact fact and the replacement is separately reviewed/applied."
+  },
+  "rightsBoundary": {
+    "candidateRightsStatus": "AMBER",
+    "candidateSourceClass": "FIRST_PARTY_BUSINESS_REFERENCE",
+    "factualVerificationAllowed": true,
+    "transferability": "UNKNOWN",
+    "businessTermsRequired": true,
+    "transferClearReferencesCreatedByScreening": 0
+  },
+  "safetyBoundary": {
+    "productionMutationPerformed": false,
+    "automaticReplacementAuthorized": false,
+    "legalClearanceClaimed": false,
+    "businessTermsActivated": false,
+    "outreachAuthorized": false
+  }
+}
