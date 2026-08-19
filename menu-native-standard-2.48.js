@@ -12,9 +12,9 @@
     'transactional_complete','transactional_partial'
   ]);
   const COPY={
-    de:{menu:'Speisekarte',partial:'Teilkarte',search:'Diese Speisekarte durchsuchen …',items:'Positionen',checked:'Geprüft',language:'Deutsch',verified:'redaktionell geprüft',preparing:'Speisekarte wird in HOY aufbereitet',preparingText:'Die offizielle Quelle ist vorhanden. HOY übernimmt Gerichte, Kategorien und Preise strukturiert und zeigt sie anschließend einheitlich auf Deutsch.',languagePending:'Deutsche Speisekarte wird aufbereitet',languagePendingText:'HOY zeigt keine gemischte oder unvollständig übersetzte Karte. Diese Fassung erscheint erst, wenn alle Positionen auf Deutsch geprüft sind.',source:'Offizielle Betreiberquelle'},
-    es:{menu:'Carta',partial:'Carta parcial',search:'Buscar en esta carta …',items:'platos',checked:'Revisado',language:'Español',verified:'revisión editorial',preparing:'La carta se está preparando en HOY',preparingText:'La fuente oficial está disponible. HOY estructura platos, categorías y precios y después los muestra de forma uniforme en español.',languagePending:'La carta en español se está preparando',languagePendingText:'HOY no muestra cartas mezcladas ni traducciones incompletas. Esta versión aparecerá cuando todos los platos estén revisados en español.',source:'Fuente oficial del establecimiento'},
-    en:{menu:'Menu',partial:'Partial menu',search:'Search this menu …',items:'items',checked:'Checked',language:'English',verified:'editorially verified',preparing:'Menu is being prepared in HOY',preparingText:'The official source is available. HOY structures dishes, categories and prices, then presents them consistently in English.',languagePending:'English menu is being prepared',languagePendingText:'HOY does not show mixed-language or partially translated menus. This version appears only after every item has been verified in English.',source:'Official restaurant source'}
+    de:{menu:'Speisekarte',partial:'Teilkarte',search:'Diese Speisekarte durchsuchen …',items:'Positionen',checked:'Geprüft',language:'Deutsch',verified:'redaktionell geprüft',preparing:'Speisekarte wird in HOY aufbereitet',preparingText:'Die offizielle Quelle ist vorhanden. HOY übernimmt Gerichte, Kategorien und Preise strukturiert und zeigt sie anschließend einheitlich auf Deutsch.',languagePending:'Deutsche Speisekarte wird aufbereitet',languagePendingText:'HOY zeigt keine gemischte oder unvollständig übersetzte Karte. Diese Fassung erscheint erst, wenn alle Positionen auf Deutsch geprüft sind.',source:'Offizielle Betreiberquelle',proof:'Quellenbeleg'},
+    es:{menu:'Carta',partial:'Carta parcial',search:'Buscar en esta carta …',items:'platos',checked:'Revisado',language:'Español',verified:'revisión editorial',preparing:'La carta se está preparando en HOY',preparingText:'La fuente oficial está disponible. HOY estructura platos, categorías y precios y después los muestra de forma uniforme en español.',languagePending:'La carta en español se está preparando',languagePendingText:'HOY no muestra cartas mezcladas ni traducciones incompletas. Esta versión aparecerá cuando todos los platos estén revisados en español.',source:'Fuente oficial del establecimiento',proof:'Fuente acreditativa'},
+    en:{menu:'Menu',partial:'Partial menu',search:'Search this menu …',items:'items',checked:'Checked',language:'English',verified:'editorially verified',preparing:'Menu is being prepared in HOY',preparingText:'The official source is available. HOY structures dishes, categories and prices, then presents them consistently in English.',languagePending:'English menu is being prepared',languagePendingText:'HOY does not show mixed-language or partially translated menus. This version appears only after every item has been verified in English.',source:'Official restaurant source',proof:'Source evidence'}
   };
 
   const cache={items:null,translations:new Map()};
@@ -150,7 +150,7 @@
         structuredMenus++;
         continue;
       }
-      const structuredState=['complete','partial'].includes(clean(current.integrity))&&itemCount>0;
+      const structuredState=itemCount>0&&coverage?.locale===locale&&Number(coverage?.total)===itemCount;
       if(structuredState){
         const safeCoverage=coverage?.locale===locale?coverage:{locale,total:itemCount,ready:0,missing:itemCount,complete:false};
         MENUS[id]=languageBlocked248(current,sourceIntegrity,locale,safeCoverage,itemCount);
@@ -248,7 +248,8 @@
     const heading=language?c.languagePending:c.preparing;
     const text=language?c.languagePendingText:c.preparingText;
     const progress=language&&coverage.total?`<span>${coverage.ready||0}/${coverage.total} · ${esc(c.language)}</span>`:'';
-    return `<div class="menu-panel menu248-blocked"><div class="menu-status"><div class="top"><b>${esc(heading)}</b><span class="pill warn">HOY</span></div><small>${esc(c.source)}</small></div><div class="menu-empty"><h4>${esc(heading)}</h4><p>${esc(text)}</p>${progress}</div></div>`;
+    const sourceLine=language?c.source:`${c.proof} · ${c.source}`;
+    return `<div class="menu-panel menu248-blocked"><div class="menu-status"><div class="top"><b>${esc(heading)}</b><span class="pill warn">HOY</span></div><small>${esc(sourceLine)}</small></div><div class="menu-empty"><h4>${esc(heading)}</h4><p>${esc(text)}</p>${progress}</div></div>`;
   }
 
   const baseLoad248=loadCloudMenus;
