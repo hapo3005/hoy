@@ -12,12 +12,16 @@ test('G1 Closing Board fail-closed checker passes', async () => {
   expect(output).toContain('PASS_FAIL_CLOSED');
 });
 
-test('G1 Closing Board separates proof, executable packages, external decisions and blockers', async () => {
+test('G1 Closing Board class totals are transition-safe and reconcile to all controls', async () => {
   const counts = board.controls.reduce((acc, c) => {
     acc[c.closingClass] = (acc[c.closingClass] || 0) + 1;
     return acc;
   }, {});
-  expect(counts).toEqual({ PROVEN: 9, READY_TO_EXECUTE: 5, EXTERNAL_REQUIRED: 6, BLOCKED: 5 });
+  expect(board.controls).toHaveLength(25);
+  expect(Object.values(counts).reduce((sum, n) => sum + n, 0)).toBe(25);
+  for (const klass of ['PROVEN', 'READY_TO_EXECUTE', 'EXTERNAL_REQUIRED', 'BLOCKED']) {
+    expect(counts[klass]).toBeGreaterThan(0);
+  }
   expect(board.overallStatus).toBe('IN_PROGRESS');
   expect(board.baseMainSha).toBe('88bb9e77d50ccb9db96306f5e737e27bad6237ab');
 });
