@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "role": "G1-CB-14_EXACT_GUARDED_APPLY_ROLLBACK_CANDIDATE",
+  "baseRollbackEvidence": {
+    "pr": 150,
+    "head": "c4dbcf7b25354cb278b50e9c65a2cb6a09d86752"
+  },
+  "sourceManifest": {
+    "path": "docs/investor-ready/rt007-prepared-replacements-v2.json",
+    "gitBlobSha": "44eac03dcb41fc21da58f660952235b397874d97"
+  },
+  "rollbackBeforeState": "docs/investor-ready/rt007-rollback-before-state-2026-08-19.json",
+  "targetAccounting": {
+    "all": 36,
+    "published": 34,
+    "unpublished": 2,
+    "urlOnly": 24,
+    "signature": 12,
+    "waves": 7
+  },
+  "generatedArtifacts": {
+    "apply": "rt007-36-target-apply-candidate.sql",
+    "rollback": "rt007-36-target-rollback-candidate.sql",
+    "materializer": "scripts/investor-ready/materialize-rt007-apply-rollback-candidate.mjs"
+  },
+  "executionSafety": {
+    "productionMutationPerformed": false,
+    "productionApplyAuthorized": false,
+    "rollbackExecutionAuthorized": false,
+    "autoExecutionConfigured": false,
+    "eachWaveIndependentTransaction": true,
+    "exactBeforeStateGuardRequired": true,
+    "exactAfterStateRollbackGuardRequired": true,
+    "rowCountMustEqualOnePerTarget": true,
+    "staleStateFailsClosed": true,
+    "freshImmediatePreflightRequired": true,
+    "applySessionGuard": "hoy.rt007_apply_authorized=EXPLICIT_REVIEWED_APPLY",
+    "rollbackSessionGuard": "hoy.rt007_rollback_authorized=EXPLICIT_REVIEWED_ROLLBACK",
+    "freshPreflightSessionGuard": "hoy.rt007_preflight_rechecked=EXACT_36_0_DRIFT"
+  },
+  "signatureApplyPolicy": {
+    "changes": [
+      "signature_source_url",
+      "signature_title",
+      "signature_text",
+      "signature_tags",
+      "signature_source_label",
+      "signature_checked_at"
+    ],
+    "sourceLabelAfter": "First-party business website",
+    "checkedAtAfter": "2026-08-19",
+    "signature_status_preserved": true,
+    "signature_confidence_preserved": true,
+    "rollbackRestoresFullCapturedSignatureState": true
+  },
+  "rightsBoundary": {
+    "rightsAfterReplacement": "AMBER_FIRST_PARTY_FACTUAL_REFERENCE_NOT_TRANSFER_CLEAR",
+    "transferClearReferencesCreated": 0,
+    "wholeProfileClearanceClaimed": false,
+    "businessTermsStillRequired": true,
+    "buyerSafeProjectionOnlyUntilApplied": true
+  },
+  "claimBoundary": {
+    "candidateIsExecutableOnlyAfterExplicitSessionAuthorization": true,
+    "candidateWasExecuted": false,
+    "productionChanged": false,
+    "contactFreezeChanged": false,
+    "termsActivated": false,
+    "analyticsActivated": false,
+    "mergeAuthorized": false
+  }
+}
