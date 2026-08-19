@@ -1,0 +1,192 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "ACTIVE_INTERNAL_STRATEGY",
+  "objective": "Maximize realizable strategic acquisition value and the probability of a competitive process by increasing validated economics, buyer-specific synergy, defensibility and transferability while reducing buyer risk discounts.",
+  "claimBoundary": {
+    "buyerInterestClaimed": false,
+    "valuationComparableClaimed": false,
+    "saleGuaranteedByThresholds": false,
+    "outreachAuthorized": false,
+    "contactFreezeActive": true,
+    "namedCompaniesAreAdjacencyExamplesOnly": true,
+    "theForkTransactionIsHoyValuationComparable": false
+  },
+  "exitPriorityMechanisms": [
+    "PAID_DEMAND_OR_RECURRING_REVENUE",
+    "MERCHANT_OUTCOME_OR_RETENTION",
+    "CONSUMER_REPEAT_OR_HIGH_INTENT",
+    "FIRST_PARTY_RIGHTS_GOVERNED_DATA_VALUE",
+    "REGION_OR_VERTICAL_REPLICATION_EFFICIENCY",
+    "FOUNDER_INDEPENDENCE_OR_INTEGRATION_RISK_REDUCTION",
+    "QUANTIFIED_BUYER_SPECIFIC_SYNERGY",
+    "CREDIBLE_BUYER_UNIVERSE_OR_COMPETITIVE_LEVERAGE"
+  ],
+  "buyerClasses": [
+    {
+      "id": "BUYER-DINING-NETWORK",
+      "priority": 1,
+      "class": "Dining networks / restaurant reservation and engagement platforms",
+      "adjacencyExamples": ["American Express dining ecosystem / Resy / Tock / proposed TheFork", "Booking Holdings / OpenTable"],
+      "interestEvidence": "NONE",
+      "adjacencyConfidence": "HIGH",
+      "purchaseMotive": "Acquire verified restaurant supply, consumer dining intent, merchant relationships and a repeatable regional discovery layer.",
+      "buyerSpecificProof": ["first_party_merchant_relationships", "high_intent_dining_actions", "paid_business_value", "rights_safe_supply_graph", "repeatable_region_launch"]
+    },
+    {
+      "id": "BUYER-LOCAL-COMMERCE",
+      "priority": 1,
+      "class": "Local commerce / delivery / merchant demand platforms",
+      "adjacencyExamples": ["Uber Eats / Uber Advertising", "DoorDash / Deliveroo", "Prosus / Just Eat Takeaway.com"],
+      "interestEvidence": "NONE",
+      "adjacencyConfidence": "HIGH",
+      "purchaseMotive": "Add verified local merchant density and high-intent discovery that can improve merchant demand generation, offers, sponsored placement or commerce conversion.",
+      "buyerSpecificProof": ["merchant_willingness_to_pay", "attributed_high_intent_actions", "regional_onboarding_efficiency", "privacy_safe_commercial_intent_signals"]
+    },
+    {
+      "id": "BUYER-TRAVEL-FULL-TRIP",
+      "priority": 1,
+      "class": "Travel / full-trip platforms",
+      "adjacencyExamples": ["Booking Holdings", "Expedia Group"],
+      "interestEvidence": "NONE",
+      "adjacencyConfidence": "HIGH",
+      "purchaseMotive": "Extend post-booking traveler engagement into structured local food, activities, events and real-time decision support.",
+      "buyerSpecificProof": ["tourist_usage", "cross_category_sessions", "local_action_conversion", "regional_replication"]
+    },
+    {
+      "id": "BUYER-EXPERIENCES",
+      "priority": 1,
+      "class": "Experiences / destination marketplaces",
+      "adjacencyExamples": ["Tripadvisor / Viator"],
+      "interestEvidence": "NONE",
+      "adjacencyConfidence": "MEDIUM_HIGH",
+      "purchaseMotive": "Acquire a local intent layer combining what-to-do-now, events, activities and nearby food with attributable action handoffs.",
+      "buyerSpecificProof": ["lifestyle_repeat_usage", "event_activity_freshness", "action_conversion", "gastro_lifestyle_cross_sell"]
+    },
+    {
+      "id": "BUYER-MERCHANT-OS",
+      "priority": 2,
+      "class": "Hospitality merchant operating systems / POS",
+      "adjacencyExamples": ["Lightspeed Restaurant"],
+      "interestEvidence": "NONE",
+      "adjacencyConfidence": "MEDIUM",
+      "purchaseMotive": "Add external demand generation, local discovery and verified public business data to an existing merchant operating relationship.",
+      "buyerSpecificProof": ["merchant_attributed_value", "paid_business_retention", "low_integration_cost", "business_confirmation_workflow"]
+    },
+    {
+      "id": "BUYER-MULTI-VERTICAL",
+      "priority": 2,
+      "class": "Multi-vertical lifestyle-commerce / local marketplace groups",
+      "adjacencyExamples": ["Prosus ecosystem"],
+      "interestEvidence": "NONE",
+      "adjacencyConfidence": "MEDIUM",
+      "purchaseMotive": "Acquire a reusable regional operating system whose merchant, location, trust and consumer layers can support Gastro, Lifestyle, Works and future verticals.",
+      "buyerSpecificProof": ["cross_vertical_usage", "shared_acquisition_efficiency", "lower_second_vertical_launch_cost", "multi_vertical_operator_proof"]
+    },
+    {
+      "id": "BUYER-LOCAL-DATA",
+      "priority": 2,
+      "class": "Local data / location intelligence",
+      "adjacencyExamples": [],
+      "interestEvidence": "NONE",
+      "adjacencyConfidence": "RESEARCH_REQUIRED",
+      "purchaseMotive": "Acquire structured, fresh, first-party-confirmed and field-level rights-governed local data plus verification/change history.",
+      "buyerSpecificProof": ["first_party_confirmation_coverage", "freshness_sla", "buyer_safe_export", "commercial_value_of_changes_or_signals"]
+    },
+    {
+      "id": "BUYER-FINANCIAL",
+      "priority": 3,
+      "class": "Financial buyers / SaaS or marketplace consolidators",
+      "adjacencyExamples": [],
+      "interestEvidence": "NONE",
+      "adjacencyConfidence": "ECONOMICS_REQUIRED",
+      "purchaseMotive": "Acquire predictable recurring cashflow, transferable operations and a repeatable expansion engine.",
+      "buyerSpecificProof": ["recurring_revenue", "retention", "gross_margin", "cac_payback", "founder_independence", "clean_ip_contracts_data"]
+    }
+  ],
+  "evidenceLadder": [
+    {"id":"BP0","name":"Acquisition Clean","requiredEvidence":"G1 P0 risks controlled; prevents discount but does not itself create buyer pull."},
+    {"id":"BP1","name":"Paid Business Proof","requiredEvidence":"Auditable paid merchant demand via contract/invoice/payment or equivalent."},
+    {"id":"BP2","name":"Consumer Demand Proof","requiredEvidence":"Real usage, repeat behavior and high-intent actions; vanity traffic excluded."},
+    {"id":"BP3","name":"Merchant Outcome Proof","requiredEvidence":"Attributed useful merchant outcome such as qualified lead, reservation handoff, call, directions, offer redemption or agreed equivalent."},
+    {"id":"BP4","name":"Data / Supply Defensibility","requiredEvidence":"First-party confirmation, freshness operations and buyer-safe rights segregation."},
+    {"id":"BP5","name":"Regional Repeatability","requiredEvidence":"Second region uses same product/operating playbook without bespoke core rebuilding."},
+    {"id":"BP6","name":"Founder Independence","requiredEvidence":"Non-founder operator can run region/onboarding/QA/issues with bounded founder involvement."},
+    {"id":"BP7","name":"Quantified Buyer Synergy","requiredEvidence":"At least three buyer classes modeled using real HOY data and an explicit value mechanism."},
+    {"id":"BP8","name":"Competitive Buyer Process","requiredEvidence":"After freeze release: several qualified buyers engaged in parallel; one conversation is not competition."}
+  ],
+  "executionLanes": {
+    "FAST_STRATEGIC_OPTION": {
+      "purpose": "Create an early credible option to sell well without prematurely surrendering upside.",
+      "workingTriggers": {
+        "g1DealBlockingP0": 0,
+        "payingFoundingBusinessesMin": 5,
+        "signedBusinessProofPointsMin": 15,
+        "consumerRepeatCohortRequired": true,
+        "highIntentInstrumentationRequired": true,
+        "buyerSafeRightsSegmentationRequired": true,
+        "quantifiedBuyerClassesMin": 2,
+        "founderIndependentDrillPrepared": true
+      },
+      "marketGuarantee": false,
+      "recalibrateAfterRealLaunch": true
+    },
+    "COMPETITIVE_VALUE_BUILD": {
+      "purpose": "Build bargaining power and the probability of multiple credible buyers.",
+      "workingTriggers": {
+        "payingBusinessesMin": 20,
+        "monthlyRecurringB2BRevenueEurMin": 3000,
+        "paidBusinessRetention90dMin": 0.70,
+        "regionalMauMin": 1500,
+        "activatedConsumerRepeat30dMin": 0.30,
+        "launchCriticalFirstPartyConfirmedMin": 0.60,
+        "secondRegionWithoutBespokeCoreRequired": true,
+        "founderIndependentOpsTested": true,
+        "quantifiedBuyerClassesMin": 3,
+        "g1DealBlockingP0": 0
+      },
+      "marketGuarantee": false,
+      "recalibrateAfterRealLaunch": true
+    }
+  },
+  "buyerPullScorecard": {
+    "status": "NOT_SCORED_UNTIL_G2_EVIDENCE",
+    "unknownHandling": "UNKNOWN_NOT_ZERO_NOT_INFERRED",
+    "dimensions": [
+      {"name":"paid_revenue_quality","weight":0.20},
+      {"name":"merchant_retention_and_outcome","weight":0.15},
+      {"name":"consumer_repeat_and_high_intent","weight":0.15},
+      {"name":"supply_density_and_data_defensibility","weight":0.15},
+      {"name":"regional_repeatability","weight":0.15},
+      {"name":"founder_independence_and_transferability","weight":0.10},
+      {"name":"buyer_specific_synergy_evidence","weight":0.10}
+    ]
+  },
+  "immediateBacklog": [
+    {"id":"ACQ-01","priority":"P0","action":"Canonical technical state","outreach":false},
+    {"id":"ACQ-02","priority":"P0","action":"Close or externally decide G1 deal killers","outreach":false},
+    {"id":"ACQ-03","priority":"P0","action":"Define one auditable paid Gastro founding offer","outreach":false},
+    {"id":"ACQ-04","priority":"P0","action":"Instrument buyer-value metrics: high-intent actions, merchant attribution, repeat usage and freshness","outreach":false},
+    {"id":"ACQ-05","priority":"P0","action":"Operationalize merchant first-party confirmation path","outreach":false},
+    {"id":"ACQ-06","priority":"P1","action":"Define Region-2 replication proof contract","outreach":false},
+    {"id":"ACQ-07","priority":"P1","action":"Quantify top-three buyer synergy models only after real G2 data exists","outreach":false},
+    {"id":"ACQ-08","priority":"P1","action":"Maintain evidence-based buyer universe; activate names only with current strategic fit","outreach":false}
+  ],
+  "deprioritizeRules": [
+    "FEATURE_WITHOUT_PAID_USAGE_OR_BUYER_PROOF_HYPOTHESIS",
+    "DATA_WITHOUT_RIGHTS_FRESHNESS_OR_VERIFICATION_VALUE",
+    "GEOGRAPHIC_EXPANSION_BEFORE_REUSABLE_REGION1_BASELINE",
+    "BESPOKE_INTEGRATION_WITHOUT_SIGNED_COMMERCIAL_OR_STRATEGIC_REASON",
+    "VANITY_TRAFFIC_OPTIMIZATION",
+    "NEW_GOVERNANCE_LAYER_INSTEAD_OF_CLOSING_PROOF_OR_CONTROL",
+    "BUYER_STORY_IMPROVEMENT_WITHOUT_ECONOMIC_OR_EVIDENCE_IMPROVEMENT"
+  ],
+  "marketEvidence": [
+    {"id":"ME-01","company":"American Express / TheFork","date":"2026-06-15","type":"TRANSACTION_PRECEDENT","fact":"American Express announced a proposed $700m cash acquisition of TheFork; TheFork connects millions of diners with more than 50,000 restaurants in 11 European countries.","use":"Dining-network strategic-value precedent only; not a HOY valuation comparable or buyer-interest signal."},
+    {"id":"ME-02","company":"Booking Holdings / OpenTable","date":"2026","type":"ADJACENCY","fact":"Booking Holdings includes OpenTable; OpenTable states more than 65,000 restaurants worldwide and consumer restaurant discovery/booking.","use":"Travel + dining network adjacency only."},
+    {"id":"ME-03","company":"DoorDash / Deliveroo","date":"2025-10-02","type":"TRANSACTION_PRECEDENT","fact":"DoorDash completed its acquisition of Deliveroo and described the combination as strengthening global local commerce.","use":"Local-commerce consolidation evidence only."},
+    {"id":"ME-04","company":"Prosus / Just Eat Takeaway.com","date":"2025-11","type":"TRANSACTION_PRECEDENT","fact":"Prosus states Just Eat Takeaway.com was acquired and delisted and is an anchor of its European lifestyle-ecommerce ecosystem.","use":"Local-commerce / multi-vertical ecosystem adjacency only."},
+    {"id":"ME-05","company":"Uber Eats / Uber Advertising","date":"2026","type":"MONETIZATION_ADJACENCY","fact":"Uber offers restaurant sponsored listings and performance advertising around high-intent discovery/order moments.","use":"Merchant demand-generation monetization adjacency only."},
+    {"id":"ME-06","company":"Lightspeed Restaurant","date":"FY2026","type":"MERCHANT_OS_ADJACENCY","fact":"Lightspeed focuses on hospitality customers in Europe and operates restaurant POS/payments/ordering/insights products.","use":"Merchant-OS adjacency only."},
+    {"id":"ME-07","company":"Expedia Group","date":"2026","type":"TRAVEL_ADJACENCY","fact":"Expedia Group research highlights demand for full-trip planning and local activities as contributors to immersive trips.","use":"Travel/local-experience adjacency only."}
+  ]
+}
