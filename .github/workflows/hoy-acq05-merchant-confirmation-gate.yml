@@ -1,0 +1,33 @@
+name: HOY ACQ-05 Merchant Confirmation Gate
+
+on:
+  pull_request:
+    paths:
+      - 'docs/investor-ready/acq05-merchant-first-party-confirmation-v1.json'
+      - 'docs/investor-ready/acq05-merchant-first-party-confirmation-v1.md'
+      - 'merchant-confirmation-receipt-2.48.js'
+      - 'operator-data-confirmation-2.29.js'
+      - 'index.html'
+      - 'service-worker.js'
+      - 'scripts/investor-ready/acq05-business-confirmation-readiness-audit.sql'
+      - 'scripts/investor-ready/check-acq05-merchant-confirmation.mjs'
+      - 'tests/acq05-merchant-confirmation.spec.js'
+      - '.github/workflows/hoy-acq05-merchant-confirmation-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  merchant-confirmation-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+      - name: Run fail-closed ACQ-05 contract
+        run: node scripts/investor-ready/check-acq05-merchant-confirmation.mjs
+      - name: Run ACQ-05 runtime tests
+        run: node tests/acq05-merchant-confirmation.spec.js
