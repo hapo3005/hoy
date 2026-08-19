@@ -10,6 +10,9 @@ on:
       - 'tests/edge-region-policy-2.48.spec.js'
       - 'supabase/functions/**'
       - 'supabase/release/rt008-dsar-retention-controls.sql'
+      - 'deploy/public-runtime-policy.json'
+      - 'scripts/build-public-runtime.mjs'
+      - 'scripts/check-ir02e-public-runtime.mjs'
       - 'docs/investor-ready/rt008-**'
       - 'docs/investor-ready/g1-edge-**'
       - 'scripts/investor-ready/check-g1-edge-**'
@@ -22,11 +25,22 @@ permissions:
 jobs:
   final-survivor:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
+    env:
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '22'
+          cache: npm
+      - name: Install locked repository dependencies
+        run: npm ci --ignore-scripts
       - name: Verify final composed Edge desired state
         run: node scripts/investor-ready/check-g1-edge-final-survivor.mjs
+      - name: Verify critical secret leakage boundary
+        run: npm run qa:secrets
+      - name: Build fail-closed public runtime
+        run: npm run build:public-runtime
+      - name: Verify proprietary/public runtime boundary
+        run: npm run qa:public-runtime
