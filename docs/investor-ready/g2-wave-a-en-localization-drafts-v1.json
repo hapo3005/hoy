@@ -1,0 +1,64 @@
+{
+  "version": "G2-WAVE-A-EN-LOCALIZATION-DRAFTS-1.0",
+  "asOf": "2026-08-19",
+  "status": "PRICE_NEUTRAL_LOCALIZATION_DRAFT_READY_NOT_COHORT_FROZEN",
+  "purpose": "Prepare English outreach masters for the three highest-readiness localization candidates without carrying forward the superseded annual offer or assigning a 29/39/59 monthly price arm before cohort freeze.",
+  "candidateSelection": {
+    "count": 3,
+    "restaurantIds": [155, 168, 235],
+    "selectionNature": "READINESS_CANDIDATES_NOT_FROZEN_COHORT",
+    "allWereMasterReviewedAtReadOnlyCheck": true,
+    "allWereMasterReadyForLocalizationAtReadOnlyCheck": true,
+    "preferredLanguage": "EN",
+    "productionRowsChanged": false,
+    "sendLocksChanged": false,
+    "outreachPerformed": false
+  },
+  "pricingBoundary": {
+    "legacy299AnnualOfferCarriedForward": false,
+    "legacyFirst20FoundingPartnerClaimCarriedForward": false,
+    "concreteMonthlyPriceAssigned": false,
+    "priceArmAssignmentBeforeCohortFreezeAllowed": false,
+    "rule": "Keep pre-freeze localization price-neutral. Insert exactly one assigned monthly price only after eligible cohort freeze and audited balanced assignment, before first authorized outreach."
+  },
+  "analyticsBoundary": {
+    "productionAnalyticsEnabled": false,
+    "outcomeClaimsAllowed": false,
+    "copyRule": "Any mention of measurement must remain conditional on separate privacy-safe measurement authorization and may describe aggregated signals only, never guaranteed outcomes."
+  },
+  "drafts": [
+    {
+      "restaurantId": 155,
+      "businessName": "The Island Pub",
+      "language": "EN",
+      "subject": "The Island on HOY – a quick idea",
+      "emailBody": "Hi The Island team,\n\nI’m Jan and I’m building HOY for the Mar Menor. The idea is simple: guests shouldn’t have to spend ages searching; they should quickly find what genuinely fits tonight.\n\nThe Island is a strong fit because live music, karaoke and sport are exactly the kind of things people look for when they ask, ‘What’s on tonight?’. Your profile is already set up on HOY. As a partner, you could highlight current events and, once privacy-safe measurement is separately approved, see aggregated signals such as profile, directions or contact actions.\n\nWe are currently preparing a Founding Business test. The specific monthly offer for each participating business will only be assigned and frozen before outreach, so this draft deliberately contains no price.\n\nIf the idea sounds interesting, I’d be happy to show you HOY briefly.\n\nBest regards\nJan",
+      "dmBody": "Hi! I’m Jan from HOY Mar Menor. The Island is a strong fit for our ‘What’s on tonight?’ idea because of live music, karaoke and sport. Your profile is already set up on HOY. We’re preparing a Founding Business test; the specific offer will only be fixed before authorized outreach. If you’d like, I can show you the idea briefly."
+    },
+    {
+      "restaurantId": 168,
+      "businessName": "BT15 Irish Pub & Eatery",
+      "language": "EN",
+      "subject": "BT15 on HOY – a quick idea",
+      "emailBody": "Hi BT15 team,\n\nI’m Jan and I’m building HOY as a local decision guide for the Mar Menor: where should we eat, where should we have a drink, and what’s happening tonight?\n\nBT15 fits that idea very well because you bring together food, drinks, sport and entertainment. Your profile is already set up on HOY. As a partner, you could highlight current events and, once privacy-safe measurement is separately approved, see aggregated signals such as profile, directions or contact actions.\n\nWe are currently preparing a Founding Business test. The specific monthly offer for each participating business will only be assigned and frozen before outreach, so this draft deliberately contains no price.\n\nIf the idea sounds relevant for BT15, I’d be happy to show you HOY briefly.\n\nBest regards\nJan",
+      "dmBody": "Hi! I’m Jan from HOY Mar Menor. BT15 fits our concept very well because you combine food, drinks, sport and entertainment. Your profile is already set up on HOY. We’re preparing a Founding Business test; the specific offer will only be fixed before authorized outreach. If you’d like, I can show you HOY briefly."
+    },
+    {
+      "restaurantId": 235,
+      "businessName": "The Celt Irish Bar",
+      "language": "EN",
+      "subject": "The Celt on HOY – a quick idea",
+      "emailBody": "Hi The Celt team,\n\nI’m Jan and I’m building HOY for the Mar Menor – not as another directory, but as a decision guide for one simple question: what should we do today?\n\nThe Celt is especially relevant for that use case. Irish pub, sport and live music are exactly the things guests often look for spontaneously. Your profile is already set up on HOY. As a partner, you could highlight events and current offers and, once privacy-safe measurement is separately approved, see aggregated signals such as profile, directions or contact actions.\n\nWe are currently preparing a Founding Business test. The specific monthly offer for each participating business will only be assigned and frozen before outreach, so this draft deliberately contains no price.\n\nIf the idea sounds interesting, I’d be happy to show you HOY in a short demo.\n\nBest regards\nJan",
+      "dmBody": "Hi! I’m Jan from HOY Mar Menor. The Celt fits our ‘What should we do today?’ idea very well because of sport and live music. Your profile is already set up on HOY. We’re preparing a Founding Business test; the specific offer will only be fixed before authorized outreach. If you’d like, I can show you the idea briefly."
+    }
+  ],
+  "claimBoundary": {
+    "theseDraftsAreSendAuthorized": false,
+    "theseDraftsFreezeTheCohort": false,
+    "theseDraftsAssignPriceArms": false,
+    "theseDraftsProveDemand": false,
+    "theseDraftsProvePayment": false,
+    "contactValuesIncluded": false,
+    "personalContactNamesIncluded": false
+  }
+}

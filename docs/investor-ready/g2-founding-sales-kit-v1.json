@@ -1,0 +1,155 @@
+{
+  "version": "G2-FOUNDING-SALES-KIT-1.0",
+  "asOf": "2026-08-19",
+  "status": "READY_NOT_AUTHORIZED",
+  "authority": {
+    "g1ClosingAuthority": "PR#132",
+    "contactFreeze": "ACTIVE",
+    "outreachPerformed": false,
+    "outreachAuthorized": false,
+    "sendAuthorized": false,
+    "termsActivationAuthorized": false,
+    "billingLive": false,
+    "productionAnalyticsEnabled": false,
+    "productionMutationPerformed": false
+  },
+  "region1": {
+    "name": "HOY Mar Menor Region 1",
+    "scopeRule": "FULL_DEFINED_MAR_MENOR_REGION_NOT_LA_MANGA_CABO_ONLY",
+    "areas": [
+      "Cabo de Palos",
+      "La Manga Club / Atamaría",
+      "La Manga del Mar Menor",
+      "Los Alcázares / Los Narejos",
+      "Los Belones",
+      "Los Urrutias / Estrella de Mar / Los Nietos",
+      "Mar de Cristal / Islas Menores",
+      "San Pedro del Pinatar / Lo Pagán",
+      "Santiago de la Ribera / San Javier"
+    ]
+  },
+  "readOnlyReadinessSnapshot": {
+    "publishedRegion1": 166,
+    "withDirectFirstPartyContactRoute": 147,
+    "sendLocked": 166,
+    "sendAuthorized": 0,
+    "masterReviewed": 22,
+    "masterReady": 15,
+    "strictMasterReviewedAndReady": 15,
+    "priorityAWithContactLocked": 40,
+    "priorityAMasterReviewedLocked": 15,
+    "alreadyFoundingRanked": 10,
+    "withPreferredOutreachLanguage": 24,
+    "foundingWaveCounts": {"1A-EN": 9, "1B-DE": 1},
+    "note": "Aggregate read-only evidence only; no contact values or personal data are stored in this artifact."
+  },
+  "waveA": {
+    "targetBusinesses": 18,
+    "priceArms": 3,
+    "targetPerArm": 6,
+    "thresholdNature": "INTERNAL_EXPERIMENT_SIZE_NOT_MARKET_STANDARD",
+    "cohortStatus": "COHORT_NOT_FROZEN",
+    "strictReadyNow": 15,
+    "minimumAdditionalStrictReadyNeeded": 3,
+    "freezeRule": "Do not freeze cohort until at least 18 businesses satisfy every eligibility rule and G1/contact release prerequisites are met.",
+    "eligibility": [
+      "published_in_full_region1_scope",
+      "direct_first_party_contact_route_present",
+      "master_reviewed",
+      "master_ready",
+      "send_lock_still_true_before_release",
+      "send_authorized_at_null_before_release",
+      "no_prior_outreach_under_this_experiment",
+      "business_identity_rechecked_before_freeze"
+    ]
+  },
+  "priceExperiment": {
+    "name": "HOY Founding Business",
+    "currency": "EUR",
+    "cadence": "MONTHLY",
+    "arms": [29, 39, 59],
+    "status": "WORKING_HYPOTHESIS_NOT_MARKET_VALIDATED",
+    "exactlyOneVisiblePricePerBusiness": true,
+    "showThreePriceChoice": false,
+    "assignment": {
+      "status": "NOT_ASSIGNED_UNTIL_COHORT_FREEZE",
+      "method": "deterministic_randomized_balanced_assignment",
+      "freezeBeforeFirstOutreach": true,
+      "auditEvidenceRequired": true
+    },
+    "oneOffHighlight": {
+      "priceEURPerEvent": 29,
+      "separateProduct": true,
+      "countAsMRR": false
+    },
+    "guarantees": {
+      "ranking": false,
+      "impressions": false,
+      "clicks": false,
+      "reservations": false,
+      "revenue": false
+    }
+  },
+  "launchPrerequisites": [
+    {"id":"L1","name":"G1 Acquisition Clean closed by #132","required":true,"met":false},
+    {"id":"L2","name":"Separate Contact Freeze release","required":true,"met":false},
+    {"id":"L3","name":"Legal entity and contracting identity ready","required":true,"met":false},
+    {"id":"L4","name":"Business Terms/payment documents approved and active where required","required":true,"met":false},
+    {"id":"L5","name":"Wave A cohort frozen from eligible businesses","required":true,"met":false},
+    {"id":"L6","name":"Balanced price assignment frozen before outreach","required":true,"met":false},
+    {"id":"L7","name":"Settled-payment reconciliation evidence path ready","required":true,"met":false},
+    {"id":"L8","name":"Privacy-safe measurement separately authorized before Production analytics","required":true,"met":false}
+  ],
+  "paidProof": {
+    "interestCountsAsPaid": false,
+    "loiCountsAsPaid": false,
+    "signatureCountsAsPaid": false,
+    "invoiceCountsAsPaid": false,
+    "settledExternalPaymentCountsAsPaid": true,
+    "secondSeparateSettledPaymentCountsAsRenewal": true,
+    "ninetyDayRule": "Paid retention may only be reported after >=90 days under the frozen definition.",
+    "excludedFromPayingBusinessClaim": ["free_pilot","founder_or_related_party_payment","fully_refunded_first_payment"]
+  },
+  "funnel": [
+    "eligible",
+    "authorized_contacted",
+    "offer_delivered",
+    "accepted",
+    "invoice_issued_not_paid",
+    "settled_payment",
+    "renewal",
+    "paid_retained_90d"
+  ],
+  "rejectionCodes": [
+    "NO_NEED",
+    "PRICE_TOO_HIGH",
+    "TIMING",
+    "NO_TRUST",
+    "PREFERS_FREE",
+    "NO_AUTHORITY",
+    "PRODUCT_GAP",
+    "OTHER_STRUCTURED"
+  ],
+  "buyerFacingMetrics": [
+    "eligible_cohort_n",
+    "authorized_contacted_n",
+    "offer_delivery_rate",
+    "settled_payment_conversion_rate",
+    "settled_payment_conversion_by_price_arm",
+    "external_paying_businesses",
+    "recurring_mrr_excluding_one_off_highlights",
+    "renewal_rate",
+    "paid_retention_90d",
+    "structured_objection_distribution",
+    "merchant_factual_confirmation_coverage",
+    "merchant_confirmed_outcomes_separately_from_intent"
+  ],
+  "claimBoundaries": [
+    "No outreach before separate release.",
+    "No invoice, LOI, signature or interest may be reported as paid proof.",
+    "No one-off Highlight revenue may be reported as MRR.",
+    "No click, route start or reservation handoff may be reported as a confirmed transaction without merchant confirmation.",
+    "No raw contact values, personal notes or free-text objections belong in buyer-facing/public experiment evidence.",
+    "This kit cannot toggle send locks, Contact Freeze, Terms, billing or Production analytics."
+  ]
+}
