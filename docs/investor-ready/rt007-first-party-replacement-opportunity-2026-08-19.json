@@ -1,12 +1,12 @@
 {
-  "schemaVersion": "1.0.1",
+  "schemaVersion": "1.0.2",
   "snapshotDate": "2026-08-19",
   "status": "SCREENED_NOT_APPROVED",
   "liveHardDirectReferences": 329,
   "screenedCandidateReferences": 64,
   "screenedCandidateShare": 0.1945,
-  "preparedDryRunReferences": 17,
-  "factVerificationStillRequired": 47,
+  "preparedDryRunReferences": 19,
+  "factVerificationStillRequired": 45,
   "byField": {
     "source_url": {
       "candidateReferences": 12,
@@ -16,7 +16,7 @@
     "location_source_url": {
       "candidateReferences": 24,
       "verificationMode": "VERIFY_OFFICIAL_PAGE_SHOWS_LOCATION_OR_ADDRESS",
-      "preparedDryRunReferences": 2
+      "preparedDryRunReferences": 4
     },
     "hours_source_url": {
       "candidateReferences": 12,
@@ -41,13 +41,13 @@
       "artifact": "docs/investor-ready/rt007-signature-first-party-replacement-candidate-2026-08-19.json"
     },
     "locationWave1": {
-      "references": 2,
-      "projectedHardQueueIfAppliedAlone": 327,
+      "references": 4,
+      "projectedHardQueueIfAppliedAlone": 325,
       "artifact": "docs/investor-ready/rt007-location-first-party-wave1-candidate-2026-08-19.json"
     },
     "combinedAfterRequiredRebase": {
-      "references": 17,
-      "projectedHardQueue": 312,
+      "references": 19,
+      "projectedHardQueue": 310,
       "rebaseRequired": true
     }
   },
