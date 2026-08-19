@@ -6,8 +6,8 @@
 -- Design goals:
 --   * fail closed unless the exact 95-migration/function-definition baseline still matches;
 --   * preserve every current function body (no CREATE OR REPLACE FUNCTION);
---   * remove pg_temp/private/auth from SECURITY DEFINER search_path;
---   * keep only pg_catalog + public, relying on a verified no-CREATE invariant for untrusted roles;
+--   * remove private/auth from SECURITY DEFINER search_path and force pg_temp explicitly last;
+--   * keep pg_catalog + trusted public + pg_temp, relying on a verified no-CREATE invariant for untrusted roles;
 --   * keep PUBLIC/anon EXECUTE revoked on privileged RPCs;
 --   * keep authenticated EXECUTE only where it already exists and is required by the current API;
 --   * keep log_analytics_event EXECUTE revoked from PUBLIC, anon and authenticated;
@@ -136,31 +136,32 @@ where (n.nspname='public' and p.proname in (
 -- -----------------------------------------------------------------------------
 -- 1. Search-path hardening without body rewrites
 -- -----------------------------------------------------------------------------
--- pg_catalog is explicit. public remains only because current function bodies contain
--- public-owned custom enum type references. The preflight proves PUBLIC/anon/authenticated
--- cannot CREATE in public, so those roles cannot shadow objects on this path.
+-- PostgreSQL searches the temporary schema first if pg_temp is omitted. Therefore
+-- pg_temp is explicitly listed LAST. public remains before it because current bodies
+-- contain public-owned custom enum type references. The preflight proves PUBLIC/anon/
+-- authenticated cannot CREATE in public, so untrusted callers cannot shadow those names.
 
 alter function private.is_hoy_admin()
-  set search_path to pg_catalog, public;
+  set search_path to pg_catalog, public, pg_temp;
 alter function private.is_restaurant_member(bigint)
-  set search_path to pg_catalog, public;
+  set search_path to pg_catalog, public, pg_temp;
 
 alter function public.get_operator_workspace(bigint)
-  set search_path to pg_catalog, public;
+  set search_path to pg_catalog, public, pg_temp;
 alter function public.get_venue_media_review(bigint)
-  set search_path to pg_catalog, public;
+  set search_path to pg_catalog, public, pg_temp;
 alter function public.log_analytics_event(text,bigint,uuid,uuid,jsonb)
-  set search_path to pg_catalog, public;
+  set search_path to pg_catalog, public, pg_temp;
 alter function public.operator_archive_offer(uuid)
-  set search_path to pg_catalog, public;
+  set search_path to pg_catalog, public, pg_temp;
 alter function public.operator_publish_offer(uuid)
-  set search_path to pg_catalog, public;
+  set search_path to pg_catalog, public, pg_temp;
 alter function public.operator_request_upgrade(bigint,public.plan_code,text)
-  set search_path to pg_catalog, public;
+  set search_path to pg_catalog, public, pg_temp;
 alter function public.operator_submit_profile_change(bigint,jsonb,text)
-  set search_path to pg_catalog, public;
+  set search_path to pg_catalog, public, pg_temp;
 alter function public.review_venue_media_candidates(bigint,bigint[],bigint[],bigint[])
-  set search_path to pg_catalog, public;
+  set search_path to pg_catalog, public, pg_temp;
 
 -- -----------------------------------------------------------------------------
 -- 2. Explicit EXECUTE surface
@@ -222,7 +223,7 @@ begin
   join pg_proc p on p.oid=b.oid
   where not exists (
     select 1 from unnest(coalesce(p.proconfig,'{}'::text[])) cfg
-    where cfg='search_path=pg_catalog, public'
+    where cfg='search_path=pg_catalog, public, pg_temp'
   );
 
   if v_path_mismatch <> 0 then
