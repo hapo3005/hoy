@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "role": "G1-CB-14_READ_ONLY_PREFLIGHT",
+  "basePlan": {
+    "pr": 147,
+    "head": "a3edc83cad30bfce54c43de050f3bbe2c954cbde"
+  },
+  "productionMutationPerformed": false,
+  "productionApplyAuthorized": false,
+  "applyDecision": "BLOCKED_PENDING_SOURCE_REVIEW_AND_SEPARATE_PRODUCTION_APPROVAL",
+  "rowRecheck": {
+    "targets": 36,
+    "exactMatches": 36,
+    "drifted": 0,
+    "published": 34,
+    "unpublished": 2,
+    "status": "PASS_NO_ROW_DRIFT"
+  },
+  "signatureBaseline": {
+    "targets": 12,
+    "captured": 12,
+    "status": "CURRENT_BASELINE_CAPTURED_READ_ONLY",
+    "fields": [
+      "signature_title",
+      "signature_text",
+      "signature_tags",
+      "signature_status",
+      "signature_source_url",
+      "signature_source_label",
+      "signature_checked_at",
+      "signature_confidence"
+    ]
+  },
+  "destinationRightsRegistry": {
+    "uniqueHosts": 27,
+    "registered": 27,
+    "amberFirstPartyBusinessReference": 27,
+    "businessTermsRequired": 27,
+    "transferClearNow": 0,
+    "status": "PASS_EXPECTED_AMBER_NOT_TRANSFER_CLEAR"
+  },
+  "buyerSafeSnapshot": {
+    "publishedRestaurants": 166,
+    "unpublishedRestaurants": 3,
+    "hardRefsAll": 329,
+    "hardRefsPublished": 324,
+    "hardRefsUnpublished": 5,
+    "publishedHardRestaurants": 146,
+    "publishedConditionalRestaurants": 18,
+    "publishedSourceRefClearRestaurants": 2,
+    "archivedRestaurants": 3,
+    "status": "UNCHANGED_FROM_RT007_SURVIVOR"
+  },
+  "sourceRecheck": {
+    "targets": 36,
+    "pass": 32,
+    "reviewRequired": 4,
+    "rule": "PASS is only a current source-identity/reachability preflight result. It is not a licence, commercial-use, derivative-use, transferability or whole-profile-clearance claim.",
+    "reviewTargets": [
+      {
+        "restaurantId": 7,
+        "restaurantName": "Escuela de Pieter",
+        "field": "signature_source_url",
+        "proposedUrl": "https://escueladepieter.com/",
+        "reason": "DOMAIN_INTEGRITY_ANOMALY",
+        "detail": "The legitimate first-party homepage was found, but unrelated Japanese storefront-style pages were also surfaced on the same domain. Manual source-integrity/security review is required before this target may enter an apply candidate.",
+        "applyEligible": false
+      },
+      {
+        "restaurantId": 110,
+        "restaurantName": "El Rincón de la Hormiga",
+        "field": "source_url",
+        "proposedUrl": "https://elrincondelahormiga.com/",
+        "reason": "BUSINESS_IDENTITY_SEMANTIC_REVIEW",
+        "detail": "The first-party site identifies a socio-cultural centre and exposes a food/drink menu, but the semantic match to the HOY restaurant record requires explicit review before replacement.",
+        "applyEligible": false
+      },
+      {
+        "restaurantId": 144,
+        "restaurantName": "Restaurante Isla Grosa",
+        "field": "source_url",
+        "proposedUrl": "https://restauranteislagrosalamanga.es/",
+        "reason": "DIRECT_FIRST_PARTY_CONTENT_NOT_FETCHED",
+        "detail": "Current external sources corroborate the business-domain association, but direct first-party page content was not independently fetched in this preflight.",
+        "applyEligible": false
+      },
+      {
+        "restaurantId": 202,
+        "restaurantName": "Pescados Cabo de Palos I",
+        "field": "location_source_url",
+        "proposedUrl": "https://pescadoscabodepalos.es/",
+        "reason": "DIRECT_FIRST_PARTY_CONTENT_NOT_FETCHED",
+        "detail": "Current external sources corroborate the business-domain association, but direct first-party page content was not independently fetched in this preflight.",
+        "applyEligible": false
+      }
+    ]
+  },
+  "archiveQualification": {
+    "restaurantId": 19,
+    "restaurantName": "Restaurante El Pez Rojo",
+    "published": false,
+    "sourceStatus": "ARCHIVE_STALE_FIRST_PARTY_ACCEPTABLE_FOR_REVIEW",
+    "note": "The first-party WordPress source is old but directly identifies the business; this does not convert the archived record into a current-live-business claim."
+  },
+  "claimBoundary": {
+    "wholeProfileClearanceClaimed": false,
+    "transferClearanceClaimed": false,
+    "businessTermsStillRequired": true,
+    "productionMutationPerformed": false,
+    "productionApplyAuthorized": false,
+    "contactFreezeChanged": false
+  }
+}
