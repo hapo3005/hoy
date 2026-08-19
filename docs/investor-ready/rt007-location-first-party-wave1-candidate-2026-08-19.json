@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "status": "DRY_RUN_CANDIDATE_NOT_APPLIED",
+  "productionMutationPerformed": false,
+  "baseline": {
+    "liveSnapshot": "docs/investor-ready/rt007-live-rights-snapshot-2026-08-19.json",
+    "hardDirectProvenanceQueue": 329,
+    "candidateLocationReferences": 2,
+    "candidateRule": "Stored HOY street/number must be directly supported by the official first-party page; broad city/area-only matches are excluded.",
+    "firstPartyRightsState": "AMBER",
+    "firstPartyFactualVerificationAllowed": true,
+    "firstPartyTransferability": "UNKNOWN",
+    "businessTermsStillRequired": true
+  },
+  "replacements": [
+    {
+      "restaurantId": 98,
+      "restaurantName": "Currys Nepali",
+      "storedAddress": "Av. Cartagena, 21, 30710 Los Alcázares",
+      "oldHost": "www.google.com",
+      "newSourceUrl": "https://www.currysnepali.com/",
+      "newHost": "www.currysnepali.com",
+      "officialPageEvidence": "Avenida cartagena 21, 30710, los alcazares, murcia"
+    },
+    {
+      "restaurantId": 135,
+      "restaurantName": "Annapurna Nepali Restaurant",
+      "storedAddress": "C. Mayor, 67, 30385 Los Belones",
+      "oldHost": "www.google.com",
+      "newSourceUrl": "https://www.annapurnanepali.com/",
+      "newHost": "www.annapurnanepali.com",
+      "officialPageEvidence": "Calle Mayor, 67, Los Belones, Spain"
+    }
+  ],
+  "excludedExamples": [
+    {
+      "restaurantId": 116,
+      "restaurantName": "Pizzeria Trattoria Trastevere",
+      "reason": "Official site confirms Urbanizacion Manga Beach / La Manga but not the full stored Km 6 / postal detail; remains fact-verification queue."
+    },
+    {
+      "restaurantId": 144,
+      "restaurantName": "Restaurante Isla Grosa",
+      "reason": "Official site confirms Residencial Las Vegas / Gran Via de La Manga but not the full stored km 7 address; remains fact-verification queue."
+    },
+    {
+      "restaurantId": 111,
+      "restaurantName": "La Taberna del Puerto de Cabo de Palos",
+      "reason": "Official site publishes C/ del Faro 2 while HOY currently stores Paseo de la Barra 2; requires location-data reconciliation, not a source-only swap."
+    }
+  ],
+  "expectedIfLaterApprovedAndAppliedAlone": {
+    "hardDirectProvenanceQueueBefore": 329,
+    "hardDirectProvenanceQueueAfter": 327,
+    "hardQueueReduction": 2,
+    "newFirstPartyAmberReferences": 2,
+    "transferClearReferencesCreated": 0
+  },
+  "combinedPreparedPotential": {
+    "genericSourceUrlWave1": 12,
+    "signatureWave1": 3,
+    "locationWave1": 2,
+    "totalPreparedReferences": 17,
+    "projectedHardQueueAfterRequiredRebase": 312,
+    "rebaseRequired": true
+  },
+  "approvalBoundary": {
+    "legalClearanceClaimed": false,
+    "businessTermsActivated": false,
+    "canonicalMigrationCreated": false,
+    "productionApplyAuthorized": false,
+    "outreachAuthorized": false
+  }
+}
