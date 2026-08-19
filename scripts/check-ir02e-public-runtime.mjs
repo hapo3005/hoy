@@ -65,6 +65,24 @@ if (!Array.isArray(manifest.files) || manifest.file_count !== manifest.files.len
 if (manifest.files.some(x => /^(?:docs|data|scripts|supabase|tests|\.github)\//.test(x.path))) fail('sensitive path recorded in release manifest');
 if (!manifest.files.some(x => x.path === 'package.json')) fail('sanitized runtime package metadata missing from release manifest');
 if (manifest.source_revision !== null && !/^[0-9a-f]{40}$/.test(String(manifest.source_revision))) fail('invalid source revision in release manifest');
+const expectedRevision = String(process.env.HOY_SOURCE_REVISION || process.env.GITHUB_SHA || '').trim().toLowerCase() || null;
+if (manifest.source_revision !== expectedRevision) fail('release manifest source revision does not match build environment');
+
+for (const entry of manifest.files) {
+  const rel = String(entry.path || '');
+  if (!rel || rel.startsWith('/') || rel.includes('..')) fail(`unsafe manifest path: ${rel}`);
+  if (rel.includes('/')) {
+    const top = rel.split('/')[0];
+    if (!policy.public_directories.includes(top)) fail(`unapproved top-level runtime directory: ${rel}`);
+  } else if (rel !== 'package.json') {
+    const ext = path.extname(rel.toLowerCase());
+    if (!policy.public_root_files.includes(rel) && !policy.public_root_extensions.includes(ext)) {
+      fail(`unapproved root runtime file: ${rel}`);
+    }
+  }
+  if (!Number.isInteger(entry.bytes) || entry.bytes < 0) fail(`invalid byte count in manifest: ${rel}`);
+  if (!/^[0-9a-f]{64}$/.test(String(entry.sha256 || ''))) fail(`invalid SHA-256 in manifest: ${rel}`);
+}
 
 // Rebuild from the exact same tree/environment. The manifest must be byte-identical;
 // this turns reproducibility into a gate rather than a documentation claim.
