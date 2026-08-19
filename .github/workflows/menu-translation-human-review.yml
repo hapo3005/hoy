@@ -1,0 +1,39 @@
+name: Menu Translation Human Review Gate
+
+on:
+  pull_request:
+    paths:
+      - 'admin-menu-translation-review-2.49.js'
+      - 'admin-menu-translation-review-2.49.css'
+      - 'operator-menu-translation-review-2.49.js'
+      - 'operator-menu-translation-review-2.49.css'
+      - 'admin.html'
+      - 'index.html'
+      - 'scripts/check-menu-translation-human-review.mjs'
+      - 'supabase/migrations/20260819104500_menu_translation_human_verification_v1.sql'
+      - 'supabase/migrations/20260819110000_menu_translation_human_verification_rpc_hardening_v1.sql'
+      - '.github/workflows/menu-translation-human-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hoy-menu-translation-human-review-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - name: Parse review modules
+        run: |
+          node --check admin-menu-translation-review-2.49.js
+          node --check operator-menu-translation-review-2.49.js
+      - name: Verify trust and wiring contract
+        run: node scripts/check-menu-translation-human-review.mjs
