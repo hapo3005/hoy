@@ -1,25 +1,25 @@
 # RT-008 Edge Function Execution-Region Policy — 2026-08-19
 
-Status: **CURRENT-MAIN TECHNICAL CANDIDATE / NO PRODUCTION DEPLOY AUTHORIZATION**
+Status: **COMPOSED G1 SURVIVOR CANDIDATE / NO PRODUCTION DEPLOY AUTHORIZATION**
 
-Base: `main` `88bb9e77d50ccb9db96306f5e737e27bad6237ab` (includes merged privacy hotfix #128).
+Base G1 survivor: current `main` `f63978dad503427dabaa37f222bf10726deba645` plus the consolidated Privacy/Region/Acquired-State inputs documented in PR #143.
 
 ## Decision
 
-All 19 currently ACTIVE Core Edge Function slugs are classified and pinned at invocation time to `eu-central-1` (Frankfurt), the same region as the active HOY La Manga Postgres project.
+All 19 currently ACTIVE Core Edge Function slugs are classified and pinned at HOY browser/admin invocation time to `eu-central-1` (Frankfurt), the same region as the active HOY La Manga Postgres project.
 
 Rationale:
 
 - current functions are database/storage coupled and/or process operator, business, analytics, content or precise-location data;
-- Supabase documents regional invocation for database/storage-heavy and compliance-sensitive functions;
-- a single explicit region creates a deterministic privacy/latency boundary for current Region #001 operations;
+- a single explicit invocation region creates a deterministic privacy/latency boundary for current Region #001 operations;
+- `mobility-resolve` receives precise coordinates and is therefore pinned too;
 - unknown/new Edge Function slugs fail closed until classified.
 
-This is an invocation-routing policy, not a claim that every Supabase subprocessor/onward service remains in Frankfurt.
+This is an invocation-routing policy, not a claim that every Supabase subprocessor/onward service remains in Frankfurt or that database project region alone proves every processing location.
 
 ## Availability trade-off
 
-Supabase documents that an explicitly requested Edge Function region is not automatically re-routed during an outage. HOY therefore deliberately accepts a fail-closed availability trade-off for this privacy-first candidate. Any future emergency failover or `any`/nearest-region policy requires an explicit incident/architecture decision and updated privacy evidence; it is not automatic.
+An explicitly requested Edge Function region is a deliberate locality decision. HOY treats outage/failover behaviour as a separate incident/architecture decision; there is no silent policy change to an unclassified or automatic region inside this candidate.
 
 ## Technical enforcement
 
@@ -28,15 +28,19 @@ Supabase documents that an explicitly requested Edge Function region is not auto
 It wraps `window.supabase.createClient()` and then each created client's `functions.invoke()` method:
 
 - every classified function gets `region: 'eu-central-1'`;
-- current Supabase JS converts the explicit region into `x-region` plus `forceFunctionRegion` routing;
+- an unknown function is rejected as `hoy_edge_region_unclassified:<slug>` before transport;
 - if a contradictory `x-sb-edge-region` response header is exposed, HOY fails the invocation closed;
-- an unknown function returns `hoy_edge_region_unclassified:<slug>` rather than silently executing in the nearest region.
+- the policy is installed in both `index.html` and `admin.html` and cached by the PWA.
 
-The policy is installed in both `index.html` and `admin.html`, and the PWA cache contains the policy asset.
+The current Playwright regression also mocks the wrapped transport and proves:
+
+- `claim-submit` is invoked with `eu-central-1`;
+- an unknown slug does not reach the underlying transport;
+- `mobility-resolve` with an observed `us-east-1` header fails with a region-mismatch error.
 
 ## Active Core function snapshot
 
-All currently ACTIVE Core functions captured from the connected Supabase project on 2026-08-19:
+The policy contains exactly the 19 slugs captured ACTIVE from the connected Supabase Core project:
 
 1. `claim-submit`
 2. `publish-offer`
@@ -58,57 +62,46 @@ All currently ACTIVE Core functions captured from the connected Supabase project
 18. `menu-social-handoff`
 19. `operator-accessibility-confirm`
 
-`mobility-resolve` is included despite being public/publishable-key protected because it receives precise coordinates and performs database/RPC work; the candidate therefore does not leave location processing on automatic nearest-region routing.
+## Source-control / acquired-state reconciliation — composed result
 
-## Source-control reconciliation gap
+The earlier RT-008 region candidate was created when only nine of the 19 active slugs existed under `supabase/functions/`; it therefore correctly disclosed a historic ten-path live/source gap.
 
-The connected production project currently exposes 19 ACTIVE functions, while `main/supabase/functions/` contains only nine source directories. The following ten active slugs are therefore explicitly recorded as **LIVE SOURCE NOT PRESENT UNDER CURRENT MAIN `supabase/functions/` PATH** at this evidence cut:
+That gap is now reconciled in the composed G1 survivor:
 
-- `address-fallback-geocode-once`
-- `cartociudad-debug`
-- `cartociudad-find-fallback`
-- `cartociudad-geocode-once`
-- `cartociudad-locate-debug`
-- `claim-submit`
-- `location-geocode-once`
-- `menu-image-once`
-- `mobility-resolve`
-- `publish-offer`
+- **19 / 19 active slugs have source paths in the candidate**;
+- **10 recovered exactly** from connected Supabase live state with file SHA-256, live version, `verify_jwt` and `ezbr_sha256` evidence;
+- **9 repo desired-state ahead** of current Production and therefore intentionally preserved instead of being downgraded to older live source;
+- **0 unaccounted**.
 
-This does **not** mean source is irretrievable: the live functions can be inspected through Supabase. It means acquired-state/source-control parity is not yet proven and must remain visible in G1/DD. The region policy covers these slugs at invocation time, but it does not close their source-reconciliation gate.
+The authoritative evidence is:
+
+- `docs/investor-ready/g1-edge-live-source-manifest-2026-08-19.json`;
+- `docs/investor-ready/g1-edge-full-live-reconciliation-2026-08-19.json`;
+- `scripts/investor-ready/check-g1-edge-source-parity.mjs`;
+- `scripts/investor-ready/check-g1-edge-full-reconciliation.mjs`.
+
+This closes the **source accounting gap**, but does not claim Production equals the repository desired state. Nine functions remain a controlled deployment-drift class until a separately approved deployment equalizes Production from the final survivor.
 
 ## CI / regression
 
-`scripts/investor-ready/rt008-edge-region-static-check.mjs` verifies:
+`scripts/investor-ready/rt008-edge-region-static-check.mjs` now supports both evidence states without weakening either:
 
-- exact 19-function policy snapshot;
-- all functions pinned to `eu-central-1`;
-- unknown-function fail-closed behavior;
-- public/admin script load order;
-- PWA caching;
-- source-tracked function classification;
-- explicit disclosure of the ten live/source gaps;
-- direct `/functions/v1/` runtime calls cannot omit regional routing;
-- non-browser scripts cannot use `.functions.invoke()` without an explicit region.
+- if full G1 reconciliation evidence is absent, the historic ten-path gap must still be enumerated exactly;
+- if full G1 reconciliation evidence is present, it must prove 10 exact + 9 repo-ahead + 0 unaccounted and the source-path gap must be empty;
+- all 19 functions must remain classified and pinned;
+- public/admin script load order and PWA caching must remain correct;
+- direct Edge URLs and non-browser invocation paths may not silently bypass the regional policy.
 
-`tests/edge-region-policy-2.48.spec.js` verifies the policy in both public and admin browser shells.
-
-## Official technical basis
-
-- Supabase Regional Invocations: https://supabase.com/docs/guides/functions/regional-invocation
-- Supabase Functions architecture: https://supabase.com/docs/guides/functions/architecture
-- Supabase project regions: https://supabase.com/docs/guides/platform/regions
-- Supabase JS invoke reference: https://supabase.com/docs/reference/javascript/functions-invoke
+`tests/edge-region-policy-2.48.spec.js` verifies both shell installation and the actual wrapped invocation path.
 
 ## Explicit non-claims / release boundary
 
 This candidate does **not** claim:
 
 - that all Supabase subprocessors/onward processing are Frankfurt-only;
-- that `eu-central-1` alone satisfies GDPR transfer requirements;
-- that the ten live/source gaps are reconciled;
-- that Production has been redeployed;
-- that PR #127 has been reconciled/merged;
-- that investor/business outreach is released.
+- that `eu-central-1` alone satisfies GDPR international-transfer requirements;
+- that Production has been redeployed to the repository desired state;
+- final GDPR/DSGVO compliance;
+- investor/business outreach release.
 
-No Production Edge Function deployment, database DDL/DML, account migration, analytics activation or outreach is authorized by this policy candidate.
+No Production Edge Function deployment, database DDL/DML, analytics activation, retention purge, account migration or outreach is authorized by this policy candidate.
