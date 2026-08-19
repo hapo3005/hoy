@@ -1,0 +1,73 @@
+name: RT-001 Isolated PostgreSQL 17 Proof
+
+on:
+  pull_request:
+    paths:
+      - 'tests/fixtures/rt001-postgres17-production-baseline.sql'
+      - 'scripts/investor-ready/rt001-isolated-negative-tests.sh'
+      - 'docs/investor-ready/rt001-isolated-postgres-proof-v1.json'
+      - 'scripts/investor-ready/check-rt001-isolated-proof-contract.mjs'
+      - 'supabase/release/rt001-security-hardening-current-97.sql'
+      - 'supabase/release/rt001-security-hardening-current-97-audit.sql'
+      - '.github/workflows/rt001-isolated-postgres-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-postgres-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17.6
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGDATABASE: postgres
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+      - name: Validate isolated-proof claim boundary
+        run: node scripts/investor-ready/check-rt001-isolated-proof-contract.mjs
+      - name: Verify PostgreSQL client and exact server version
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v psql
+          psql --version
+          test "$(psql -X -qAt -c 'show server_version_num')" = '170006'
+      - name: Build production-shaped isolated baseline
+        run: psql -X -v ON_ERROR_STOP=1 -f tests/fixtures/rt001-postgres17-production-baseline.sql
+      - name: Execute exact RT-001 candidate on isolated PostgreSQL 17.6
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/release/rt001-security-hardening-current-97.sql
+      - name: Run paired read-only audit
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/release/rt001-security-hardening-current-97-audit.sql | tee rt001-isolated-audit.txt
+      - name: Run authorization IDOR and analytics negative tests
+        run: bash scripts/investor-ready/rt001-isolated-negative-tests.sh
+      - name: Re-prove exact hardened search paths and grants
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(psql -X -qAt -c "select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where ((n.nspname='public' and p.proname in ('log_analytics_event','get_operator_workspace','get_venue_media_review','operator_archive_offer','operator_publish_offer','operator_request_upgrade','operator_submit_profile_change','review_venue_media_candidates')) or (n.nspname='private' and p.proname in ('is_hoy_admin','is_restaurant_member'))) and exists(select 1 from unnest(coalesce(p.proconfig,'{}'::text[])) cfg where cfg='search_path=pg_catalog, public, pg_temp');")" = '10'
+          test "$(psql -X -qAt -c "select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname='log_analytics_event' and not has_function_privilege('authenticated',p.oid,'EXECUTE') and not has_function_privilege('anon',p.oid,'EXECUTE') and not has_function_privilege('public',p.oid,'EXECUTE');")" = '1'
+      - name: Emit audit digest
+        run: sha256sum rt001-isolated-audit.txt

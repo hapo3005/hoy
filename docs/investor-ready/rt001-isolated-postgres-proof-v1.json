@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "role": "RT001_ISOLATED_POSTGRES_EXECUTION_PROOF",
+  "parentCandidate": {
+    "pr": 140,
+    "head": "484d5ff29fd37b72e2502ea6e1bb45f79b52a9ac"
+  },
+  "engine": {
+    "productionObservedServerVersion": "17.6",
+    "isolatedCiImage": "postgres:17.6",
+    "fixtureFunctionSource": "READ_ONLY_PRODUCTION_PG_GET_FUNCTIONDEF_CAPTURE",
+    "candidateMd5PreflightMustPass": true
+  },
+  "plannedEvidence": {
+    "candidateSqlExecutionOnIsolatedDb": true,
+    "pairedReadOnlyAudit": true,
+    "unauthenticatedNegative": true,
+    "foreignRestaurantWorkspaceNegative": true,
+    "foreignRestaurantMediaNegative": true,
+    "foreignRestaurantProfileWriteNegative": true,
+    "foreignRestaurantUpgradeNegative": true,
+    "foreignRestaurantMediaDecisionNegative": true,
+    "ownTenantPositive": true,
+    "analyticsExecuteRevokedAfter": true,
+    "analyticsDirectCallDenied": true,
+    "analyticsRowsRemainZero": true
+  },
+  "claimBoundary": {
+    "productionMutationPerformed": false,
+    "productionApplyAuthorized": false,
+    "paidSupabaseBranchCreated": false,
+    "paidInfrastructureUsed": false,
+    "securityAdvisorBeforeAfterClaimed": false,
+    "securityAdvisorStillRequiredSeparately": true,
+    "canonicalProductionMigrationCreated": false,
+    "rt001Closed": false,
+    "contactFreezeChanged": false,
+    "outreachAuthorized": false
+  }
+}
