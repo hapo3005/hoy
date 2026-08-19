@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const selfRel = 'scripts/check-no-critical-secrets.mjs';
-const skipDirs = new Set(['.git','node_modules','playwright-report','test-results','dist-public','.tmp-public-runtime-qa']);
+const skipDirs = new Set(['.git','node_modules','playwright-report','test-results','dist-public','.tmp-public-runtime-qa','.tmp-public-runtime-qa-a','.tmp-public-runtime-qa-b']);
 const textExt = new Set(['.js','.mjs','.ts','.json','.yml','.yaml','.md','.sql','.html','.css','.txt','.toml','.env','.webmanifest']);
 const patterns = [
   ['private key', /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/],
