@@ -1,0 +1,27 @@
+name: G1 Edge Live Source Parity
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+      - 'docs/investor-ready/g1-edge-live-source-manifest-2026-08-19.json'
+      - 'docs/investor-ready/g1-edge-source-parity-2026-08-19.md'
+      - 'scripts/investor-ready/check-g1-edge-source-parity.mjs'
+      - '.github/workflows/g1-edge-source-parity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - name: Verify acquired-state Edge source parity
+        run: node scripts/investor-ready/check-g1-edge-source-parity.mjs
