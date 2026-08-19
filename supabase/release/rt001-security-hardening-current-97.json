@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "status": "CANDIDATE_NOT_APPLIED",
+  "selectedIntegrationHead": "cceb87e757fe9ec95e61cc8be734ed978c927c63",
+  "predecessor": {
+    "pr": 125,
+    "headSha": "1eda21e366a2b82a5ade8ef8fe314204152cdd95",
+    "exactHeadQa": "FINAL_CRITICAL_BROWSER_GREEN",
+    "supersededReason": "Production migration baseline advanced from 95/20260818210527 to 97/20260819031220."
+  },
+  "productionReadOnlySnapshot": {
+    "registeredMigrations": 97,
+    "latestMigration": "20260819031220",
+    "recentMigrations": [
+      {"version": "20260819014248", "name": "add_private_dd_transferability_exports"},
+      {"version": "20260819031220", "name": "rt008_private_dsar_retention_controls"}
+    ],
+    "untrustedSchemaCreatePrivileges": 0,
+    "analyticsExecute": {"public": false, "anon": false, "authenticated": false}
+  },
+  "design": {
+    "functionBodyRewrite": false,
+    "targetCount": 10,
+    "searchPath": "pg_catalog, public, pg_temp",
+    "grantPolicy": "PUBLIC and anon revoked on all ten targets; authenticated retained only on the nine existing operator/helper APIs; analytics remains revoked for authenticated too.",
+    "analyticsReactivation": false,
+    "productionMutationPerformed": false,
+    "canonicalMigrationCreated": false
+  },
+  "baselineDefinitionMd5": {
+    "private.is_hoy_admin()": "8a761b6b1cce3ef95c6437ea3f9d1791",
+    "private.is_restaurant_member(rid bigint)": "b88fe6c0b3e4c1649cf01308ae02e9cf",
+    "public.get_operator_workspace(p_restaurant_id bigint)": "d3b4ba7e68da2cba9237bb9ddec728f4",
+    "public.get_venue_media_review(p_restaurant_id bigint)": "531feb9e676856f4641e9f9d300c53d0",
+    "public.log_analytics_event(p_event_type text, p_restaurant_id bigint, p_anonymous_id uuid, p_session_id uuid, p_metadata jsonb)": "1e30e78048ad15842ab8600716666fce",
+    "public.operator_archive_offer(p_offer_id uuid)": "07737aa7c1a1796d87f3670b92282ff5",
+    "public.operator_publish_offer(p_offer_id uuid)": "837323f2ae650b5f989910735f624423",
+    "public.operator_request_upgrade(p_restaurant_id bigint, p_plan plan_code, p_note text)": "79007c943a05e7acfb8c285aa7084339",
+    "public.operator_submit_profile_change(p_restaurant_id bigint, p_changes jsonb, p_note text)": "1ec27d1a85a22834d71355049570db37",
+    "public.review_venue_media_candidates(p_restaurant_id bigint, p_approved_ids bigint[], p_rejected_ids bigint[], p_replace_ids bigint[])": "614677fc24069b77ce415d2926a5a672"
+  },
+  "requiredIsolatedEvidence": {
+    "candidateSqlExecution": "NOT_RUN",
+    "readOnlyAudit": "NOT_RUN",
+    "authorizationIdorNegativeTests": "NOT_RUN",
+    "securityAdvisorBefore": "RECAPTURE_REQUIRED_ON_ISOLATED_BASE",
+    "securityAdvisorAfter": "NOT_RUN",
+    "analyticsExecuteRevocationAfter": "NOT_RUN"
+  },
+  "closeRules": {
+    "rt001Closed": false,
+    "productionApplyAuthorized": false,
+    "privacyGateMayBeWeakened": false,
+    "outreachAuthorized": false
+  }
+}
