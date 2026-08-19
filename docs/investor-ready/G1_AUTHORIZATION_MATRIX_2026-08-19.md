@@ -28,6 +28,11 @@ Project ref: `dqfouwyclvmpkunmxkun`
 Security Advisor: 0 findings.
 All seven active Edge Functions currently have metadata `verify_jwt=false`, but the live code uses `withSupabase({ auth: 'user' })`, so authentication is enforced by the Supabase server wrapper rather than the Edge gateway flag alone.
 
+Live identity/request baseline on 19.08.2026:
+- `auth.users`: 0
+- `provider_members`: 0
+- `work_requests`: 0
+
 ## Gastro privileged RPC matrix
 
 | RPC | Entry role | Internal authorization | Cross-tenant / IDOR guard | Residual note |
@@ -92,6 +97,8 @@ Therefore the controlled positive-path test remains pending until a legitimate t
 
 These policies are security-critical because several Works Edge Functions deliberately use a user-scoped client first, then use `supabaseAdmin` only after that boundary succeeds.
 
+Because Production currently has zero auth users, provider memberships and work requests, positive/cross-provider HTTP tests cannot be executed honestly without first creating deliberate test identities and fixtures. HOY does not create fake Production users merely to manufacture a green security check.
+
 ## Current assessment
 
 ### Gastro
@@ -109,7 +116,7 @@ Residual technical actions before calling this fully GREEN:
 `AMBER-GREEN`
 
 Strong code + RLS evidence exists. Residual technical actions:
-1. positive-path controlled authenticated tests;
+1. positive-path controlled authenticated tests after deliberate test identities exist;
 2. explicit cross-provider negative tests using two controlled identities;
 3. preserve/lock RLS policies that are load-bearing for `ctx.supabase` authorization;
 4. document why each `verify_jwt=false` function uses wrapper-level user auth, or migrate to gateway JWT verification only if compatibility is proven.
