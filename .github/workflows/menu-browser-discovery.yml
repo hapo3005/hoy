@@ -40,8 +40,11 @@ jobs:
           cache: npm
       - name: Install locked browser dependencies
         run: npm ci --ignore-scripts
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install Chromium with resilient dependency setup
+        env:
+          PLAYWRIGHT_INSTALL_ATTEMPTS: '3'
+          PLAYWRIGHT_INSTALL_TIMEOUT: 8m
+        run: bash scripts/install-playwright-browser-resilient.sh chromium
       - name: Resolve scope
         id: config
         shell: bash
