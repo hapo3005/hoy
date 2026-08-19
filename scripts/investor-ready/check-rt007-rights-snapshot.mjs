@@ -2,8 +2,13 @@ import fs from 'node:fs';
 
 const path='docs/investor-ready/rt007-live-rights-snapshot-2026-08-19.json';
 const historicalPath='docs/investor-ready/rt007-live-rights-snapshot-2026-08-18.json';
+const buyerPath='docs/investor-ready/rt007-buyer-safe-export-snapshot-2026-08-19.json';
+const buyerSqlPath='scripts/investor-ready/rt007-buyer-safe-export.sql';
 const x=JSON.parse(fs.readFileSync(path,'utf8'));
 const historical=JSON.parse(fs.readFileSync(historicalPath,'utf8'));
+const buyer=JSON.parse(fs.readFileSync(buyerPath,'utf8'));
+const buyerSql=fs.readFileSync(buyerSqlPath,'utf8');
+const buyerExecutableSql=buyerSql.replace(/--[^\n]*/g,' ');
 const fail=[];
 const assert=(ok,msg)=>{if(!ok)fail.push(msg)};
 
@@ -68,6 +73,60 @@ assert(firstParty.factual_verification_allowed===true,'first-party factual verif
 assert(firstParty.transferability==='UNKNOWN','first-party references must not be promoted to transfer-clear without business terms');
 assert(firstParty.legal_review_status==='BUSINESS_TERMS_REQUIRED','business terms gate must remain visible');
 
+// Buyer-safe export contract: fail closed against whole-profile overclaims or archive omission.
+assert(buyer.schemaVersion==='1.0.0','buyer-safe snapshot schema drift');
+assert(buyer.status==='READ_ONLY_BUYER_DD_SNAPSHOT','buyer-safe snapshot must remain read-only DD evidence');
+assert(buyer.productionMutationPerformed===false,'buyer-safe snapshot must not claim a production mutation');
+assert(buyer.restaurantPopulation?.published===166,'buyer-safe published restaurant count drifted');
+assert(buyer.restaurantPopulation?.unpublished===3,'buyer-safe unpublished restaurant count drifted');
+assert(buyer.restaurantPopulation?.total===169,'buyer-safe restaurant total drifted');
+assert(buyer.hardDirectReferences?.all===hard,'buyer-safe hard-ref total must reconcile to canonical RT-007 hard queue');
+assert(buyer.hardDirectReferences?.published===324,'buyer-safe published hard refs must remain 324 on this snapshot');
+assert(buyer.hardDirectReferences?.unpublished===5,'buyer-safe unpublished hard refs must remain 5 on this snapshot');
+assert((buyer.hardDirectReferences?.published||0)+(buyer.hardDirectReferences?.unpublished||0)===buyer.hardDirectReferences?.all,'buyer-safe published + archived hard refs must reconcile');
+
+const buyerBuckets=Object.fromEntries((buyer.restaurantBuyerBuckets||[]).map(v=>[v.bucket,v]));
+assert(buyerBuckets.PUBLISHED_WITH_HARD_RESTRICTED_DEPENDENCY?.restaurants===146,'buyer-safe hard-dependent restaurant count drifted');
+assert(buyerBuckets.PUBLISHED_WITH_HARD_RESTRICTED_DEPENDENCY?.hardRestrictedReferences===324,'buyer-safe active hard-ref count drifted');
+assert(buyerBuckets.PUBLISHED_CONDITIONAL_NOT_TRANSFER_CLEAR?.restaurants===18,'buyer-safe conditional restaurant count drifted');
+assert(buyerBuckets.PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW?.restaurants===2,'buyer-safe provenance-ref-clear restaurant count drifted');
+assert(buyerBuckets.ARCHIVED_UNPUBLISHED_CARVEOUT?.restaurants===3,'buyer-safe archived restaurant count drifted');
+assert(buyerBuckets.ARCHIVED_UNPUBLISHED_CARVEOUT?.hardRestrictedReferences===5,'buyer-safe archived hard refs must remain visible');
+
+const publishedBuyerRestaurants=(buyerBuckets.PUBLISHED_WITH_HARD_RESTRICTED_DEPENDENCY?.restaurants||0)
+  +(buyerBuckets.PUBLISHED_CONDITIONAL_NOT_TRANSFER_CLEAR?.restaurants||0)
+  +(buyerBuckets.PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW?.restaurants||0);
+assert(publishedBuyerRestaurants===buyer.restaurantPopulation.published,'buyer-safe published bucket reconciliation failed');
+
+const clearExamples=buyer.publishedProvenanceReferenceExamples||[];
+assert(clearExamples.length===2,'buyer-safe source-ref-clear examples must remain exactly two on this snapshot');
+assert(clearExamples.every(v=>v.qualification?.includes('not a whole-profile')),'source-ref-clear examples must carry whole-profile non-clearance qualification');
+assert(buyer.buyerExportRules?.greenSourceMeansWholeProfileClean===false,'GREEN source must never imply whole-profile clearance');
+assert(buyer.buyerExportRules?.provenanceRefsTransferableMeansWholeProfileClean===false,'source-ref transferability must never imply whole-profile clearance');
+assert(buyer.buyerExportRules?.amberMeansTransferClear===false,'AMBER must never become transfer-clear by default');
+assert(buyer.buyerExportRules?.personalOrUserEventDataIncluded===false,'buyer-safe RT-007 export must exclude personal/user-event data');
+assert(buyer.buyerExportRules?.privacyGate==='RT-008','personal/user-event data must remain under RT-008');
+
+const archived=buyer.unpublishedHardReferenceCarveout||[];
+assert(archived.length===5,'buyer-safe archive carve-out must retain all five current unpublished hard refs');
+assert(archived.every(v=>v.replacementRequired===true),'every archived hard ref must remain replacement-required');
+assert(archived.filter(v=>v.restaurantId===19).length===3,'El Pez Rojo must retain three archived hard refs');
+assert(archived.filter(v=>v.restaurantId===202).length===1,'Pescados Cabo de Palos I must retain one unpublished location hard ref');
+assert(archived.filter(v=>v.restaurantId===240).length===1,'Alt Frankfurt must retain one unpublished hard ref');
+
+assert(buyer.gate?.buyerSafeExportContract==='PREPARED_NOT_EXECUTED','buyer-safe export must not claim execution');
+assert(buyer.gate?.rt007Overall==='IN_PROGRESS','buyer-safe export must not close RT-007');
+assert(buyer.gate?.productionExportAuthorized===false,'buyer-safe export must not authorize production export');
+assert(buyer.gate?.dataCommercializationAuthorized===false,'buyer-safe export must not authorize commercialization');
+
+assert(buyerSql.includes('ARCHIVED_UNPUBLISHED_CARVEOUT'),'buyer-safe SQL must segregate archived/unpublished rows');
+assert(buyerSql.includes('PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW'),'buyer-safe SQL must expose source-ref-only transfer bucket');
+assert(buyerSql.includes('SOURCE_REFERENCES_ONLY_NOT_WHOLE_PROFILE_CLEARANCE'),'buyer-safe SQL must make whole-profile non-clearance explicit');
+assert(buyerSql.includes('false as whole_profile_clearance_claimed'),'buyer-safe SQL must explicitly deny whole-profile clearance');
+assert(buyerSql.includes('false as personal_or_user_event_data_included'),'buyer-safe SQL must explicitly exclude personal/user-event data');
+assert(buyerSql.includes('PASS_2026_08_19_BUYER_SAFE_SNAPSHOT'),'buyer-safe SQL must expose drift-aware snapshot reconciliation');
+assert(!/\b(insert|update|delete|merge|create|alter|drop|truncate|grant|revoke|commit|rollback)\b/i.test(buyerExecutableSql),'buyer-safe SQL must remain SELECT-only');
+
 const summary={
   schema_version:x.schema_version,
   observed_at:x.observed_at,
@@ -81,6 +140,15 @@ const summary={
   active_business_terms:activeTerms,
   business_terms_acceptances:acceptances,
   business_data_confirmations:confirmations,
+  buyer_safe_export:{
+    published_restaurants:buyer.restaurantPopulation?.published,
+    published_with_hard_dependency:buyerBuckets.PUBLISHED_WITH_HARD_RESTRICTED_DEPENDENCY?.restaurants,
+    published_conditional:buyerBuckets.PUBLISHED_CONDITIONAL_NOT_TRANSFER_CLEAR?.restaurants,
+    source_ref_clear_only:buyerBuckets.PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW?.restaurants,
+    archived_restaurants:buyerBuckets.ARCHIVED_UNPUBLISHED_CARVEOUT?.restaurants,
+    published_hard_refs:buyer.hardDirectReferences?.published,
+    archived_hard_refs:buyer.hardDirectReferences?.unpublished
+  },
   blockers,
   status:fail.length?'FAIL':'PASS_FAIL_CLOSED'
 };
