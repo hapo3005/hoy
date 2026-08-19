@@ -12,6 +12,15 @@ test('production analytics require explicit consent before identifiers or local 
   expect(source).toMatch(/trackEvent=function[\s\S]*?analyticsStorageAllowed\(\)[\s\S]*?buildPayload/);
 });
 
+test('pilot attribution is not persisted without analytics storage permission', async () => {
+  expect(source).toMatch(/const storageAllowed=analyticsStorageAllowed\(\)/);
+  expect(source).toMatch(/const stored=storageAllowed\?pilotCode\(localStorage\.getItem\(PILOT_KEY\)\):null/);
+  expect(source).toMatch(/if\(incoming&&storageAllowed\)[\s\S]*?localStorage\.setItem\(PILOT_KEY,incoming\)/);
+  expect(source).toMatch(/return storageAllowed\?\(selected\|\|incoming\|\|null\):null/);
+  expect(source).toMatch(/schedulePilotEnrollment\(code,attempt=0\)[\s\S]*?if\(!code\|\|!analyticsStorageAllowed\(\)/);
+  expect(source).toMatch(/if\(hasPilotParam\)[\s\S]*?params\.delete\('pilot'\)/);
+});
+
 test('deny or withdrawal clears analytics identifiers and history', async () => {
   expect(source).toMatch(/deny:\(\)=>[\s\S]*?clearAnalyticsIdentifiers\(\)/);
   expect(source).toMatch(/withdraw:\(\)=>[\s\S]*?clearAnalyticsIdentifiers\(\)/);
