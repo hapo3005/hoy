@@ -20,7 +20,7 @@ test('live verified Family data takes precedence over the audited research previ
     liveIds:DATA.filter(p=>window.hoyFamilyPlaygrounds240.hasPlay(window.hoyFamilyPlaygrounds240.familyFor(p))).map(p=>Number(p.id)),
     locked:window.hoyFamilyResearchStandard241.state.lockedCount
   }));
-  expect(initial.ready).toBe(17);
+  expect(initial.ready).toBe(19);
   expect(initial.existing).toBe(0);
   expect(initial.virtual).toBe(0);
   expect(initial.mode).toBe('live');
@@ -55,8 +55,8 @@ test('audited research inventory keeps unknown Family geometry unknown while rem
       injected:DATA.some(x=>x.family_features?.__family240_audited===true||x.__family240_preview_profile===true)
     };
   });
-  expect(facts.total).toBe(17);
-  expect(facts.unknownDistance).toBe(17);
+  expect(facts.total).toBe(19);
+  expect(facts.unknownDistance).toBe(19);
   expect(facts.visibleTrue).toBeGreaterThanOrEqual(1);
   expect(facts.visibleUnknown).toBeGreaterThan(0);
   expect(facts.inventedHoy).toBe(false);
