@@ -1,0 +1,243 @@
+{
+  "schemaVersion": "1.1.0",
+  "snapshotDate": "2026-08-19",
+  "overallStatus": "IN_PROGRESS",
+  "rules": {
+    "exactHeadEvidenceRequired": true,
+    "historicalGreenDoesNotProveLaterHead": true,
+    "databaseBranchPresenceDoesNotProveLiveState": true,
+    "technicalGreenDoesNotCloseExecutionOrLegalGate": true,
+    "productionLegalTaxOutreachRemainIndependent": true
+  },
+  "canonical": {
+    "rt006TechnicalDdPr": 116,
+    "corporateIpPr": 104,
+    "securityHistoricalPr": 103,
+    "securityCurrentStatePr": 124,
+    "securityHardeningCandidatePr": 125,
+    "dataRightsPr": 106,
+    "trademarkBrandPr": 108,
+    "platformTransferPr": 115,
+    "g1MasterPr": 117,
+    "rt005CandidatePr": 119,
+    "privacyCandidatePr": 120,
+    "ir02ePublicRuntimeCandidatePr": 121,
+    "ir02cTermsCandidatePr": 122,
+    "ipExecutionHarvestPr": 123,
+    "privacyFinalPr": null,
+    "rt005FinalPr": null,
+    "ir02cTermsFinalPr": null,
+    "ir02ePublicRuntimeFinalPr": null,
+    "securityFinalPr": null
+  },
+  "dispositions": [
+    {
+      "pr": 102,
+      "disposition": "REFERENCE_HARVEST_ONLY",
+      "mergeWhole": false,
+      "reason": "Broad historical umbrella diverged from current main; unique assets are harvested into focused current-main survivors."
+    },
+    {
+      "pr": 103,
+      "disposition": "REFERENCE_SECURITY_SUPERSEDED",
+      "mergeWhole": false,
+      "reason": "Historical hardening source only. Direct apply is blocked because it would re-grant analytics EXECUTE after the later privacy gate. PR 124 is the current-state authority and PR 125 is the current hardening candidate."
+    },
+    {
+      "pr": 104,
+      "disposition": "KEEP_FOCUSED_RECONCILE",
+      "mergeWhole": false,
+      "reason": "Focused corporate/IP candidate and contributor-census authority; founder execution drafts are preserved separately in PR 123."
+    },
+    {
+      "pr": 105,
+      "disposition": "SPLIT_RT005_ONLY",
+      "mergeWhole": false,
+      "reason": "RT-006 workflow/lockfile/audit surface is superseded for final integration by PR 116; clean RT-005-only candidate is PR 119."
+    },
+    {
+      "pr": 106,
+      "disposition": "KEEP_FOCUSED_RECONCILE",
+      "mergeWhole": false,
+      "reason": "Canonical RT-007/Data Rights path; live snapshot is current but unresolved provenance rights remain a separate closing queue."
+    },
+    {
+      "pr": 107,
+      "disposition": "COMPOSE_PRIVACY_SURVIVOR",
+      "mergeWhole": false,
+      "reason": "Provides stronger production-storage boundaries and broader RT-008 history; runtime composition is now embodied in PR 120."
+    },
+    {
+      "pr": 108,
+      "disposition": "KEEP_FOCUSED_RECONCILE",
+      "mergeWhole": false,
+      "reason": "Focused trademark/brand DD architecture; official registry evidence and legal clearance remain independent."
+    },
+    {
+      "pr": 109,
+      "disposition": "HARVEST_PRIVACY_API_TESTS",
+      "mergeWhole": false,
+      "reason": "Grant/deny/withdraw/clear behavior and regression intent were composed into privacy candidate PR 120."
+    },
+    {
+      "pr": 115,
+      "disposition": "CANONICAL_PLATFORM_SURVIVOR",
+      "mergeWhole": false,
+      "reason": "Platform Core/transfer path is exact-head green across Gastro, Lifestyle and Works for the documented candidate state; final integrated-state retest still required."
+    },
+    {
+      "pr": 116,
+      "disposition": "CANONICAL_RT006_SURVIVOR",
+      "mergeWhole": false,
+      "reason": "Clean current-main RT-006 technical-DD candidate; acquired-state regeneration still belongs to final integration."
+    },
+    {
+      "pr": 117,
+      "disposition": "G1_CONTROL_PLANE",
+      "mergeWhole": false,
+      "reason": "Tracks canonical survivors and closing status; does not replace subject-matter gates."
+    },
+    {
+      "pr": 119,
+      "disposition": "RT005_CLEAN_CANDIDATE",
+      "mergeWhole": false,
+      "reason": "Current-main RT-005-only split; secret-history and standard exact-head QA are green while organizational control/recovery remains open."
+    },
+    {
+      "pr": 120,
+      "disposition": "PRIVACY_COMPOSITION_CANDIDATE",
+      "mergeWhole": false,
+      "reason": "Current-main analytics privacy composition of PR 107 controls and PR 109 consent lifecycle; exact-head technical QA is green while wider RT-008 legal/operating/Production gates remain open."
+    },
+    {
+      "pr": 121,
+      "disposition": "IR02E_CLEAN_CANDIDATE",
+      "mergeWhole": false,
+      "reason": "Deterministic public-runtime boundary is exact-head technically green; live deploy-only cutover and company source control remain open."
+    },
+    {
+      "pr": 122,
+      "disposition": "IR02C_CLEAN_CANDIDATE",
+      "mergeWhole": false,
+      "reason": "Repo/evidence restoration of already-applied Terms migrations is exact-head technically green; Terms remain draft with zero acceptances/confirmations."
+    },
+    {
+      "pr": 123,
+      "disposition": "IP_EXECUTION_HARVEST_CANDIDATE",
+      "mergeWhole": false,
+      "reason": "Founder-IP execution-draft harvest is exact-head technically green; actual founder-to-company rights execution remains pending."
+    },
+    {
+      "pr": 124,
+      "disposition": "SECURITY_CURRENT_STATE_AUTHORITY",
+      "mergeWhole": false,
+      "reason": "Read-only 95-migration Production reconciliation is exact-head green and is the authority for the current security/migration baseline."
+    },
+    {
+      "pr": 125,
+      "disposition": "RT001_HARDENING_CANDIDATE",
+      "mergeWhole": false,
+      "reason": "Body-preserving SECURITY DEFINER hardening candidate built on PR 124; Production apply is forbidden until isolated execution, IDOR/BOLA tests, Advisor reconciliation and analytics-revocation proof are complete."
+    }
+  ],
+  "materialOverlaps": [
+    {
+      "id": "OV-105-116",
+      "prs": [105, 116, 119],
+      "paths": [
+        ".github/workflows/browser-qa.yml",
+        ".github/workflows/menu-browser-discovery.yml",
+        ".github/workflows/menu-delivery-gate.yml",
+        ".github/workflows/menu-eval.yml",
+        ".github/workflows/menu-image-publish.yml",
+        ".github/workflows/menu-pdf-render.yml",
+        ".github/workflows/pr-browser-qa.yml",
+        ".github/workflows/pr-critical-qa.yml",
+        ".github/workflows/pr-final-release-qa.yml",
+        "package-lock.json",
+        "docs/investor-ready/rt006-ai-asset-register.md",
+        "scripts/investor-ready/audit-third-party-deps.mjs",
+        "scripts/investor-ready/check-github-actions-pins.mjs"
+      ],
+      "resolution": "PR 116 is canonical for RT-006. PR 119 is the clean RT-005-only successor from unique PR 105 material."
+    },
+    {
+      "id": "OV-107-109",
+      "prs": [107, 109, 120],
+      "paths": ["analytics-rpc-1.8.1.js"],
+      "resolution": "PR 120 is the one current-main privacy composition survivor for the conflicting runtime path; final RT-008 closure still depends on wider governance/legal/Production evidence."
+    },
+    {
+      "id": "OV-103-124-125",
+      "prs": [103, 124, 125],
+      "paths": ["SECURITY DEFINER hardening", "migration-state evidence", "log_analytics_event EXECUTE surface"],
+      "resolution": "PR 103 is historical reference only. PR 124 owns current-state evidence. PR 125 is the only current hardening candidate and must preserve the later analytics EXECUTE revocation."
+    },
+    {
+      "id": "OV-102-FOCUSED",
+      "prs": [102, 104, 106, 115, 120, 121, 122, 123, 124, 125],
+      "paths": ["multiple historical governance/runtime/migration/package surfaces"],
+      "resolution": "Never merge PR 102 wholesale. Public Runtime, Terms, Founder-IP execution, Privacy and Security now have focused current-main candidates/authorities; subject gates still own their legal/executed-state closure."
+    }
+  ],
+  "requiredSuccessors": [
+    {
+      "id": "SC-RT005",
+      "status": "IN_PROGRESS",
+      "candidatePr": 119,
+      "technicalQa": "GREEN",
+      "purpose": "Clean current-main RT-005-only candidate from unique PR 105 assets.",
+      "qualification": "Secret-history and exact-head technical QA are green; company account/control/recovery execution remains open."
+    },
+    {
+      "id": "SC-PRIVACY",
+      "status": "IN_PROGRESS",
+      "candidatePr": 120,
+      "technicalQa": "GREEN",
+      "purpose": "One composed current-main RT-008 analytics privacy runtime from PR 107 + PR 109.",
+      "qualification": "Runtime QA is green; consent UX/legal/retention/vendor/DSAR/breach/Production and broader GDPR review remain open."
+    },
+    {
+      "id": "SC-IR02C",
+      "status": "IN_PROGRESS",
+      "candidatePr": 122,
+      "technicalQa": "GREEN",
+      "purpose": "Focused current-main Business Terms / Business Confirmation repo/evidence candidate.",
+      "qualification": "Repo reconciliation QA is green; Terms remain draft with zero acceptances/confirmations and legal/activation gates open."
+    },
+    {
+      "id": "SC-IR02E",
+      "status": "IN_PROGRESS",
+      "candidatePr": 121,
+      "technicalQa": "GREEN",
+      "purpose": "Focused current-main public-runtime / proprietary-source boundary candidate.",
+      "qualification": "Deterministic packaging QA is green; live deploy-only cutover and company source control remain open."
+    },
+    {
+      "id": "SC-IP-HARVEST",
+      "status": "IN_PROGRESS",
+      "candidatePr": 123,
+      "technicalQa": "GREEN",
+      "purpose": "Preserve and reconcile founder IP schedules/assignment material into RT-003/004 final path.",
+      "qualification": "Execution-draft harvest QA is green; founder-to-company rights execution is not complete."
+    },
+    {
+      "id": "SC-RT001",
+      "status": "IN_PROGRESS",
+      "candidatePr": 125,
+      "technicalQa": "IN_PROGRESS",
+      "purpose": "Current-baseline SECURITY DEFINER hardening without function-body rewrite or analytics reactivation.",
+      "qualification": "PR 124 baseline is green. PR 125 still requires exact-head QA plus isolated execution, authorization/IDOR negative tests, Advisor reconciliation and post-apply privacy proof."
+    }
+  ],
+  "recommendedSequence": [
+    "keep G1 control plane and reconciliation exact-state aligned",
+    "retain RT-006 canonical technical supply-chain baseline",
+    "retain clean RT-005/privacy/terms/public-runtime/IP survivors",
+    "complete RT-001 candidate QA and isolated security evidence without Production apply",
+    "close non-code IP/control/data-rights/privacy/terms/brand conditions or explicitly carve them out",
+    "build one final integration candidate from selected survivors only",
+    "regenerate acquired-state evidence on that exact final state"
+  ],
+  "doneRule": "overallStatus may be DONE only when every requiredSuccessor is COMPLETE, each selected survivor is reconciled to the final integration base, non-code closing conditions are closed or explicitly carved out, and acquired-state exact-head/executed-state evidence has been regenerated."
+}
