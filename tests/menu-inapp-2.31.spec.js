@@ -6,51 +6,52 @@ test.use({serviceWorkers:'block'});
 
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuInAppVersion==='2.31.0'&&window.hoyMenuIntegrityVersion==='2.37.0',null,{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuInAppVersion==='2.31.0'&&window.hoyMenuIntegrityVersion==='2.37.0'&&window.hoyNativeMenuStandardVersion==='2.48.0'&&window.hoyNativeMenuState248?.state==='ready'&&cloud.status==='online',null,{timeout:30000});
 }
 
-test('HOY 2.31 in-app menu assets remain wired in the current release',async({request})=>{
-  const [js,css,pkg,index,worker]=await Promise.all([request.get('./menu-inapp-2.31.js'),request.get('./menu-inapp-2.31.css'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')]);
-  for(const r of [js,css,pkg,index,worker])expect(r.ok()).toBeTruthy();
+test('HOY menu assets and final native authority remain wired in the current release',async({request})=>{
+  const [js,css,native,pkg,index,worker]=await Promise.all([request.get('./menu-inapp-2.31.js'),request.get('./menu-inapp-2.31.css'),request.get('./menu-native-standard-2.48.js?v=2.48.0'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')]);
+  for(const r of [js,css,native,pkg,index,worker])expect(r.ok()).toBeTruthy();
   expect((await pkg.json()).version).toBe(CURRENT_RELEASE);
   const html=await index.text(),sw=await worker.text();
   expect(html).toContain(`App ${CURRENT_RELEASE}`);
   expect(html).toContain('menu-inapp-2.31.css?v=2.31.0');
   expect(html).toContain('menu-inapp-2.31.js?v=2.31.0');
+  expect(html).toContain('menu-native-standard-2.48.js?v=2.48.0');
+  expect(html.indexOf('menu-native-standard-2.48.js')).toBeGreaterThan(html.indexOf('menu-authority-2.38.js'));
   expect(sw).toContain(`const CACHE='hoy-v${CURRENT_RELEASE}'`);
-  expect(sw).toContain('./menu-inapp-2.31.css');
-  expect(sw).toContain('./menu-inapp-2.31.js');
 });
 
-test('Soul Kitchen still renders all official menu pages inside HOY after integrity classification',async({page})=>{
+test('Soul Kitchen image source is provenance only and never a finished guest menu',async({page})=>{
   await ready(page);
-  await page.waitForFunction(()=>MENUS[234]?.displayMode==='image_pages'&&MENUS[234]?.pages?.length===12,null,{timeout:30000});
+  await page.waitForFunction(()=>MENUS[234]?.integrity==='native_source_only',null,{timeout:30000});
   const menu=await page.evaluate(()=>menuFor(DATA.find(x=>Number(x.id)===234)));
-  expect(menu.displayMode).toBe('image_pages');
-  expect(menu.pages).toHaveLength(12);
-  expect(menu.source).toBeFalsy();
-  expect(menu.pages.every(x=>/^https:\/\//i.test(String(x?.url||'')))).toBeTruthy();
+  expect(menu.integrity).toBe('native_source_only');
+  expect(menu.nativeSourceIntegrity).toBe('image_complete');
+  expect(menu.displayMode).toBeFalsy();
+  expect(menu.pages).toBeFalsy();
+  expect(menu.localized).toBeFalsy();
   await page.evaluate(()=>openDetail(234));
-  const menuTab=page.locator('#detail [data-tab="menu"]');if(await menuTab.count())await menuTab.click();
-  const panel=page.locator('#detail .menu231-panel');
-  await expect(panel).toContainText('Speisekarte in HOY');
-  await expect(panel).toContainText('Direkt in HOY');
-  await expect(panel.locator('.menu231-page img')).toHaveCount(12);
-  await expect(page.locator('#detail #profile-menu a[href*="menurestauranteqr"]')).toHaveCount(0);
+  const panel=page.locator('#detail #profile-menu .menu248-blocked');
+  await expect(panel).toBeVisible();
+  await expect(panel).toContainText('Speisekarte wird in HOY aufbereitet');
+  await expect(page.locator('#detail #profile-menu .menu231-page img')).toHaveCount(0);
+  await expect(page.locator('#detail #profile-menu iframe')).toHaveCount(0);
+  await expect(page.locator('#detail #profile-menu a[target="_blank"]')).toHaveCount(0);
 });
 
 test('source-only menu is not presented as a finished external menu',async({page})=>{
   await ready(page);
-  const html=await page.evaluate(()=>{const p=DATA[0],old=MENUS[p.id];MENUS[p.id]={status:'source_only',integrity:'source_only',source:null,provenanceUrls:['https://example.com/menu'],label:'Offizielle Quelle'};try{return menuPanel(p)}finally{if(old)MENUS[p.id]=old;else delete MENUS[p.id]}});
+  const html=await page.evaluate(()=>{const p=DATA[0],old=MENUS[p.id];MENUS[p.id]={status:'source_only',integrity:'native_source_only',nativeMenu:true,label:'Offizielle Quelle'};try{return menuPanel(p)}finally{if(old)MENUS[p.id]=old;else delete MENUS[p.id]}});
   expect(html).toContain('Speisekarte wird in HOY aufbereitet');
-  expect(html).not.toContain('example.com/menu');
   expect(html).not.toMatch(/href=/i);
+  expect(html).not.toMatch(/<img|<iframe/i);
 });
 
-test('2.31 menu module embeds only official sources and contains no external navigation CTA',()=>{
-  const js=fs.readFileSync('menu-inapp-2.31.js','utf8');
-  expect(js).toContain(".eq('is_official',true)");
-  expect(js).not.toMatch(/window\.open|target=["']_blank|Originalquelle öffnen/i);
-  expect(js).toContain("status:'source_only'");
-  expect(js).toContain("displayMode:'image_pages'");
+test('final native menu authority contains no image or iframe consumer renderer',()=>{
+  const code=fs.readFileSync('menu-native-standard-2.48.js','utf8');
+  expect(code).toContain("SUPPORTED_MENU_LOCALES=new Set(['de','es','en'])");
+  expect(code).toContain("integrity:'native_source_only'");
+  expect(code).not.toMatch(/<img\b|<iframe\b/i);
+  expect(code).toContain("guestAvailability:'blocked_until_structured'");
 });

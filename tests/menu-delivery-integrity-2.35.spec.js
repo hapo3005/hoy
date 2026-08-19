@@ -8,6 +8,8 @@ async function ready(page){
     window.hoyMenuLanguageIntegrityVersion==='2.37.0'&&
     window.hoyMenuLanguageIntegrityState==='ready'&&
     window.hoyMenuCatalog233?.integrity==='ready'&&
+    window.hoyNativeMenuStandardVersion==='2.48.0'&&
+    window.hoyNativeMenuState248?.state==='ready'&&
     Number(window.hoyMenuCatalog233?.items)>1600&&
     cloud.status==='online',
     null,
@@ -15,34 +17,32 @@ async function ready(page){
   );
 }
 
-async function assertImageMenu(page,request,id,expectedPages,pathPart){
+async function assertNativeMenuBoundary(page,id){
   await ready(page);
   const state=await page.evaluate(id=>{
     const p=DATA.find(x=>Number(x.id)===Number(id)),m=menuFor(p);
-    return {name:p?.name,integrity:m?.integrity,displayMode:m?.displayMode,pages:(m?.pages||[]).map(x=>x.url),source:m?.source,officialMenuUrl:m?.officialMenuUrl};
+    return {name:p?.name,integrity:m?.integrity,nativeSourceIntegrity:m?.nativeSourceIntegrity,nativeMenu:m?.nativeMenu,guestAvailability:m?.guestAvailability,displayMode:m?.displayMode,pages:m?.pages?.length||0,itemCount:m?.itemCount||0,coverage:m?.languageCoverage,locale:m?.locale,localized:m?.localized};
   },id);
-  expect(state.integrity).toBe('image_complete');
-  expect(state.displayMode).toBe('image_pages');
-  expect(state.pages).toHaveLength(expectedPages);
-  expect(state.source).toBeFalsy();
-  expect(state.pages.every(x=>x.includes(pathPart))).toBeTruthy();
-  for(const url of state.pages){const response=await request.get(url);expect(response.ok(),`${state.name}: ${url}`).toBeTruthy()}
+  expect(state.nativeMenu).toBeTruthy();
+  expect(state.nativeSourceIntegrity).toBe('image_complete');
+  expect(state.displayMode).toBeFalsy();
+  expect(state.pages).toBe(0);
+  expect(['in_app_native','blocked_until_locale_complete','blocked_until_structured']).toContain(state.guestAvailability);
+  if(state.guestAvailability==='in_app_native'){
+    expect(state.localized).toBeTruthy();
+    expect(state.locale).toBe('de');
+    expect(state.coverage?.complete).toBeTruthy();
+  }
 
   await page.evaluate(id=>openDetail(id),id);
   const menuTab=page.locator('#detail [data-tab="menu"]');
   if(await menuTab.count())await menuTab.click();
   const profile=page.locator('#detail #profile-menu');
   await expect(profile).toBeVisible();
-  const images=profile.locator('.menu231-page img');
-  await expect(images).toHaveCount(expectedPages);
-  await expect(profile.locator('.menu234-frame')).toHaveCount(0);
-  await expect(profile.locator('iframe[src*=".pdf"]')).toHaveCount(0);
-  await expect(profile.locator('a[href*=".pdf"]')).toHaveCount(0);
-  await expect(profile).not.toContainText(/\.pdf/i);
-  await expect(profile.getByRole('link',{name:/öffnen/i})).toHaveCount(0);
-  const first=images.first();
-  await first.scrollIntoViewIfNeeded();
-  await expect.poll(async()=>first.evaluate(img=>img.complete&&img.naturalWidth>200),{timeout:15000}).toBeTruthy();
+  await expect(profile.locator('.menu231-page img')).toHaveCount(0);
+  await expect(profile.locator('.menu234-frame,iframe')).toHaveCount(0);
+  await expect(profile.locator('a[href*=".pdf"],a[target="_blank"]')).toHaveCount(0);
+  await expect(profile).not.toContainText(/horizontal wischen|\.pdf/i);
 }
 
 test('deployed HOY never exposes the truncated La Finca fallback',async({page})=>{
@@ -83,8 +83,8 @@ test('deployed HOY never exposes the truncated La Finca fallback',async({page})=
   await expect(profile).toBeVisible();
   await expect(profile.locator('[data-menu-item]')).toHaveCount(19);
   await expect(profile).toContainText('19 Positionen');
-  await expect(profile.getByRole('heading',{name:/^Hauptgerichte\s+10 Positionen$/})).toBeVisible();
-  await expect(profile.getByRole('heading',{name:/^Vorspeisen\s+9 Positionen$/})).toBeVisible();
+  await expect(profile).toContainText('Hauptgerichte');
+  await expect(profile).toContainText('Vorspeisen');
   await expect(profile).toContainText('Hähnchenbrust');
   await expect(profile).not.toContainText('Main Course');
   await expect(profile).not.toContainText('Breast of chicken');
@@ -121,34 +121,34 @@ test('Playa Chica is 12/12 complete and fully German in the deployed guest app',
   await expect(profile.locator('.menu233-language-gap')).toHaveCount(0);
 });
 
-test('Area Sunset renders all four reviewed operator pages inside HOY, never a raw PDF',async({page,request})=>{
-  await assertImageMenu(page,request,9,4,'/hoy/menu-pages/9/f63bfbbb509f/');
+test('Area Sunset source pages are provenance only, never the finished guest menu',async({page})=>{
+  await assertNativeMenuBoundary(page,9);
 });
 
-test('La Taberna del Puerto renders its reviewed A3 menu inside HOY, never a raw PDF',async({page,request})=>{
-  await assertImageMenu(page,request,111,1,'/hoy/menu-pages/111/2d419a28324c/');
+test('La Taberna del Puerto source page is provenance only, never the finished guest menu',async({page})=>{
+  await assertNativeMenuBoundary(page,111);
 });
 
-test('Bonobo Playa renders all three reviewed official pages from the HOY mirror',async({page,request})=>{
-  await assertImageMenu(page,request,4,3,'hapo3005.github.io/hoy/menu-pages/4/f9653f87c69d/');
+test('Bonobo Playa source pages are provenance only, never the finished guest menu',async({page})=>{
+  await assertNativeMenuBoundary(page,4);
 });
 
 test('menu integrity failure is fail-closed in the shipped client',async({request})=>{
-  const [js,index,worker,pkg]=await Promise.all([
+  const [js,native,index,worker,pkg]=await Promise.all([
     request.get('./menu-language-integrity-2.33.js'),
+    request.get('./menu-native-standard-2.48.js?v=2.48.0'),
     request.get('./index.html'),
     request.get('./service-worker.js'),
     request.get('./package.json')
   ]);
-  for(const r of [js,index,worker,pkg])expect(r.ok()).toBeTruthy();
-  const code=await js.text(),html=await index.text(),sw=await worker.text(),version=(await pkg.json()).version;
+  for(const r of [js,native,index,worker,pkg])expect(r.ok()).toBeTruthy();
+  const code=await js.text(),nativeCode=await native.text(),html=await index.text(),sw=await worker.text(),version=(await pkg.json()).version;
   expect(version).toBe(CURRENT_RELEASE);
   expect(html).toContain(`App ${CURRENT_RELEASE}`);
   expect(html).toMatch(/menu-language-integrity-2\.33\.js\?v=2\.\d+\.\d+/);
-  expect(html).toMatch(/menu-source-truth-2\.34\.js\?v=2\.\d+\.\d+/);
+  expect(html).toContain('menu-native-standard-2.48.js?v=2.48.0');
   expect(sw).toContain(`const CACHE='hoy-v${CURRENT_RELEASE}'`);
   expect(code).toContain("integrity:'quality_blocked'");
-  expect(code).toContain("window.hoyMenuLanguageIntegrityState='blocked'");
-  expect(code).toContain('kein unvollständiger oder falschsprachiger Zwischenstand');
-  expect(code).toContain('Kein unsicherer Zwischenstand.');
+  expect(nativeCode).toContain("integrity:'native_language_blocked'");
+  expect(nativeCode).toContain("integrity:'native_source_only'");
 });

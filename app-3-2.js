@@ -12,7 +12,11 @@ function wire(){
   document.querySelectorAll('[data-zone]').forEach(b=>b.onclick=()=>{state.query=b.dataset.zone;state.service='all';nav('discover')});
   let q=document.getElementById('q');if(q)q.oninput=e=>{state.query=e.target.value;render()};
   let go=document.querySelector('[data-go]');if(go)go.onclick=()=>nav('discover');
-  document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{state.lang=state.lang==='de'?'en':state.lang==='en'?'es':'de';render()});
+  document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=async()=>{
+    state.lang=state.lang==='de'?'en':state.lang==='en'?'es':'de';
+    if(typeof window.hoyRefreshNativeMenus248==='function'&&sb&&cloud.status!=='error')await window.hoyRefreshNativeMenus248();
+    render();
+  });
   document.querySelectorAll('[data-start-claim]').forEach(b=>b.onclick=()=>openClaimFlow(claimDraft?.restaurantId||null));
   document.querySelectorAll('[data-edit-claim]').forEach(b=>b.onclick=()=>openClaimFlow(claimDraft?.restaurantId||null,claimDraft?.step||2));
   document.querySelectorAll('[data-owner-preview]').forEach(b=>b.onclick=()=>{const p=claimedRestaurant();if(p)openClaimPreview(p,claimDraft.requestedPlan||'free')});
