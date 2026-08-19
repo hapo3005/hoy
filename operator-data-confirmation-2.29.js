@@ -110,15 +110,39 @@
     if(typeof window.hoyLoadOperatorWorkspace==='function')await window.hoyLoadOperatorWorkspace(fresh,true);
     render();
   }
+  async function recordRightsReceipt(p,result,mode){
+    const fn=window.hoyRecordRightsBackedBusinessConfirmation248;
+    const live=result?.live_hours;
+    if(typeof fn!=='function'||!live)return {recorded:false,reason:'helper_or_payload_unavailable'};
+    const payload={
+      restaurant_id:Number(p.id),
+      timezone:live.timezone||'Europe/Madrid',
+      weekly_hours:live.weekly_hours,
+      display_text:live.display_text
+    };
+    try{
+      return await fn({
+        restaurantId:Number(p.id),
+        confirmationType:'hours',
+        subjectType:'restaurant_live_hours',
+        subjectRef:`restaurant:${Number(p.id)}:weekly_hours`,
+        payload,
+        evidence:{confirmation_mode:mode,factual_confirmed_at:live.confirmed_at||'',factual_source:'operator-hours-confirm'}
+      });
+    }catch(err){
+      console.warn('HOY ACQ-05 receipt hook unavailable',err?.message||err);
+      return {recorded:false,reason:'receipt_hook_failed'};
+    }
+  }
   async function confirmPrepared(p,button){
     button.disabled=true;button.textContent='Bestätigt …';
-    try{await invokeHours(p,'confirm');await refreshAfterConfirmation(p);toast('Öffnungszeiten vom Betrieb bestätigt')}
+    try{const result=await invokeHours(p,'confirm');await recordRightsReceipt(p,result,'confirm');await refreshAfterConfirmation(p);toast('Öffnungszeiten vom Betrieb bestätigt')}
     catch(err){button.disabled=false;button.textContent='Ja, stimmt';toast(err?.message==='no_prepared_schedule'?'Kein vorbereiteter Wochenplan vorhanden':err?.message||'Bestätigung nicht möglich')}
   }
   async function saveCorrection(p,d){
     const schedule=readSchedule(d);if(!schedule){toast('Bitte gültige Zeiten für alle geöffneten Tage eintragen');return}
     const btn=d.querySelector('[data-confirm-save]');btn.disabled=true;btn.textContent='Speichert …';
-    try{await invokeHours(p,'correct',{weekly_hours:schedule});d.close();await refreshAfterConfirmation(p);toast('Korrigierte Öffnungszeiten bestätigt')}
+    try{const result=await invokeHours(p,'correct',{weekly_hours:schedule});await recordRightsReceipt(p,result,'correct');d.close();await refreshAfterConfirmation(p);toast('Korrigierte Öffnungszeiten bestätigt')}
     catch(err){btn.disabled=false;btn.textContent='Bestätigen & speichern';toast(err?.message||'Öffnungszeiten konnten nicht gespeichert werden')}
   }
 
