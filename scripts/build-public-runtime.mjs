@@ -83,10 +83,14 @@ for (const relFromRoot of files) {
   });
 }
 manifest.sort((a,b) => a.path.localeCompare(b.path));
+const sourceRevision = String(process.env.HOY_SOURCE_REVISION || process.env.GITHUB_SHA || '').trim().toLowerCase() || null;
+if (sourceRevision && !/^[0-9a-f]{40}$/.test(sourceRevision)) {
+  throw new Error('HOY_SOURCE_REVISION/GITHUB_SHA must be a 40-character commit SHA when provided');
+}
 const release = {
   schema_version: '1.0',
-  generated_at: new Date().toISOString(),
   mode: policy.mode,
+  source_revision: sourceRevision,
   file_count: manifest.length,
   files: manifest
 };
