@@ -31,3 +31,98 @@ jobs:
         run: node scripts/investor-ready/check-acq05-merchant-confirmation.mjs
       - name: Run ACQ-05 runtime tests
         run: node tests/acq05-merchant-confirmation.spec.js
+
+  static-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(find . -type f -name '*.js' -not -path './node_modules/*' -print0)
+      - name: Check required release assets and security invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(node -p "require('./package.json').version")" = "2.39.0"
+          test -s live-decision-2.39.js
+          test -s live-decision-2.39.css
+          test -s merchant-confirmation-receipt-2.48.js
+          grep -q 'App 2.39.0' index.html
+          grep -q 'live-decision-2.39.js?v=2.39.0' index.html
+          grep -q 'live-decision-2.39.css?v=2.39.0' index.html
+          grep -q 'merchant-confirmation-receipt-2.48.js?v=2.48.0' index.html
+          grep -q 'HOY Control Center · 2.39.0' admin.html
+          grep -q '@supabase/supabase-js@2.111.0/dist/umd/supabase.js' index.html
+          grep -q '@supabase/supabase-js@2.111.0/dist/umd/supabase.js' admin.html
+          grep -q "const CACHE='hoy-v2.39.0'" service-worker.js
+          grep -q "'./live-decision-2.39.js'" service-worker.js
+          grep -q "'./live-decision-2.39.css'" service-worker.js
+          grep -q "'./merchant-confirmation-receipt-2.48.js'" service-worker.js
+          grep -q '@supabase/supabase-js@2.111.0/dist/umd/supabase.js' service-worker.js
+          grep -q 'if(!sameOrigin&&!approvedCdn)return' service-worker.js
+      - name: Check complete runtime contracts
+        run: node scripts/check-runtime-contracts.js
+
+  browser-e2e:
+    needs: [merchant-confirmation-contract, static-integrity]
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: mobile-chrome
+            browser: chromium
+          - project: mobile-webkit
+            browser: webkit
+          - project: desktop-chromium
+            browser: chromium
+    env:
+      PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:4173/
+      CI: 'true'
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked QA dependencies
+        run: npm ci --ignore-scripts
+      - name: Install browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Start local branch server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/hoy-acq05-http.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/hoy-acq05-http.log
+          exit 1
+      - name: Run complete Playwright project
+        run: npx playwright test --project="${{ matrix.project }}" --workers=1
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        with:
+          name: hoy-acq05-playwright-${{ matrix.project }}-${{ github.run_id }}
+          path: playwright-report/
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Upload failure traces
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        with:
+          name: hoy-acq05-failures-${{ matrix.project }}-${{ github.run_id }}
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: warn
