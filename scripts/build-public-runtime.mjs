@@ -8,6 +8,7 @@ const policy = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
 const out = path.resolve(root, process.env.HOY_PUBLIC_RUNTIME_DIR || 'dist-public');
 
 const normalize = p => p.split(path.sep).join('/');
+const exactPublicFiles = new Set((policy.public_exact_files || []).map(normalize));
 const denyName = rel => {
   const lower = rel.toLowerCase();
   if (policy.never_publish_name_fragments.some(x => lower.includes(String(x).toLowerCase()))) return true;
@@ -15,14 +16,18 @@ const denyName = rel => {
   return policy.never_publish_extensions.includes(ext);
 };
 const assertSafeRel = rel => {
-  const parts = normalize(rel).split('/');
-  if (parts.some(p => policy.never_publish_directories.includes(p))) throw new Error(`blocked public path: ${rel}`);
-  if (denyName(rel)) throw new Error(`blocked public filename: ${rel}`);
+  const normalized = normalize(rel);
+  if (denyName(normalized)) throw new Error(`blocked public filename: ${normalized}`);
+  if (exactPublicFiles.has(normalized)) return;
+  const parts = normalized.split('/');
+  if (parts.some(p => policy.never_publish_directories.includes(p))) throw new Error(`blocked public path: ${normalized}`);
 };
 const copyFile = rel => {
-  assertSafeRel(rel);
-  const src = path.join(root, rel);
-  const dst = path.join(out, rel);
+  const normalized = normalize(rel);
+  assertSafeRel(normalized);
+  const src = path.join(root, normalized);
+  if (!fs.existsSync(src) || !fs.statSync(src).isFile()) throw new Error(`allowlisted runtime file missing: ${normalized}`);
+  const dst = path.join(out, normalized);
   fs.mkdirSync(path.dirname(dst), { recursive: true });
   fs.copyFileSync(src, dst);
 };
@@ -51,6 +56,7 @@ for (const entry of rootEntries) {
 for (const dir of policy.public_directories) {
   for (const rel of walk(dir)) copyFile(rel);
 }
+for (const rel of exactPublicFiles) copyFile(rel);
 
 const sourcePackage = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 if (!/^\d+\.\d+\.\d+$/.test(String(sourcePackage.version || ''))) {
