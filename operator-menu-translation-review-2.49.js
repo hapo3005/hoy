@@ -80,11 +80,13 @@
       if(d?.open)d.close();ui.rows.shift();
       toast('Übersetzung vom Betrieb bestätigt');
       if(!ui.rows.length){ui.loaded=false;await loadQueue(p,true)}
-      render();
     }catch(error){
       const msg=errorText(error);toast(msg.includes('stale_translation')?'Die Übersetzung wurde inzwischen geändert – neu laden':msg);
-      if(msg.includes('stale_translation')){ui.loaded=false;await loadQueue(p,true);if(d?.open)d.close();render()}
-    }finally{ui.busy=false}
+      if(msg.includes('stale_translation')){ui.loaded=false;await loadQueue(p,true);if(d?.open)d.close()}
+    }finally{
+      ui.busy=false;
+      render();
+    }
   }
 
   const baseWire249=wire;
