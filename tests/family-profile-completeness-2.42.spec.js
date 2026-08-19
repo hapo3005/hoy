@@ -99,15 +99,17 @@ test('newly published Family profiles use normal Production profiles rather than
   await expect(detail.locator('[data-family240-enriched-profile]')).toHaveCount(0);
   await expect(detail.locator('.family240-profile')).toBeVisible();
   await expect(detail.locator('.family240-profile')).toContainText('Vom Betrieb bestätigt');
-  let data=await page.evaluate(()=>{const p=DATA.find(x=>x.slug==='la-rusticana');return {quality:p?.profile_quality,virtual:!!p?.__family240_preview_profile};});
-  expect(data).toEqual({quality:'premium',virtual:false});
+  let data=await page.evaluate(()=>{const p=DATA.find(x=>x.slug==='la-rusticana');return {virtual:!!p?.__family240_preview_profile,address:p?.address||''};});
+  expect(data.virtual).toBe(false);
+  expect(data.address).toContain('Carretera de Atamaría 76B');
   await page.locator('#detail [data-close]').click();
 
   detail=await openResult(page,'Casa Lucrecia');
   await expect(detail.locator('[data-family240-enriched-profile]')).toHaveCount(0);
   await expect(detail.locator('.family240-profile')).toContainText('Hochstühle');
-  data=await page.evaluate(()=>{const p=DATA.find(x=>x.slug==='casa-lucrecia');return {quality:p?.profile_quality,virtual:!!p?.__family240_preview_profile};});
-  expect(data).toEqual({quality:'premium',virtual:false});
+  data=await page.evaluate(()=>{const p=DATA.find(x=>x.slug==='casa-lucrecia');return {virtual:!!p?.__family240_preview_profile,address:p?.address||''};});
+  expect(data.virtual).toBe(false);
+  expect(data.address).toContain('Avenida Doctor Artero Guirao 268');
 });
 
 test('the four original Family venues retain their historical completion overlay inside Family',async({page})=>{
@@ -124,6 +126,17 @@ test('the four original Family venues retain their historical completion overlay
   detail=await openHistoricalCompletion(page,'Aquarium La Manga Club Resort');
   await expect(detail).toHaveAttribute('data-family242-quality','conditional');
   await expect(detail).toContainText('Quellen widersprechen sich');
+
+  await page.locator('#detail [data-close]').click();
+  await page.locator('[data-decision="all"]').click();
+  await expect.poll(()=>page.evaluate(()=>state.family)).toBe('all');
+  const restored=await page.evaluate(()=>{
+    const p=DATA.find(x=>Number(x.id)===96);
+    return {completion:!!p?.__family242_completion,virtual:!!p?.__family240_preview_profile};
+  });
+  expect(restored).toEqual({completion:false,virtual:false});
+  await page.evaluate(()=>openDetail(96));
+  await expect(page.locator('#detail [data-family240-enriched-profile]')).toHaveCount(0);
 });
 
 test('normal HOY never loads virtual completion profiles without explicit Family preview activation',async({page})=>{
