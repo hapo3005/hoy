@@ -57,7 +57,6 @@ if(noRegistry>0) blockers.push('REGISTRY_COVERAGE');
 if(!activeTerms) blockers.push('BUSINESS_TERMS_NOT_ACTIVE');
 if(acceptances===0) blockers.push('NO_TERMS_ACCEPTANCES');
 if(confirmations===0) blockers.push('NO_BUSINESS_DATA_CONFIRMATIONS');
-
 if(blockers.length){
   assert(x.gate.rt007_overall!=='GREEN','RT-007 must not be GREEN while live blockers remain');
   assert(x.gate.f0_m==='BLOCKED','F0-M must remain BLOCKED while RT-007 blockers remain');
@@ -74,7 +73,7 @@ assert(firstParty.transferability==='UNKNOWN','first-party references must not b
 assert(firstParty.legal_review_status==='BUSINESS_TERMS_REQUIRED','business terms gate must remain visible');
 
 // Buyer-safe export contract: fail closed against whole-profile overclaims or archive omission.
-assert(buyer.schemaVersion==='1.1.0','buyer-safe snapshot schema drift');
+assert(buyer.schemaVersion==='1.2.0','buyer-safe snapshot schema drift');
 assert(buyer.status==='READ_ONLY_BUYER_DD_SNAPSHOT','buyer-safe snapshot must remain read-only DD evidence');
 assert(buyer.productionMutationPerformed===false,'buyer-safe snapshot must not claim a production mutation');
 assert(buyer.restaurantPopulation?.published===166,'buyer-safe published restaurant count drifted');
@@ -92,7 +91,6 @@ assert(buyerBuckets.PUBLISHED_CONDITIONAL_NOT_TRANSFER_CLEAR?.restaurants===18,'
 assert(buyerBuckets.PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW?.restaurants===2,'buyer-safe provenance-ref-clear restaurant count drifted');
 assert(buyerBuckets.ARCHIVED_UNPUBLISHED_CARVEOUT?.restaurants===3,'buyer-safe archived restaurant count drifted');
 assert(buyerBuckets.ARCHIVED_UNPUBLISHED_CARVEOUT?.hardRestrictedReferences===5,'buyer-safe archived hard refs must remain visible');
-
 const publishedBuyerRestaurants=(buyerBuckets.PUBLISHED_WITH_HARD_RESTRICTED_DEPENDENCY?.restaurants||0)
   +(buyerBuckets.PUBLISHED_CONDITIONAL_NOT_TRANSFER_CLEAR?.restaurants||0)
   +(buyerBuckets.PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW?.restaurants||0);
@@ -118,13 +116,14 @@ assert(archived.filter(v=>v.restaurantId===240).length===1,'Alt Frankfurt must r
 const impact=buyer.preparedReplacementImpact||{};
 assert(impact.status==='PROJECTED_AFTER_REQUIRED_REBASE_REVIEW_AND_APPLY','prepared replacement impact must remain projected, not applied');
 assert(impact.currentHardReferences?.all===329 && impact.currentHardReferences?.published===324 && impact.currentHardReferences?.unpublished===5,'prepared-impact current hard baseline drifted');
-assert(impact.preparedReferences?.all===34 && impact.preparedReferences?.published===32 && impact.preparedReferences?.unpublished===2,'prepared-impact active/archive split drifted');
-assert(impact.projectedHardReferences?.all===295 && impact.projectedHardReferences?.published===292 && impact.projectedHardReferences?.unpublished===3,'prepared-impact projected hard split drifted');
+assert(impact.preparedReferences?.all===36 && impact.preparedReferences?.published===34 && impact.preparedReferences?.unpublished===2,'prepared-impact active/archive split drifted');
+assert(impact.projectedHardReferences?.all===293 && impact.projectedHardReferences?.published===290 && impact.projectedHardReferences?.unpublished===3,'prepared-impact projected hard split drifted');
 assert(impact.currentHardReferences.all-impact.preparedReferences.all===impact.projectedHardReferences.all,'prepared-impact aggregate arithmetic failed');
 assert(impact.currentHardReferences.published-impact.preparedReferences.published===impact.projectedHardReferences.published,'prepared-impact active arithmetic failed');
 assert(impact.currentHardReferences.unpublished-impact.preparedReferences.unpublished===impact.projectedHardReferences.unpublished,'prepared-impact archive arithmetic failed');
 const waveImpact=(impact.byWave||[]).reduce((a,v)=>({all:a.all+v.all,published:a.published+v.published,unpublished:a.unpublished+v.unpublished}),{all:0,published:0,unpublished:0});
-assert(waveImpact.all===34 && waveImpact.published===32 && waveImpact.unpublished===2,'prepared-impact wave totals drifted');
+assert(waveImpact.all===36 && waveImpact.published===34 && waveImpact.unpublished===2,'prepared-impact wave totals drifted');
+assert((impact.byWave||[]).some(v=>v.wave==='location_wave4' && v.all===2 && v.published===2 && v.unpublished===0),'prepared-impact must include two active location wave4 refs');
 assert((impact.unpublishedPreparedTargets||[]).length===2,'prepared-impact must identify exactly two archived replacement targets');
 assert((impact.unpublishedPreparedTargets||[]).some(v=>v.restaurantId===19 && v.field==='source_url'),'prepared-impact must identify El Pez Rojo source_url as archive cleanup');
 assert((impact.unpublishedPreparedTargets||[]).some(v=>v.restaurantId===202 && v.field==='location_source_url'),'prepared-impact must identify Pescados Cabo de Palos I location ref as archive cleanup');
@@ -135,7 +134,6 @@ assert(buyer.gate?.buyerSafeExportContract==='PREPARED_NOT_EXECUTED','buyer-safe
 assert(buyer.gate?.rt007Overall==='IN_PROGRESS','buyer-safe export must not close RT-007');
 assert(buyer.gate?.productionExportAuthorized===false,'buyer-safe export must not authorize production export');
 assert(buyer.gate?.dataCommercializationAuthorized===false,'buyer-safe export must not authorize commercialization');
-
 assert(buyerSql.includes('ARCHIVED_UNPUBLISHED_CARVEOUT'),'buyer-safe SQL must segregate archived/unpublished rows');
 assert(buyerSql.includes('PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW'),'buyer-safe SQL must expose source-ref-only transfer bucket');
 assert(buyerSql.includes('SOURCE_REFERENCES_ONLY_NOT_WHOLE_PROFILE_CLEARANCE'),'buyer-safe SQL must make whole-profile non-clearance explicit');
