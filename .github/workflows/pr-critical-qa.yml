@@ -27,6 +27,10 @@ jobs:
           cache: npm
       - name: Install locked QA dependencies
         run: npm ci --ignore-scripts
+      - name: Run critical secret leakage gate
+        run: npm run qa:secrets
+      - name: Run proprietary/public runtime boundary gate
+        run: npm run qa:public-runtime
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Start branch server
@@ -75,4 +79,54 @@ jobs:
           name: hoy-critical-failures-${{ github.run_id }}
           path: test-results/
           retention-days: 14
+          if-no-files-found: warn
+
+  public-runtime-shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:4174/
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked QA dependencies
+        run: npm ci --ignore-scripts
+      - name: Run critical secret leakage gate
+        run: npm run qa:secrets
+      - name: Build public runtime artifact
+        run: npm run build:public-runtime
+      - name: Verify public runtime boundary
+        run: npm run qa:public-runtime
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start deploy-only runtime preview
+        shell: bash
+        run: |
+          cd dist-public
+          python3 -m http.server 4174 --bind 127.0.0.1 > /tmp/hoy-public-runtime.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4174/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/hoy-public-runtime.log
+          exit 1
+      - name: Run runtime smoke tests
+        run: >-
+          npx playwright test
+          tests/hoy.spec.js
+          tests/release-hardening-2.39.spec.js
+          --project=mobile-chrome
+          --workers=1
+          --retries=0
+      - name: Upload runtime artifact on failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: hoy-public-runtime-shadow-${{ github.run_id }}
+          path: dist-public/
+          retention-days: 7
           if-no-files-found: warn
