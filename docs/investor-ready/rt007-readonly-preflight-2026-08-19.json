@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "snapshotDate": "2026-08-19",
   "role": "G1-CB-14_READ_ONLY_PREFLIGHT",
   "basePlan": {
@@ -8,7 +8,7 @@
   },
   "productionMutationPerformed": false,
   "productionApplyAuthorized": false,
-  "applyDecision": "BLOCKED_PENDING_SOURCE_REVIEW_AND_SEPARATE_PRODUCTION_APPROVAL",
+  "applyDecision": "SOURCE_RECHECK_PASS_PENDING_ROLLBACK_RELEASE_RECHECK_AND_SEPARATE_PRODUCTION_APPROVAL",
   "rowRecheck": {
     "targets": 36,
     "exactMatches": 36,
@@ -54,45 +54,42 @@
   },
   "sourceRecheck": {
     "targets": 36,
-    "pass": 32,
-    "reviewRequired": 4,
+    "pass": 36,
+    "reviewRequired": 0,
     "rule": "PASS is only a current source-identity/reachability preflight result. It is not a licence, commercial-use, derivative-use, transferability or whole-profile-clearance claim.",
-    "reviewTargets": [
+    "reviewTargets": [],
+    "resolvedFindings": [
       {
         "restaurantId": 7,
         "restaurantName": "Escuela de Pieter",
         "field": "signature_source_url",
         "proposedUrl": "https://escueladepieter.com/",
-        "reason": "DOMAIN_INTEGRITY_ANOMALY",
-        "detail": "The legitimate first-party homepage was found, but unrelated Japanese storefront-style pages were also surfaced on the same domain. Manual source-integrity/security review is required before this target may enter an apply candidate.",
-        "applyEligible": false
+        "outcome": "PASS_WITH_INTEGRITY_NOTE",
+        "detail": "The current first-party homepage directly identifies the restaurant, location, Mediterranean offer and reservation path. Previously surfaced unrelated parameterized storefront-style URLs could not be reproduced in the final recheck; retain an integrity note and recheck immediately before any apply."
       },
       {
         "restaurantId": 110,
         "restaurantName": "El Rincón de la Hormiga",
         "field": "source_url",
         "proposedUrl": "https://elrincondelahormiga.com/",
-        "reason": "BUSINESS_IDENTITY_SEMANTIC_REVIEW",
-        "detail": "The first-party site identifies a socio-cultural centre and exposes a food/drink menu, but the semantic match to the HOY restaurant record requires explicit review before replacement.",
-        "applyEligible": false
+        "outcome": "PASS_BUSINESS_IDENTITY_MATCH",
+        "detail": "The HOY Production record is venue_type=bar and already names this website. The first-party site identifies El Rincón de la Hormiga in Cabo de Palos, documents an apertura de bar project and exposes a tapas/drinks menu."
       },
       {
         "restaurantId": 144,
         "restaurantName": "Restaurante Isla Grosa",
         "field": "source_url",
         "proposedUrl": "https://restauranteislagrosalamanga.es/",
-        "reason": "DIRECT_FIRST_PARTY_CONTENT_NOT_FETCHED",
-        "detail": "Current external sources corroborate the business-domain association, but direct first-party page content was not independently fetched in this preflight.",
-        "applyEligible": false
+        "outcome": "PASS_DIRECT_FIRST_PARTY_FETCH",
+        "detail": "Direct first-party content was fetched and identifies Restaurante Isla Grosa in La Manga with restaurant, menu and contact content."
       },
       {
         "restaurantId": 202,
         "restaurantName": "Pescados Cabo de Palos I",
         "field": "location_source_url",
         "proposedUrl": "https://pescadoscabodepalos.es/",
-        "reason": "DIRECT_FIRST_PARTY_CONTENT_NOT_FETCHED",
-        "detail": "Current external sources corroborate the business-domain association, but direct first-party page content was not independently fetched in this preflight.",
-        "applyEligible": false
+        "outcome": "PASS_DIRECT_FIRST_PARTY_FETCH",
+        "detail": "Direct first-party content was fetched and identifies Pescados Cabo de Palos at Calle Sirio 23, matching the prepared location target."
       }
     ]
   },
@@ -103,6 +100,12 @@
     "sourceStatus": "ARCHIVE_STALE_FIRST_PARTY_ACCEPTABLE_FOR_REVIEW",
     "note": "The first-party WordPress source is old but directly identifies the business; this does not convert the archived record into a current-live-business claim."
   },
+  "nextRequiredBeforeApplyCandidate": [
+    "generate per-target and per-wave rollback evidence with exact before values",
+    "reconfirm privacy security and release boundaries",
+    "repeat exact Production row source signature and rights recheck immediately before any mutation",
+    "obtain a separate explicit Production apply decision"
+  ],
   "claimBoundary": {
     "wholeProfileClearanceClaimed": false,
     "transferClearanceClaimed": false,
