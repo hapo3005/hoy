@@ -8,6 +8,7 @@
     "qa:public-runtime": "node scripts/check-ir02e-public-runtime.mjs",
     "qa:secrets": "node scripts/check-no-critical-secrets.mjs",
     "qa:edge-wave-a": "node scripts/check-edge-wave-a-preflight.mjs",
+    "qa:menu-editorial": "node scripts/check-menu-editorial-preflight.mjs",
     "build:public-runtime": "node scripts/build-public-runtime.mjs"
   },
   "devDependencies": {
