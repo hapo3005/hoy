@@ -40,20 +40,25 @@ The projected 329 → 293 reduction remains only a projection after a separately
 
 ## Fresh source recheck
 
-32/36 targets passed the current source-identity/reachability preflight. Four targets are fail-closed as `REVIEW_REQUIRED`:
+The final current source-identity/reachability recheck is **36/36 PASS, 0 REVIEW_REQUIRED**. Four initially fail-closed findings were resolved by deeper read-only verification:
 
-1. **Escuela de Pieter / signature_source_url** — the legitimate first-party homepage is available, but unrelated Japanese storefront-style pages were also surfaced on the same domain. Manual domain-integrity/security review is required.
-2. **El Rincón de la Hormiga / source_url** — the first-party site identifies a socio-cultural centre and exposes a food/drink menu; the semantic identity match to the HOY restaurant record requires explicit review.
-3. **Restaurante Isla Grosa / source_url** — current external evidence corroborates the domain/business association, but direct first-party page content was not independently fetched in this preflight.
-4. **Pescados Cabo de Palos I / location_source_url** — current external evidence corroborates the domain/business association, but direct first-party page content was not independently fetched in this preflight.
+1. **Escuela de Pieter / signature_source_url — PASS_WITH_INTEGRITY_NOTE.** The current first-party homepage directly identifies the restaurant, La Manga location, Mediterranean offer and reservation path. Previously surfaced unrelated parameterized storefront-style URLs could not be reproduced in the final recheck. The anomaly remains an integrity note and the domain must be rechecked immediately before any apply.
+2. **El Rincón de la Hormiga / source_url — PASS_BUSINESS_IDENTITY_MATCH.** The HOY Production record is `venue_type=bar` and already names the first-party website. The site identifies the Cabo de Palos venue, documents an `APERTURA DE BAR` project and exposes a tapas/drinks menu.
+3. **Restaurante Isla Grosa / source_url — PASS_DIRECT_FIRST_PARTY_FETCH.** The direct first-party site identifies Restaurante Isla Grosa in La Manga and exposes restaurant, menu and contact content.
+4. **Pescados Cabo de Palos I / location_source_url — PASS_DIRECT_FIRST_PARTY_FETCH.** The direct first-party site identifies Pescados Cabo de Palos at Calle Sirio 23, matching the prepared location target.
 
 Restaurante El Pez Rojo remains an unpublished/archive case. Its old first-party WordPress source may remain useful as historical provenance, but it must not be represented as proof of a currently operating live business.
 
 ## Decision
 
-`BLOCKED_PENDING_SOURCE_REVIEW_AND_SEPARATE_PRODUCTION_APPROVAL`
+`SOURCE_RECHECK_PASS_PENDING_ROLLBACK_RELEASE_RECHECK_AND_SEPARATE_PRODUCTION_APPROVAL`
 
-The 32 clean source-recheck targets are **not** independently authorized for Production. The four review-required targets must not enter an apply candidate until their specific issue is resolved. After that, the full mandatory preflight must be repeated against current Production state before any explicit apply decision.
+The source recheck no longer contains an unresolved target-level blocker, but **Production apply remains unauthorized**. Before any apply candidate may be considered complete, HOY still requires:
+
+1. per-target and per-wave rollback evidence with exact before values;
+2. privacy/security/release-boundary reconfirmation;
+3. a repeated exact Production row/source/signature/rights recheck immediately before mutation;
+4. a separate explicit Production apply decision.
 
 ## Non-authorization
 
