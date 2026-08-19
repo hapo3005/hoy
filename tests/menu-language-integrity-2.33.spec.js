@@ -5,22 +5,24 @@ test.use({serviceWorkers:'block'});
 
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuIntegrityVersion==='2.37.0'&&window.hoyMenuLanguageIntegrityVersion==='2.37.0'&&window.hoyMenuLanguageIntegrityState==='ready'&&window.hoyMenuCatalog233?.items>1000&&cloud.status==='online',{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&window.hoyMenuIntegrityVersion==='2.37.0'&&window.hoyMenuLanguageIntegrityVersion==='2.37.0'&&window.hoyMenuLanguageIntegrityState==='ready'&&window.hoyNativeMenuStandardVersion==='2.48.0'&&window.hoyNativeMenuState248?.state==='ready'&&window.hoyMenuCatalog233?.items>1000&&cloud.status==='online',{timeout:30000});
 }
 
-test('full-catalog language assets remain wired and paginated',async({request})=>{
-  const [js,css,index,worker]=await Promise.all([
-    request.get('./menu-language-integrity-2.33.js?v=2.37.0'),request.get('./menu-language-integrity-2.33.css?v=2.35.0'),request.get('./index.html'),request.get('./service-worker.js')
+test('full-catalog language assets and final locale authority remain wired and paginated',async({request})=>{
+  const [js,css,native,index,worker]=await Promise.all([
+    request.get('./menu-language-integrity-2.33.js?v=2.37.0'),request.get('./menu-language-integrity-2.33.css?v=2.35.0'),request.get('./menu-native-standard-2.48.js?v=2.48.0'),request.get('./index.html'),request.get('./service-worker.js')
   ]);
-  for(const r of [js,css,index,worker])expect(r.ok()).toBeTruthy();
-  const html=await index.text(),sw=await worker.text(),code=await js.text();
+  for(const r of [js,css,native,index,worker])expect(r.ok()).toBeTruthy();
+  const html=await index.text(),sw=await worker.text(),code=await native.text();
   expect(html).toContain('menu-language-integrity-2.33.css?v=2.35.0');
   expect(html).toContain('menu-language-integrity-2.33.js?v=2.37.0');
-  expect(html.indexOf('menu-language-integrity-2.33.js')).toBeGreaterThan(html.indexOf('menu-integrity-2.32.js'));
+  expect(html).toContain('menu-native-standard-2.48.js?v=2.48.0');
+  expect(html.indexOf('menu-native-standard-2.48.js')).toBeGreaterThan(html.indexOf('menu-authority-2.38.js'));
   expect(sw).toContain('./menu-language-integrity-2.33.js');
   expect(code).toContain('PAGE_SIZE=500');
   expect(code).toContain('.range(from,from+PAGE_SIZE-1)');
-  expect(code).toContain("integrity:'quality_blocked'");
+  expect(code).toContain("SUPPORTED_MENU_LOCALES=new Set(['de','es','en'])");
+  expect(code).toContain("q=>q.eq('locale',locale)");
 });
 
 test('full menu catalog is paginated beyond the Supabase 1000-row window',async({page})=>{
@@ -30,16 +32,17 @@ test('full menu catalog is paginated beyond the Supabase 1000-row window',async(
   expect(catalog.integrity).toBe('ready');
 });
 
-test('La Finca renders all 19 current items in German, not only the 10 main courses',async({page})=>{
+test('La Finca renders all 19 current items in German on the German page version',async({page})=>{
   await ready(page);
   const menu=await page.evaluate(()=>{
     const p=DATA.find(x=>Number(x.id)===216),m=menuFor(p);
-    return {itemCount:m.itemCount,localized:m.localized,locale:m.locale,coverage:m.languageCoverage,categories:(m.categories||[]).map(([cat,items])=>({cat,count:items.length,names:items.map(x=>x[0])}))};
+    return {pageLang:state.lang,itemCount:m.itemCount,localized:m.localized,locale:m.locale,coverage:m.languageCoverage,categories:(m.categories||[]).map(([cat,items])=>({cat,count:items.length,names:items.map(x=>x[0])}))};
   });
+  expect(menu.pageLang).toBe('de');
   expect(menu.itemCount).toBe(19);
   expect(menu.localized).toBeTruthy();
   expect(menu.locale).toBe('de');
-  expect(menu.coverage).toMatchObject({total:19,ready:19,missing:0,complete:true});
+  expect(menu.coverage).toMatchObject({locale:'de',total:19,ready:19,missing:0,complete:true});
   expect(menu.categories.find(x=>x.cat==='Hauptgerichte')?.count).toBe(10);
   expect(menu.categories.find(x=>x.cat==='Vorspeisen')?.count).toBe(9);
   expect(menu.categories.flatMap(x=>x.names)).toContain('Hähnchenbrust');
@@ -55,27 +58,52 @@ test('La Finca renders all 19 current items in German, not only the 10 main cour
   await expect(profile).not.toContainText('Breast of chicken');
 });
 
+test('page language and menu locale are coupled DE -> EN -> ES with fail-closed coverage',async({page})=>{
+  await ready(page);
+  const german=await page.evaluate(()=>{const m=menuFor(DATA.find(x=>Number(x.id)===216));return {page:state.lang,locale:m.locale,integrity:m.integrity,complete:m.languageCoverage?.complete}});
+  expect(german).toMatchObject({page:'de',locale:'de',complete:true});
+
+  const english=await page.evaluate(async()=>{state.lang='en';await window.hoyRefreshNativeMenus248();const m=menuFor(DATA.find(x=>Number(x.id)===216));return {page:state.lang,locale:m.locale,integrity:m.integrity,coverage:m.languageCoverage,state:window.hoyNativeMenuState248}});
+  expect(english.page).toBe('en');
+  expect(english.coverage.locale).toBe('en');
+  expect(english.integrity).toBe('native_language_blocked');
+  expect(english.locale).toBeNull();
+  expect(english.state.locale).toBe('en');
+
+  const spanish=await page.evaluate(async()=>{state.lang='es';await window.hoyRefreshNativeMenus248();const m=menuFor(DATA.find(x=>Number(x.id)===216));return {page:state.lang,locale:m.locale,integrity:m.integrity,coverage:m.languageCoverage,state:window.hoyNativeMenuState248}});
+  expect(spanish.page).toBe('es');
+  expect(spanish.coverage.locale).toBe('es');
+  expect(spanish.integrity).toBe('native_language_blocked');
+  expect(spanish.locale).toBeNull();
+  expect(spanish.state.locale).toBe('es');
+});
+
 test('incomplete German coverage never masquerades as a German menu',async({page})=>{
   await ready(page);
   const result=await page.evaluate(()=>{
     const p=DATA.find(x=>Number(x.id)===215),m=menuFor(p);
-    return {localized:m.localized,locale:m.locale,coverage:m.languageCoverage,itemCount:m.itemCount};
+    return {localized:m.localized,locale:m.locale,integrity:m.integrity,coverage:m.languageCoverage,itemCount:m.itemCount};
   });
   expect(result.itemCount).toBeGreaterThan(0);
+  expect(result.coverage.locale).toBe('de');
   expect(result.coverage.total).toBe(result.itemCount);
   expect(result.coverage.complete).toBeFalsy();
   expect(result.localized).toBeFalsy();
   expect(result.locale).toBeNull();
+  expect(result.integrity).toBe('native_language_blocked');
   await page.evaluate(()=>openDetail(215));
   const profile=page.locator('#detail #profile-menu');
-  await expect(profile.locator('.menu233-language-gap')).toContainText('Originalsprache');
+  await expect(profile.locator('.menu248-blocked')).toContainText('Deutsche Speisekarte wird aufbereitet');
+  await expect(profile.locator('[data-menu-item]')).toHaveCount(0);
   await expect(profile.locator('.menu-signature-promise')).toHaveCount(0);
 });
 
 test('language completeness requires translated descriptions and failures are fail-closed',()=>{
-  const code=fs.readFileSync('menu-language-integrity-2.33.js','utf8');
-  expect(code).toContain("if(clean233(item.description)&&!clean233(t.description))return false");
-  expect(code).toContain("PRODUCTION_TRANSLATIONS=new Set(['curated','operator_confirmed'])");
-  expect(code).toContain("window.hoyMenuLanguageIntegrityState='blocked'");
-  expect(code).toContain("integrity:'quality_blocked'");
+  const oldCode=fs.readFileSync('menu-language-integrity-2.33.js','utf8');
+  const nativeCode=fs.readFileSync('menu-native-standard-2.48.js','utf8');
+  expect(oldCode).toContain("if(clean233(item.description)&&!clean233(t.description))return false");
+  expect(nativeCode).toContain("if(clean(item.description)&&!clean(t.description))return false");
+  expect(nativeCode).toContain("PRODUCTION_TRANSLATIONS=new Set(['curated','operator_confirmed'])");
+  expect(nativeCode).toContain("integrity:'native_language_blocked'");
+  expect(nativeCode).toContain("guestAvailability:'blocked_until_locale_complete'");
 });
