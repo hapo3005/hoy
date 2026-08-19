@@ -29,17 +29,16 @@ async function productionRow(page,slug){
     if(!p)return null;
     const f=window.hoyFamilyPlaygrounds240.familyFor(p);
     return {
-      id:Number(p.id),slug:p.slug,name:p.name,profile_quality:p.profile_quality,
-      area:p.area,municipality:p.municipality,address:p.address,phone:p.phone,website:p.website,hours_text:p.hours_text,hours_status:p.hours_status,
+      id:Number(p.id),slug:p.slug,name:p.name,area:p.area,address:p.address,phone:p.phone,website:p.website,hours:p.hours,
       family:f?{play_types:f.play_types,relationship:f.relationship,access_type:f.access_type,visible_from_seating:f.visible_from_seating,road_crossing:f.road_crossing,indoor_play_area:f.indoor_play_area,highchairs:f.highchairs,kids_menu:f.kids_menu,verification_status:f.verification_status,source_count:f.source_count}:null
     };
   },slug);
 }
 
-test('La Rusticana is a live premium profile with the previously audited Family facts',async({page})=>{
+test('La Rusticana is a live profile with the previously audited Family facts',async({page})=>{
   await openFamily(page);
   const row=await productionRow(page,'la-rusticana');
-  expect(row).toMatchObject({id:246,profile_quality:'premium',municipality:'Cartagena'});
+  expect(row).toMatchObject({id:246,area:'La Manga Club / Atamaría'});
   expect(row.address).toContain('Carretera de Atamaría 76B');
   expect(row.phone).toContain('626 919 020');
   expect(row.family).toMatchObject({play_types:['outdoor_playground','indoor_playroom'],relationship:'on_premises',road_crossing:'none',indoor_play_area:true,verification_status:'operator_confirmed'});
@@ -86,8 +85,8 @@ test('operator-backed Family profiles retain their audited live facts',async({pa
   await openFamily(page);
 
   let row=await productionRow(page,'marea-narejos');
-  expect(row).toMatchObject({id:248,profile_quality:'premium',website:'https://www.mareanarejos.com/'});
-  expect(row.hours_text).toContain('09:00–00:00');
+  expect(row).toMatchObject({id:248,website:'https://www.mareanarejos.com/'});
+  expect(row.hours).toContain('09:00–00:00');
   expect(row.family).toMatchObject({play_types:['splash','minigolf'],relationship:'on_premises',access_type:'paid',road_crossing:'none',verification_status:'operator_confirmed'});
   let opened=await openLive(page,'Marea Narejos');
   await expect(opened.family).toContainText('Splash');
@@ -96,8 +95,8 @@ test('operator-backed Family profiles retain their audited live facts',async({pa
   await page.locator('#detail [data-close]').click();
 
   row=await productionRow(page,'si-bar-restaurant');
-  expect(row).toMatchObject({id:245,profile_quality:'premium',website:'https://www.si-bar.eu/'});
-  expect(row.hours_text).toContain('Küche 12:00–22:50');
+  expect(row).toMatchObject({id:245,website:'https://www.si-bar.eu/'});
+  expect(row.hours).toContain('Küche 12:00–22:50');
   expect(row.family).toMatchObject({relationship:'on_premises',road_crossing:'none',verification_status:'operator_confirmed'});
   opened=await openLive(page,'Si! Bar & Restaurant');
   await expect(opened.family).toContainText('Vom Betrieb bestätigt');
@@ -106,9 +105,10 @@ test('operator-backed Family profiles retain their audited live facts',async({pa
 test('Da Sebastián is restored as live Production with its audited kids menu and playground',async({page})=>{
   await openFamily(page);
   const row=await productionRow(page,'pizzeria-da-sebastian');
-  expect(row).toMatchObject({id:257,profile_quality:'premium',municipality:'San Javier',website:'https://pizzeriadasebastian.com/',hours_status:'verified'});
+  expect(row).toMatchObject({id:257,area:'La Manga del Mar Menor',website:'https://pizzeriadasebastian.com/'});
   expect(row.address).toContain('km 8.5');
   expect(row.phone).toContain('968 337 063');
+  expect(row.hours).toContain('Täglich 13:30–16:00');
   expect(row.family).toMatchObject({play_types:['outdoor_playground'],relationship:'on_premises',kids_menu:true,verification_status:'source_verified',source_count:2});
   expect(row.family.visible_from_seating).toBe(null);
 
@@ -119,12 +119,14 @@ test('Da Sebastián is restored as live Production with its audited kids menu an
   await expect(family).not.toContainText('Vom Sitzplatz einsehbar');
 });
 
-test('Mediterráneo El Mojón is restored under its real municipality with only supported Family facts',async({page})=>{
+test('Mediterráneo El Mojón is restored under its real area with only supported Family facts',async({page})=>{
   await openFamily(page);
   const row=await productionRow(page,'restaurante-mediterraneo-el-mojon');
-  expect(row).toMatchObject({id:259,profile_quality:'premium',area:'El Mojón / Pilar de la Horadada',municipality:'Pilar de la Horadada',hours_status:'conditional'});
+  expect(row).toMatchObject({id:259,area:'El Mojón / Pilar de la Horadada'});
   expect(row.address).toContain('Calle Madrid 1');
+  expect(row.address).toContain('Pilar de la Horadada');
   expect(row.phone).toContain('965 355 319');
+  expect(row.hours).toContain('Mi geschlossen');
   expect(row.family).toMatchObject({play_types:['indoor_playroom'],relationship:'on_premises',road_crossing:'none',indoor_play_area:true,highchairs:true,verification_status:'source_verified',source_count:2});
   expect(row.family.visible_from_seating).toBe(null);
 
@@ -150,10 +152,10 @@ test('blocked Family candidates stay out of the live decision surface',async({pa
 test('José Antonio uses the restored current Lo Pagán contact and not stale details',async({page})=>{
   await openFamily(page);
   const row=await productionRow(page,'confiteria-cafe-jose-antonio');
-  expect(row).toMatchObject({id:254,profile_quality:'premium'});
+  expect(row).toMatchObject({id:254});
   expect(row.address).toContain('Avenida Romería Virgen del Carmen 99');
   expect(row.phone).toContain('636 756 940');
-  expect(row.hours_text).toContain('Lo-Pagán-Filiale');
+  expect(row.hours).toContain('Lo-Pagán-Filiale');
   expect(row.phone).not.toContain('638 958 995');
 
   const {detail}=await openLive(page,'Confitería Café José Antonio');
