@@ -21,8 +21,9 @@ const direct=x.direct_restaurant_provenance||{};
 const noRegistry=direct.NO_REGISTRY?.field_references||0;
 const hard=(direct.RED?.field_references||0)+(direct.REVIEW_REQUIRED?.field_references||0)+noRegistry;
 assert(hard===direct.hard_queue?.field_references,`hard direct queue mismatch ${hard} != ${direct.hard_queue?.field_references}`);
-assert(direct.hard_queue?.field_references===329,'current direct hard queue must remain pinned to the 2026-08-19 read-only snapshot');
-assert(direct.NO_REGISTRY?.field_references===3,'current direct no-registry queue must remain 3 until an approved replacement/classification is actually applied');
+assert(direct.hard_queue?.field_references===329,'current direct hard queue must remain pinned to the latest 2026-08-19 read-only snapshot');
+assert(noRegistry===0,'current direct registry coverage must have zero unregistered references');
+assert((direct.REVIEW_REQUIRED?.field_references||0)===16,'current REVIEW_REQUIRED direct queue must remain 16 on this snapshot');
 
 const historicalHard=(historical.direct_restaurant_provenance?.RED?.field_references||0)
   +(historical.direct_restaurant_provenance?.REVIEW_REQUIRED?.field_references||0)
@@ -30,6 +31,18 @@ const historicalHard=(historical.direct_restaurant_provenance?.RED?.field_refere
 assert(historicalHard===343,'historical 2026-08-18 hard queue must remain 343');
 assert(x.delta_vs_2026_08_18_snapshot?.hard_direct_field_references===hard-historicalHard,'historical delta mismatch');
 assert(x.historical_predecessor===historicalPath,'historical predecessor link drifted');
+
+const formerly=x.formerly_no_registry_direct_provenance||[];
+assert(formerly.length===3,'the three formerly unregistered direct references must remain explicitly tracked');
+for(const r of formerly){
+  assert(r.host && r.field && r.current_registry_status && r.legal_review_status,'incomplete formerly-no-registry row');
+  assert(r.current_registry_status==='REVIEW_REQUIRED','formerly unregistered reference must remain fail-closed REVIEW_REQUIRED');
+  assert(r.replacement_required===true,'formerly unregistered reference must remain replacement-required');
+  assert(r.factual_verification_allowed===false,'restricted publisher/platform reference must not be used for factual verification');
+  assert(r.transferability==='UNKNOWN','restricted publisher/platform reference must not be promoted to transfer-clear');
+}
+assert(x.delta_vs_earlier_2026_08_19_observation?.direct_no_registry_field_references===-3,'registry-coverage delta must record all three former gaps');
+assert(x.delta_vs_earlier_2026_08_19_observation?.hard_direct_field_references===0,'registry classification alone must not reduce the hard queue');
 
 const activeTerms=x.policy_controls.business_terms_status==='active';
 const acceptances=x.policy_controls.business_terms_acceptances||0;
@@ -47,10 +60,7 @@ if(blockers.length){
 }
 assert(Array.isArray(x.no_registry_direct_provenance),'no-registry queue missing');
 assert(x.no_registry_direct_provenance.length===noRegistry,'no-registry queue count must equal direct provenance gap count');
-for(const r of x.no_registry_direct_provenance){
-  assert(r.host && r.field && r.current_treatment && r.recommended_registry_treatment,'incomplete no-registry remediation row');
-  assert(r.current_treatment==='FAIL_CLOSED_NO_REGISTRY','unregistered source must remain fail-closed until an approved apply');
-}
+assert(x.gate.registry_coverage_for_direct_provenance==='GREEN_TECHNICAL','registry coverage may only be GREEN_TECHNICAL while rights/transfer blockers remain');
 
 const firstParty=x.first_party_replacement_rights_boundary||{};
 assert(firstParty.current_rights_status==='AMBER','first-party replacement boundary must remain AMBER');
@@ -67,6 +77,7 @@ const summary={
   hard_delta_vs_previous:hard-historicalHard,
   red_policy_failures:x.policy_controls.red_policy_failures,
   no_registry_direct_refs:noRegistry,
+  formerly_no_registry_now_review_required:formerly.length,
   active_business_terms:activeTerms,
   business_terms_acceptances:acceptances,
   business_data_confirmations:confirmations,
