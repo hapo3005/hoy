@@ -5,10 +5,10 @@ test.use({serviceWorkers:'block'});
 async function ready(page,url='./?familyPreview=1'){
   await page.setViewportSize({width:1280,height:900});
   await page.goto(url,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true,{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyAuditedPreview240?.state?.mode==='live'&&window.hoyFamilyResearchStandard241?.state?.applied===true,{timeout:30000});
 }
 
-test('desktop Family preview stays centered and research draft cards keep the decision verdict in their content grid',async({page})=>{
+test('desktop Family shell stays centered while live Family data overrides research-preview injection',async({page})=>{
   await ready(page);
 
   const shell=await page.evaluate(()=>{
@@ -27,31 +27,23 @@ test('desktop Family preview stays centered and research draft cards keep the de
   expect(shell.documentWidth).toBeLessThanOrEqual(shell.viewportWidth+1);
 
   await page.locator('[data-family240-home-context]').click();
-  await expect(page.locator('[data-result-count]')).toHaveText('19');
+  await expect(page.locator('[data-result-count]')).toHaveText('4');
+  await expect(page.locator('.family240-research-card')).toHaveCount(0);
+  await expect(page.locator('[data-family240-preview-badge]')).toHaveCount(0);
 
-  const card=page.locator('.family240-research-card').first();
-  await expect(card).toBeVisible();
-  await expect(card).toContainText('RESEARCH-DRAFT');
+  const cards=page.locator('.list-card[data-open]');
+  await expect(cards).toHaveCount(4);
+  await expect(page.locator('.list')).toContainText('Restaurante La Plaza');
 
-  const layout=await card.evaluate(el=>{
-    const verdict=el.querySelector(':scope > .decision280-card-verdict');
-    const art=el.querySelector(':scope > .family240-research-art');
-    const lock=el.querySelector(':scope > .family240-research-lock');
+  const layout=await cards.first().evaluate(el=>{
     const rect=el.getBoundingClientRect();
     return {
       display:getComputedStyle(el).display,
-      verdictArea:verdict?getComputedStyle(verdict).gridArea:'',
-      artArea:art?getComputedStyle(art).gridArea:'',
-      lockDisplay:lock?getComputedStyle(lock).display:'missing',
       height:rect.height,
       scrollWidth:el.scrollWidth,
       clientWidth:el.clientWidth
     };
   });
-  expect(layout.display).toBe('grid');
-  expect(layout.verdictArea).toBe('verdict');
-  expect(layout.artArea).toBe('art');
-  expect(layout.lockDisplay).toBe('none');
-  expect(layout.height).toBeLessThan(260);
+  expect(layout.height).toBeLessThan(320);
   expect(layout.scrollWidth).toBeLessThanOrEqual(layout.clientWidth+1);
 });

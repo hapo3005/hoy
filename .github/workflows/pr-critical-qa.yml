@@ -67,6 +67,8 @@ jobs:
           tests/menu-discovery-core-data-2.26.spec.js
           tests/menu-inapp-2.31.spec.js
           tests/menu-integrity-2.32.spec.js
+          tests/family-playgrounds-2.40.spec.js
+          tests/family-production-live-2.40.spec.js
           tests/onboarding-entry-2.27.spec.js
           tests/onboarding-migration-guard-2.27.spec.js
           tests/release-2.14.0.spec.js
@@ -127,6 +129,8 @@ jobs:
           npx playwright test
           tests/hoy.spec.js
           tests/release-hardening-2.39.spec.js
+          tests/family-playgrounds-2.40.spec.js
+          tests/family-production-live-2.40.spec.js
           --project=mobile-chrome
           --workers=1
           --retries=0
