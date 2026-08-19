@@ -1,0 +1,184 @@
+{
+  "schema_version": "2.0",
+  "control_model": "HOY EXIT CONTROL v2.0",
+  "gate": "G1_ACQUISITION_CLEAN",
+  "inventory_date": "2026-08-19",
+  "status": "IN_PROGRESS",
+  "objective": "Create an evidence-backed acquisition-grade inventory of founder-controlled, company-target, licensed and third-party HOY assets without overclaiming ownership or transferability.",
+  "claim_boundary": "Control, authorship, ownership, legal title, transferable usage rights, account ownership and commercial data rights are separate facts and must not be conflated.",
+  "founder": {
+    "name": "Jan Nikolic",
+    "github_identity": "hapo3005",
+    "company_entity": "TBD_PENDING_CORPORATE_TAX_LEGAL_GATE",
+    "execution_rule": "No binding founder-to-company transfer is marked complete until the legal entity, transfer mechanics, tax treatment and signed evidence are confirmed."
+  },
+  "evidence_sources": [
+    "hapo3005/hoy#102",
+    "hapo3005/hoy#104",
+    "hapo3005/hoy#105",
+    "data/ir-02a-founder-ip-schedule-2026-08-18.json",
+    "data/ir-02a-rights-register-2026-08-18.json"
+  ],
+  "asset_classes": [
+    {
+      "class_id": "AC-REPO",
+      "name": "Source repositories",
+      "assets": [
+        {
+          "id": "REP-01",
+          "asset": "HOY Gastro/Core source repository",
+          "location": "hapo3005/hoy",
+          "repository_id": "1328826771",
+          "current_account_control": "FOUNDER_ADMIN_CONFIRMED",
+          "authorship_evidence": "FOUNDER_PLUS_PLATFORM_BOTS_ONLY_IN_HISTORY_CENSUS",
+          "external_human_contributor_status": "NONE_IDENTIFIED",
+          "current_rights_state": "FOUNDER_CONTROLLED_PRE_COMPANY",
+          "company_assignment": "REQUIRED",
+          "company_account_transfer": "REQUIRED",
+          "confidentiality_note": "Repository currently public; historical public copies cannot be made retroactively confidential.",
+          "dd_status": "AMBER"
+        },
+        {
+          "id": "REP-02",
+          "asset": "HOY Lifestyle source/research repository",
+          "location": "hapo3005/hoy-lifestyle",
+          "repository_id": "1330175210",
+          "current_account_control": "FOUNDER_ADMIN_CONFIRMED",
+          "authorship_evidence": "FOUNDER_PLUS_PLATFORM_COMMITTER_ONLY_IN_HISTORY_CENSUS",
+          "external_human_contributor_status": "NONE_IDENTIFIED",
+          "current_rights_state": "FOUNDER_CONTROLLED_PRE_COMPANY",
+          "company_assignment": "REQUIRED",
+          "company_account_transfer": "REQUIRED",
+          "dd_status": "AMBER"
+        },
+        {
+          "id": "REP-03",
+          "asset": "HOY Works source repository",
+          "location": "hapo3005/hoy-works",
+          "repository_id": "1331755652",
+          "current_account_control": "FOUNDER_ADMIN_CONFIRMED",
+          "authorship_evidence": "FOUNDER_ONLY_HUMAN_HISTORY_CENSUS",
+          "external_human_contributor_status": "NONE_IDENTIFIED",
+          "current_rights_state": "FOUNDER_CONTROLLED_PRE_COMPANY",
+          "company_assignment": "REQUIRED",
+          "company_account_transfer": "REQUIRED",
+          "dd_status": "AMBER"
+        }
+      ]
+    },
+    {
+      "class_id": "AC-BACKEND",
+      "name": "Backend and database assets",
+      "assets": [
+        {
+          "id": "BE-01",
+          "asset": "HOY La Manga Supabase project",
+          "project_ref": "zlscptisdxzxuvllogza",
+          "scope": "Founder-created schema, migrations, functions, configuration and database organisation; Supabase platform excluded.",
+          "current_control": "FOUNDER_CONTROLLED_ACCOUNT",
+          "company_assignment": "REQUIRED_FOR_FOUNDER_CREATED_IP",
+          "company_account_transfer": "REQUIRED",
+          "vendor_transferability_evidence": "OPEN",
+          "dd_status": "AMBER"
+        },
+        {
+          "id": "BE-02",
+          "asset": "HOY Works Supabase project",
+          "project_ref": "dqfouwyclvmpkunmxkun",
+          "scope": "Founder-created schema, Edge Functions, configuration and database organisation; Supabase platform excluded.",
+          "current_control": "FOUNDER_CONTROLLED_ACCOUNT",
+          "company_assignment": "REQUIRED_FOR_FOUNDER_CREATED_IP",
+          "company_account_transfer": "REQUIRED",
+          "vendor_transferability_evidence": "OPEN",
+          "dd_status": "AMBER"
+        }
+      ]
+    },
+    {
+      "class_id": "AC-PRODUCT-IP",
+      "name": "Founder-created product and operating IP",
+      "assets": [
+        {"id":"PIP-01","asset":"HOY Core/platform architecture","company_assignment":"REQUIRED","third_party_exclusions":"OSS, SaaS and vendor platform components","dd_status":"AMBER"},
+        {"id":"PIP-02","asset":"HOY Gastro product architecture and workflows","company_assignment":"REQUIRED","third_party_exclusions":"business/source content not independently owned","dd_status":"AMBER"},
+        {"id":"PIP-03","asset":"HOY Lifestyle product/research architecture","company_assignment":"REQUIRED","third_party_exclusions":"marketplace/directory/source content","dd_status":"AMBER"},
+        {"id":"PIP-04","asset":"HOY Works product architecture and workflows","company_assignment":"REQUIRED","third_party_exclusions":"provider/source content","dd_status":"AMBER"},
+        {"id":"PIP-05","asset":"HOY NOW realtime semantics and workflows","company_assignment":"REQUIRED","dd_status":"AMBER"},
+        {"id":"PIP-06","asset":"Trust and Verification Standard","company_assignment":"REQUIRED","dd_status":"AMBER"},
+        {"id":"PIP-07","asset":"HOY Accessibility Standard and matching semantics","company_assignment":"REQUIRED","dd_status":"AMBER"},
+        {"id":"PIP-08","asset":"HOY Intelligence analytics governance/event contracts","company_assignment":"REQUIRED","privacy_legal_basis":"OPEN","dd_status":"AMBER"},
+        {"id":"PIP-09","asset":"Region and multi-region operating architecture","company_assignment":"REQUIRED","dd_status":"AMBER"},
+        {"id":"PIP-10","asset":"Commercial funnel, pricing and onboarding architecture","company_assignment":"REQUIRED","dd_status":"AMBER"},
+        {"id":"PIP-11","asset":"Investor Ready / Buyer Ready / EXIT CONTROL documentation","company_assignment":"REQUIRED","dd_status":"AMBER"},
+        {"id":"PIP-12","asset":"Data provenance, rights and trust schemas","company_assignment":"REQUIRED","dd_status":"AMBER"},
+        {"id":"PIP-13","asset":"La Manga operator playbook, SOP framework, QA and remote-control model","company_assignment":"REQUIRED","operational_proof":"NOT_YET_DEMONSTRATED","dd_status":"AMBER"}
+      ]
+    },
+    {
+      "class_id": "AC-DATA",
+      "name": "Data and research assets",
+      "source_of_truth": "data/ir-02a-rights-register-2026-08-18.json",
+      "rule": "Data value is not treated as ownership. Each dataset must retain source, provenance, legal/contractual basis, privacy status, publication/use limits and change-of-control analysis.",
+      "known_inventory": {
+        "gastro_master_restaurants": 169,
+        "gastro_accessibility_legacy_rows": 166,
+        "gastro_accessibility_canonical_facts": 668,
+        "works_providers": 85,
+        "works_source_evidence_rows": 102,
+        "lifestyle_reproducible_research_rows": 27
+      },
+      "current_rights_state": "MIXED_AMBER_REVIEW_REQUIRED_FAIL_CLOSED",
+      "dd_status": "AMBER_RED_MIXED"
+    },
+    {
+      "class_id": "AC-BRAND",
+      "name": "Brand, domain and registry assets",
+      "assets": [
+        {"id":"BR-01","asset":"HOY name / trade-name / trademark position","evidence":"OPEN","transferability":"OPEN","dd_status":"RED"},
+        {"id":"BR-02","asset":"HOY domains / DNS / registrar rights","evidence":"DOMAIN_REGISTER_REQUIRED","transferability":"OPEN","dd_status":"RED"},
+        {"id":"BR-03","asset":"HOY social handles / platform identities","evidence":"HANDLE_REGISTER_REQUIRED","transferability":"OPEN","dd_status":"RED"},
+        {"id":"BR-04","asset":"Logo, visual identity, UI assets and claims created for HOY","evidence":"ASSET_LEVEL_SOURCE_AND_RIGHTS_SCHEDULE_REQUIRED","company_assignment":"REQUIRED_WHERE_FOUNDER_OWNS_RIGHTS","dd_status":"AMBER"}
+      ]
+    },
+    {
+      "class_id": "AC-THIRD-PARTY",
+      "name": "Third-party software, AI and media dependencies",
+      "assets": [
+        {"id":"TP-01","asset":"OSS/runtime dependencies","technical_status":"GREEN_CANDIDATE_SBOM_AND_LICENCE_GATE","final_distribution_notices":"OPEN","dd_status":"AMBER"},
+        {"id":"TP-02","asset":"GitHub Actions dependencies","technical_status":"GREEN_IMMUTABLE_PINS","dd_status":"GREEN_TECHNICAL"},
+        {"id":"TP-03","asset":"AI-generated or AI-assisted assets","rights_rule":"NO_AUTOMATIC_EXCLUSIVE_IP_CLAIM; provider terms, inputs, human review, privacy and assignment tracked separately","provider_account_control":"OPEN","dd_status":"AMBER"},
+        {"id":"TP-04","asset":"Business/operator/media/source content","rights_rule":"NO_OWNERSHIP_CLAIM_WITHOUT_ASSIGNMENT_OR_LICENSE","dd_status":"AMBER_RED_MIXED"}
+      ]
+    },
+    {
+      "class_id": "AC-COMMERCIAL",
+      "name": "Commercial and contractual assets",
+      "assets": [
+        {"id":"COM-01","asset":"Business Terms and acceptance infrastructure","technical_status":"IMPLEMENTED_FAIL_CLOSED","legal_status":"DRAFT_COUNSEL_REVIEW_REQUIRED","active_acceptances":0,"dd_status":"AMBER"},
+        {"id":"COM-02","asset":"Business confirmation ledger","technical_status":"IMPLEMENTED","confirmed_businesses":0,"dd_status":"AMBER"},
+        {"id":"COM-03","asset":"Founding business / LOI / pilot relationships","current_external_proof":"NOT_YET_STARTED_UNDER_RELEASE_GATE","dd_status":"RED_FOR_MARKET_PROOF"},
+        {"id":"COM-04","asset":"Consumer test cohort / usage proof","current_external_proof":"NOT_YET_STARTED_UNDER_RELEASE_GATE","dd_status":"RED_FOR_MARKET_PROOF"}
+      ]
+    }
+  ],
+  "closed_subgates": [
+    "THREE_CORE_REPOSITORIES_IDENTIFIED_AND_FOUNDER_ADMIN_CONTROL_CONFIRMED",
+    "ALL_HISTORY_CONTRIBUTOR_CENSUS_COMPLETE",
+    "NO_EXTERNAL_HUMAN_CONTRIBUTOR_IDENTIFIED_IN_REACHABLE_HISTORY",
+    "SECRET_HISTORY_TECHNICAL_AUDIT_GREEN",
+    "RUNTIME_DEPENDENCY_PINNING_GREEN_CANDIDATE",
+    "GITHUB_ACTIONS_IMMUTABLE_PIN_GATE_GREEN",
+    "COMPOSED_SBOM_LICENCE_GATE_GREEN_CANDIDATE"
+  ],
+  "g1_priority_close_actions": [
+    {"priority":"P0","action":"Finalize HOY legal entity and counsel/tax-approved founder-to-company IP mechanism; execute and evidence Founder IP Assignment / rights grant."},
+    {"priority":"P0","action":"Create brand/domain/social-handle register with registrant, billing owner, MFA/recovery, renewal and transferability evidence."},
+    {"priority":"P0","action":"Establish company-controlled GitHub organization/repository ownership model and verified public-runtime delivery path before privatization/transfer."},
+    {"priority":"P0","action":"Establish company-controlled Supabase/vendor billing, recovery and transfer evidence."},
+    {"priority":"P0","action":"Close data-rights red/review-required sources and preserve fail-closed controls where commercial rights are not evidenced."},
+    {"priority":"P0","action":"Complete DE/ES legal review for Terms, Privacy, DPA, consent/legal-basis, retention and change-of-control handling."},
+    {"priority":"P1","action":"Create asset-level design/logo/media register including source files, creator, tool/provider, input provenance and rights basis."},
+    {"priority":"P1","action":"Freeze acquisition-state SBOM/third-party notices after approved runtime merges and any dependency changes."},
+    {"priority":"P1","action":"Populate Buyer Data Room index and evidence links for every material asset class."}
+  ],
+  "g1_pass_rule": "PASS only when each material asset has a documented owner/control state, rights basis, transferability/change-of-control position and evidence; critical third-party/data/privacy/corporate/trademark risks are closed or explicitly buyer-acceptable; and the Buyer Data Room is reviewable without material undisclosed red flags."
+}
