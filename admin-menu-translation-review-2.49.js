@@ -112,7 +112,10 @@
     }catch(error){
       const msg=errText(error);toast(msg.includes('stale_translation')?'Text wurde inzwischen geändert – Queue wird neu geladen':msg);
       if(msg.includes('stale_translation')){await loadQueue(row.restaurant_id);renderDialog()}
-    }finally{ui.busy=false}
+    }finally{
+      ui.busy=false;
+      if(d.open&&current())renderDialog();
+    }
   }
 
   async function openReview(id){
