@@ -1,0 +1,130 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "control": "G1-CB-14",
+  "status": "ORDERED_APPLY_PLAN_PREPARED_NOT_EXECUTED",
+  "sourceSurvivor": {
+    "pr": 141,
+    "head": "d0e8927ebe5387696570b52bb3c9064707cb77da",
+    "manifest": "docs/investor-ready/rt007-prepared-replacements-v2.json"
+  },
+  "safety": {
+    "productionMutationPerformed": false,
+    "productionApplyAuthorized": false,
+    "autoApply": false,
+    "ddlAllowed": false,
+    "dmlAllowedBeforeExplicitApproval": false,
+    "singleTransactionForAllWaves": false,
+    "buyerTransferClearanceCreatedByReplacement": false,
+    "businessTermsStillRequired": true
+  },
+  "frozenExpectations": {
+    "targets": 36,
+    "published": 34,
+    "unpublished": 2,
+    "signatureTargets": 12,
+    "projectedHardRefs": {
+      "before": {"all": 329, "published": 324, "unpublished": 5},
+      "after": {"all": 293, "published": 290, "unpublished": 3}
+    }
+  },
+  "preconditions": [
+    "All 36 proposed first-party URLs are re-fetched and still support the intended factual replacement.",
+    "Each target restaurant id, field name and currentUrl exactly matches the prepared manifest immediately before candidate generation.",
+    "All 12 signature targets have their current signature copy baseline re-read and reviewed before any replacement candidate is generated.",
+    "Current buyer-safe rights counts are regenerated read-only and match the accepted pre-apply baseline or the plan is regenerated.",
+    "The current RT-007 survivor and relevant privacy/security release boundaries remain green.",
+    "A rollback payload containing the exact prior value for every target is generated and reviewed.",
+    "Explicit production approval is recorded separately; this plan is not that approval."
+  ],
+  "orderedWaves": [
+    {
+      "order": 1,
+      "wave": "source_url_wave1",
+      "expectedTargets": 12,
+      "transactionBoundary": "ONE_WAVE_ONE_TRANSACTION",
+      "requiredPredicate": "restaurant id AND exact current field value must match manifest",
+      "abortCondition": "affected row count != 12 or any predicate mismatch"
+    },
+    {
+      "order": 2,
+      "wave": "signature_wave1",
+      "expectedTargets": 3,
+      "transactionBoundary": "ONE_WAVE_ONE_TRANSACTION",
+      "requiredPredicate": "restaurant id AND exact current signature source value AND approved copy baseline",
+      "abortCondition": "affected row count != 3 or any predicate/copy-baseline mismatch"
+    },
+    {
+      "order": 3,
+      "wave": "signature_wave2",
+      "expectedTargets": 9,
+      "transactionBoundary": "ONE_WAVE_ONE_TRANSACTION",
+      "requiredPredicate": "restaurant id AND exact current signature source value AND approved copy baseline",
+      "abortCondition": "affected row count != 9 or any predicate/copy-baseline mismatch"
+    },
+    {
+      "order": 4,
+      "wave": "location_wave1",
+      "expectedTargets": 4,
+      "transactionBoundary": "ONE_WAVE_ONE_TRANSACTION",
+      "requiredPredicate": "restaurant id AND exact current field value must match manifest",
+      "abortCondition": "affected row count != 4 or any predicate mismatch"
+    },
+    {
+      "order": 5,
+      "wave": "location_wave2",
+      "expectedTargets": 2,
+      "transactionBoundary": "ONE_WAVE_ONE_TRANSACTION",
+      "requiredPredicate": "restaurant id AND exact current field value must match manifest",
+      "abortCondition": "affected row count != 2 or any predicate mismatch"
+    },
+    {
+      "order": 6,
+      "wave": "location_wave3",
+      "expectedTargets": 4,
+      "transactionBoundary": "ONE_WAVE_ONE_TRANSACTION",
+      "requiredPredicate": "restaurant id AND exact current field value must match manifest",
+      "abortCondition": "affected row count != 4 or any predicate mismatch"
+    },
+    {
+      "order": 7,
+      "wave": "location_wave4",
+      "expectedTargets": 2,
+      "transactionBoundary": "ONE_WAVE_ONE_TRANSACTION",
+      "requiredPredicate": "restaurant id AND exact current field value must match manifest",
+      "abortCondition": "affected row count != 2 or any predicate mismatch"
+    }
+  ],
+  "executionProtocol": [
+    "Freeze a read-only pre-apply evidence snapshot and hash it.",
+    "Generate a candidate for exactly one wave from the revalidated manifest; do not hand-edit target values.",
+    "Run candidate in a transaction with fail-closed exact-value predicates and verify the expected affected-row count before commit.",
+    "After each committed wave, rerun target-level read-only reconciliation and the buyer-safe export summary.",
+    "Stop immediately on any unexpected row, source, count, rights-classification or publication-state drift.",
+    "Do not continue to the next wave until the prior wave has a complete rollback payload and post-wave evidence.",
+    "After all seven waves, regenerate the full buyer-safe export and final acquired-state evidence."
+  ],
+  "rollbackProtocol": {
+    "captureBeforeMutation": true,
+    "granularity": "PER_TARGET_AND_PER_WAVE",
+    "requiredFields": ["restaurantId", "field", "priorValue", "newValue", "published", "wave", "capturedAt", "evidenceHash"],
+    "rollbackPredicate": "restaurant id AND exact new field value must match the applied candidate",
+    "rollbackOn": [
+      "unexpected affected-row count",
+      "post-wave buyer-safe reconciliation drift outside the approved projection",
+      "unexpected rights-status regression",
+      "wrong publication-state impact",
+      "signature-copy mismatch",
+      "any target not represented in the reviewed manifest"
+    ]
+  },
+  "postApplyAcceptance": [
+    "36/36 target rows reconcile to the reviewed proposed values.",
+    "34 published and 2 unpublished target split remains exact.",
+    "Hard-reference projection reconciles to 293 total / 290 published / 3 unpublished, or the change is treated as drift and investigated before any claim.",
+    "No replacement is claimed as whole-profile clearance or transfer-clear rights by itself.",
+    "Buyer-safe export remains SELECT-only and excludes personal/user-event data.",
+    "Final evidence records the exact applied wave commits/receipts, rollback payload hashes and post-apply counts."
+  ],
+  "claimBoundary": "This artifact satisfies only the ordered-plan portion of G1-CB-14. It does not authorize or perform Production DML, does not close RT-007, and does not close G1."
+}
