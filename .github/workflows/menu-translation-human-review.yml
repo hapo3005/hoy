@@ -11,6 +11,7 @@ on:
       - 'index.html'
       - 'scripts/check-menu-translation-human-review.mjs'
       - 'supabase/migrations/20260819104500_menu_translation_human_verification_v1.sql'
+      - 'supabase/migrations/20260819110000_menu_translation_human_verification_rpc_hardening_v1.sql'
       - '.github/workflows/menu-translation-human-review.yml'
   workflow_dispatch:
 
