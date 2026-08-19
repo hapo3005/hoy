@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "snapshotDate": "2026-08-19",
   "observedAt": "2026-08-19T03:23:41.766704Z",
   "status": "READ_ONLY_BUYER_DD_SNAPSHOT",
@@ -112,6 +112,50 @@
       "replacementRequired": true
     }
   ],
+  "preparedReplacementImpact": {
+    "status": "PROJECTED_AFTER_REQUIRED_REBASE_REVIEW_AND_APPLY",
+    "currentHardReferences": {
+      "all": 329,
+      "published": 324,
+      "unpublished": 5
+    },
+    "preparedReferences": {
+      "all": 34,
+      "published": 32,
+      "unpublished": 2
+    },
+    "projectedHardReferences": {
+      "all": 295,
+      "published": 292,
+      "unpublished": 3
+    },
+    "byWave": [
+      {"wave":"source_url_wave1","all":12,"published":11,"unpublished":1},
+      {"wave":"signature_wave1","all":3,"published":3,"unpublished":0},
+      {"wave":"signature_wave2","all":9,"published":9,"unpublished":0},
+      {"wave":"location_wave1","all":4,"published":4,"unpublished":0},
+      {"wave":"location_wave2","all":2,"published":2,"unpublished":0},
+      {"wave":"location_wave3","all":4,"published":3,"unpublished":1}
+    ],
+    "unpublishedPreparedTargets": [
+      {
+        "restaurantId": 19,
+        "restaurantName": "Restaurante El Pez Rojo",
+        "field": "source_url",
+        "wave": "source_url_wave1"
+      },
+      {
+        "restaurantId": 202,
+        "restaurantName": "Pescados Cabo de Palos I",
+        "field": "location_source_url",
+        "wave": "location_wave3"
+      }
+    ],
+    "rebaseRequired": true,
+    "reviewRequired": true,
+    "productionApplyAuthorized": false,
+    "qualification": "The 329 to 295 aggregate potential contains 32 active published-reference improvements and 2 archived/unpublished-reference improvements. Active buyer-dataset risk must therefore be tracked separately as 324 to 292; the archive carve-out moves from 5 to 3."
+  },
   "buyerExportRules": {
     "rawSourceUrlsRequiredInBuyerFacingRows": false,
     "sourceHostAndFieldAreSufficientForSegregationEvidence": true,
