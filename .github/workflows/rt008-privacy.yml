@@ -16,6 +16,7 @@ on:
       - 'docs/investor-ready/rt008-dsar-retention-controls.md'
       - 'docs/investor-ready/rt008-consent-notice-candidate.md'
       - 'docs/investor-ready/rt008-privacy-evidence-2026-08-19.md'
+      - 'docs/investor-ready/rt008-processor-transfer-evidence-2026-08-19.md'
       - '.github/workflows/rt008-privacy.yml'
   workflow_dispatch:
 
