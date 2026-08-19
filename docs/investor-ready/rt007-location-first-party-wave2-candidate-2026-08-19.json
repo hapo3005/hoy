@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "status": "DRY_RUN_CANDIDATE_NOT_APPLIED",
+  "productionMutationPerformed": false,
+  "baseline": {
+    "liveSnapshot": "docs/investor-ready/rt007-live-rights-snapshot-2026-08-19.json",
+    "hardDirectProvenanceQueue": 329,
+    "candidateLocationReferences": 2,
+    "candidateRule": "Only records that already carry an explicit first-party contact/find-us source URL, source label and checked date in Production are included. The candidate changes provenance routing only; it does not change address coordinates or claim transfer-clear rights.",
+    "firstPartyRightsState": "AMBER",
+    "firstPartyFactualVerificationAllowed": true,
+    "firstPartyTransferability": "UNKNOWN",
+    "businessTermsStillRequired": true
+  },
+  "replacements": [
+    {
+      "restaurantId": 208,
+      "restaurantName": "Paimans Asian Street Food",
+      "storedAddress": "La Plaza, La Manga Club, 30389 Cartagena",
+      "oldLocationHost": "www.google.com",
+      "newLocationSourceUrl": "https://paimansrestaurant.com/contact/",
+      "newLocationHost": "paimansrestaurant.com",
+      "storedFirstPartyLabel": "Offizielle Website · Paimans",
+      "storedFirstPartyCheckedAt": "2026-08-11",
+      "locationPrecision": "venue_complex"
+    },
+    {
+      "restaurantId": 211,
+      "restaurantName": "El Bistro - Bellaluz - La Manga Club",
+      "storedAddress": "Bellaluz, C. del Aljibe, 1, 30389 Atamaría",
+      "oldLocationHost": "www.google.com",
+      "newLocationSourceUrl": "https://elbistrolamangaclub.com/find-us/",
+      "newLocationHost": "elbistrolamangaclub.com",
+      "storedFirstPartyLabel": "Offizielle Website · El Bistro Bellaluz",
+      "storedFirstPartyCheckedAt": "2026-08-11",
+      "locationPrecision": "venue_complex"
+    }
+  ],
+  "expectedIfLaterApprovedAndAppliedAlone": {
+    "hardDirectProvenanceQueueBefore": 329,
+    "hardDirectProvenanceQueueAfter": 327,
+    "hardQueueReduction": 2,
+    "newFirstPartyAmberReferences": 2,
+    "transferClearReferencesCreated": 0
+  },
+  "combinedPreparedPotential": {
+    "genericSourceUrlWave1": 12,
+    "signatureWave1": 3,
+    "locationWave1": 4,
+    "locationWave2": 2,
+    "totalPreparedReferences": 21,
+    "projectedHardQueueAfterRequiredRebase": 308,
+    "rebaseRequired": true
+  },
+  "approvalBoundary": {
+    "pageContentRecheckBeforeApplyRequired": true,
+    "legalClearanceClaimed": false,
+    "businessTermsActivated": false,
+    "canonicalMigrationCreated": false,
+    "productionApplyAuthorized": false,
+    "outreachAuthorized": false
+  }
+}
