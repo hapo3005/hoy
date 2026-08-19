@@ -1,0 +1,189 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "IMPLEMENTED_CANDIDATE_NOT_LIVE",
+  "objective": "Operationalize merchant first-party confirmation so HOY can distinguish factual operator-confirmed data from rights-backed, terms-linked due-diligence receipts without conflating either with buyer-wide transfer clearance.",
+  "claimBoundary": {
+    "contactFreezeActive": true,
+    "outreachAuthorized": false,
+    "productionDmlDdlAuthorized": false,
+    "businessTermsActivationAuthorized": false,
+    "fullFirstPartyCoverageClaimed": false,
+    "factualConfirmationImpliesRightsClearance": false,
+    "rightsBackedConfirmationImpliesWholeProfileTransferClearance": false,
+    "rightsReceiptRequiresActiveAcceptedBusinessTerms": true,
+    "hoursReferencePathIsCandidateNotProductionRelease": true
+  },
+  "liveReadOnlyBaseline": {
+    "observedDate": "2026-08-19",
+    "project": "HOY La Manga Production",
+    "termsVersions": 1,
+    "activeTermsVersions": 0,
+    "activeTermsAcceptances": 0,
+    "businessDataConfirmations": 0,
+    "activeBusinessDataConfirmations": 0,
+    "liveHoursConfirmed": 0,
+    "servicesConfirmed": 0,
+    "profileChangeRequests": 0,
+    "profileChangeApproved": 0,
+    "mutationPerformedByAcq05": false
+  },
+  "existingTrustRoot": {
+    "factualHoursFlow": {
+      "runtime": "operator-data-confirmation-2.29.js",
+      "server": "supabase/functions/operator-hours-confirm/index.ts",
+      "verifiedMembershipRequired": true,
+      "operatorVerifiedRequired": true,
+      "storesConfirmedByAndConfirmedAt": true,
+      "writesAuditLog": true,
+      "consumerTrustUse": "BUSINESS_CONFIRMED_FACT",
+      "rightsClaim": "NONE_BY_FACTUAL_CONFIRMATION_ALONE"
+    },
+    "rightsReceiptLedger": {
+      "table": "private.business_data_confirmations",
+      "publicRpc": "public.operator_record_business_confirmation",
+      "privateImplementation": "private.operator_record_business_confirmation_internal",
+      "requiresTermsAcceptanceId": true,
+      "requiresPayloadSha256": true,
+      "supersedesPriorActiveSameSubject": true,
+      "supportsRevocation": true,
+      "writesAuditLog": true,
+      "currentlyPopulated": false
+    }
+  },
+  "twoLayerConfirmationModel": [
+    {
+      "level": "F1_FACTUAL_OPERATOR_CONFIRMATION",
+      "purpose": "Establish that a verified operator confirmed or corrected a concrete business fact for product trust and freshness.",
+      "requiresVerifiedOperator": true,
+      "requiresActiveBusinessTerms": false,
+      "createsRightsReceipt": false,
+      "buyerClaimAllowed": "merchant-confirmed factual data only; no licence, transfer or whole-profile rights claim"
+    },
+    {
+      "level": "R1_RIGHTS_BACKED_CONFIRMATION_RECEIPT",
+      "purpose": "Create a due-diligence receipt tying an exact canonical payload hash to an active Business Terms acceptance and verified operator identity.",
+      "requiresVerifiedOperator": true,
+      "requiresActiveBusinessTerms": true,
+      "requiresAcceptedTermsReceipt": true,
+      "createsRightsReceipt": true,
+      "buyerClaimAllowed": "terms-linked confirmation receipt for the exact subject/payload only; no automatic whole-profile transfer clearance"
+    }
+  ],
+  "referenceImplementation": {
+    "scope": "WEEKLY_HOURS_ONLY",
+    "status": "IMPLEMENTED_CANDIDATE_NOT_LIVE",
+    "runtimeModule": "merchant-confirmation-receipt-2.48.js",
+    "factualFlowHook": "operator-data-confirmation-2.29.js",
+    "subject": {
+      "confirmationType": "hours",
+      "subjectType": "restaurant_live_hours",
+      "subjectRefPattern": "restaurant:{restaurant_id}:weekly_hours"
+    },
+    "canonicalPayloadFields": [
+      "restaurant_id",
+      "timezone",
+      "weekly_hours",
+      "display_text"
+    ],
+    "hash": "SHA-256",
+    "sourceChannel": "operator_dashboard",
+    "termsStatusRpc": "get_business_terms_status",
+    "recordRpc": "operator_record_business_confirmation",
+    "receiptFailureBlocksFreeFactualConfirmation": false,
+    "recordAttemptOnlyAfterSuccessfulFactualConfirmation": true,
+    "recordAttemptOnlyWhenTermsGateConfiguredAndAccepted": true,
+    "rawPiiAllowedInEvidence": false
+  },
+  "fieldRollout": [
+    {
+      "fieldGroup": "weekly_hours",
+      "factualPath": "IMPLEMENTED",
+      "rightsReceiptPath": "IMPLEMENTED_CANDIDATE_NOT_LIVE",
+      "nextCondition": "active reviewed Business Terms plus approved release"
+    },
+    {
+      "fieldGroup": "services",
+      "factualPath": "EXISTING_DATA_MODEL",
+      "rightsReceiptPath": "NOT_WIRED",
+      "nextCondition": "reconcile actual operator service-confirmation write path before wiring"
+    },
+    {
+      "fieldGroup": "profile_core_address_phone_website",
+      "factualPath": "REVIEW_BASED_CHANGE_REQUEST",
+      "rightsReceiptPath": "NOT_WIRED",
+      "nextCondition": "record only after approved/applied profile change or explicit no-change confirmation contract"
+    },
+    {
+      "fieldGroup": "menu_media_accessibility_offers_events_live_status",
+      "factualPath": "MIXED_EXISTING_OR_FUTURE",
+      "rightsReceiptPath": "NOT_WIRED",
+      "nextCondition": "field-specific authority, canonical payload and rights semantics required before rollout"
+    }
+  ],
+  "coverageMetrics": [
+    {
+      "id": "ACQ05-KPI-01",
+      "name": "merchant_factual_confirmation_coverage",
+      "numerator": "launch-critical fields with current verified-operator factual confirmation",
+      "denominator": "frozen launch-critical field set for eligible published merchants",
+      "rightsMeaning": "none beyond factual confirmation"
+    },
+    {
+      "id": "ACQ05-KPI-02",
+      "name": "rights_backed_confirmation_coverage",
+      "numerator": "launch-critical fields with active non-revoked R1 receipt matching the current canonical payload",
+      "denominator": "same frozen launch-critical field set for eligible published merchants",
+      "rightsMeaning": "terms-linked exact-subject receipt only"
+    },
+    {
+      "id": "ACQ05-KPI-03",
+      "name": "confirmation_freshness_within_sla",
+      "numerator": "confirmed fields whose factual confirmation timestamp is inside the field-specific freshness window",
+      "denominator": "confirmed fields in the frozen launch-critical set",
+      "rightsMeaning": "freshness, not transferability"
+    }
+  ],
+  "ddExportRules": {
+    "buyerFacingRawUserIdAllowed": false,
+    "buyerFacingRawTermsAcceptanceEvidenceAllowedByDefault": false,
+    "includeConfirmationId": true,
+    "includeRestaurantId": true,
+    "includeConfirmationType": true,
+    "includeSubjectType": true,
+    "includeSubjectRef": true,
+    "includePayloadSha256": true,
+    "includeConfirmedAt": true,
+    "includeSourceChannel": true,
+    "includeTermsVersion": true,
+    "includeReceiptStatus": true,
+    "activeReceiptMustMatchCurrentPayload": true,
+    "revokedOrSupersededExcludedFromCurrentCoverage": true
+  },
+  "antiOverclaimRules": [
+    "FACTUAL_CONFIRMATION_IS_NOT_RIGHTS_CLEARANCE",
+    "RIGHTS_RECEIPT_IS_NOT_WHOLE_PROFILE_TRANSFER_CLEARANCE",
+    "TERMS_ACCEPTANCE_IS_NOT_PAYMENT_PROOF",
+    "CONFIRMATION_COUNT_IS_NOT_MERCHANT_RETENTION",
+    "STALE_CONFIRMATION_IS_NOT_CURRENT_DATA",
+    "SUPERSEDED_OR_REVOKED_RECEIPT_IS_NOT_ACTIVE_COVERAGE",
+    "NO_TERMS_GATE_MEANS_NO_RIGHTS_RECEIPT",
+    "FAILED_RECEIPT_WRITE_DOES_NOT_DOWNGRADE_OR_ROLL_BACK_FREE_FACTUAL_CONFIRMATION"
+  ],
+  "releasePreconditions": [
+    "business_terms_legally_reviewed_and_active",
+    "privacy_notice_linkage_current",
+    "operator_record_business_confirmation_rpc_reverified",
+    "hours_payload_contract_reverified_against_live_server_response",
+    "browser_and_security_regression_green",
+    "buyer_safe_export_query_versioned",
+    "explicit_release_authorization"
+  ],
+  "notAuthorized": [
+    "business_or_partner_outreach",
+    "business_terms_activation",
+    "production_database_mutation",
+    "production_edge_redeploy",
+    "buyer_export_execution",
+    "merge"
+  ]
+}
