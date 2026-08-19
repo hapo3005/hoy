@@ -37,15 +37,17 @@ This avoids an important failure mode in the historical candidate: copying an ol
 
 Every target is moved to:
 
-`pg_catalog, public`
+`pg_catalog, public, pg_temp`
 
-`pg_temp`, `private` and `auth` are removed from the runtime search path. `public` remains only because current bodies contain public-owned custom enum type references.
+The ordering is deliberate. PostgreSQL searches the current temporary schema first when `pg_temp` is omitted from `search_path`; for `SECURITY DEFINER` functions the documented safe pattern is to put trusted schemas first and `pg_temp` explicitly last.
 
-That choice is conditional, not assumed safe: the script aborts unless `PUBLIC`, `anon` and `authenticated` all lack `CREATE` on `public`, `private` and `auth`. This prevents those roles from creating a shadow object on the retained path.
+`private` and `auth` are removed from the runtime search path because current calls into them are schema-qualified. `public` remains before `pg_temp` because current bodies contain public-owned custom enum type references.
 
-A future body-normalization migration may move to an empty search path after every custom type/object reference is explicitly schema-qualified and separately tested. That is not necessary to obtain the current lower-risk hardening delta.
+That choice is conditional, not assumed safe: the script aborts unless `PUBLIC`, `anon` and `authenticated` all lack `CREATE` on `public`, `private` and `auth`. This prevents those callers from creating a shadow object in the retained trusted schema.
 
-## 3. EXECUTE surface
+A future body-normalization migration may move toward an even narrower path after every custom type/object reference and implicit operator/type dependency is explicitly reviewed and separately tested. This candidate intentionally minimizes body churn.
+
+### 3. EXECUTE surface
 
 For the seven public operator/media wrappers and two private authorization helpers:
 
@@ -83,7 +85,7 @@ Security Advisor must then be rerun and every remaining warning explicitly class
 - `supabase/release/rt001-security-hardening-current-baseline.sql` — fail-closed candidate; not a canonical migration.
 - `supabase/release/rt001-security-hardening-current-baseline-audit.sql` — read-only post-apply evidence queries for an isolated database.
 - `supabase/release/rt001-security-hardening-current-baseline.json` — machine-readable status and evidence requirements.
-- `tests/rt001-security-hardening-current-baseline.spec.js` — contract regression.
+- `tests/rt001-security-hardening-current-baseline.spec.js` — contract regression, including the explicit `pg_temp`-last invariant.
 
 ## Promotion path
 
