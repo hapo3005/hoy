@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "INTERNAL_TEST_CANDIDATE_NOT_LIVE",
+  "objective": "Create auditable evidence that verified hospitality businesses will pay recurring money for HOY because it creates useful, measurable operating or demand-generation value.",
+  "contactFreezeActive": true,
+  "outreachAuthorized": false,
+  "termsActivated": false,
+  "billingActivated": false,
+  "productionOfferPublished": false,
+  "offer": {
+    "name": "HOY Founding Business",
+    "commercialModel": "MONTHLY_RECURRING_VALIDATION",
+    "freeBaselineMustRemainFree": [
+      "business_claim_and_verification_entry",
+      "prepared_core_data_confirmation"
+    ],
+    "paidValueHypothesis": [
+      "extended_live_business_maintenance_for_current_guest_facing_information",
+      "business_offer_and_current_content_management",
+      "privacy_safe_aggregated_performance_insight_when_rt008_release_is_ready",
+      "founding_feedback_loop_and_priority_issue_resolution_during_validation"
+    ],
+    "explicitlyNotPromised": [
+      "organic_ranking_improvement",
+      "minimum_impressions",
+      "minimum_clicks",
+      "minimum_reservations",
+      "minimum_revenue",
+      "exclusivity",
+      "automatic_future_discount"
+    ],
+    "sponsoredHighlightSeparate": {
+      "existingInternalLaunchCandidateEurPerEvent": 29,
+      "includedInMonthlyOffer": false,
+      "automaticBilling": false,
+      "note": "Existing promotion-insights runtime describes EUR 29 per event as a recommended launch price subject to manual HOY approval. It is not evidence of accepted market pricing."
+    }
+  },
+  "pricingExperiment": {
+    "status": "WORKING_HYPOTHESIS_NOT_MARKET_VALIDATED",
+    "currency": "EUR",
+    "period": "month",
+    "arms": [29, 39, 59],
+    "assignmentRule": "ONE_VISIBLE_ARM_PER_ELIGIBLE_BUSINESS",
+    "comparisonRule": "Never show the three arms together as fake choice architecture during the validation experiment.",
+    "discountClaimAllowed": false,
+    "randomizationPreferred": true,
+    "randomizationFallback": "balanced_sequential_assignment_with_logged_rule",
+    "changeRule": "Do not change an assigned price after the merchant sees it unless the merchant explicitly requests a revised commercial scope; record any change as a protocol deviation.",
+    "winnerRule": "No winning price before sufficient real offers, settled payments and renewal evidence. Optimize for paid conversion plus retention and merchant outcome, not first-payment conversion alone."
+  },
+  "paidProofLadder": [
+    {
+      "level": "P0_INTEREST",
+      "countsAsBp1PaidBusiness": false,
+      "evidence": "verbal_interest_or_positive_response"
+    },
+    {
+      "level": "P1_SIGNED_OR_ACCEPTED",
+      "countsAsBp1PaidBusiness": false,
+      "evidence": "signed_order_or_explicit_offer_acceptance"
+    },
+    {
+      "level": "P2_INVOICED",
+      "countsAsBp1PaidBusiness": false,
+      "evidence": "invoice_or_payment_request_issued"
+    },
+    {
+      "level": "P3_SETTLED_PAYMENT",
+      "countsAsBp1PaidBusiness": true,
+      "evidence": "money_received_and_reconciled_to_business_and_offer"
+    },
+    {
+      "level": "P4_RENEWED",
+      "countsAsBp1PaidBusiness": true,
+      "evidence": "second_separate_settled_recurring_payment_or_equivalent_renewal"
+    },
+    {
+      "level": "P5_RETAINED_90D",
+      "countsAsBp1PaidBusiness": true,
+      "evidence": "paid_relationship_active_at_or_beyond_90_days_under_predefined_retention_rule"
+    }
+  ],
+  "proofAccounting": {
+    "loiCountsAsRevenue": false,
+    "invoiceCountsAsRevenue": false,
+    "settledPaymentRequired": true,
+    "freePilotCountsAsPayingBusiness": false,
+    "founderFundedOrRelatedPartyPaymentCounts": false,
+    "refundTreatment": "A fully refunded first payment does not count as retained paid proof; preserve both payment and refund in evidence.",
+    "grossRevenueDefinition": "Settled external customer consideration before payment fees, taxes and refunds, separately reconciled.",
+    "mrrDefinition": "Recurring monthly contracted value supported by currently active external paying businesses; one-off sponsored events excluded from MRR."
+  },
+  "eligibilityBeforeAnyExternalTest": {
+    "g1ContactFreezeReleased": true,
+    "businessTermsCounselReadyAndActivationAuthorized": true,
+    "invoiceAndPaymentMechanismLegallyOperational": true,
+    "offerScopeMatchesActuallyAvailableProductAndService": true,
+    "privacyMeasurementGateReadyForAnyAnalyticsClaims": true
+  },
+  "experimentRecordsRequired": [
+    "business_pseudonymous_or_internal_id",
+    "eligibility_timestamp",
+    "assigned_price_arm",
+    "assignment_method",
+    "offer_shown_timestamp",
+    "accepted_timestamp_if_any",
+    "invoice_timestamp_if_any",
+    "settled_payment_timestamp_and_amount_if_any",
+    "refund_or_cancellation_if_any",
+    "renewal_timestamp_and_amount_if_any",
+    "merchant_outcome_evidence_level",
+    "protocol_deviation_if_any"
+  ],
+  "claimBoundary": "This file defines a commercial validation protocol. It is not a live tariff, not a promise that merchants will pay, and not evidence of recurring revenue until external settled payments and renewal data exist."
+}
