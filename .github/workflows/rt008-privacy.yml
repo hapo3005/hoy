@@ -5,6 +5,10 @@ on:
     paths:
       - 'analytics-rpc-1.8.1.js'
       - 'scripts/investor-ready/rt008-privacy-static-check.mjs'
+      - 'scripts/investor-ready/rt008-dsar-retention-audit.sql'
+      - 'supabase/release/rt008-dsar-retention-controls.sql'
+      - 'docs/investor-ready/rt008-dsar-retention-controls.md'
+      - 'docs/investor-ready/rt008-privacy-evidence-2026-08-19.md'
       - '.github/workflows/rt008-privacy.yml'
   workflow_dispatch:
 
