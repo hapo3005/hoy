@@ -2,7 +2,7 @@ const {test,expect}=require('@playwright/test');
 
 test.use({serviceWorkers:'block'});
 
-const EXPECTED_LIVE_FAMILY_IDS=[96,101,132,218,243,244,245,246,247,248,249,250,251,252,253,254];
+const EXPECTED_LIVE_FAMILY_IDS=[96,101,132,218,243,244,245,246,247,248,249,250,251,252,253,254,257,259];
 
 async function waitForLiveFamily(page){
   await page.waitForFunction(()=>
@@ -40,4 +40,6 @@ test('Production Family data keeps Mit Kindern live without preview mode',async(
   await expect(page.locator('.list')).toContainText('Restaurante La Plaza');
   await expect(page.locator('.list')).toContainText('Si! Bar & Restaurant');
   await expect(page.locator('.list')).toContainText('Marea Narejos');
+  await expect(page.locator('.list')).toContainText('Pizzería Da Sebastián');
+  await expect(page.locator('.list')).toContainText('Restaurante Mediterráneo El Mojón');
 });
