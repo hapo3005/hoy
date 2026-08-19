@@ -12,6 +12,7 @@ do $rt007_signature_preflight$
 declare
   v_matches integer;
   v_rights integer;
+  v_hard_before integer;
 begin
   select count(*) into v_matches
   from public.restaurants
@@ -40,6 +41,24 @@ begin
 
   if v_rights <> 3 then
     raise exception 'RT-007 first-party rights baseline drift: expected 3 conservative AMBER factual-reference hosts, found %',v_rights;
+  end if;
+
+  with refs as (
+    select r.id as restaurant_id,v.url,
+           lower(split_part(regexp_replace(v.url,'^https?://',''), '/',1)) as host
+    from public.restaurants r
+    cross join lateral (values
+      (r.source_url),(r.location_source_url),(r.hours_source_url),(r.signature_source_url)
+    ) v(url)
+    where v.url is not null and v.url<>''
+  )
+  select count(*) into v_hard_before
+  from refs
+  left join private.source_rights_registry rr using(host)
+  where rr.host is null or rr.rights_status in ('RED','REVIEW_REQUIRED');
+
+  if v_hard_before <> 329 then
+    raise exception 'RT-007 signature replacement live hard-queue drift: expected 329 before dry-run, got %',v_hard_before;
   end if;
 end
 $rt007_signature_preflight$;
@@ -122,10 +141,10 @@ begin
   left join private.source_rights_registry rr using(host)
   where rr.host is null or rr.rights_status in ('RED','REVIEW_REQUIRED');
 
-  -- Current live hard queue is 343 direct refs. This dry-run must reduce it by
-  -- exactly the 3 replaced signature refs, not by reclassifying restricted hosts.
-  if v_hard_queue <> 340 then
-    raise exception 'RT-007 signature replacement expected hard queue 340 after dry-run, got %',v_hard_queue;
+  -- Current read-only live hard queue is 329 direct refs. This dry-run must reduce
+  -- it by exactly the 3 replaced signature refs, not by reclassifying restricted hosts.
+  if v_hard_queue <> 326 then
+    raise exception 'RT-007 signature replacement expected hard queue 326 after dry-run, got %',v_hard_queue;
   end if;
 end
 $rt007_signature_postflight$;
