@@ -9,7 +9,7 @@ async function openApp(page){
     Array.isArray(DATA) && DATA.length>0 &&
     cloud?.status==='online' &&
     DATA.every(p=>p.accessibility&&p.accessibility.restaurant_id),
-    {timeout:30000}
+    null,{timeout:30000}
   );
 }
 
