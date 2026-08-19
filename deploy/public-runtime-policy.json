@@ -7,7 +7,7 @@
   "never_publish_directories": [".git", ".github", ".vscode", "data", "docs", "node_modules", "playwright-report", "scripts", "supabase", "test-results", "tests"],
   "never_publish_extensions": [".csv", ".md", ".mjs", ".sql", ".ts", ".yaml", ".yml"],
   "never_publish_name_fragments": [".env", "service-role", "service_role", "secret", "private-key", "private_key"],
-  "required_runtime_files": ["index.html"],
+  "required_runtime_files": ["index.html", "admin.html", "service-worker.js", "manifest.webmanifest"],
   "secret_patterns": [
     "SUPABASE_SERVICE_ROLE",
     "service_role_key",
