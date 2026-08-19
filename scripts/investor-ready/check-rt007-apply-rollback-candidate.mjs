@@ -18,6 +18,9 @@ function ok(value, message) {
 function count(text, token) {
   return text.split(token).length - 1;
 }
+function executableSqlOnly(sql) {
+  return sql.replace(/^\s*--.*$/gm, '');
+}
 
 ok(contract.role === 'G1-CB-14_EXACT_GUARDED_APPLY_ROLLBACK_CANDIDATE', 'wrong role');
 ok(contract.baseRollbackEvidence?.pr === 150, 'must descend from #150');
@@ -43,15 +46,16 @@ ok(Array.isArray(manifest.targets) && manifest.targets.length === 36, 'manifest 
 ok(rollback.sourceManifest?.exactProductionMatchAtCapture === 36 && rollback.sourceManifest?.driftAtCapture === 0, 'rollback evidence must retain 36/36 zero drift capture');
 
 for (const [name, sql] of [['apply', apply], ['rollback', rollbackSql]]) {
+  const executable = executableSqlOnly(sql);
   ok(count(sql, 'BEGIN;') === 7, `${name}: seven BEGIN transactions required`);
   ok(count(sql, 'COMMIT;') === 7, `${name}: seven COMMIT transactions required`);
   ok(count(sql, 'UPDATE public.restaurants') === 36, `${name}: exactly 36 UPDATE statements required`);
   ok(count(sql, 'GET DIAGNOSTICS v_affected = ROW_COUNT;') === 36, `${name}: rowcount check required per target`);
   ok(count(sql, 'expected=1 got=%') === 36, `${name}: fail-closed rowcount exception required per target`);
   ok(count(sql, "hoy.rt007_preflight_rechecked") === 36, `${name}: fresh-preflight guard required per target`);
-  ok(!/\b(?:CREATE|ALTER|DROP|TRUNCATE|DELETE|INSERT)\b/i.test(sql), `${name}: DDL/insert/delete forbidden`);
-  ok(!/venue_sales_pipeline/i.test(sql), `${name}: sales pipeline must not be touched`);
-  ok(!/send_lock|send_authorized/i.test(sql), `${name}: send controls must not be touched`);
+  ok(!/\b(?:CREATE|ALTER|DROP|TRUNCATE|DELETE|INSERT)\b/i.test(executable), `${name}: executable DDL/insert/delete forbidden`);
+  ok(!/venue_sales_pipeline/i.test(executable), `${name}: sales pipeline must not be touched`);
+  ok(!/send_lock|send_authorized/i.test(executable), `${name}: send controls must not be touched`);
 }
 
 ok(count(apply, 'hoy.rt007_apply_authorized') === 36, 'apply authorization guard required per target');
