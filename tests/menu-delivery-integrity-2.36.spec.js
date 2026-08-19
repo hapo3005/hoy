@@ -10,6 +10,8 @@ async function ready(page){
     window.hoyMenuLanguageIntegrityVersion==='2.37.0'&&
     window.hoyMenuLanguageIntegrityState==='ready'&&
     window.hoyMenuCatalog233?.integrity==='ready'&&
+    window.hoyNativeMenuStandardVersion==='2.48.0'&&
+    window.hoyNativeMenuState248?.state==='ready'&&
     Number(window.hoyMenuCatalog233?.items)>1850&&
     cloud.status==='online',
     null,
@@ -20,27 +22,24 @@ async function ready(page){
 async function menuState(page,id){
   return page.evaluate(id=>{
     const p=DATA.find(x=>Number(x.id)===Number(id)),m=menuFor(p);
-    return {name:p?.name,itemCount:m?.itemCount,integrity:m?.integrity,localized:m?.localized,locale:m?.locale,coverage:m?.languageCoverage,categories:(m?.categories||[]).map(([cat,items])=>({cat,count:items.length,names:items.map(x=>x[0])})),coreScopeIsolated:m?.coreScopeIsolated,coreSourceIds:m?.coreSourceIds||[],supplementalSourceIds:m?.supplementalSourceIds||[]};
+    return {name:p?.name,itemCount:m?.itemCount,integrity:m?.integrity,localized:m?.localized,locale:m?.locale,coverage:m?.languageCoverage,categories:(m?.categories||[]).map(([cat,items])=>({cat,count:items.length,names:items.map(x=>x[0])})),coreScopeIsolated:m?.coreScopeIsolated,coreSourceIds:m?.coreSourceIds||[],supplementalSourceIds:m?.supplementalSourceIds||[],nativeSourceIntegrity:m?.nativeSourceIntegrity,nativeMenu:m?.nativeMenu,guestAvailability:m?.guestAvailability,displayMode:m?.displayMode,pages:m?.pages?.length||0};
   },id);
 }
 
-async function assertImageMenu(page,request,id,expectedPages,pathPart){
+async function assertNativeSourceBoundary(page,id){
   await ready(page);
-  const state=await page.evaluate(id=>{const p=DATA.find(x=>Number(x.id)===Number(id)),m=menuFor(p);return {name:p?.name,integrity:m?.integrity,displayMode:m?.displayMode,pages:(m?.pages||[]).map(x=>x.url),source:m?.source};},id);
-  expect(state.integrity).toBe('image_complete');
-  expect(state.displayMode).toBe('image_pages');
-  expect(state.pages).toHaveLength(expectedPages);
-  expect(state.source).toBeFalsy();
-  expect(state.pages.every(x=>x.includes(pathPart))).toBeTruthy();
-  for(const url of state.pages){const response=await request.get(url);expect(response.ok(),`${state.name}: ${url}`).toBeTruthy()}
+  const state=await menuState(page,id);
+  expect(state.nativeMenu).toBeTruthy();
+  expect(state.nativeSourceIntegrity).toBe('image_complete');
+  expect(state.displayMode).toBeFalsy();
+  expect(state.pages).toBe(0);
+  expect(['in_app_native','blocked_until_locale_complete','blocked_until_structured']).toContain(state.guestAvailability);
   await page.evaluate(id=>openDetail(id),id);
   const menuTab=page.locator('#detail [data-tab="menu"]');if(await menuTab.count())await menuTab.click();
   const profile=page.locator('#detail #profile-menu');await expect(profile).toBeVisible();
-  const images=profile.locator('.menu231-page img');await expect(images).toHaveCount(expectedPages);
-  await expect(profile.locator('.menu234-frame')).toHaveCount(0);
-  await expect(profile.locator('iframe[src*=".pdf"],a[href*=".pdf"]')).toHaveCount(0);
-  await expect(profile.getByRole('link',{name:/öffnen/i})).toHaveCount(0);
-  const first=images.first();await first.scrollIntoViewIfNeeded();await expect.poll(async()=>first.evaluate(img=>img.complete&&img.naturalWidth>200),{timeout:15000}).toBeTruthy();
+  await expect(profile.locator('.menu231-page img,.menu234-frame,iframe')).toHaveCount(0);
+  await expect(profile.locator('a[href*=".pdf"],a[target="_blank"]')).toHaveCount(0);
+  await expect(profile).not.toContainText(/horizontal wischen|\.pdf/i);
 }
 
 test('deployed structured menus are complete, localized and not truncated',async({page})=>{
@@ -82,24 +81,27 @@ test('EL NIDO exposes exactly the 117-item main card and keeps El Cuco/highlight
   await expect(profile.locator('.menu233-language-gap')).toHaveCount(0);
 });
 
-test('reviewed image menus stay in HOY and never regress to raw PDF delivery',async({page,request})=>{
-  await assertImageMenu(page,request,9,4,'/hoy/menu-pages/9/f63bfbbb509f/');
-  await assertImageMenu(page,request,111,1,'/hoy/menu-pages/111/2d419a28324c/');
-  await assertImageMenu(page,request,4,3,'hapo3005.github.io/hoy/menu-pages/4/f9653f87c69d/');
+test('reviewed image sources stay provenance-only until a native locale is ready',async({page})=>{
+  await assertNativeSourceBoundary(page,9);
+  await assertNativeSourceBoundary(page,111);
+  await assertNativeSourceBoundary(page,4);
 });
 
 test('2.36 feature shell remains cache-busted and fail-closed in the current release',async({request})=>{
-  const [core,language,index,worker,pkg]=await Promise.all([request.get('./menu-core-scope-2.36.js?v=2.36.0'),request.get('./menu-language-integrity-2.33.js'),request.get('./index.html'),request.get('./service-worker.js'),request.get('./package.json')]);
-  for(const r of [core,language,index,worker,pkg])expect(r.ok()).toBeTruthy();
-  const coreCode=await core.text(),languageCode=await language.text(),html=await index.text(),sw=await worker.text();
+  const [core,language,native,index,worker,pkg]=await Promise.all([request.get('./menu-core-scope-2.36.js?v=2.36.0'),request.get('./menu-language-integrity-2.33.js'),request.get('./menu-native-standard-2.48.js?v=2.48.0'),request.get('./index.html'),request.get('./service-worker.js'),request.get('./package.json')]);
+  for(const r of [core,language,native,index,worker,pkg])expect(r.ok()).toBeTruthy();
+  const coreCode=await core.text(),languageCode=await language.text(),nativeCode=await native.text(),html=await index.text(),sw=await worker.text();
   expect((await pkg.json()).version).toBe(CURRENT_RELEASE);
   expect(html).toContain(`App ${CURRENT_RELEASE}`);
   expect(html).toContain('menu-core-scope-2.36.js?v=2.36.0');
+  expect(html).toContain('menu-native-standard-2.48.js?v=2.48.0');
   expect(html.indexOf('menu-core-scope-2.36.js')).toBeGreaterThan(html.indexOf('menu-integrity-2.32.js'));
-  expect(html.indexOf('menu-core-scope-2.36.js')).toBeLessThan(html.indexOf('menu-language-integrity-2.33.js'));
+  expect(html.indexOf('menu-native-standard-2.48.js')).toBeGreaterThan(html.indexOf('menu-authority-2.38.js'));
   expect(sw).toContain(`const CACHE='hoy-v${CURRENT_RELEASE}'`);
   expect(sw).toContain('./menu-core-scope-2.36.js');
+  expect(sw).toContain('./menu-native-standard-2.48.js');
   expect(coreCode).toContain('supplementalSourceIds');
   expect(coreCode).toContain('contentSourceIds:coreIds');
   expect(languageCode).toContain("integrity:'quality_blocked'");
+  expect(nativeCode).toContain("guestAvailability:'blocked_until_structured'");
 });
