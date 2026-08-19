@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "status": "VERIFIED_NOT_APPLIED",
+  "scope": "LOCATION_ONLY",
+  "liveHardDirectReferences": 329,
+  "reviewedStrongCandidates": 9,
+  "newPreparedReferences": 4,
+  "newPreparedRestaurantIds": [181,185,187,202],
+  "newPreparedRestaurants": [
+    "Flute Lounge Bar",
+    "Taberna Siroco",
+    "Casa India Restaurante",
+    "Pescados Cabo de Palos I"
+  ],
+  "excludedBecauseNotExactEnoughOrConflicting": [
+    {
+      "restaurantId": 105,
+      "restaurantName": "The Last Drop Bar",
+      "reason": "Official page location differs materially from stored HOY address."
+    },
+    {
+      "restaurantId": 111,
+      "restaurantName": "La Taberna del Puerto de Cabo de Palos",
+      "reason": "Official page states C/ del Faro 2; HOY stores P.º de la Barra 2."
+    },
+    {
+      "restaurantId": 116,
+      "restaurantName": "Pizzeria Trattoria Trastevere",
+      "reason": "Official page confirms Urbanización Manga Beach but not the stored Km 6 detail."
+    },
+    {
+      "restaurantId": 132,
+      "restaurantName": "Aquarium La Manga Club Resort",
+      "reason": "Official page states Paraje Atamaria 33; HOY stores C.C. Atamaría Golf."
+    },
+    {
+      "restaurantId": 216,
+      "restaurantName": "La Finca Restaurant",
+      "reason": "Official page confirms La Manga Club / Paraje Atamaria but not the stored number 14."
+    }
+  ],
+  "officialEvidence": [
+    {
+      "restaurantId": 181,
+      "url": "https://www.fluteloungebar.com/",
+      "locationText": "las sabinas 1 · calle de la salud · la manga club"
+    },
+    {
+      "restaurantId": 185,
+      "url": "https://tabernasiroco.com/",
+      "locationText": "Pl. Cala Flores, Local 21 · 30370 Cabo de Palos, Murcia"
+    },
+    {
+      "restaurantId": 187,
+      "url": "https://casaindiarestaurant.com/",
+      "locationText": "Pl. Miguel de Cervantes, 17, 30710 Los Alcázares, Murcia"
+    },
+    {
+      "restaurantId": 202,
+      "url": "https://pescadoscabodepalos.es/",
+      "locationText": "Calle Sirio 23, 30370 Cabo de Palos"
+    }
+  ],
+  "preparedProgramAfterPass": {
+    "screenedCandidates": 67,
+    "preparedDryRunReferences": 25,
+    "remainingUnpreparedReferences": 42,
+    "locationCandidates": 25,
+    "preparedLocationReferences": 10,
+    "remainingLocationReferences": 15,
+    "combinedProjectedHardQueueAfterRequiredRebase": 304
+  },
+  "rightsBoundary": {
+    "newReferencesRemain": "AMBER",
+    "factualVerificationAllowed": true,
+    "transferability": "UNKNOWN",
+    "businessTermsRequired": true,
+    "transferClearReferencesCreated": 0
+  },
+  "safetyBoundary": {
+    "productionMutationPerformed": false,
+    "dryRunExecutedAgainstProduction": false,
+    "canonicalMigrationCreated": false,
+    "productionApplyAuthorized": false,
+    "outreachAuthorized": false
+  }
+}
