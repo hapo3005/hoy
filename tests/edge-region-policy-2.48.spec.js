@@ -46,7 +46,7 @@ for(const [label,path] of [['public','/'],['admin','/admin.html']]){
   });
 }
 
-test('wrapped invoke forces region, blocks unknown slugs and rejects contradictory observed region', async ({ page }) => {
+test('wrapped invoke forces region, blocks unknown slugs before transport and rejects contradictory observed region', async ({ page }) => {
   await page.goto('/');
   await expect.poll(()=>page.evaluate(()=>Boolean(window.hoyInstallEdgeRegionPolicy248))).toBe(true);
 
@@ -62,6 +62,7 @@ test('wrapped invoke forces region, blocks unknown slugs and rejects contradicto
 
     const allowed=await client.functions.invoke('claim-submit',{body:{qa:true}});
     const unknown=await client.functions.invoke('future-unclassified-function',{body:{qa:true}});
+    const callCountAfterUnknown=calls.length;
     const mismatch=await client.functions.invoke('mobility-resolve',{body:{qaObservedRegion:'us-east-1'}});
 
     return {
@@ -69,9 +70,10 @@ test('wrapped invoke forces region, blocks unknown slugs and rejects contradicto
       allowedError:allowed.error?String(allowed.error.message||allowed.error):null,
       allowedRegion:calls[0]?.options?.region||null,
       unknownError:String(unknown.error?.message||unknown.error||''),
-      callCountAfterUnknown:calls.length,
+      callCountAfterUnknown,
       mismatchError:String(mismatch.error?.message||mismatch.error||''),
       mismatchRegion:calls[1]?.options?.region||null,
+      finalCallCount:calls.length,
     };
   });
 
@@ -80,8 +82,9 @@ test('wrapped invoke forces region, blocks unknown slugs and rejects contradicto
     allowedError:null,
     allowedRegion:'eu-central-1',
     unknownError:'hoy_edge_region_unclassified:future-unclassified-function',
-    callCountAfterUnknown:2,
+    callCountAfterUnknown:1,
     mismatchError:'hoy_edge_region_mismatch:mobility-resolve:us-east-1',
     mismatchRegion:'eu-central-1',
+    finalCallCount:2,
   });
 });
