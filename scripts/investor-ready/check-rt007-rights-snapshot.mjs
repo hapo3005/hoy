@@ -74,7 +74,7 @@ assert(firstParty.transferability==='UNKNOWN','first-party references must not b
 assert(firstParty.legal_review_status==='BUSINESS_TERMS_REQUIRED','business terms gate must remain visible');
 
 // Buyer-safe export contract: fail closed against whole-profile overclaims or archive omission.
-assert(buyer.schemaVersion==='1.0.0','buyer-safe snapshot schema drift');
+assert(buyer.schemaVersion==='1.1.0','buyer-safe snapshot schema drift');
 assert(buyer.status==='READ_ONLY_BUYER_DD_SNAPSHOT','buyer-safe snapshot must remain read-only DD evidence');
 assert(buyer.productionMutationPerformed===false,'buyer-safe snapshot must not claim a production mutation');
 assert(buyer.restaurantPopulation?.published===166,'buyer-safe published restaurant count drifted');
@@ -114,6 +114,23 @@ assert(archived.filter(v=>v.restaurantId===19).length===3,'El Pez Rojo must reta
 assert(archived.filter(v=>v.restaurantId===202).length===1,'Pescados Cabo de Palos I must retain one unpublished location hard ref');
 assert(archived.filter(v=>v.restaurantId===240).length===1,'Alt Frankfurt must retain one unpublished hard ref');
 
+// Prepared replacement impact must separate active buyer-dataset improvements from archive cleanup.
+const impact=buyer.preparedReplacementImpact||{};
+assert(impact.status==='PROJECTED_AFTER_REQUIRED_REBASE_REVIEW_AND_APPLY','prepared replacement impact must remain projected, not applied');
+assert(impact.currentHardReferences?.all===329 && impact.currentHardReferences?.published===324 && impact.currentHardReferences?.unpublished===5,'prepared-impact current hard baseline drifted');
+assert(impact.preparedReferences?.all===34 && impact.preparedReferences?.published===32 && impact.preparedReferences?.unpublished===2,'prepared-impact active/archive split drifted');
+assert(impact.projectedHardReferences?.all===295 && impact.projectedHardReferences?.published===292 && impact.projectedHardReferences?.unpublished===3,'prepared-impact projected hard split drifted');
+assert(impact.currentHardReferences.all-impact.preparedReferences.all===impact.projectedHardReferences.all,'prepared-impact aggregate arithmetic failed');
+assert(impact.currentHardReferences.published-impact.preparedReferences.published===impact.projectedHardReferences.published,'prepared-impact active arithmetic failed');
+assert(impact.currentHardReferences.unpublished-impact.preparedReferences.unpublished===impact.projectedHardReferences.unpublished,'prepared-impact archive arithmetic failed');
+const waveImpact=(impact.byWave||[]).reduce((a,v)=>({all:a.all+v.all,published:a.published+v.published,unpublished:a.unpublished+v.unpublished}),{all:0,published:0,unpublished:0});
+assert(waveImpact.all===34 && waveImpact.published===32 && waveImpact.unpublished===2,'prepared-impact wave totals drifted');
+assert((impact.unpublishedPreparedTargets||[]).length===2,'prepared-impact must identify exactly two archived replacement targets');
+assert((impact.unpublishedPreparedTargets||[]).some(v=>v.restaurantId===19 && v.field==='source_url'),'prepared-impact must identify El Pez Rojo source_url as archive cleanup');
+assert((impact.unpublishedPreparedTargets||[]).some(v=>v.restaurantId===202 && v.field==='location_source_url'),'prepared-impact must identify Pescados Cabo de Palos I location ref as archive cleanup');
+assert(impact.rebaseRequired===true && impact.reviewRequired===true,'prepared-impact must remain subject to rebase and review');
+assert(impact.productionApplyAuthorized===false,'prepared-impact must not authorize Production apply');
+
 assert(buyer.gate?.buyerSafeExportContract==='PREPARED_NOT_EXECUTED','buyer-safe export must not claim execution');
 assert(buyer.gate?.rt007Overall==='IN_PROGRESS','buyer-safe export must not close RT-007');
 assert(buyer.gate?.productionExportAuthorized===false,'buyer-safe export must not authorize production export');
@@ -147,7 +164,11 @@ const summary={
     source_ref_clear_only:buyerBuckets.PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW?.restaurants,
     archived_restaurants:buyerBuckets.ARCHIVED_UNPUBLISHED_CARVEOUT?.restaurants,
     published_hard_refs:buyer.hardDirectReferences?.published,
-    archived_hard_refs:buyer.hardDirectReferences?.unpublished
+    archived_hard_refs:buyer.hardDirectReferences?.unpublished,
+    prepared_active_refs:impact.preparedReferences?.published,
+    prepared_archive_refs:impact.preparedReferences?.unpublished,
+    projected_active_hard_refs:impact.projectedHardReferences?.published,
+    projected_archive_hard_refs:impact.projectedHardReferences?.unpublished
   },
   blockers,
   status:fail.length?'FAIL':'PASS_FAIL_CLOSED'
