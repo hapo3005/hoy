@@ -71,7 +71,7 @@
       "event": "reservation_submit",
       "tier": "HIGH_INTENT_ACTION",
       "merchantOutcomeClaimAllowed": false,
-      "meaning": "Reservation submission/handoff event. Must never be reported as a confirmed booking without independent confirmation."
+      "meaning": "Reservation submission/handoff event. Not a confirmed reservation. It must never be reported as a confirmed booking without independent confirmation."
     }
   ],
   "merchantOutcomeLadder": [
