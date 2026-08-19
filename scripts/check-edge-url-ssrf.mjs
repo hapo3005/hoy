@@ -12,6 +12,9 @@ const failures = [];
 const requireToken = (file, source, token, label = token) => {
   if (!source.includes(token)) failures.push(`${file}: missing ${label}`);
 };
+const requirePattern = (file, source, pattern, label) => {
+  if (!pattern.test(source)) failures.push(`${file}: missing ${label}`);
+};
 
 for (const file of targets) {
   if (!fs.existsSync(file)) {
@@ -19,14 +22,14 @@ for (const file of targets) {
     continue;
   }
   const source = fs.readFileSync(file, 'utf8');
-  requireToken(file, source, "startsWith('::ffff:')", 'IPv4-mapped IPv6 guard');
-  requireToken(file, source, "startsWith('ff')", 'IPv6 multicast guard');
-  requireToken(file, source, "startsWith('2001:db8:')", 'IPv6 documentation-range guard');
+  requirePattern(file, source, /startsWith\(["']::ffff:["']\)/, 'IPv4-mapped IPv6 guard');
+  requirePattern(file, source, /startsWith\(["']ff["']\)/, 'IPv6 multicast guard');
+  requirePattern(file, source, /startsWith\(["']2001:db8:["']\)/, 'IPv6 documentation-range guard');
   requireToken(file, source, 'Deno.resolveDns', 'DNS resolution check');
-  requireToken(file, source, "redirect:'manual'", 'manual redirect handling');
+  requirePattern(file, source, /redirect\s*:\s*["']manual["']/, 'manual redirect handling');
   requireToken(file, source, 'private4(', 'private IPv4 classifier');
   requireToken(file, source, 'private6(', 'private IPv6 classifier');
-  requireToken(file, source, "protocol!=='https:'", 'HTTPS-only source gate');
+  requirePattern(file, source, /protocol\s*!==\s*["']https:["']/, 'HTTPS-only source gate');
   if (!source.includes('private_dns_target')) {
     failures.push(`${file}: missing private DNS rejection marker`);
   }
