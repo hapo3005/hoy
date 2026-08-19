@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "status": "DRY_RUN_CANDIDATE_NOT_APPLIED",
+  "productionMutationPerformed": false,
+  "baseline": {
+    "liveHardDirectReferences": 329,
+    "candidateLocationReferences": 2,
+    "publishedCandidateReferences": 2,
+    "unpublishedCandidateReferences": 0,
+    "candidateRule": "Official first-party contact/location page must publish the stored HOY street and number. Candidate changes provenance routing only; address, coordinates, location status and precision remain unchanged.",
+    "firstPartyRightsState": "AMBER",
+    "firstPartySourceClass": "FIRST_PARTY_BUSINESS_REFERENCE",
+    "firstPartyFactualVerificationAllowed": true,
+    "firstPartyReplacementRequired": false,
+    "firstPartyTransferability": "UNKNOWN",
+    "businessTermsStillRequired": true
+  },
+  "replacements": [
+    {
+      "restaurantId": 192,
+      "restaurantName": "Pizzeria la Rucola",
+      "storedAddress": "Av. de la Libertad, 20, 30710 Los Alcázares",
+      "oldLocationHost": "www.google.com",
+      "newLocationSourceUrl": "https://www.larucola.info/contacto/",
+      "newLocationHost": "www.larucola.info",
+      "officialPageEvidence": "Avenida La Libertad, 20, 30710 Los Alcázares, Murcia",
+      "evidenceCheckedAt": "2026-08-19",
+      "locationStatusUnchanged": "verified",
+      "locationPrecisionUnchanged": "poi"
+    },
+    {
+      "restaurantId": 203,
+      "restaurantName": "La Oliva Restaurante",
+      "storedAddress": "C. Rosales, 1, 30384 Mar de Cristal",
+      "oldLocationHost": "www.google.com",
+      "newLocationSourceUrl": "https://restaurantelaoliva.com/contacto/",
+      "newLocationHost": "restaurantelaoliva.com",
+      "officialPageEvidence": "CALLE PINTOR ROSALES, N°:1, 30384 MAR DE CRISTAL (CARTAGENA), MURCIA",
+      "evidenceCheckedAt": "2026-08-19",
+      "locationStatusUnchanged": "verified",
+      "locationPrecisionUnchanged": "address"
+    }
+  ],
+  "expectedIfLaterApprovedAndAppliedAlone": {
+    "hardDirectProvenanceQueueBefore": 329,
+    "hardDirectProvenanceQueueAfter": 327,
+    "publishedHardQueueBefore": 324,
+    "publishedHardQueueAfter": 322,
+    "hardQueueReduction": 2,
+    "newFirstPartyAmberReferences": 2,
+    "transferClearReferencesCreated": 0
+  },
+  "combinedPreparedPotential": {
+    "totalPreparedReferences": 36,
+    "publishedPreparedReferences": 34,
+    "unpublishedPreparedReferences": 2,
+    "projectedHardQueueAfterRequiredRebase": 293,
+    "projectedPublishedHardQueueAfterRequiredRebase": 290,
+    "projectedUnpublishedHardQueueAfterRequiredRebase": 3,
+    "rebaseRequired": true
+  },
+  "approvalBoundary": {
+    "pageContentRecheckBeforeApplyRequired": true,
+    "legalClearanceClaimed": false,
+    "businessTermsActivated": false,
+    "canonicalMigrationCreated": false,
+    "productionApplyAuthorized": false,
+    "outreachAuthorized": false
+  }
+}
