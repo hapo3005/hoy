@@ -11,8 +11,16 @@ function read(file) {
   return fs.readFileSync(file, 'utf8');
 }
 
+function executableSql(sql) {
+  return sql
+    .split(/\r?\n/)
+    .filter(line => !line.trimStart().startsWith('--'))
+    .join('\n');
+}
+
 test('RT-001 current-baseline hardening is body-preserving and privacy fail-closed', async () => {
   const sql = read(sqlPath);
+  const code = executableSql(sql);
   const control = JSON.parse(read(controlPath));
 
   expect(control.schemaVersion).toBe('1.0.1');
@@ -29,20 +37,21 @@ test('RT-001 current-baseline hardening is body-preserving and privacy fail-clos
   expect(control.closeRules.productionApplyAuthorized).toBe(false);
   expect(control.closeRules.privacyGateMayBeWeakened).toBe(false);
 
-  expect(sql).not.toMatch(/create\s+or\s+replace\s+function/i);
-  expect((sql.match(/alter function /gi) || [])).toHaveLength(10);
-  expect((sql.match(/set search_path to pg_catalog, public, pg_temp;/gi) || [])).toHaveLength(10);
-  expect(sql).not.toMatch(/set search_path to pg_catalog, public;/i);
-  expect(sql).toContain("expected 95 migrations/latest 20260818210527");
-  expect(sql).toContain("analytics EXECUTE is no longer fully revoked");
-  expect(sql).toContain("analytics privacy revocation was weakened");
+  expect(code).not.toMatch(/create\s+or\s+replace\s+function/i);
+  expect((code.match(/alter function /gi) || [])).toHaveLength(10);
+  expect((code.match(/set search_path to pg_catalog, public, pg_temp;/gi) || [])).toHaveLength(10);
+  expect(code).not.toMatch(/set search_path to pg_catalog, public;/i);
+  expect(code).toContain("expected 95 migrations/latest 20260818210527");
+  expect(code).toContain("analytics EXECUTE is no longer fully revoked");
+  expect(code).toContain("analytics privacy revocation was weakened");
 
-  expect(sql).toMatch(/revoke all on function public\.log_analytics_event\(text,bigint,uuid,uuid,jsonb\)[\s\S]*?from PUBLIC, anon, authenticated;/i);
-  expect(sql).not.toMatch(/grant execute on function public\.log_analytics_event/i);
+  expect(code).toMatch(/revoke all on function public\.log_analytics_event\(text,bigint,uuid,uuid,jsonb\)[\s\S]*?from PUBLIC, anon, authenticated;/i);
+  expect(code).not.toMatch(/grant execute on function public\.log_analytics_event/i);
 });
 
 test('RT-001 hardening pins all ten verified function definitions before changing config', async () => {
   const sql = read(sqlPath);
+  const code = executableSql(sql);
   const control = JSON.parse(read(controlPath));
   const md5s = Object.values(control.baselineDefinitionMd5);
 
@@ -50,12 +59,12 @@ test('RT-001 hardening pins all ten verified function definitions before changin
   expect(new Set(md5s).size).toBe(10);
   for (const md5 of md5s) {
     expect(md5).toMatch(/^[0-9a-f]{32}$/);
-    expect(sql).toContain(md5);
+    expect(code).toContain(md5);
   }
 
-  expect(sql).toContain("has_schema_privilege(r.role_name, n.oid, 'CREATE')");
-  expect(sql).toContain('md5(p.prosrc) as body_md5');
-  expect(sql).toContain("cfg='search_path=pg_catalog, public, pg_temp'");
+  expect(code).toContain("has_schema_privilege(r.role_name, n.oid, 'CREATE')");
+  expect(code).toContain('md5(p.prosrc) as body_md5');
+  expect(code).toContain("cfg='search_path=pg_catalog, public, pg_temp'");
   expect(sql).toContain('pg_temp is explicitly listed LAST');
 });
 
