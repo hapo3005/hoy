@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "2.0.0",
+  "snapshotDate": "2026-08-19",
+  "observedAtUtc": "2026-08-19T04:53:27.706239Z",
+  "status": "READ_ONLY_CURRENT_BUYER_STATE",
+  "selectedIntegrationHead": "cceb87e757fe9ec95e61cc8be734ed978c927c63",
+  "historicalEvidencePr": 106,
+  "historicalEvidenceHead": "c1825c75b0f82b797a1d2cf673e7b75fab2ab877",
+  "productionMutationPerformed": false,
+  "sourceUsage": {
+    "GREEN": {"hosts":1,"refs":2},
+    "AMBER": {"hosts":66,"refs":219},
+    "RED": {"hosts":14,"refs":193},
+    "REVIEW_REQUIRED": {"hosts":26,"refs":44},
+    "NO_REGISTRY": {"hosts":0,"refs":0},
+    "redPolicyFailures": 0
+  },
+  "directRestaurantProvenance": {
+    "GREEN": {"fieldRefs":8,"restaurants":8},
+    "AMBER": {"fieldRefs":115,"restaurants":54},
+    "RED": {"fieldRefs":313,"restaurants":147},
+    "REVIEW_REQUIRED": {"fieldRefs":16,"restaurants":11},
+    "NO_REGISTRY": {"fieldRefs":0,"restaurants":0}
+  },
+  "hardDirectReferences": {
+    "all":329,
+    "restaurants":149,
+    "published":324,
+    "publishedRestaurants":146,
+    "unpublished":5,
+    "unpublishedRestaurants":3
+  },
+  "restaurantBuyerBuckets": {
+    "PUBLISHED_WITH_HARD_RESTRICTED_DEPENDENCY":146,
+    "PUBLISHED_CONDITIONAL_NOT_TRANSFER_CLEAR":18,
+    "PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW":2,
+    "ARCHIVED_UNPUBLISHED_CARVEOUT":3
+  },
+  "businessTerms": {"versions":1,"acceptances":0,"businessDataConfirmations":0},
+  "accessibility": {"facts":668,"verificationLevel":"external_unverified","confirmed":0},
+  "preparedReplacementProgram": {
+    "targets":36,
+    "publishedTargets":34,
+    "unpublishedTargets":2,
+    "currentHardRefs":{"all":329,"published":324,"unpublished":5},
+    "projectedAfterRequiredRecheckReviewAndApply":{"all":293,"published":290,"unpublished":3},
+    "transferClearReferencesCreated":0,
+    "sourceRecheckRequired":true,
+    "exactRowRecheckRequired":true,
+    "productionApplyAuthorized":false
+  },
+  "claimBoundaries": {
+    "amberMeansTransferClear":false,
+    "greenSourceMeansWholeProfileClean":false,
+    "provenanceRefsTransferableMeansWholeProfileClean":false,
+    "personalOrUserEventDataIncluded":false,
+    "privacyGate":"RT-008",
+    "businessTermsStillRequiredForAmber":true,
+    "dataCommercializationAuthorized":false,
+    "buyerSafeExportAuthorizedForProduction":false
+  }
+}
