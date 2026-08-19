@@ -190,7 +190,7 @@
       const search=(name+' '+cat+' '+desc+' '+original).toLowerCase();
       return `<div class="menu-item localized-menu-item" data-menu-item data-menu-text="${esc(search)}"><strong>${esc(name)}</strong><span>${esc(price)}</span>${desc?`<small class="menu-item-desc">${esc(desc)}</small>`:''}</div>`;
     }).join('')}</section>`).join('');
-    return `<div class="menu-panel localized-menu-panel menu248-native"><div class="menu-status"><div class="top"><b>${esc(title)}</b>${m.checked?`<span class="pill good">${esc(c.checked)} ${esc(m.checked)}</span>`:''}</div><div class="menu-language-row"><span class="menu-language-chip">${esc(c.language)} · ${esc(c.verified)}</span></div><small>${esc(m.label||c.source)}</small></div><input class="menu-search" data-menu-search placeholder="${esc(c.search)}"><div class="menu-result-meta inline-menu-result-meta" role="status" aria-live="polite" aria-atomic="true"><span>HOY</span><strong data-menu-visible data-inline-menu-visible>${coverage.total||m.itemCount||0} ${esc(c.items)}</strong></div><div data-menu-list>${categories}</div></div>`;
+    return `<div class="menu-panel localized-menu-panel menu248-native"><div class="menu-status"><div class="top"><b>${esc(title)}</b>${m.checked?`<span class="pill good">${esc(c.checked)} ${esc(m.checked)}</span>`:''}</div><div class="menu-language-row"><span class="menu-language-chip">${esc(c.language)} · ${esc(c.verified)}</span></div><small>${esc(c.source)}</small></div><input class="menu-search" data-menu-search placeholder="${esc(c.search)}"><div class="menu-result-meta inline-menu-result-meta" role="status" aria-live="polite" aria-atomic="true"><span>HOY</span><strong data-menu-visible data-inline-menu-visible>${coverage.total||m.itemCount||0} ${esc(c.items)}</strong></div><div data-menu-list>${categories}</div></div>`;
   }
 
   function blockedPanel248(m,kind){
@@ -199,7 +199,7 @@
     const heading=language?c.languagePending:c.preparing;
     const text=language?c.languagePendingText:c.preparingText;
     const progress=language&&coverage.total?`<span>${coverage.ready||0}/${coverage.total} · ${esc(c.language)}</span>`:'';
-    return `<div class="menu-panel menu248-blocked"><div class="menu-status"><div class="top"><b>${esc(heading)}</b><span class="pill warn">HOY</span></div><small>${esc(m.label||c.source)}</small></div><div class="menu-empty"><h4>${esc(heading)}</h4><p>${esc(text)}</p>${progress}</div></div>`;
+    return `<div class="menu-panel menu248-blocked"><div class="menu-status"><div class="top"><b>${esc(heading)}</b><span class="pill warn">HOY</span></div><small>${esc(c.source)}</small></div><div class="menu-empty"><h4>${esc(heading)}</h4><p>${esc(text)}</p>${progress}</div></div>`;
   }
 
   const baseLoad248=loadCloudMenus;
