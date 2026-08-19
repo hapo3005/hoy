@@ -1,7 +1,0 @@
-RT-007 ordered apply plan companion marker.
-
-Authoritative human-readable protocol: docs/investor-ready/rt007-ordered-apply-plan-v1.md
-Authoritative machine contract: docs/investor-ready/rt007-ordered-apply-plan-v1.json
-Machine checker: scripts/investor-ready/check-rt007-ordered-apply-plan.cjs
-
-No Production DML is authorized or performed by this package.
