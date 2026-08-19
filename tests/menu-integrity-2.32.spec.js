@@ -71,10 +71,14 @@ test('Soul Kitchen image source remains provenance-only until structured native 
   await expect(profileMenu.locator('a[target="_blank"]')).toHaveCount(0);
 });
 
-test('Bonobo official image source cannot bypass native German completeness',async({page})=>{
+test('Bonobo full-menu image source stays provenance-only despite structured wine and dessert sources',async({page})=>{
   await ready(page);
-  const menu=await assertNativeOutcome(page,4);
+  const menu=await page.evaluate(()=>menuFor(DATA.find(x=>Number(x.id)===4)));
+  expect(menu.nativeMenu).toBeTruthy();
   expect(menu.nativeSourceIntegrity).toBe('image_complete');
+  expect(menu.integrity).toBe('native_source_only');
+  expect(menu.status).toBe('source_only');
+  expect(menu.guestAvailability).toBe('blocked_until_structured');
   expect(menu.displayMode).toBeFalsy();
   expect(menu.pages).toBeFalsy();
 });
