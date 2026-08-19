@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "mode": "allowlist_fail_closed",
+  "public_root_extensions": [".html", ".css", ".js", ".webmanifest", ".svg", ".png", ".jpg", ".jpeg", ".webp", ".ico", ".woff", ".woff2", ".xml"],
+  "public_root_files": [".nojekyll", "CNAME", "robots.txt"],
+  "public_directories": ["assets", "icons", "images", "media"],
+  "never_publish_directories": [".git", ".github", ".vscode", "data", "docs", "node_modules", "playwright-report", "scripts", "supabase", "test-results", "tests"],
+  "never_publish_extensions": [".csv", ".md", ".mjs", ".sql", ".ts", ".yaml", ".yml"],
+  "never_publish_name_fragments": [".env", "service-role", "service_role", "secret", "private-key", "private_key"],
+  "required_runtime_files": ["index.html"],
+  "secret_patterns": [
+    "SUPABASE_SERVICE_ROLE",
+    "service_role_key",
+    "BEGIN PRIVATE KEY",
+    "postgres://",
+    "postgresql://",
+    "ghp_",
+    "github_pat_"
+  ],
+  "notes": [
+    "Client-side JavaScript/CSS shipped to browsers is inherently inspectable and is not treated as confidential source.",
+    "This policy protects non-runtime IP and DD material from entering the public deployment artifact.",
+    "Unknown top-level directories are excluded until explicitly reviewed and allowlisted.",
+    "This is a shadow packaging boundary only; it does not change the live GitHub Pages source or repository visibility."
+  ]
+}
