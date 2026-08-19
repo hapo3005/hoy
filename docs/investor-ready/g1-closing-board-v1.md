@@ -1,7 +1,7 @@
 # HOY G1 Closing Board v1.0
 
 Snapshot: 2026-08-19  
-Base: `main` at `ff4f3f8075b25cf8833c32821837d2bd72a6a153`
+Base: `main` at `88bb9e77d50ccb9db96306f5e737e27bad6237ab`
 
 ## Purpose
 
@@ -18,11 +18,11 @@ The four classes are intentionally non-overlapping:
 
 ## Executive view
 
-The technical foundation is no longer the dominant G1 uncertainty. Current main already contains the RT-006 supply-chain hardening. Contributor history, secret-history classification, dormant Terms infrastructure, current-main analytics storage fail-closed behavior and cross-vertical Platform Core transferability all have scoped technical proof.
+The technical foundation is no longer the dominant G1 uncertainty. Current main contains the RT-006 supply-chain hardening **and the merged #128 analytics-storage fail-closed hotfix**. Contributor history, secret-history classification, dormant Terms infrastructure, current-main analytics storage protection and cross-vertical Platform Core transferability all have scoped technical proof.
 
 The highest-value remaining G1 work is now concentrated in:
 
-1. **Current-main survivor reconciliation** — replace historical final authorities with the new current-main Privacy/Public-Runtime chain where applicable.
+1. **Current-main survivor reconciliation** — update the old #118 authority map for the merged #128 state plus current #127/#130 candidates.
 2. **Entity + Founder IP execution** — final legal/tax structure and actual Founder→Company rights instrument.
 3. **Company-controlled digital assets** — GitHub, Supabase, domains, billing, recovery, two-admin continuity, vault/rotation and backup drill.
 4. **RT-001 isolated security execution** — the candidate is technically green but not yet executed in a safe isolated database.
@@ -33,15 +33,15 @@ The highest-value remaining G1 work is now concentrated in:
 
 ## Current-main corrections to the older G1 master
 
-The older G1 master was based on a pre-RT-006 `main`. This board starts from current `main` after the RT-006 supply-chain merge.
+The older G1 master was based on a pre-RT-006/pre-#128 `main`. This board uses the current hardened state.
 
 Important authority changes:
 
-- RT-006 supply-chain hardening is now **on `main`**, not merely a candidate.
-- Privacy runtime authority for hardened current main is **PR #128** for the analytics storage hotfix; PR #120 remains historical technical evidence, not the final current-main merge authority.
+- RT-006 supply-chain hardening is **on `main`**.
+- Privacy hotfix **#128 is now merged on `main`**; PR #120 remains historical technical evidence, not current-main authority.
 - The broader current-main privacy operating candidate is **PR #127**.
 - Public-runtime current-main successor is **PR #130**; PR #121 remains historical exact-head evidence.
-- RT-001 PR #125 is now fully Critical/Final/Browser green on its candidate head, but remains unexecuted on an isolated database.
+- RT-001 PR #125 is fully Critical/Final/Browser green on its candidate head, but remains unexecuted on an isolated database.
 - Works Platform Core CI is closed: run `32197153970` passed static/lock, 12 unit tests, Mobile Chrome, Mobile WebKit and Desktop Chromium.
 
 ## Closing sequence
@@ -51,8 +51,8 @@ Important authority changes:
 Do now without outreach or Production mutation:
 
 - regenerate current-main survivor authority map;
-- keep #128 as the hardened-main analytics runtime authority and reconcile #127 around it;
-- finish current exact-head QA for the active RT-007 and public-runtime candidates;
+- treat merged #128/current `main` as the analytics-storage runtime authority and reconcile #127 around it;
+- finish current exact-head QA for active RT-007 and public-runtime candidates;
 - recompose/rebase RT-001 hardening onto the selected current integration base before isolated execution;
 - package the 36 prepared RT-007 replacements into one ordered apply plan;
 - preserve Buyer-Safe field/restaurant/archive segregation.
