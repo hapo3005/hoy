@@ -1,0 +1,108 @@
+name: HOY Menu Data Gap Executor
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/hoy-menu-data-gap-execute.json'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      SUPABASE_URL: https://zlscptisdxzxuvllogza.supabase.co
+      SUPABASE_SECRET_KEY: ${{ secrets.HOY_SUPABASE_SECRET_KEY }}
+      OPENAI_MENU_REASONING_EFFORT: high
+      HOY_MENU_LOCALIZATION_BATCH_SIZE: '40'
+      HOY_MENU_LOCALIZATION_CONCURRENCY: '3'
+      BACKFILL_SOURCE_COMMIT: 2d6d8a58bedd975d707a3dcfa6f396c1a0bc5957
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+
+      - name: Verify explicit one-shot authorization and secrets
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const x=require('./.github/hoy-menu-data-gap-execute.json');
+          if(x.production_apply!==true) throw new Error('production_apply must be true');
+          if(x.scope!=='menu_structure_and_de_es_en_localization') throw new Error('unexpected scope');
+          NODE
+          test -n "$OPENAI_API_KEY" || { echo '::error::OPENAI_API_KEY is missing'; exit 2; }
+          test -n "$SUPABASE_SECRET_KEY" || { echo '::error::HOY_SUPABASE_SECRET_KEY is missing'; exit 2; }
+
+      - name: Load pinned reviewed backfill scripts
+        shell: bash
+        run: |
+          git fetch --no-tags --depth=1 origin "$BACKFILL_SOURCE_COMMIT"
+          git show "$BACKFILL_SOURCE_COMMIT:scripts/menu-structure-gap-backfill.mjs" > /tmp/menu-structure-gap-backfill.mjs
+          git show "$BACKFILL_SOURCE_COMMIT:scripts/menu-localization-backfill.mjs" > /tmp/menu-localization-backfill.mjs
+          node --check /tmp/menu-structure-gap-backfill.mjs
+          node --check /tmp/menu-localization-backfill.mjs
+          mkdir -p artifacts
+
+      - name: Close trusted complete zero-item source gaps
+        id: structure
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          node /tmp/menu-structure-gap-backfill.mjs --apply 2>&1 | tee artifacts/structure.log
+
+      - name: Close DE ES EN localization gaps
+        id: localization
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          node /tmp/menu-localization-backfill.mjs --apply 2>&1 | tee artifacts/localization.log
+
+      - name: Upload backfill evidence
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v4
+        with:
+          name: hoy-menu-data-gap-executor-${{ github.run_id }}
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Report result to PR 156
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STRUCTURE_OUTCOME: ${{ steps.structure.outcome }}
+          LOCALIZATION_OUTCOME: ${{ steps.localization.outcome }}
+        shell: bash
+        run: |
+          node - <<'NODE' > /tmp/comment.md
+          const fs=require('fs');
+          const structure=process.env.STRUCTURE_OUTCOME||'unknown';
+          const localization=process.env.LOCALIZATION_OUTCOME||'unknown';
+          const tail=p=>{try{return fs.readFileSync(p,'utf8').trim().split(/\r?\n/).slice(-25).join('\n')}catch{return '(no log)'}};
+          let body=`### HOY Menu Data Gap Executor\n\nRun **${process.env.GITHUB_RUN_ID}** on pinned backfill commit \`${process.env.BACKFILL_SOURCE_COMMIT}\`.\n\n- Structure step: **${structure}**\n- Localization step: **${localization}**\n\n`;
+          for(const [label,path] of [['Structure','artifacts/structure.log'],['Localization','artifacts/localization.log']]) body+=`<details><summary>${label} log tail</summary>\n\n\`\`\`text\n${tail(path)}\n\`\`\`\n</details>\n\n`;
+          body+='No deploy or merge is implied by this data operation.';
+          process.stdout.write(body);
+          NODE
+          gh api "repos/${GITHUB_REPOSITORY}/issues/156/comments" -f body="$(cat /tmp/comment.md)"
+
+      - name: Enforce complete executor success
+        if: always()
+        env:
+          STRUCTURE_OUTCOME: ${{ steps.structure.outcome }}
+          LOCALIZATION_OUTCOME: ${{ steps.localization.outcome }}
+        shell: bash
+        run: |
+          test "$STRUCTURE_OUTCOME" = success
+          test "$LOCALIZATION_OUTCOME" = success
