@@ -4,6 +4,11 @@ on:
   pull_request:
     paths:
       - 'analytics-rpc-1.8.1.js'
+      - 'privacy-config-2.47.js'
+      - 'privacy-consent-2.47.js'
+      - 'privacy-consent-2.47.css'
+      - 'index.html'
+      - 'tests/privacy-consent-2.47.spec.js'
       - 'scripts/investor-ready/rt008-privacy-static-check.mjs'
       - 'scripts/investor-ready/rt008-dsar-retention-audit.sql'
       - 'supabase/release/rt008-dsar-retention-controls.sql'
