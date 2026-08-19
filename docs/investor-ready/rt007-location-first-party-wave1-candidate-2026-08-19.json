@@ -1,12 +1,12 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.0.1",
   "snapshotDate": "2026-08-19",
   "status": "DRY_RUN_CANDIDATE_NOT_APPLIED",
   "productionMutationPerformed": false,
   "baseline": {
     "liveSnapshot": "docs/investor-ready/rt007-live-rights-snapshot-2026-08-19.json",
     "hardDirectProvenanceQueue": 329,
-    "candidateLocationReferences": 2,
+    "candidateLocationReferences": 4,
     "candidateRule": "Stored HOY street/number must be directly supported by the official first-party page; broad city/area-only matches are excluded.",
     "firstPartyRightsState": "AMBER",
     "firstPartyFactualVerificationAllowed": true,
@@ -31,6 +31,24 @@
       "newSourceUrl": "https://www.annapurnanepali.com/",
       "newHost": "www.annapurnanepali.com",
       "officialPageEvidence": "Calle Mayor, 67, Los Belones, Spain"
+    },
+    {
+      "restaurantId": 196,
+      "restaurantName": "Pizzería Diavola",
+      "storedAddress": "C. Marcos Sanz, 23, 30385 Los Belones",
+      "oldHost": "www.google.com",
+      "newSourceUrl": "https://pizzeriadiavolalosbelones.es/",
+      "newHost": "pizzeriadiavolalosbelones.es",
+      "officialPageEvidence": "Calle Marcos Sanz 23 · Los Belones · Cartagena"
+    },
+    {
+      "restaurantId": 215,
+      "restaurantName": "Cabo de Sal",
+      "storedAddress": "C. los Palangres, 30370 Cabo de Palos",
+      "oldHost": "www.google.com",
+      "newSourceUrl": "https://cabodesal.com/",
+      "newHost": "cabodesal.com",
+      "officialPageEvidence": "C. los Palangres, 30370 Cabo de Palos"
     }
   ],
   "excludedExamples": [
@@ -52,17 +70,17 @@
   ],
   "expectedIfLaterApprovedAndAppliedAlone": {
     "hardDirectProvenanceQueueBefore": 329,
-    "hardDirectProvenanceQueueAfter": 327,
-    "hardQueueReduction": 2,
-    "newFirstPartyAmberReferences": 2,
+    "hardDirectProvenanceQueueAfter": 325,
+    "hardQueueReduction": 4,
+    "newFirstPartyAmberReferences": 4,
     "transferClearReferencesCreated": 0
   },
   "combinedPreparedPotential": {
     "genericSourceUrlWave1": 12,
     "signatureWave1": 3,
-    "locationWave1": 2,
-    "totalPreparedReferences": 17,
-    "projectedHardQueueAfterRequiredRebase": 312,
+    "locationWave1": 4,
+    "totalPreparedReferences": 19,
+    "projectedHardQueueAfterRequiredRebase": 310,
     "rebaseRequired": true
   },
   "approvalBoundary": {
