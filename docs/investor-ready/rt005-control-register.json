@@ -1,15 +1,29 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "snapshotDate": "2026-08-19",
   "overallStatus": "IN_PROGRESS",
   "scope": "Digital asset control, reachable-history secret evidence, recovery and transfer continuity",
   "canonicalTechnicalEvidence": {
     "historicalReferenceRun": 32185575422,
     "historicalStatus": "GREEN_REFERENCE",
-    "cleanCurrentMainRevalidation": "REQUIRED"
+    "cleanImplementationHead": "014194e7c7e817d92c973442e87dbae06c97ae92",
+    "cleanCurrentMainRun": 32194760001,
+    "cleanCurrentMainStatus": "GREEN",
+    "totalFindings": 14,
+    "classifiedFindings": 14,
+    "unclassifiedFindings": 0,
+    "staleClassificationEntries": 0,
+    "sanitizedArtifactId": 9345455439,
+    "sanitizedArtifactSha256": "2a36647a0316a5f2c6fb57a9d18eb505e884254c7057618c32fd8e18aa751d3a",
+    "snapshotSemantics": "This is evidence for the audited implementation head. Later evidence-only commits do not rewrite history; normal exact-head revalidation is still required before final merge/acquired-state circulation."
   },
   "controls": [
-    {"id":"RT005-01","name":"reachable_history_secret_scan","status":"GREEN_REFERENCE_REVALIDATION_REQUIRED","closeEvidence":"clean current-main workflow run with zero unclassified fingerprints"},
+    {
+      "id":"RT005-01",
+      "name":"reachable_history_secret_scan",
+      "status":"CLOSED_TECHNICAL_SNAPSHOT",
+      "closeEvidence":"clean current-main workflow run 32194760001 on implementation head 014194e7c7e817d92c973442e87dbae06c97ae92; 14/14 exact classifications, 0 unclassified, 0 stale classification entries; sanitized artifact 9345455439"
+    },
     {"id":"RT005-02","name":"github_company_control","status":"OPEN","closeEvidence":"company-controlled organization/repository ownership, recovery and continuity evidence"},
     {"id":"RT005-03","name":"production_infrastructure_control","status":"OPEN","closeEvidence":"company/transaction control, billing, administrators, recovery and backup evidence"},
     {"id":"RT005-04","name":"domain_dns_registrar_control","status":"OPEN","closeEvidence":"canonical registrant/admin/recovery inventory and transfer/control evidence"},
@@ -25,5 +39,5 @@
     "credentialRotationAuthorized": false,
     "outreachAuthorized": false
   },
-  "doneRule": "RT-005 may be DONE only when all controls are closed with current evidence and the final ownership/control model matches the intended transaction state."
+  "doneRule": "RT-005 may be DONE only when all eight controls are closed with current evidence and the final ownership/control model matches the intended transaction state. A closed secret-history scan alone never closes RT-005."
 }
