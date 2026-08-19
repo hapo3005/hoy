@@ -91,6 +91,86 @@
     return {...m,displayMode:null,pages:null,embedUrl:null,fallbackUrl:null,officialMenuUrl:null,source:null};
   }
 
+  function languageBlocked248(current,sourceIntegrity,locale,coverage,itemCount){
+    return {
+      ...stripExternalPresentation248(current),
+      status:'unavailable',
+      integrity:'native_language_blocked',
+      nativeSourceIntegrity:sourceIntegrity,
+      nativeMenu:true,
+      guestAvailability:'blocked_until_locale_complete',
+      categories:[],
+      itemCount,
+      localized:false,
+      locale:null,
+      translationStatus:null,
+      languageCoverage:coverage,
+      originalAvailable:false
+    };
+  }
+
+  function sourceBlocked248(current,sourceIntegrity,locale){
+    return {
+      ...stripExternalPresentation248(current),
+      status:'source_only',
+      integrity:'native_source_only',
+      nativeSourceIntegrity:sourceIntegrity,
+      nativeMenu:true,
+      guestAvailability:'blocked_until_structured',
+      categories:[],
+      localized:false,
+      locale:null,
+      translationStatus:null,
+      languageCoverage:{locale,total:0,ready:0,missing:0,complete:false},
+      originalAvailable:false
+    };
+  }
+
+  function publishSnapshot248(locale,details){
+    const snapshot={state:'ready',locale,...details,at:Date.now()};
+    window.hoyNativeMenuState248=snapshot;
+    window.dispatchEvent(new CustomEvent('hoy:native-menus-ready',{detail:snapshot}));
+    window.dispatchEvent(new CustomEvent('hoy:menus-ready',{detail:{locale,nativeStandard:true,at:Date.now()}}));
+    return snapshot;
+  }
+
+  function reconcileCurrentLocale248(){
+    const locale=locale248();
+    let localizedMenus=0,languageBlocked=0,sourceNeedsStructuring=0,structuredMenus=0;
+    for(const p of DATA||[]){
+      const id=Number(p.id),current=MENUS[id]||null;
+      if(!current)continue;
+      const sourceIntegrity=clean(current.nativeSourceIntegrity||current.integrity);
+      const itemCount=Number(current.itemCount)||0;
+      const coverage=current.languageCoverage||null;
+      const localizedReady=current.localized===true&&current.locale===locale&&coverage?.complete===true&&Array.isArray(current.categories)&&current.categories.length>0;
+      if(localizedReady){
+        MENUS[id]={...stripExternalPresentation248(current),nativeSourceIntegrity:sourceIntegrity,nativeMenu:true,guestAvailability:'in_app_native',originalAvailable:false};
+        localizedMenus++;
+        structuredMenus++;
+        continue;
+      }
+      const structuredState=['complete','partial'].includes(clean(current.integrity))&&itemCount>0;
+      if(structuredState){
+        const safeCoverage=coverage?.locale===locale?coverage:{locale,total:itemCount,ready:0,missing:itemCount,complete:false};
+        MENUS[id]=languageBlocked248(current,sourceIntegrity,locale,safeCoverage,itemCount);
+        structuredMenus++;
+        languageBlocked++;
+        continue;
+      }
+      if(hasExternalMenuSource248(current)){
+        MENUS[id]=sourceBlocked248(current,sourceIntegrity,locale);
+        sourceNeedsStructuring++;
+      }
+    }
+    return publishSnapshot248(locale,{
+      items:Number(window.hoyMenuCatalog233?.items||window.hoyMenuBootstrap232?.itemCount||0),
+      translations:Number(window.hoyMenuCatalog233?.deTranslations||0),
+      structuredMenus,localizedMenus,languageBlocked,sourceNeedsStructuring,
+      reusedCurrentLocale:true
+    });
+  }
+
   async function reconcileNative248(forceTranslation=false){
     if(!sb)return null;
     const locale=locale248();
@@ -135,50 +215,19 @@
           };
           localizedMenus++;
         }else{
-          MENUS[id]={
-            ...stripExternalPresentation248(current),
-            status:'unavailable',
-            integrity:'native_language_blocked',
-            nativeSourceIntegrity:sourceIntegrity,
-            nativeMenu:true,
-            guestAvailability:'blocked_until_locale_complete',
-            categories:[],
-            itemCount:rows.length,
-            localized:false,
-            locale:null,
-            translationStatus:null,
-            languageCoverage:coverage,
-            originalAvailable:false
-          };
+          MENUS[id]=languageBlocked248(current,sourceIntegrity,locale,coverage,rows.length);
           languageBlocked++;
         }
         continue;
       }
 
       if(hasExternalMenuSource248(current)){
-        MENUS[id]={
-          ...stripExternalPresentation248(current),
-          status:'source_only',
-          integrity:'native_source_only',
-          nativeSourceIntegrity:sourceIntegrity,
-          nativeMenu:true,
-          guestAvailability:'blocked_until_structured',
-          categories:[],
-          localized:false,
-          locale:null,
-          translationStatus:null,
-          languageCoverage:{locale,total:0,ready:0,missing:0,complete:false},
-          originalAvailable:false
-        };
+        MENUS[id]=sourceBlocked248(current,sourceIntegrity,locale);
         sourceNeedsStructuring++;
       }
     }
 
-    const snapshot={state:'ready',locale,items:items.length,translations:translations.length,structuredMenus,localizedMenus,languageBlocked,sourceNeedsStructuring,at:Date.now()};
-    window.hoyNativeMenuState248=snapshot;
-    window.dispatchEvent(new CustomEvent('hoy:native-menus-ready',{detail:snapshot}));
-    window.dispatchEvent(new CustomEvent('hoy:menus-ready',{detail:{locale,nativeStandard:true,at:Date.now()}}));
-    return snapshot;
+    return publishSnapshot248(locale,{items:items.length,translations:translations.length,structuredMenus,localizedMenus,languageBlocked,sourceNeedsStructuring,reusedCurrentLocale:false});
   }
 
   function nativeMenuPanel248(m){
@@ -205,7 +254,10 @@
   const baseLoad248=loadCloudMenus;
   loadCloudMenus=async function(){
     await baseLoad248();
-    try{await reconcileNative248(false)}catch(error){
+    try{
+      if(locale248()==='de'&&window.hoyMenuLanguageIntegrityState==='ready')reconcileCurrentLocale248();
+      else await reconcileNative248(false);
+    }catch(error){
       window.hoyNativeMenuState248={state:'blocked',locale:locale248(),message:error?.message||String(error),at:Date.now()};
       console.error('HOY native menu standard blocked unsafe guest menu delivery',error);
     }
