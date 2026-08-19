@@ -1,4 +1,4 @@
-/* HOY 1.8.3 — consent-gated Supabase RPC analytics + proof-gate enrollment */
+/* HOY 1.8.4 — consent + privacy-release-gated Supabase RPC analytics */
 (function(){
   const ANON_KEY='hoy-anonymous-id-v1';
   const SESSION_KEY='hoy-session-id-v1';
@@ -10,6 +10,9 @@
   function productionHost(){
     const host=String(window.location?.hostname||'').toLowerCase();
     return PRODUCTION_HOSTS.has(host);
+  }
+  function privacyReleaseReady(){
+    try{return window.hoyPrivacyProductionReady247?.()===true}catch{return false}
   }
   function randomId(){
     const c=window.crypto;
@@ -26,8 +29,9 @@
   function analyticsConsentGranted(){
     try{return localStorage.getItem(CONSENT_KEY)==='granted'}catch{return false}
   }
-  function clearProductionAnalyticsStorage(){
-    if(!productionHost()||analyticsConsentGranted())return;
+  function clearProductionAnalyticsStorage(force=false){
+    if(!productionHost())return;
+    if(!force&&privacyReleaseReady()&&analyticsConsentGranted())return;
     try{
       localStorage.removeItem(ANON_KEY);
       localStorage.removeItem(PILOT_KEY);
@@ -45,7 +49,7 @@
     }
     out.lang=state.lang;
     out.view=state.view;
-    out.client_version='1.8.3';
+    out.client_version='1.8.4';
     return out;
   }
   function qaRuntimeDetected(){
@@ -54,7 +58,7 @@
     try{return localStorage.getItem('hoy-qa-runtime')==='1'}catch{return false}
   }
   function productionAnalyticsAllowed(){
-    return productionHost()&&!qaRuntimeDetected()&&analyticsConsentGranted();
+    return privacyReleaseReady()&&productionHost()&&!qaRuntimeDetected()&&analyticsConsentGranted();
   }
   function buildPayload(type,restaurantId,meta={}){
     const venue=restaurantId?DATA.find(x=>Number(x.id)===Number(restaurantId)):null;
@@ -91,7 +95,7 @@
       }
     }
 
-    const mayPersist=!productionHost()||analyticsConsentGranted();
+    const mayPersist=!productionHost()||(privacyReleaseReady()&&analyticsConsentGranted());
     if(mayPersist){
       let stored=null;
       try{stored=pilotCode(localStorage.getItem(PILOT_KEY))}catch{}
@@ -133,9 +137,10 @@
   clearProductionAnalyticsStorage();
   window.hoyAnalyticsConsentGranted181=analyticsConsentGranted;
   window.hoyProductionAnalyticsAllowed181=productionAnalyticsAllowed;
+  window.hoyClearProductionAnalyticsStorage181=clearProductionAnalyticsStorage;
 
   trackEvent=function(type,restaurantId,meta={}){
-    if(productionHost()&&!analyticsConsentGranted())return Promise.resolve(false);
+    if(productionHost()&&(!privacyReleaseReady()||!analyticsConsentGranted()))return Promise.resolve(false);
 
     if(!productionHost()){
       const rows=readEvents();
