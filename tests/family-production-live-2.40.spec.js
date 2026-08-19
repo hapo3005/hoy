@@ -2,6 +2,8 @@ const {test,expect}=require('@playwright/test');
 
 test.use({serviceWorkers:'block'});
 
+const EXPECTED_LIVE_FAMILY_IDS=[96,101,132,218,243,244,245,246,247,248,249,250,251,252,253,254];
+
 async function waitForLiveFamily(page){
   await page.waitForFunction(()=>
     Array.isArray(DATA)&&DATA.length>=3&&
@@ -24,8 +26,8 @@ test('Production Family data keeps Mit Kindern live without preview mode',async(
     return {ids:rows.map(p=>Number(p.id)),names:rows.map(p=>p.name)};
   });
 
-  expect(live.ids).toEqual(expect.arrayContaining([96,101,132,218]));
-  expect(live.ids.length).toBeGreaterThanOrEqual(4);
+  expect(live.ids).toEqual(expect.arrayContaining(EXPECTED_LIVE_FAMILY_IDS));
+  expect(live.ids.length).toBeGreaterThanOrEqual(EXPECTED_LIVE_FAMILY_IDS.length);
 
   const entry=page.locator('[data-family240-home-context]');
   await expect(entry).toBeVisible();
@@ -36,4 +38,6 @@ test('Production Family data keeps Mit Kindern live without preview mode',async(
   await expect.poll(()=>page.evaluate(()=>state.family)).toBe('family');
   await expect(page.locator('[data-family240-context-bar]')).toBeVisible();
   await expect(page.locator('.list')).toContainText('Restaurante La Plaza');
+  await expect(page.locator('.list')).toContainText('Si! Bar & Restaurant');
+  await expect(page.locator('.list')).toContainText('Marea Narejos');
 });
