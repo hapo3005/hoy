@@ -1,0 +1,21 @@
+name: RT-008 Privacy Gate
+
+on:
+  pull_request:
+    paths:
+      - 'analytics-rpc-1.8.1.js'
+      - 'scripts/investor-ready/rt008-privacy-static-check.mjs'
+      - '.github/workflows/rt008-privacy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  privacy-static:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Run RT-008 fail-closed privacy checks
+        run: node scripts/investor-ready/rt008-privacy-static-check.mjs
