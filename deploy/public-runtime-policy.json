@@ -4,6 +4,10 @@
   "public_root_extensions": [".html", ".css", ".js", ".webmanifest", ".svg", ".png", ".jpg", ".jpeg", ".webp", ".ico", ".woff", ".woff2", ".xml"],
   "public_root_files": [".nojekyll", "CNAME", "robots.txt"],
   "public_directories": ["assets", "icons", "images", "media"],
+  "public_exact_files": [
+    "data/family-profile-completion-2026-08-17.json",
+    "data/family-profile-completion-sources-2026-08-17.json"
+  ],
   "never_publish_directories": [".git", ".github", ".vscode", "data", "docs", "node_modules", "playwright-report", "scripts", "supabase", "test-results", "tests"],
   "never_publish_extensions": [".csv", ".md", ".mjs", ".sql", ".ts", ".yaml", ".yml"],
   "never_publish_name_fragments": [".env", "service-role", "service_role", "secret", "private-key", "private_key"],
@@ -21,6 +25,8 @@
     "Client-side JavaScript/CSS shipped to browsers is inherently inspectable and is not treated as confidential source.",
     "This policy protects non-runtime IP and DD material from entering the public deployment artifact.",
     "Unknown top-level directories are excluded until explicitly reviewed and allowlisted.",
+    "Files inside otherwise blocked directories may enter the runtime only through public_exact_files; directory-wide publication remains forbidden.",
+    "The two Family JSON files are current browser-runtime dependencies, not a directory-level data publication rule or a production-import authorization.",
     "This is a shadow packaging boundary only; it does not change the live GitHub Pages source or repository visibility."
   ]
 }
