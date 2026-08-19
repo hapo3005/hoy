@@ -1,0 +1,308 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "baseMainSha": "ff4f3f8075b25cf8833c32821837d2bd72a6a153",
+  "gate": "G1_ACQUISITION_CLEAN",
+  "overallStatus": "IN_PROGRESS",
+  "closingClassEnum": ["PROVEN", "READY_TO_EXECUTE", "EXTERNAL_REQUIRED", "BLOCKED"],
+  "priorityEnum": ["P0", "P1"],
+  "principles": [
+    "a technically green candidate is not automatically an executed closing condition",
+    "current-main survivors supersede historical green branches for final acquired-state evidence",
+    "PROVEN is always scoped to the named control and never implies full G1 closure",
+    "READY_TO_EXECUTE means a bounded package exists but does not authorize production or legal execution",
+    "EXTERNAL_REQUIRED means qualified counsel tax trademark review or an independent human operator is required",
+    "BLOCKED means an upstream dependency prevents truthful execution or closing",
+    "no outreach is authorized until G1 is closed and the internal Contact Freeze is explicitly released"
+  ],
+  "controls": [
+    {
+      "id": "G1-CB-01",
+      "domain": "integration",
+      "control": "Current main RT-006 supply-chain baseline",
+      "closingClass": "PROVEN",
+      "priority": "P0",
+      "scope": "Current main contains the RT-006 CI supply-chain and locked QA dependency hardening.",
+      "evidence": ["main ff4f3f8075b25cf8833c32821837d2bd72a6a153", "merged RT-006 supply-chain hardening"],
+      "nextAction": "Preserve as the base for all new G1 survivor compositions."
+    },
+    {
+      "id": "G1-CB-02",
+      "domain": "integration",
+      "control": "Current-main survivor reconciliation",
+      "closingClass": "READY_TO_EXECUTE",
+      "priority": "P0",
+      "scope": "The earlier survivor map is proven, but it predates current-main Privacy #127/#128 and Public Runtime #130.",
+      "evidence": ["PR #118 exact-head GREEN", "PR #128 exact-head Critical/Final/Browser GREEN", "PR #127 current-main privacy candidate", "PR #130 current-main public-runtime candidate"],
+      "nextAction": "Regenerate the survivor map against current main and explicitly retire superseded #120/#121 as final merge authorities."
+    },
+    {
+      "id": "G1-CB-03",
+      "domain": "integration",
+      "control": "Final acquired-state integration",
+      "closingClass": "BLOCKED",
+      "priority": "P0",
+      "scope": "Final integration cannot be declared while legal, account-control, security execution, data-rights and privacy closing controls remain open.",
+      "blockedBy": ["G1-CB-05", "G1-CB-07", "G1-CB-08", "G1-CB-10", "G1-CB-11", "G1-CB-14", "G1-CB-17", "G1-CB-19", "G1-CB-21", "G1-CB-23"],
+      "nextAction": "Do not create acquired-state evidence until upstream controls are actually closed or explicitly carved out."
+    },
+    {
+      "id": "G1-CB-04",
+      "domain": "security",
+      "control": "RT-001/RT-002 current-state baseline",
+      "closingClass": "PROVEN",
+      "priority": "P0",
+      "scope": "The 95-migration current-state reconciliation and privacy-preserving security baseline are technically proven.",
+      "evidence": ["PR #124 exact-head Critical/Final/full Browser GREEN"],
+      "nextAction": "Use only as baseline authority; never apply historical PR #103 directly."
+    },
+    {
+      "id": "G1-CB-05",
+      "domain": "security",
+      "control": "RT-001 body-preserving hardening execution",
+      "closingClass": "READY_TO_EXECUTE",
+      "priority": "P0",
+      "scope": "PR #125 is exact-head Critical/Final/Browser GREEN and preserves analytics revocation, but has not been executed on an isolated compatible database.",
+      "evidence": ["PR #125 head 1eda21e366a2b82a5ade8ef8fe314204152cdd95", "Final 32201248614 GREEN", "Critical 32201248692 GREEN", "Browser 32201248716 GREEN"],
+      "executionRequirements": ["recompose or rebase on current main", "isolated compatible database", "IDOR/BOLA negative tests", "Security Advisor before/after", "analytics revocation post-proof"],
+      "productionAuthorized": false,
+      "nextAction": "Create a current-main isolated-execution candidate when a safe test database is available; paid Supabase branching requires explicit cost approval."
+    },
+    {
+      "id": "G1-CB-06",
+      "domain": "corporate_ip",
+      "control": "Full-history contributor census",
+      "closingClass": "PROVEN",
+      "priority": "P0",
+      "scope": "No external human contributor was identified in the reachable repository histories covered by the audit snapshot.",
+      "evidence": ["PR #104", "Contributor audit run 32184547569", "0 review-required identities"],
+      "nextAction": "Archive the result in final Chain-of-Title evidence after acquired-state regeneration."
+    },
+    {
+      "id": "G1-CB-07",
+      "domain": "corporate_ip",
+      "control": "Founder-to-company IP and asset-rights execution",
+      "closingClass": "EXTERNAL_REQUIRED",
+      "priority": "P0",
+      "scope": "Founder IP execution drafts and exact historical blobs are preserved, but no company rights transfer or licence has been executed.",
+      "evidence": ["PR #123 exact-head GREEN", "PR #104 corporate/IP architecture"],
+      "externalRequirement": "Qualified legal and tax review plus valid execution after entity decision.",
+      "nextAction": "Finalize the asset schedule and rights instrument only after the entity/tax path is approved."
+    },
+    {
+      "id": "G1-CB-08",
+      "domain": "corporate_ip",
+      "control": "HOY parent/entity and founder tax structure decision",
+      "closingClass": "EXTERNAL_REQUIRED",
+      "priority": "P0",
+      "scope": "A German GmbH is a working architecture, not an executed or tax-cleared final decision.",
+      "evidence": ["PR #104 RT-003 working model"],
+      "externalRequirement": "Qualified German tax/legal review, including founder IP transfer mechanics and EXIT-TAX-01 implications.",
+      "nextAction": "Obtain decision memo before company/IP/account transfers or deliberate residency changes."
+    },
+    {
+      "id": "G1-CB-09",
+      "domain": "digital_control",
+      "control": "Reachable Git history secret classification",
+      "closingClass": "PROVEN",
+      "priority": "P0",
+      "scope": "The current RT-005 technical snapshot has 14/14 findings classified, 0 unclassified and 0 stale classifications.",
+      "evidence": ["PR #119", "Secret History run 32200652539 GREEN", "Critical/Final/full Browser GREEN"],
+      "nextAction": "Regenerate after final acquired-state integration."
+    },
+    {
+      "id": "G1-CB-10",
+      "domain": "digital_control",
+      "control": "Company-controlled GitHub ownership and recovery",
+      "closingClass": "BLOCKED",
+      "priority": "P0",
+      "scope": "HOY repositories remain under founder user ownership rather than a company-controlled organization.",
+      "evidence": ["PR #119 read-only account-control finding"],
+      "blockedBy": ["G1-CB-08"],
+      "nextAction": "Create/approve company ownership model, then migrate repositories with two-admin and recovery evidence."
+    },
+    {
+      "id": "G1-CB-11",
+      "domain": "digital_control",
+      "control": "Supabase, domain, DNS, vendor billing, recovery and continuity",
+      "closingClass": "BLOCKED",
+      "priority": "P0",
+      "scope": "Infrastructure is inventoried but company ownership, billing owner, recovery, two-admin continuity, vault rotation and backup/recovery drill are not proven.",
+      "evidence": ["PR #119 RT005-03..08 remain open"],
+      "blockedBy": ["G1-CB-08"],
+      "nextAction": "Execute a company-control migration checklist after entity/account architecture is approved."
+    },
+    {
+      "id": "G1-CB-12",
+      "domain": "technical_dd",
+      "control": "OSS/SBOM/licence/immutable Actions technical baseline",
+      "closingClass": "PROVEN",
+      "priority": "P0",
+      "scope": "The RT-006 supply-chain hardening is on current main; technical dependency and CI provenance controls are active.",
+      "evidence": ["main ff4f3f8075b25cf8833c32821837d2bd72a6a153", "RT-006 supply-chain workflow"],
+      "nextAction": "Regenerate final acquired-state SBOM/NOTICE after all selected survivor changes land."
+    },
+    {
+      "id": "G1-CB-13",
+      "domain": "data_rights",
+      "control": "Buyer-safe rights segregation contract",
+      "closingClass": "PROVEN",
+      "priority": "P0",
+      "scope": "RT-007 has a fail-closed buyer-safe contract separating field-, restaurant- and archived-carveout rights without claiming whole-profile clearance.",
+      "evidence": ["PR #106 dedicated RT-007 Rights Snapshot Gate GREEN on current candidate", "329 hard direct refs split 324 published + 5 archived"],
+      "nextAction": "Preserve the claim boundary and regenerate against acquired-state data before Buyer DD."
+    },
+    {
+      "id": "G1-CB-14",
+      "domain": "data_rights",
+      "control": "Prepared first-party provenance replacement waves",
+      "closingClass": "READY_TO_EXECUTE",
+      "priority": "P0",
+      "scope": "36 rollback-only replacements are prepared: 34 active published refs and 2 archive refs; they create no transfer-clear rights by themselves.",
+      "evidence": ["PR #106 current candidate", "projected after rebase/review/apply: 329 to 293 total; active 324 to 290; archive 5 to 3"],
+      "executionRequirements": ["exact-head QA completion", "rebase to actual apply base", "page/source recheck", "review", "explicit production apply decision"],
+      "productionAuthorized": false,
+      "nextAction": "Package the waves into one ordered apply plan; do not apply until the release and legal boundaries are satisfied."
+    },
+    {
+      "id": "G1-CB-15",
+      "domain": "data_rights",
+      "control": "Works source-rights and privacy pre-live technical gate",
+      "closingClass": "PROVEN",
+      "priority": "P0",
+      "scope": "Works has a source-rights registry and technical privacy pre-live blocks; this proves governance, not transfer-clear ownership.",
+      "evidence": ["hapo3005/hoy-works#2", "84 hosts / 178 refs; 3 hosts / 7 refs REVIEW_REQUIRED", "work_requests and provider_applications BLOCKED pre-live"],
+      "nextAction": "Resolve the 7 review-required refs and complete privacy/legal conditions before Works personal-data launch."
+    },
+    {
+      "id": "G1-CB-16",
+      "domain": "business_terms",
+      "control": "Business Terms and confirmation infrastructure",
+      "closingClass": "PROVEN",
+      "priority": "P0",
+      "scope": "Dormant Terms/acceptance/confirmation infrastructure and Production migration history are reconstructed and exact-head QA is green.",
+      "evidence": ["PR #122 exact-head Critical/Final/full Browser GREEN", "Terms v1.0 draft", "0 acceptances", "0 confirmations"],
+      "nextAction": "Keep dormant until entity, notice, counsel and activation decisions are complete."
+    },
+    {
+      "id": "G1-CB-17",
+      "domain": "business_terms",
+      "control": "Final Terms legal review and activation decision",
+      "closingClass": "EXTERNAL_REQUIRED",
+      "priority": "P0",
+      "scope": "Terms cannot be activated truthfully before final entity/controller details, DE/ES legal review, privacy linkage and governing-law decisions.",
+      "evidence": ["PR #122 open gates"],
+      "externalRequirement": "Qualified DE/ES legal review and final entity/controller inputs.",
+      "nextAction": "Finalize hashes and acceptance UX only after legal text is approved."
+    },
+    {
+      "id": "G1-CB-18",
+      "domain": "privacy",
+      "control": "Current-main analytics storage fail-closed runtime",
+      "closingClass": "PROVEN",
+      "priority": "P0",
+      "scope": "PR #128 rematerializes the analytics consent-storage hotfix on hardened current main and is fully exact-head QA green.",
+      "evidence": ["PR #128 head cf6488c88f7d2f25441d07ec1225f06212102858", "Critical 32211744204 GREEN", "Final 32211744191 GREEN", "Browser 32211744219 GREEN"],
+      "nextAction": "Use #128 rather than historical #120 as the current-main runtime authority."
+    },
+    {
+      "id": "G1-CB-19",
+      "domain": "privacy",
+      "control": "Operational GDPR/privacy/legal closure",
+      "closingClass": "EXTERNAL_REQUIRED",
+      "priority": "P0",
+      "scope": "PR #127 adds consent/withdrawal candidate, DSAR locator and fail-closed retention controls, but final controller, purpose/legal basis, retention, processor/transfer and erasure decisions remain open.",
+      "evidence": ["PR #127 RT-008 Privacy Gate GREEN", "PR #127 Final Release GREEN", "Production analytics remains independently fail-closed"],
+      "externalRequirement": "Qualified privacy/legal review plus final entity/controller facts; Works DPIA screen and breach/DSAR operational testing remain required.",
+      "nextAction": "Create one counsel-ready privacy decision pack; do not claim GDPR completion."
+    },
+    {
+      "id": "G1-CB-20",
+      "domain": "public_runtime",
+      "control": "Current-main public-runtime shadow package and cutover",
+      "closingClass": "READY_TO_EXECUTE",
+      "priority": "P1",
+      "scope": "PR #130 is the current-main IR-02E v2 packaging candidate; Final, Critical and RT-006 supply-chain checks are green while full browser evidence is still closing.",
+      "evidence": ["PR #130 head e820e717d6d663f2ce88046f56bcacea0f302dfd", "Final 32212656856 GREEN", "Critical 32212656922 GREEN", "RT-006 32212656968 GREEN"],
+      "executionRequirements": ["full browser QA green", "reconciliation after Privacy #128/current selected runtime", "deploy-only live cutover", "live artifact smoke", "company source control"],
+      "productionAuthorized": false,
+      "nextAction": "Keep shadow-only until selected runtime survivors are reconciled and company source-control path exists."
+    },
+    {
+      "id": "G1-CB-21",
+      "domain": "brand",
+      "control": "HOY trademark and house-mark clearance",
+      "closingClass": "EXTERNAL_REQUIRED",
+      "priority": "P0",
+      "scope": "Brand architecture and search protocol exist, but no official registry clearance or counsel opinion is archived.",
+      "evidence": ["PR #108 RT-009"],
+      "externalRequirement": "Official EUIPO/OEPM/WIPO/TMview evidence plus qualified trademark analysis and final goods/services scope.",
+      "nextAction": "Run and archive official clearance evidence; do not file or contact rights holders automatically."
+    },
+    {
+      "id": "G1-CB-22",
+      "domain": "platform_transfer",
+      "control": "Cross-vertical Platform Core technical transferability",
+      "closingClass": "PROVEN",
+      "priority": "P0",
+      "scope": "Gastro, Lifestyle and Works consume the governed Platform Core; all three technical QA paths are proven.",
+      "evidence": ["PR #115 exact-head GREEN", "Lifestyle PR #1 GREEN", "Works PR #3 run 32197153970 GREEN including 12 unit tests and three browser projects"],
+      "nextAction": "Reconcile/retest on final selected integration base before acquired-state archive."
+    },
+    {
+      "id": "G1-CB-23",
+      "domain": "platform_transfer",
+      "control": "Non-founder handoff drill",
+      "closingClass": "EXTERNAL_REQUIRED",
+      "priority": "P0",
+      "scope": "The handoff process and acceptance test exist, but no independent non-founder execution has passed.",
+      "evidence": ["PR #115 transfer runbook", "Founder-independence acceptance test status NOT_TESTED"],
+      "externalRequirement": "A different person must perform the defined handoff without step-by-step founder intervention and evidence the result.",
+      "nextAction": "Schedule the drill only after the selected current-main survivor set is stable enough to hand off."
+    },
+    {
+      "id": "G1-CB-24",
+      "domain": "data_room",
+      "control": "Final acquired-state evidence regeneration",
+      "closingClass": "BLOCKED",
+      "priority": "P0",
+      "scope": "Final SBOM, runtime manifest, rights export, account-control evidence and Chain-of-Title package must describe the actually acquired state, not historical green branches.",
+      "blockedBy": ["G1-CB-03"],
+      "nextAction": "Regenerate and hash all buyer evidence only after final survivor integration and execution decisions."
+    },
+    {
+      "id": "G1-CB-25",
+      "domain": "g2_gate",
+      "control": "Release Contact Freeze and begin G2 Market Proof outreach",
+      "closingClass": "BLOCKED",
+      "priority": "P0",
+      "scope": "Business, partner and investor outreach remains blocked by the internal Contact Freeze.",
+      "blockedBy": ["G1-CB-24"],
+      "nextAction": "Release only after G1 is declared Acquisition Clean and Investor Ready v1.0 passes internal red-team review."
+    }
+  ],
+  "sequence": [
+    {
+      "phase": "A_INTERNAL_RECONCILIATION",
+      "objective": "Close current-main evidence drift and prepare bounded execution packages.",
+      "controls": ["G1-CB-02", "G1-CB-05", "G1-CB-13", "G1-CB-14", "G1-CB-18", "G1-CB-20"]
+    },
+    {
+      "phase": "B_EXTERNAL_DECISIONS",
+      "objective": "Obtain only the legal, tax, privacy and trademark decisions that code cannot prove.",
+      "controls": ["G1-CB-07", "G1-CB-08", "G1-CB-17", "G1-CB-19", "G1-CB-21"]
+    },
+    {
+      "phase": "C_CONTROLLED_EXECUTION",
+      "objective": "Execute rights/account/security/runtime changes under approved boundaries and prove founder independence.",
+      "controls": ["G1-CB-05", "G1-CB-07", "G1-CB-10", "G1-CB-11", "G1-CB-14", "G1-CB-17", "G1-CB-20", "G1-CB-23"]
+    },
+    {
+      "phase": "D_ACQUIRED_STATE_AND_G2_RELEASE",
+      "objective": "Regenerate buyer evidence, close G1, then release G2 Contact Freeze.",
+      "controls": ["G1-CB-03", "G1-CB-24", "G1-CB-25"]
+    }
+  ],
+  "g1DoneRule": "G1 may be declared ACQUISITION_CLEAN only when every P0 control is PROVEN or is covered by a documented buyer-acceptable carve-out approved under the relevant legal/security/privacy authority, acquired-state evidence has been regenerated, and Contact Freeze has not been released prematurely.",
+  "noAuthorization": ["production DDL or DML", "IP or company transfer", "account/domain ownership transfer", "terms activation", "analytics activation", "trademark filing", "business/partner/investor outreach", "paid infrastructure creation"]
+}
