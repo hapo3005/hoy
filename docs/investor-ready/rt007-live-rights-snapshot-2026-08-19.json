@@ -1,0 +1,125 @@
+{
+  "schema_version": "1.1",
+  "observed_at": "2026-08-19T00:28:49.327730Z",
+  "project_ref": "zlscptisdxzxuvllogza",
+  "production_mutation": false,
+  "historical_predecessor": "docs/investor-ready/rt007-live-rights-snapshot-2026-08-18.json",
+  "snapshot_change_note": "Current Production has evolved since the 2026-08-18 snapshot. This file preserves the new live state rather than rewriting the historical record.",
+  "source_usage": {
+    "total_hosts": 107,
+    "total_references": 458,
+    "by_rights_status": {
+      "GREEN": {"hosts": 1, "references": 2, "replacement_required_references": 0},
+      "AMBER": {"hosts": 66, "references": 219, "replacement_required_references": 0},
+      "RED": {"hosts": 14, "references": 193, "replacement_required_references": 193},
+      "REVIEW_REQUIRED": {"hosts": 26, "references": 44, "replacement_required_references": 44}
+    }
+  },
+  "direct_restaurant_provenance": {
+    "GREEN": {"field_references": 8, "restaurants": 8, "contexts": ["location_source_url"]},
+    "AMBER": {"field_references": 115, "restaurants": 54, "contexts": ["hours_source_url", "location_source_url", "signature_source_url", "source_url"]},
+    "RED": {"field_references": 313, "restaurants": 147, "contexts": ["hours_source_url", "location_source_url", "signature_source_url", "source_url"]},
+    "REVIEW_REQUIRED": {"field_references": 13, "restaurants": 8, "contexts": ["hours_source_url", "signature_source_url", "source_url"]},
+    "NO_REGISTRY": {"field_references": 3, "restaurants": 3, "contexts": ["signature_source_url"]},
+    "hard_queue": {"field_references": 329, "restaurants": 149}
+  },
+  "delta_vs_2026_08_18_snapshot": {
+    "source_usage_hosts": 2,
+    "source_usage_references": -1,
+    "direct_red_field_references": -13,
+    "direct_review_required_field_references": -1,
+    "direct_no_registry_field_references": 0,
+    "hard_direct_field_references": -14,
+    "hard_direct_restaurants": -6
+  },
+  "policy_controls": {
+    "red_policy_failures": 0,
+    "business_terms_version": "1.0",
+    "business_terms_status": "draft",
+    "business_terms_activated_at": null,
+    "business_terms_counsel_reviewed_at": null,
+    "privacy_notice_version": null,
+    "business_terms_acceptances": 0,
+    "business_data_confirmations": 0
+  },
+  "accessibility_evidence": {
+    "external_unverified": 668
+  },
+  "operational_sources": {
+    "restaurant_hours_sources": {"official": 79, "non_official": 92},
+    "menu_sources": {"official": 67, "non_official": 16}
+  },
+  "no_registry_direct_provenance": [
+    {
+      "restaurant_id": 8,
+      "restaurant_name": "Collados Beach",
+      "field": "signature_source_url",
+      "host": "elpais.com",
+      "current_treatment": "FAIL_CLOSED_NO_REGISTRY",
+      "recommended_registry_treatment": "RED_REFERENCE_REPLACE",
+      "first_party_replacement_candidate": "https://colladosbeach.com/"
+    },
+    {
+      "restaurant_id": 9,
+      "restaurant_name": "Area Sunset",
+      "field": "signature_source_url",
+      "host": "www.thefork.es",
+      "current_treatment": "FAIL_CLOSED_NO_REGISTRY",
+      "recommended_registry_treatment": "RED_REFERENCE_REPLACE",
+      "first_party_replacement_candidate": "https://areasunset.es/restaurante/"
+    },
+    {
+      "restaurant_id": 22,
+      "restaurant_name": "Cala Reona Beach Club",
+      "field": "signature_source_url",
+      "host": "elpais.com",
+      "current_treatment": "FAIL_CLOSED_NO_REGISTRY",
+      "recommended_registry_treatment": "RED_REFERENCE_REPLACE",
+      "first_party_replacement_candidate": "https://calareonabeach.com/nuestra-carta/"
+    }
+  ],
+  "source_terms_review": {
+    "www.thefork.es": {
+      "official_terms_checked": "2026-08-19",
+      "terms_last_updated": "2025-06-10",
+      "classification_recommendation": "RED",
+      "replacement_required": true,
+      "transferability": "NO_FOR_PLATFORM_CONTENT_WITHOUT_PERMISSION"
+    },
+    "elpais.com": {
+      "official_terms_checked": "2026-08-19",
+      "classification_recommendation": "RED",
+      "replacement_required": true,
+      "transferability": "NO_FOR_PUBLISHER_CONTENT_WITHOUT_AUTHORIZATION"
+    }
+  },
+  "first_party_replacement_rights_boundary": {
+    "hosts": ["areasunset.es", "calareonabeach.com", "colladosbeach.com"],
+    "current_rights_status": "AMBER",
+    "source_class": "FIRST_PARTY_BUSINESS_REFERENCE",
+    "factual_verification_allowed": true,
+    "persistent_copy_allowed": false,
+    "public_reuse_allowed": false,
+    "derivative_use_allowed": false,
+    "commercial_use_allowed": false,
+    "automated_collection_allowed": false,
+    "replacement_required": false,
+    "transferability": "UNKNOWN",
+    "legal_review_status": "BUSINESS_TERMS_REQUIRED"
+  },
+  "buyer_buckets": {
+    "TRANSFERABLE_OR_LICENSED_NOW": "Only GREEN sources that also permit the intended commercial/derivative/transfer use; source licence conditions still travel with the asset.",
+    "CONDITIONAL_NOT_YET_TRANSFERABLE": "AMBER sources: first-party/operator/government/vendor references whose authority/licence/terms chain is not yet closed.",
+    "REFERENCE_RESTRICTED_REPLACE": "RED sources: provenance/lead only; not part of proprietary-data valuation; replacement required.",
+    "REVIEW_REQUIRED": "Unreviewed or unregistered sources; fail closed."
+  },
+  "gate": {
+    "red_policy_integrity": "GREEN",
+    "registry_coverage_for_direct_provenance": "RED",
+    "business_confirmed_rights": "RED",
+    "transferable_export_mechanics": "PREPARED",
+    "rt007_overall": "IN_PROGRESS",
+    "f0_m": "BLOCKED",
+    "f1_i": "BLOCKED"
+  }
+}
