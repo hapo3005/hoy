@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.1.0",
+  "snapshotDate": "2026-08-19",
+  "role": "G1-CB-14_READ_ONLY_PREFLIGHT",
+  "basePlan": {
+    "pr": 147,
+    "head": "a3edc83cad30bfce54c43de050f3bbe2c954cbde"
+  },
+  "productionMutationPerformed": false,
+  "productionApplyAuthorized": false,
+  "applyDecision": "SOURCE_RECHECK_PASS_PENDING_ROLLBACK_RELEASE_RECHECK_AND_SEPARATE_PRODUCTION_APPROVAL",
+  "rowRecheck": {
+    "targets": 36,
+    "exactMatches": 36,
+    "drifted": 0,
+    "published": 34,
+    "unpublished": 2,
+    "status": "PASS_NO_ROW_DRIFT"
+  },
+  "signatureBaseline": {
+    "targets": 12,
+    "captured": 12,
+    "status": "CURRENT_BASELINE_CAPTURED_READ_ONLY",
+    "fields": [
+      "signature_title",
+      "signature_text",
+      "signature_tags",
+      "signature_status",
+      "signature_source_url",
+      "signature_source_label",
+      "signature_checked_at",
+      "signature_confidence"
+    ]
+  },
+  "destinationRightsRegistry": {
+    "uniqueHosts": 27,
+    "registered": 27,
+    "amberFirstPartyBusinessReference": 27,
+    "businessTermsRequired": 27,
+    "transferClearNow": 0,
+    "status": "PASS_EXPECTED_AMBER_NOT_TRANSFER_CLEAR"
+  },
+  "buyerSafeSnapshot": {
+    "publishedRestaurants": 166,
+    "unpublishedRestaurants": 3,
+    "hardRefsAll": 329,
+    "hardRefsPublished": 324,
+    "hardRefsUnpublished": 5,
+    "publishedHardRestaurants": 146,
+    "publishedConditionalRestaurants": 18,
+    "publishedSourceRefClearRestaurants": 2,
+    "archivedRestaurants": 3,
+    "status": "UNCHANGED_FROM_RT007_SURVIVOR"
+  },
+  "sourceRecheck": {
+    "targets": 36,
+    "pass": 36,
+    "reviewRequired": 0,
+    "rule": "PASS is only a current source-identity/reachability preflight result. It is not a licence, commercial-use, derivative-use, transferability or whole-profile-clearance claim.",
+    "reviewTargets": [],
+    "resolvedFindings": [
+      {
+        "restaurantId": 7,
+        "restaurantName": "Escuela de Pieter",
+        "field": "signature_source_url",
+        "proposedUrl": "https://escueladepieter.com/",
+        "outcome": "PASS_WITH_INTEGRITY_NOTE",
+        "detail": "The current first-party homepage directly identifies the restaurant, location, Mediterranean offer and reservation path. Previously surfaced unrelated parameterized storefront-style URLs could not be reproduced in the final recheck; retain an integrity note and recheck immediately before any apply."
+      },
+      {
+        "restaurantId": 110,
+        "restaurantName": "El Rincón de la Hormiga",
+        "field": "source_url",
+        "proposedUrl": "https://elrincondelahormiga.com/",
+        "outcome": "PASS_BUSINESS_IDENTITY_MATCH",
+        "detail": "The HOY Production record is venue_type=bar and already names this website. The first-party site identifies El Rincón de la Hormiga in Cabo de Palos, documents an apertura de bar project and exposes a tapas/drinks menu."
+      },
+      {
+        "restaurantId": 144,
+        "restaurantName": "Restaurante Isla Grosa",
+        "field": "source_url",
+        "proposedUrl": "https://restauranteislagrosalamanga.es/",
+        "outcome": "PASS_DIRECT_FIRST_PARTY_FETCH",
+        "detail": "Direct first-party content was fetched and identifies Restaurante Isla Grosa in La Manga with restaurant, menu and contact content."
+      },
+      {
+        "restaurantId": 202,
+        "restaurantName": "Pescados Cabo de Palos I",
+        "field": "location_source_url",
+        "proposedUrl": "https://pescadoscabodepalos.es/",
+        "outcome": "PASS_DIRECT_FIRST_PARTY_FETCH",
+        "detail": "Direct first-party content was fetched and identifies Pescados Cabo de Palos at Calle Sirio 23, matching the prepared location target."
+      }
+    ]
+  },
+  "archiveQualification": {
+    "restaurantId": 19,
+    "restaurantName": "Restaurante El Pez Rojo",
+    "published": false,
+    "sourceStatus": "ARCHIVE_STALE_FIRST_PARTY_ACCEPTABLE_FOR_REVIEW",
+    "note": "The first-party WordPress source is old but directly identifies the business; this does not convert the archived record into a current-live-business claim."
+  },
+  "nextRequiredBeforeApplyCandidate": [
+    "generate per-target and per-wave rollback evidence with exact before values",
+    "reconfirm privacy security and release boundaries",
+    "repeat exact Production row source signature and rights recheck immediately before any mutation",
+    "obtain a separate explicit Production apply decision"
+  ],
+  "claimBoundary": {
+    "wholeProfileClearanceClaimed": false,
+    "transferClearanceClaimed": false,
+    "businessTermsStillRequired": true,
+    "productionMutationPerformed": false,
+    "productionApplyAuthorized": false,
+    "contactFreezeChanged": false
+  }
+}
