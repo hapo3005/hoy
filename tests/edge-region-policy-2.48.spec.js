@@ -45,3 +45,43 @@ for(const [label,path] of [['public','/'],['admin','/admin.html']]){
     expect(unknown).toBe('hoy_edge_region_unclassified:future-unclassified-function');
   });
 }
+
+test('wrapped invoke forces region, blocks unknown slugs and rejects contradictory observed region', async ({ page }) => {
+  await page.goto('/');
+  await expect.poll(()=>page.evaluate(()=>Boolean(window.hoyInstallEdgeRegionPolicy248))).toBe(true);
+
+  const result=await page.evaluate(async()=>{
+    const calls=[];
+    const headers=(region)=>({get:(name)=>String(name).toLowerCase()==='x-sb-edge-region'?region:null});
+    const client={functions:{invoke:async(name,options)=>{
+      calls.push({name,options});
+      const observed=options?.body?.qaObservedRegion||'eu-central-1';
+      return {data:{ok:true},error:null,response:{headers:headers(observed)}};
+    }}};
+    window.hoyInstallEdgeRegionPolicy248(client);
+
+    const allowed=await client.functions.invoke('claim-submit',{body:{qa:true}});
+    const unknown=await client.functions.invoke('future-unclassified-function',{body:{qa:true}});
+    const mismatch=await client.functions.invoke('mobility-resolve',{body:{qaObservedRegion:'us-east-1'}});
+
+    return {
+      wrapped:client.functions.invoke.__hoyEdgeRegionWrapped248===true,
+      allowedError:allowed.error?String(allowed.error.message||allowed.error):null,
+      allowedRegion:calls[0]?.options?.region||null,
+      unknownError:String(unknown.error?.message||unknown.error||''),
+      callCountAfterUnknown:calls.length,
+      mismatchError:String(mismatch.error?.message||mismatch.error||''),
+      mismatchRegion:calls[1]?.options?.region||null,
+    };
+  });
+
+  expect(result).toEqual({
+    wrapped:true,
+    allowedError:null,
+    allowedRegion:'eu-central-1',
+    unknownError:'hoy_edge_region_unclassified:future-unclassified-function',
+    callCountAfterUnknown:2,
+    mismatchError:'hoy_edge_region_mismatch:mobility-resolve:us-east-1',
+    mismatchRegion:'eu-central-1',
+  });
+});
