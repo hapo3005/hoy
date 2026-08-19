@@ -2,6 +2,8 @@ const {test,expect}=require('@playwright/test');
 
 test.use({serviceWorkers:'block'});
 
+const EXPECTED_LIVE_FAMILY_IDS=[96,101,132,218,243,244,245,246,247,248,249,250,251,252,253,254];
+
 async function ready(page){
   await page.goto('./?familyPreview=1',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyPlaygroundsHardening240&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true&&window.hoyFamilyDataCompletion242?.state?.status==='ready',{timeout:30000});
@@ -26,7 +28,8 @@ test('live verified Family data takes precedence over the audited research previ
   expect(initial.mode).toBe('live');
   expect(initial.virtualInData).toBe(0);
   expect(initial.badStatus).toBe(false);
-  expect(initial.liveIds).toEqual(expect.arrayContaining([96,101,132,218]));
+  expect(initial.liveIds).toEqual(expect.arrayContaining(EXPECTED_LIVE_FAMILY_IDS));
+  expect(initial.liveIds.length).toBeGreaterThanOrEqual(EXPECTED_LIVE_FAMILY_IDS.length);
   expect(initial.locked).toBe(3);
 
   await expect(page.locator('[data-family240-home-context]')).toBeVisible();
@@ -34,9 +37,10 @@ test('live verified Family data takes precedence over the audited research previ
   await page.locator('[data-family240-home-context]').click();
   await expect.poll(()=>page.evaluate(()=>state.family)).toBe('family');
   await expect.poll(()=>page.evaluate(()=>DATA.filter(x=>x.__family240_preview_profile===true).length)).toBe(0);
-  await expect(page.locator('[data-result-count]')).toHaveText('4');
+  await expect.poll(async()=>Number(await page.locator('[data-result-count]').textContent())).toBeGreaterThanOrEqual(EXPECTED_LIVE_FAMILY_IDS.length);
   await expect(page.locator('.family240-research-card')).toHaveCount(0);
   await expect(page.locator('.list')).toContainText('Restaurante La Plaza');
+  await expect(page.locator('.list')).toContainText('Si! Bar & Restaurant');
 
   await page.locator('[data-decision="all"]').click();
   await expect.poll(()=>page.evaluate(()=>state.family)).toBe('all');
