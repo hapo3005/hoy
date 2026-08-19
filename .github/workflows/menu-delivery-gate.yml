@@ -46,8 +46,11 @@ jobs:
       - name: Install locked QA dependencies
         run: npm ci --ignore-scripts
 
-      - name: Install browser engine
-        run: npx playwright install --with-deps "${{ matrix.browser }}"
+      - name: Install browser engine with resilient dependency setup
+        env:
+          PLAYWRIGHT_INSTALL_ATTEMPTS: '3'
+          PLAYWRIGHT_INSTALL_TIMEOUT: 6m
+        run: bash scripts/install-playwright-browser-resilient.sh "${{ matrix.browser }}"
 
       - name: Verify deployed menu truth
         run: npx playwright test tests/menu-delivery-integrity-2.37.spec.js tests/chibichanga-live-2.36.spec.js --project="${{ matrix.project }}"
