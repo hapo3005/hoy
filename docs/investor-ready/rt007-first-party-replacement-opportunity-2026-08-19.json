@@ -1,12 +1,12 @@
 {
-  "schemaVersion": "1.1.0",
+  "schemaVersion": "1.2.0",
   "snapshotDate": "2026-08-19",
   "status": "SCREENED_NOT_APPROVED",
   "liveHardDirectReferences": 329,
   "screenedCandidateReferences": 67,
   "screenedCandidateShare": 0.2036,
-  "preparedDryRunReferences": 21,
-  "factVerificationStillRequired": 46,
+  "preparedDryRunReferences": 25,
+  "factVerificationStillRequired": 42,
   "driftNote": "Registry coverage changed at 2026-08-19T01:41:47Z: the formerly NO_REGISTRY publisher/platform hosts are now fail-closed REVIEW_REQUIRED, and chibichanga.com is now a first-party AMBER host. Hard direct references remain 329.",
   "byField": {
     "source_url": {
@@ -18,8 +18,8 @@
     "location_source_url": {
       "candidateReferences": 25,
       "verificationMode": "VERIFY_OFFICIAL_PAGE_SHOWS_LOCATION_OR_ADDRESS",
-      "preparedDryRunReferences": 6,
-      "remainingReferences": 19
+      "preparedDryRunReferences": 10,
+      "remainingReferences": 15
     },
     "hours_source_url": {
       "candidateReferences": 13,
@@ -57,14 +57,21 @@
       "artifact": "docs/investor-ready/rt007-location-first-party-wave2-candidate-2026-08-19.json",
       "pageContentRecheckBeforeApplyRequired": true
     },
+    "locationWave3": {
+      "references": 4,
+      "projectedHardQueueIfAppliedAlone": 325,
+      "artifact": "docs/investor-ready/rt007-location-first-party-wave3-candidate-2026-08-19.json",
+      "pageContentRecheckBeforeApplyRequired": true
+    },
     "combinedAfterRequiredRebase": {
-      "references": 21,
-      "projectedHardQueue": 308,
+      "references": 25,
+      "projectedHardQueue": 304,
       "rebaseRequired": true
     }
   },
   "verificationPasses": {
-    "pass2": "docs/investor-ready/rt007-first-party-verification-pass2-2026-08-19.json"
+    "pass2": "docs/investor-ready/rt007-first-party-verification-pass2-2026-08-19.json",
+    "pass3": "docs/investor-ready/rt007-first-party-verification-pass3-2026-08-19.json"
   },
   "opportunityCeiling": {
     "ifAll67CandidatesWereIndividuallyVerifiedAndApproved": 262,
