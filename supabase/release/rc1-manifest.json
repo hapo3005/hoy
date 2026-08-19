@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "snapshot_date": "2026-08-18",
+  "snapshot_date": "2026-08-19",
   "status": "PREPARED_NOT_DEPLOYED",
   "target": {
     "project_name": "HOY La Manga",
@@ -8,11 +8,11 @@
     "region": "eu-central-1"
   },
   "source": {
-    "main_sha": "888b525eff280e7c6ed9eaa98ab9807a56cb21e1",
+    "main_sha": "96b8083aba9a226194ed13f133ec77c6bddf1e32",
     "accessible_integration_pr": 89,
     "accessible_integration_commit": "888b525eff280e7c6ed9eaa98ab9807a56cb21e1",
     "accessible_code_integrated": true,
-    "accessible_database_applied": false
+    "accessible_database_applied": true
   },
   "release_policy": {
     "production_mutations_during_preparation": false,
@@ -27,16 +27,24 @@
     "legacy_accessibility_missing_restaurant_id": 0,
     "legacy_accessibility_missing_checked_at": 0,
     "legacy_accessibility_public_research_rows": 166,
-    "expected_accessible_initial_facts": 668,
-    "expected_accessible_yes": 300,
-    "expected_accessible_no": 11,
-    "expected_accessible_unknown": 357,
-    "expected_accessible_external_unverified": 668,
-    "sales_pipeline_rows": 168,
-    "sales_pipeline_send_lock_true": 168,
-    "family_features_table_present": false,
-    "accessibility_feature_registry_present": false,
-    "restaurant_accessibility_facts_present": false
+    "accessibility_feature_registry_present": true,
+    "accessibility_feature_registry_rows": 24,
+    "restaurant_accessibility_facts_present": true,
+    "accessibility_facts_total": 668,
+    "accessibility_facts_yes": 300,
+    "accessibility_facts_no": 11,
+    "accessibility_facts_unknown": 357,
+    "accessibility_facts_external_unverified": 668,
+    "venue_sales_pipeline_rows": 168,
+    "venue_sales_pipeline_send_lock_true": 168,
+    "family_features_table_present": true,
+    "family_features_rows": 17,
+    "family_published_rows": 4,
+    "family_draft_rows": 13,
+    "menu_translation_reviews_present": true,
+    "menu_translation_review_rows": 0,
+    "restaurants_total": 187,
+    "restaurants_published": 166
   },
   "migrations": [
     {
@@ -131,8 +139,8 @@
     },
     {
       "repo_path": "supabase/migrations/20260816_family_playgrounds_240.sql",
-      "status": "ROLLED_BACK_BY_DESIGN_DO_NOT_APPLY",
-      "production_evidence": ["20260816044249 family_playgrounds_240", "20260816044310 family_playgrounds_240_policy_tune", "20260816044420 rollback_family_playgrounds_240_premerge", "public.restaurant_family_features absent"]
+      "status": "LIVE_STATE_CONFIRMED_DO_NOT_APPLY",
+      "production_evidence": ["Production activation explicitly authorized 2026-08-19", "public.restaurant_family_features present with RLS enabled", "17 verified Family rows total; 4 attached to published restaurants and anon-visible; 13 attached to unpublished drafts", "0 research rows self-promoted to hoy_verified"]
     },
     {
       "repo_path": "supabase/migrations/20260818090000_hoy_245_analytics_contract.sql",
@@ -152,85 +160,58 @@
     {
       "repo_path": "supabase/migrations/20260818093100_hoy_accessible_v1.sql",
       "source": "MAIN_PR_89",
-      "status": "PENDING_PRODUCTION_DB_GATE",
-      "production_evidence": ["code integrated in main via PR #89", "public.accessibility_feature_registry absent", "public.restaurant_accessibility_facts absent"],
-      "apply_order": 1,
-      "expected_after_initial_apply": {
-        "feature_registry_rows": 24,
-        "facts_total": 668,
-        "facts_yes": 300,
-        "facts_no": 11,
-        "facts_unknown": 357,
-        "facts_external_unverified": 668,
-        "trigger": "hoy_accessibility_fact_sync",
-        "sync_function_security": "INVOKER"
-      }
+      "status": "LIVE_STATE_CONFIRMED_DO_NOT_APPLY",
+      "production_evidence": ["public.accessibility_feature_registry present with 24 rows", "public.restaurant_accessibility_facts present with 668 current facts", "current facts: 300 yes, 11 no, 357 unknown, 668 external_unverified", "hoy_sync_accessibility_facts_from_legacy remains SECURITY INVOKER"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260819104500_menu_translation_human_verification_v1.sql",
+      "status": "LIVE_STATE_CONFIRMED_DO_NOT_APPLY",
+      "production_evidence": ["private.menu_translation_reviews present", "0 review rows at 2026-08-19 reconciliation", "human review layer installed without automatic status upgrades"]
+    },
+    {
+      "repo_path": "supabase/migrations/20260819110000_menu_translation_human_verification_rpc_hardening_v1.sql",
+      "status": "LIVE_STATE_CONFIRMED_DO_NOT_APPLY",
+      "production_evidence": ["public menu review RPC wrapper is SECURITY INVOKER", "private review internal is SECURITY DEFINER with server-side authorization boundary", "no anonymous review execution"]
     }
   ],
   "edge_functions": {
-    "repo_owned_active_in_production": [
-      "admin-ops",
-      "menu-discovery",
-      "menu-editorial-import",
-      "menu-intake-process",
-      "menu-social-handoff",
-      "operator-accessibility-confirm",
-      "operator-hours-confirm",
-      "promotion-insights",
-      "venue-media-approve"
-    ],
+    "repo_owned_active_in_production": ["admin-ops", "menu-discovery", "menu-editorial-import", "menu-intake-process", "menu-social-handoff", "operator-accessibility-confirm", "operator-hours-confirm", "promotion-insights", "venue-media-approve"],
     "source_parity_verified": ["operator-accessibility-confirm"],
     "current_rc_redeploy_required": [],
-    "production_only_or_not_currently_repo_owned_do_not_touch": [
-      "claim-submit",
-      "publish-offer",
-      "location-geocode-once",
-      "cartociudad-geocode-once",
-      "cartociudad-debug",
-      "address-fallback-geocode-once",
-      "cartociudad-find-fallback",
-      "cartociudad-locate-debug",
-      "menu-image-once",
-      "mobility-resolve"
-    ]
+    "production_only_or_not_currently_repo_owned_do_not_touch": ["claim-submit", "publish-offer", "location-geocode-once", "cartociudad-geocode-once", "cartociudad-debug", "address-fallback-geocode-once", "cartociudad-find-fallback", "cartociudad-locate-debug", "menu-image-once", "mobility-resolve"]
   },
   "seeds": {
     "production_auto_apply": false,
-    "policy": "Never include seed directories in the production RC automatically. Any future data import requires its own reviewed, idempotent DML step.",
-    "paths": [
-      "supabase/seed/menu-discovery-2.26-core-image-pages.sql",
-      "supabase/seed/menu-discovery-history-2.27.sql",
-      "supabase/seed/menu-inapp-2.31-soul-kitchen.sql",
-      "supabase/seed/menu-integrity-2.32.sql",
-      "supabase/seed/menu-language-2.33-la-finca.sql",
-      "supabase/seed/menu-source-selection-2.34.1.sql",
-      "supabase/seed/menu-source-truth-2.34-cp8.sql",
-      "supabase/seeds/family_features_240_stage2_verified.sql",
-      "supabase/seeds/family_playgrounds_240_verified.sql",
-      "supabase/seeds/family_restaurant_profiles_240_staging.sql",
-      "scripts/seed-menu-eval-gold.sql"
-    ]
+    "policy": "Never include seed directories in the production RC automatically. Family data applied on 2026-08-19 was a separately authorized, reviewed, idempotent Production DML action and is not converted into generic auto-seeding.",
+    "paths": ["supabase/seed/menu-discovery-2.26-core-image-pages.sql", "supabase/seed/menu-discovery-history-2.27.sql", "supabase/seed/menu-inapp-2.31-soul-kitchen.sql", "supabase/seed/menu-integrity-2.32.sql", "supabase/seed/menu-language-2.33-la-finca.sql", "supabase/seed/menu-source-selection-2.34.1.sql", "supabase/seed/menu-source-truth-2.34-cp8.sql", "supabase/seeds/family_features_240_stage2_verified.sql", "supabase/seeds/family_playgrounds_240_verified.sql", "supabase/seeds/family_restaurant_profiles_240_staging.sql", "scripts/seed-menu-eval-gold.sql"],
+    "manual_production_actions": [{
+      "date": "2026-08-19",
+      "scope": "HOY Family activation",
+      "staging_profiles": 18,
+      "staging_published": 0,
+      "family_rows": 17,
+      "family_rows_publicly_visible": 4,
+      "family_rows_on_unpublished_drafts": 13
+    }]
   },
   "baseline_advisors": {
     "security": {
       "status": "PRE_EXISTING_FINDINGS_PRESENT",
-      "rule": "No new security lint may be introduced by the RC migration. Existing SECURITY DEFINER findings must be individually marked intentional or remediated before RC1 sign-off."
+      "rule": "No new security lint may be introduced by a future RC migration. Existing findings must be individually marked intentional or remediated before final RC1 sign-off."
     },
     "performance": {
       "status": "PRE_EXISTING_FINDINGS_PRESENT",
-      "rule": "No new multiple-permissive-policy warning may be introduced by the RC migration. Existing warnings are tracked separately from the Accessible delta."
+      "rule": "No new multiple-permissive-policy warning may be introduced by a future RC migration. Existing warnings are tracked separately."
     }
   },
   "release_order": [
     "Freeze final RC code and regenerate this manifest if main or Supabase assets changed.",
-    "Capture production migration-history, advisor and safety-flag baseline read-only.",
-    "Run rc1-preflight.sql against the isolated release environment cloned from the intended production baseline.",
-    "Apply only migrations whose manifest status is PENDING_PRODUCTION_DB_GATE, in apply_order order.",
-    "Run rc1-postflight.sql and verify exact Accessible initial counts and RLS/grants/trigger invariants.",
-    "In the isolated environment, execute one verified-operator accessibility correction and prove legacy -> versioned business_confirmed facts sync.",
+    "Capture Production migration-history, advisor and safety-flag baseline read-only.",
+    "Confirm that every repository migration is classified and that no unreviewed PENDING_PRODUCTION_DB_GATE entry exists.",
+    "Run any future isolated database gate only for a newly reviewed pending migration; the 2026-08-19 snapshot has no pending database delta.",
     "Run Security and Performance Advisors and reject any new RC-caused lint.",
-    "Run all final RC browser/security/PWA gates on one frozen commit after database-gate success and before production release.",
-    "At production release, re-run preflight and apply only still-pending manifest entries. Do not run seeds or historical mirror migrations.",
+    "Run all final RC browser/security/PWA gates on one frozen commit before production release.",
+    "At production release, re-run preflight and apply only explicitly reviewed still-pending manifest entries. Do not run generic seeds or historical mirror migrations.",
     "Run production postflight, smoke tests, advisors, and compare against the captured baseline."
   ]
 }
