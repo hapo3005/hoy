@@ -23,10 +23,17 @@ const fail=(msg)=>{console.error(`RT-008 FAIL: ${msg}`);process.exitCode=1};
 const pass=(msg)=>console.log(`RT-008 PASS: ${msg}`);
 const requireText=(text,needle,label)=>text.includes(needle)?pass(label):fail(label);
 
-for(const [name,text] of [['analytics runtime',analytics],['consent UI',consent],['browser test',browserTest]]){
+for(const [name,text] of [['analytics runtime',analytics],['consent UI',consent]]){
   requireText(text,canonicalKey,`${name} uses canonical #128 consent key`);
   if(text.includes(staleKey))fail(`${name} reintroduces stale #127 consent key`);else pass(`${name} contains no stale #127 consent key`);
 }
+requireText(browserTest,canonicalKey,'browser test uses canonical #128 consent key');
+requireText(browserTest,staleKey,'browser test retains stale key only as a negative sentinel');
+requireText(browserTest,"stale:localStorage.getItem(STALE)",'browser test observes stale key without writing it');
+requireText(browserTest,'expect(state.stale).toBeNull()','browser test requires stale key to remain absent after consent');
+requireText(browserTest,"expect(values).toEqual({consent:'rejected',stale:null",'browser withdrawal test requires stale key to remain absent');
+if(/localStorage\.setItem\([^\n]{0,80}(?:STALE|hoy-analytics-consent-v1)/.test(browserTest))fail('browser test must never write the stale key');else pass('browser test never writes the stale key');
+
 requireText(currentEvidence,canonicalKey,'current evidence records canonical consent key');
 requireText(currentEvidence,staleKey,'current evidence explicitly records stale key as prohibited historical value');
 
