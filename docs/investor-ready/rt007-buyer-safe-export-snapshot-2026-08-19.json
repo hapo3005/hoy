@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "observedAt": "2026-08-19T03:23:41.766704Z",
+  "status": "READ_ONLY_BUYER_DD_SNAPSHOT",
+  "productionMutationPerformed": false,
+  "scope": "Restaurant provenance segregation for Buyer DD. This snapshot classifies existing source references and publication state; it does not declare an entire restaurant profile legally clean or commercially transferable.",
+  "restaurantPopulation": {
+    "published": 166,
+    "unpublished": 3,
+    "total": 169
+  },
+  "hardDirectReferences": {
+    "all": 329,
+    "published": 324,
+    "unpublished": 5,
+    "reconciles": true
+  },
+  "restaurantBuyerBuckets": [
+    {
+      "bucket": "PUBLISHED_WITH_HARD_RESTRICTED_DEPENDENCY",
+      "restaurants": 146,
+      "provenanceReferences": 386,
+      "hardRestrictedReferences": 324,
+      "conditionalAmberReferences": 62,
+      "transferableOrLicensedReferences": 0,
+      "meaning": "Published record has at least one RED, REVIEW_REQUIRED or unregistered provenance dependency. It is not eligible for a clean buyer-data claim."
+    },
+    {
+      "bucket": "PUBLISHED_CONDITIONAL_NOT_TRANSFER_CLEAR",
+      "restaurants": 18,
+      "provenanceReferences": 57,
+      "hardRestrictedReferences": 0,
+      "conditionalAmberReferences": 51,
+      "transferableOrLicensedReferences": 6,
+      "meaning": "No hard restricted dependency remains in the currently populated provenance fields, but at least one AMBER/conditional source prevents a transfer-clear claim."
+    },
+    {
+      "bucket": "PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW",
+      "restaurants": 2,
+      "provenanceReferences": 2,
+      "hardRestrictedReferences": 0,
+      "conditionalAmberReferences": 0,
+      "transferableOrLicensedReferences": 2,
+      "meaning": "Every currently populated provenance reference on these records is in the source-level transferable/licensed bucket. This does NOT establish that the full restaurant profile, all factual content, personal data, imagery, trademarks or future fields are legally clean or unrestricted."
+    },
+    {
+      "bucket": "ARCHIVED_UNPUBLISHED_CARVEOUT",
+      "restaurants": 3,
+      "provenanceReferences": 7,
+      "hardRestrictedReferences": 5,
+      "conditionalAmberReferences": 2,
+      "transferableOrLicensedReferences": 0,
+      "meaning": "Unpublished records are separated from the active buyer dataset but remain visible in rights reconciliation and must not be silently deleted from DD evidence."
+    }
+  ],
+  "publishedProvenanceReferenceExamples": [
+    {
+      "restaurantId": 168,
+      "restaurantName": "BT15 Irish Pub & Eatery",
+      "currentProvenanceReferenceCount": 1,
+      "bucket": "PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW",
+      "qualification": "Source-reference classification only; not a whole-profile legal-clearance claim."
+    },
+    {
+      "restaurantId": 150,
+      "restaurantName": "Chiringuito Beach club la Reserva",
+      "currentProvenanceReferenceCount": 1,
+      "bucket": "PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW",
+      "qualification": "Source-reference classification only; not a whole-profile legal-clearance claim."
+    }
+  ],
+  "unpublishedHardReferenceCarveout": [
+    {
+      "restaurantId": 19,
+      "restaurantName": "Restaurante El Pez Rojo",
+      "field": "hours_source_url",
+      "host": "murciaplaza.com",
+      "rightsStatus": "REVIEW_REQUIRED",
+      "replacementRequired": true
+    },
+    {
+      "restaurantId": 19,
+      "restaurantName": "Restaurante El Pez Rojo",
+      "field": "signature_source_url",
+      "host": "www.tripadvisor.co",
+      "rightsStatus": "RED",
+      "replacementRequired": true
+    },
+    {
+      "restaurantId": 19,
+      "restaurantName": "Restaurante El Pez Rojo",
+      "field": "source_url",
+      "host": "murciaplaza.com",
+      "rightsStatus": "REVIEW_REQUIRED",
+      "replacementRequired": true
+    },
+    {
+      "restaurantId": 202,
+      "restaurantName": "Pescados Cabo de Palos I",
+      "field": "location_source_url",
+      "host": "www.google.com",
+      "rightsStatus": "RED",
+      "replacementRequired": true
+    },
+    {
+      "restaurantId": 240,
+      "restaurantName": "Alt Frankfurt",
+      "field": "source_url",
+      "host": "www.tripadvisor.de",
+      "rightsStatus": "RED",
+      "replacementRequired": true
+    }
+  ],
+  "buyerExportRules": {
+    "rawSourceUrlsRequiredInBuyerFacingRows": false,
+    "sourceHostAndFieldAreSufficientForSegregationEvidence": true,
+    "unpublishedRowsExcludedFromActiveBuyerDataset": true,
+    "unpublishedRowsRetainedInRightsReconciliation": true,
+    "amberMeansTransferClear": false,
+    "greenSourceMeansWholeProfileClean": false,
+    "provenanceRefsTransferableMeansWholeProfileClean": false,
+    "personalOrUserEventDataIncluded": false,
+    "privacyGate": "RT-008",
+    "businessTermsStillRequiredForAmber": true
+  },
+  "gate": {
+    "buyerSafeExportContract": "PREPARED_NOT_EXECUTED",
+    "rt007Overall": "IN_PROGRESS",
+    "productionExportAuthorized": false,
+    "dataCommercializationAuthorized": false
+  }
+}
