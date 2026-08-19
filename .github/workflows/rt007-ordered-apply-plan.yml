@@ -1,0 +1,27 @@
+name: RT-007 Ordered Apply Plan Gate
+
+on:
+  pull_request:
+    paths:
+      - 'docs/investor-ready/rt007-ordered-apply-plan-v1.json'
+      - 'docs/investor-ready/rt007-prepared-replacements-v2.json'
+      - 'scripts/investor-ready/check-rt007-ordered-apply-plan.cjs'
+      - '.github/workflows/rt007-ordered-apply-plan.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ordered-apply-plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22.14.0'
+      - name: Validate ordered apply plan
+        run: node scripts/investor-ready/check-rt007-ordered-apply-plan.cjs
