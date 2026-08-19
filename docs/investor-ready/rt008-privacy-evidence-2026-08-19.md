@@ -1,6 +1,6 @@
 # RT-008 Privacy Evidence — 2026-08-19
 
-Status: **TECHNICAL PRIVACY BASELINE STRONG / DSAR LOCATOR PASS / RETENTION MECHANISM FAIL-CLOSED / OPERATIONAL-LEGAL GATES STILL OPEN**
+Status: **TECHNICAL PRIVACY BASELINE STRONG / CONSENT UX CANDIDATE READY / DSAR LOCATOR PASS / RETENTION MECHANISM FAIL-CLOSED / OPERATIONAL-LEGAL GATES STILL OPEN**
 
 ## 1. SECURITY DEFINER RPC abuse tests
 
@@ -20,22 +20,52 @@ A transaction-only fixture created one synthetic auth user, one verified restaur
 
 Decision: current Supabase advisor warnings for these seven guarded RPCs are not treated as confirmed vulnerabilities. Retain explicit grants, search paths and negative tests as regression controls.
 
-## 2. Production analytics fail-closed candidate
+## 2. Production analytics — two independent gates
 
 Branch: `privacy/rt008-clean-candidate` / Draft PR #127.
 
-The current `main` version creates/persists analytics identifiers before any explicit analytics-consent gate. The candidate changes this so that on the production host:
+Production analytics now requires **both**:
 
-- analytics stays OFF unless `hoy-analytics-consent-v1=granted`;
-- `trackEvent` exits before analytics identifiers/payload creation when consent is absent;
-- raw analytics event history is not stored in Production localStorage;
-- legacy anonymous/session/pilot analytics storage is cleared while consent is absent;
-- preview/QA remains testable without Production transport;
-- no consent UI is invented by this technical change.
+1. explicit user choice `hoy-analytics-consent-v1=granted`; and
+2. `hoyPrivacyProductionReady247() === true`.
 
-The dedicated Privacy Gate uses an immutable `actions/checkout` commit SHA and checks both analytics consent invariants and the DSAR/retention release controls.
+The second gate is controlled by `privacy-config-2.47.js`. It cannot become true unless Production release + analytics release are explicitly enabled and controller name, controller address, privacy contact and a positive integer retention period are all present.
 
-## 3. Private DSAR subject locator — technical pass
+The Draft configuration remains deliberately fail-closed:
+
+- `releaseReady: false`;
+- `analyticsEnabled: false`;
+- controller fields blank;
+- `analyticsRetentionDays: null`.
+
+Therefore manually setting the browser consent key is insufficient to activate Production analytics.
+
+`trackEvent` exits before Production payload/identifier creation if either gate is false. Raw analytics history remains restricted to non-Production, and legacy anonymous/session/pilot analytics storage is cleared while Production release/consent is absent.
+
+## 3. Consent / withdrawal / layered notice UX — candidate ready
+
+New candidate assets:
+
+- `privacy-config-2.47.js`;
+- `privacy-consent-2.47.js`;
+- `privacy-consent-2.47.css`;
+- `tests/privacy-consent-2.47.spec.js`;
+- `docs/investor-ready/rt008-consent-notice-candidate.md`.
+
+Controls:
+
+- first-layer Reject and Accept are shown together with the same prominence class;
+- separate More information/settings path;
+- persistent Privacy launcher after a decision;
+- rejection/withdrawal stops future analytics and removes local analytics IDs, pilot attribution and raw local analytics history;
+- versioned preference record stores choice, notice version and decision timestamp;
+- German, English and Spanish UI copy;
+- QA can exercise the complete UX on non-Production with `?privacy_qa=1` while Production remains disabled;
+- Production does not auto-present the incomplete consent release until controller/legal/retention facts are ready.
+
+This closes the **technical UX build** but not the final legal release. The final controller identity, contact, retention period/criteria, processor/recipient/transfer disclosures and approved notice wording are still required before changing the Production release gate.
+
+## 4. Private DSAR subject locator — technical pass
 
 Migration applied to the Core project on 2026-08-19: `rt008_private_dsar_retention_controls`.
 
@@ -44,31 +74,31 @@ Migration applied to the Core project on 2026-08-19: `rt008_private_dsar_retenti
 - EXECUTE revoked from `public`, `anon` and `authenticated`;
 - EXECUTE granted only to `service_role`;
 - covers account, memberships, claims/review, menu intake, offers, upgrade/profile requests, service confirmations, media decisions, audit logs, promotions and media uploads;
-- classifies relationships as CASCADE, SET NULL, RESTRICT/review, or tombstone/delete review rather than pretending every link may be hard-deleted.
+- classifies relationships as CASCADE, SET NULL, RESTRICT/review, or tombstone/delete review.
 
-A transaction-only locator fixture with one auth account, one membership and one operator-created offer returned exactly those three linked relationships. Rollback verification showed 0 fixture users, memberships and offers afterwards.
+A transaction-only fixture with one auth account, one membership and one operator-created offer returned exactly those three linked relationships. Rollback verification showed 0 fixture users, memberships and offers afterwards.
 
-A separate direct-delete rollback probe demonstrated that an operator-created offer can block `auth.users` deletion through `offers_created_by_fkey`. Therefore automatic one-click hard-delete is not claimed as complete or safe.
+A separate direct-delete rollback probe demonstrated that an operator-created offer can block `auth.users` deletion through `offers_created_by_fkey`; automatic one-click hard-delete is therefore not claimed as complete or safe.
 
-## 4. Analytics retention — mechanism ready, policy open
+## 5. Analytics retention — mechanism ready, policy open
 
-Private controls now exist for dry-run impact and fail-closed purge execution:
+Private controls exist for dry-run impact and fail-closed purge execution:
 
-- `private.dd_analytics_retention_preview(timestamptz)` — dry-run counts only;
-- `private.analytics_retention_policy` — explicit private approval gate;
-- `private.analytics_retention_runs` — execution evidence;
-- `private.execute_approved_analytics_retention(text)` — deletion function limited to `analytics_events` older than the approved cutoff.
+- `private.dd_analytics_retention_preview(timestamptz)`;
+- `private.analytics_retention_policy`;
+- `private.analytics_retention_runs`;
+- `private.execute_approved_analytics_retention(text)`.
 
 Current verification:
 
 - policy rows: **0**;
 - enabled policy rows: **0**;
-- retention run rows after the fail-closed probe: **0**;
+- retention run rows: **0**;
 - `anon` / `authenticated` cannot execute locator or purge;
 - `service_role` is the only application role granted execution;
-- an attempted purge with no enabled policy correctly fails with `analytics_retention_policy_not_enabled`.
+- attempted purge with no enabled policy correctly fails with `analytics_retention_policy_not_enabled`.
 
-Dry-run impact at the verification time:
+Dry-run impact at verification time:
 
 | Proposed age cutoff | Rows older | Distinct anonymous IDs | Distinct sessions |
 |---|---:|---:|---:|
@@ -79,41 +109,40 @@ Dry-run impact at the verification time:
 | 30 days | 0 | 0 | 0 |
 | 90 days | 0 | 0 | 0 |
 
-These are impact previews, **not approved retention periods**. No policy has been silently selected and no analytics row was deleted by this work.
+These are impact previews, **not approved retention periods**. No analytics row was deleted by this work.
 
-## 5. Live privacy baseline
+## 6. Live privacy baseline
 
-Core currently contains 28,897 historic analytics events, 19,832 distinct persistent anonymous IDs and 19,855 sessions, spanning 2026-08-09 to 2026-08-18. Observed analytics metadata keys are product/context fields; the current key inventory did not show obvious email/phone/address/name keys.
+Core contains 28,897 historic analytics events, 19,832 distinct persistent anonymous IDs and 19,855 sessions in the captured baseline. `venue_sales_pipeline` has 168 rows, 57 with a named/direct contact field; all 168 remain send-locked and 0 are send-authorised.
 
-`venue_sales_pipeline` has 168 rows, 57 with a named/direct contact field. All 168 remain send-locked and 0 are send-authorised.
+Core `auth.users` had 0 users at the captured baseline. Works had 0 auth users, profiles, provider applications, work requests, request events and request photos.
 
-Core `auth.users` currently has 0 users. Works currently has 0 auth users, profiles, provider applications, work requests, request events and request photos.
+## 7. Current legal-operational basis
 
-## 6. Legal-operational baseline
+Official baseline reviewed 2026-08-19:
 
-Current official baseline reviewed 2026-08-19:
-
-- GDPR Article 5: purpose limitation, data minimisation, storage limitation, integrity/confidentiality and accountability.
-- GDPR Articles 13/14: privacy information includes purposes/legal basis, recipients/transfers and retention period/criteria; indirect collection has additional source/transparency duties.
-- GDPR Article 12: data-subject requests normally require action/information within one month; extension is possible only under the Regulation's conditions.
-- GDPR Article 17: erasure applies where the Regulation's conditions are met, subject to its exceptions; a technical locator is therefore separated from the legal erasure decision.
-- GDPR Article 32: risk-appropriate security and regular testing/evaluation of controls.
-- GDPR Article 33: qualifying personal-data breaches must be notified without undue delay and where feasible within 72 hours after awareness; breaches must be documented.
+- GDPR Article 7: consent must be demonstrable; withdrawal must be possible and as easy as giving consent.
+- GDPR Articles 13/14: privacy information includes controller identity/contact, purposes/legal basis, recipients/transfers and retention period/criteria; indirect collection has additional transparency duties.
+- GDPR Article 12: data-subject requests normally require action/information within one month, subject to the Regulation's conditions for extension.
+- GDPR Article 17: erasure applies where its conditions are met and remains subject to its exceptions.
+- GDPR Articles 32–34: risk-appropriate security, breach documentation/notification and high-risk communications.
+- AEPD current cookie/privacy FAQ: where consent is required, Accept and Reject should be offered at the same time, level and visibility.
 
 Official references:
-- https://eur-lex.europa.eu/eli/reg/2016/679/oj?locale=de
+- https://eur-lex.europa.eu/eli/reg/2016/679/oj
+- https://www.aepd.es/preguntas-frecuentes/17-internet-y-redes-sociales/FAQ-1707-importancia-de-las-cookies-en-la-proteccion-de-datos
+- https://www.aepd.es/areas-de-actuacion/innovacion-y-tecnologia
 - https://www.aepd.es/derechos-y-deberes/ejerce-tus-derechos
-- https://www.aepd.es/derechos-y-deberes/cumple-tus-deberes/medidas-de-cumplimiento/brechas-de-datos-personales-notificacion
 
-## 7. Still open
+## 8. Still open
 
-- real consent UI + withdrawal path and privacy notice before analytics activation;
-- retention period/purpose schedule approved before enabling the purge policy;
-- reviewed erasure/redaction/tombstone workflow for non-cascading business/audit records and a full synthetic end-to-end erasure test;
+- final controller/entity identity, address and rights/privacy contact;
+- approved analytics purpose/legal-basis wording and retention period/criteria before enabling the Production gate;
+- complete processor/subprocessor/recipient/transfer evidence and final layered notice;
+- reviewed erasure/redaction/tombstone workflow plus full synthetic E2E erasure test;
 - Article 14 / legitimate-interest / Spanish marketing-law review for indirect B2B contacts before outreach;
-- processor/subprocessor/transfer evidence completion;
 - Works DPIA screen before real users/requests/photos;
 - breach tabletop with named roles/escalation once the contracting/controller entity exists;
 - company-controlled provider accounts/recovery after incorporation.
 
-No investor/business/user outreach is released by this evidence file. No Production analytics or data-erasure release is authorised by this Draft PR.
+No investor/business/user outreach is released by this evidence file. No Production analytics, retention purge or automatic data-erasure release is authorised by Draft PR #127.
