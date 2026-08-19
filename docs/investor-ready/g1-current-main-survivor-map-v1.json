@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "baseMainSha": "88bb9e77d50ccb9db96306f5e737e27bad6237ab",
+  "statusEnum": ["MERGED_AUTHORITY", "CURRENT_CANDIDATE", "EVIDENCE_ONLY", "RECOMPOSE_REQUIRED", "EXTERNAL_GATE"],
+  "principles": [
+    "main is authoritative for already merged controls",
+    "historical exact-head green evidence remains evidence but is not automatically a merge authority",
+    "a candidate based before current main must be reconciled or recomposed before final integration",
+    "overlapping historical and current candidates must never be wholesale merged together",
+    "legal tax privacy trademark and founder-independence gates cannot be closed by Git merge alone",
+    "final acquired-state evidence is regenerated only after selected survivor integration"
+  ],
+  "authorities": [
+    {
+      "domain": "base_supply_chain",
+      "authority": "main@88bb9e77d50ccb9db96306f5e737e27bad6237ab",
+      "status": "MERGED_AUTHORITY",
+      "includes": ["RT-006 supply-chain hardening", "locked QA dependency graph", "immutable Action pins"],
+      "supersedesAsFinalAuthority": ["hapo3005/hoy#116", "hapo3005/hoy#105 RT-006 slice"]
+    },
+    {
+      "domain": "analytics_privacy_runtime",
+      "authority": "main@88bb9e77d50ccb9db96306f5e737e27bad6237ab",
+      "status": "MERGED_AUTHORITY",
+      "includes": ["merged PR #128 analytics storage/transport fail-closed hotfix"],
+      "supersedesAsFinalAuthority": ["hapo3005/hoy#120 runtime slice", "hapo3005/hoy#107/#109 competing runtime slices"]
+    },
+    {
+      "domain": "privacy_operating_controls",
+      "authority": "hapo3005/hoy#127",
+      "status": "RECOMPOSE_REQUIRED",
+      "reason": "Broader RT-008 candidate contains valuable consent/DSAR/retention controls but was created from a pre-current-main base. It must be reconciled around merged #128 rather than merged wholesale with overlapping runtime files.",
+      "keep": ["consent/withdrawal UX candidate", "DSAR locator", "retention approval/purge controls", "privacy evidence pack"],
+      "mustPreserve": ["merged #128 fail-closed analytics semantics", "analytics remains disabled until privacy release gate"]
+    },
+    {
+      "domain": "security_current_state",
+      "authority": "hapo3005/hoy#124",
+      "status": "EVIDENCE_ONLY",
+      "reason": "Verified 95-migration/current-security baseline remains historical evidence; current main has advanced since that baseline."
+    },
+    {
+      "domain": "security_hardening",
+      "authority": "hapo3005/hoy#125",
+      "status": "RECOMPOSE_REQUIRED",
+      "reason": "Candidate is exact-head Critical/Final/Browser green and body-preserving, but must be rebuilt/rebased against current main and then isolated-executed before canonical migration creation.",
+      "mustPreserve": ["current function bodies unless explicitly re-reviewed", "merged #128 analytics revocation", "pg_temp last in search_path", "no Production execution before isolated proof"]
+    },
+    {
+      "domain": "corporate_ip_contributor",
+      "authority": "hapo3005/hoy#104",
+      "status": "EVIDENCE_ONLY",
+      "reason": "Contributor census/corporate architecture is evidence authority; entity and rights execution require external decisions rather than a blind code merge."
+    },
+    {
+      "domain": "founder_ip_execution",
+      "authority": "hapo3005/hoy#123",
+      "status": "EXTERNAL_GATE",
+      "reason": "Exact historical execution drafts are preserved, but founder-to-company rights transfer/licence must be legally/tax reviewed and executed outside GitHub."
+    },
+    {
+      "domain": "digital_asset_control",
+      "authority": "hapo3005/hoy#119",
+      "status": "EXTERNAL_GATE",
+      "reason": "Secret-history technical snapshot is proven, while company account/domain/recovery/billing/continuity controls require the entity/account-control execution path."
+    },
+    {
+      "domain": "data_rights_core",
+      "authority": "hapo3005/hoy#106",
+      "status": "RECOMPOSE_REQUIRED",
+      "reason": "RT-007 Buyer-Safe and 36 prepared rollback-only replacements are current evidence, but the branch predates current main and all apply waves require exact rebase/review before any Production decision.",
+      "mustPreserve": ["329 hard-ref live snapshot boundary until remeasured", "published vs archive segregation", "AMBER is not transfer-clear", "no whole-profile clearance claim"]
+    },
+    {
+      "domain": "data_rights_works",
+      "authority": "hapo3005/hoy-works#2",
+      "status": "CURRENT_CANDIDATE",
+      "reason": "Separate Works source-rights/privacy-pre-live authority; must remain independent from Core/Gastro rights claims."
+    },
+    {
+      "domain": "business_terms",
+      "authority": "hapo3005/hoy#122",
+      "status": "RECOMPOSE_REQUIRED",
+      "reason": "Historical applied migration/document evidence is valid, but final integration must preserve current main and keep Terms draft until external legal/entity decisions are complete."
+    },
+    {
+      "domain": "public_runtime",
+      "authority": "hapo3005/hoy#130",
+      "status": "RECOMPOSE_REQUIRED",
+      "reason": "IR-02E v2 is the current-main-era shadow packaging candidate but began before #128 merged. Reconcile it with current main and selected runtime before live cutover.",
+      "supersedesAsFinalAuthority": ["hapo3005/hoy#121", "hapo3005/hoy#102 IR-02E slice"]
+    },
+    {
+      "domain": "trademark_brand",
+      "authority": "hapo3005/hoy#108",
+      "status": "EXTERNAL_GATE",
+      "reason": "Architecture/search protocol is evidence-only until official registry results and qualified trademark review exist."
+    },
+    {
+      "domain": "platform_core_transferability",
+      "authority": "hapo3005/hoy#115 + hapo3005/hoy-lifestyle#1 + hapo3005/hoy-works#3",
+      "status": "RECOMPOSE_REQUIRED",
+      "reason": "Cross-vertical technical QA is proven, but final selected Platform Core/runtime assets must be reconciled against current main before acquired-state evidence.",
+      "mustPreserve": ["HOY-PC-1.0 invariants", "bit-identical Core vendor contract", "Works/Lifestyle thin-adapter boundaries", "non-founder handoff remains NOT_TESTED"]
+    },
+    {
+      "domain": "g1_closing_control_plane",
+      "authority": "hapo3005/hoy#132",
+      "status": "CURRENT_CANDIDATE",
+      "reason": "Current-main Closing Board replaces old #117 as the intended current G1 execution view once its exact-head QA completes.",
+      "supersedesAsFinalAuthority": ["hapo3005/hoy#117", "hapo3005/hoy#118 as current survivor authority"]
+    }
+  ],
+  "explicitDoNotWholesaleMerge": [
+    "hapo3005/hoy#102",
+    "hapo3005/hoy#103",
+    "hapo3005/hoy#105",
+    "hapo3005/hoy#107",
+    "hapo3005/hoy#109",
+    "hapo3005/hoy#120",
+    "hapo3005/hoy#121",
+    "hapo3005/hoy#124",
+    "hapo3005/hoy#125",
+    "hapo3005/hoy#127",
+    "hapo3005/hoy#130",
+    "hapo3005/hoy#106",
+    "hapo3005/hoy#115"
+  ],
+  "nextCompositionOrder": [
+    "1 current main merged authorities",
+    "2 reconcile privacy operating controls #127 around merged #128",
+    "3 reconcile public runtime #130 around selected privacy/runtime state",
+    "4 recompose RT-001 #125 on resulting current base and isolated-test it before migration promotion",
+    "5 rebase/review RT-007 #106 evidence/apply package on resulting base without applying it",
+    "6 reconcile Terms/corporate/platform evidence without activating legal or Production gates",
+    "7 after external/entity/account decisions, execute controlled closing steps",
+    "8 regenerate acquired-state evidence and final G1 board"
+  ],
+  "finalIntegrationAuthorized": false,
+  "productionAuthorized": false,
+  "outreachAuthorized": false
+}
