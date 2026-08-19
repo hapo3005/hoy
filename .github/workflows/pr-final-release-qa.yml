@@ -49,9 +49,12 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: npm ci --ignore-scripts
 
-      - name: Install release browsers
+      - name: Install release browsers with resilient dependency setup
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: npx playwright install --with-deps chromium webkit
+        env:
+          PLAYWRIGHT_INSTALL_ATTEMPTS: '2'
+          PLAYWRIGHT_INSTALL_TIMEOUT: 10m
+        run: bash scripts/install-playwright-browser-resilient.sh chromium webkit
 
       - name: Start branch server
         if: ${{ github.event_name == 'workflow_dispatch' }}
