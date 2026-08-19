@@ -1,12 +1,12 @@
 {
-  "schemaVersion": "1.2.0",
+  "schemaVersion": "1.3.0",
   "snapshotDate": "2026-08-19",
   "status": "SCREENED_NOT_APPROVED",
   "liveHardDirectReferences": 329,
   "screenedCandidateReferences": 67,
   "screenedCandidateShare": 0.2036,
-  "preparedDryRunReferences": 25,
-  "factVerificationStillRequired": 42,
+  "preparedDryRunReferences": 34,
+  "factVerificationStillRequired": 33,
   "driftNote": "Registry coverage changed at 2026-08-19T01:41:47Z: the formerly NO_REGISTRY publisher/platform hosts are now fail-closed REVIEW_REQUIRED, and chibichanga.com is now a first-party AMBER host. Hard direct references remain 329.",
   "byField": {
     "source_url": {
@@ -31,8 +31,8 @@
     "signature_source_url": {
       "candidateReferences": 16,
       "verificationMode": "VERIFY_AND_REWRITE_SIGNATURE_TO_SUPPORTED_FACTS",
-      "preparedDryRunReferences": 3,
-      "remainingReferences": 13
+      "preparedDryRunReferences": 12,
+      "remainingReferences": 4
     }
   },
   "preparedCandidates": {
@@ -45,6 +45,12 @@
       "references": 3,
       "projectedHardQueueIfAppliedAlone": 326,
       "artifact": "docs/investor-ready/rt007-signature-first-party-replacement-candidate-2026-08-19.json"
+    },
+    "signatureWave2": {
+      "references": 9,
+      "projectedHardQueueIfAppliedAlone": 320,
+      "artifact": "docs/investor-ready/rt007-signature-first-party-wave2-candidate-2026-08-19.json",
+      "pageContentRecheckBeforeApplyRequired": true
     },
     "locationWave1": {
       "references": 4,
@@ -64,8 +70,8 @@
       "pageContentRecheckBeforeApplyRequired": true
     },
     "combinedAfterRequiredRebase": {
-      "references": 25,
-      "projectedHardQueue": 304,
+      "references": 34,
+      "projectedHardQueue": 295,
       "rebaseRequired": true
     }
   },
