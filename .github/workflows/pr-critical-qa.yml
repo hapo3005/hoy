@@ -31,6 +31,8 @@ jobs:
         run: npm run qa:secrets
       - name: Run proprietary/public runtime boundary gate
         run: npm run qa:public-runtime
+      - name: Run Edge Wave A preflight gate
+        run: npm run qa:edge-wave-a
       - name: Install Chromium with resilient dependency setup
         env:
           PLAYWRIGHT_INSTALL_ATTEMPTS: '2'
