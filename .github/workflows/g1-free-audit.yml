@@ -1,0 +1,83 @@
+name: HOY G1 Free Audit
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  live-pages-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: main
+      - name: Compare live Pages with main
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://hapo3005.github.io/hoy'
+          files=(
+            index.html
+            admin.html
+            manifest.webmanifest
+            service-worker.js
+            data/family-profile-completion-2026-08-17.json
+            data/family-profile-completion-sources-2026-08-17.json
+          )
+          for file in "${files[@]}"; do
+            mkdir -p "/tmp/live/$(dirname "$file")"
+            code=$(curl --location --silent --show-error --fail-with-body \
+              --connect-timeout 10 --max-time 30 \
+              -o "/tmp/live/$file" -w '%{http_code}' "$base/$file")
+            test "$code" = '200'
+            if ! cmp -s "$file" "/tmp/live/$file"; then
+              echo "::error::Live Pages mismatch: $file"
+              echo "main_sha256=$(sha256sum "$file" | cut -d' ' -f1)"
+              echo "live_sha256=$(sha256sum "/tmp/live/$file" | cut -d' ' -f1)"
+              exit 1
+            fi
+            echo "PARITY_OK $file"
+          done
+
+  public-data-usage-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: main
+      - name: Locate menu_sources consumers
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '=== MENU_SOURCES_REFERENCES ==='
+          grep -RIn --binary-files=without-match \
+            --exclude-dir=.git --exclude-dir=node_modules \
+            --exclude='*.md' --exclude='*.json' \
+            'menu_sources' . || true
+      - name: Locate retired Edge slug callers
+        shell: bash
+        run: |
+          set -euo pipefail
+          slugs=(
+            location-geocode-once
+            cartociudad-geocode-once
+            cartociudad-debug
+            address-fallback-geocode-once
+            cartociudad-find-fallback
+            cartociudad-locate-debug
+            menu-image-once
+          )
+          for slug in "${slugs[@]}"; do
+            echo "=== TOMBSTONE $slug ==="
+            grep -RIn --binary-files=without-match \
+              --exclude-dir=.git --exclude-dir=node_modules \
+              --exclude='*.md' \
+              "$slug" . || true
+          done
