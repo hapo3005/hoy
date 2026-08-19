@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-08-19T04:40:25Z",
+  "project_ref": "zlscptisdxzxuvllogza",
+  "base_main": "f63978dad503427dabaa37f222bf10726deba645",
+  "active_function_count": 19,
+  "capture_method": "Supabase connected get_edge_function; source preserved without hardening edits",
+  "recovered": {
+    "claim-submit": {"version":2,"verify_jwt":true,"ezbr_sha256":"6b1d0901a776f1f8baccc69a87a9938f20bd7bb6b5e785040ab35e34117232a5","file_sha256":"7927b1eaec760233e05ac21b38e96dad00d23a5b061ebfc31026733cedd2d3da","runtime_state":"active_logic"},
+    "publish-offer": {"version":1,"verify_jwt":true,"ezbr_sha256":"479b5454cc02df52db75dfc57b2e891da02bc7670d3c9680e08ec9f674be074b","file_sha256":"6b22482778dea9bc439a7b51ddf39b723cf81576cf16a234a4c58ae0ec31025b","runtime_state":"active_logic"},
+    "location-geocode-once": {"version":4,"verify_jwt":true,"ezbr_sha256":"105d14ee26efab9f8fdf989fb282b2f24fcf48beb752f3f3a8874f90fea70769","file_sha256":"ef5ae4703e557f8e8d67fa318c6981e30e7756f7e6d88a35c24b7a2198954ba7","runtime_state":"retired_410"},
+    "cartociudad-geocode-once": {"version":4,"verify_jwt":true,"ezbr_sha256":"d3cd715aa746c53403220642fb18c3f9251299c5e6b434c623e8c2fec393083b","file_sha256":"ef5ae4703e557f8e8d67fa318c6981e30e7756f7e6d88a35c24b7a2198954ba7","runtime_state":"retired_410"},
+    "cartociudad-debug": {"version":2,"verify_jwt":true,"ezbr_sha256":"ec80135b0d83f7384e2b0579b318a62079d8a5fbf4e2eaccab9b41078965d87e","file_sha256":"ef5ae4703e557f8e8d67fa318c6981e30e7756f7e6d88a35c24b7a2198954ba7","runtime_state":"retired_410"},
+    "address-fallback-geocode-once": {"version":2,"verify_jwt":true,"ezbr_sha256":"f69062f94dc953d4510b125c96ee667ca44444ca0ca6aa1a4a2bda3324397d93","file_sha256":"ef5ae4703e557f8e8d67fa318c6981e30e7756f7e6d88a35c24b7a2198954ba7","runtime_state":"retired_410"},
+    "cartociudad-find-fallback": {"version":3,"verify_jwt":true,"ezbr_sha256":"436298ac5d71f7488590a901673c24e9bbf42f69ecb64d4f9d4088ff8e54721b","file_sha256":"ef5ae4703e557f8e8d67fa318c6981e30e7756f7e6d88a35c24b7a2198954ba7","runtime_state":"retired_410"},
+    "cartociudad-locate-debug": {"version":2,"verify_jwt":true,"ezbr_sha256":"92a34201b57dee29246e176ba17487b0dc0d376a29914eb80cfd92163b02d44b","file_sha256":"ef5ae4703e557f8e8d67fa318c6981e30e7756f7e6d88a35c24b7a2198954ba7","runtime_state":"retired_410"},
+    "menu-image-once": {"version":2,"verify_jwt":true,"ezbr_sha256":"e0cb77e36be2a63cb42abf306cb56c0aa26c8646cb9e209fb2bfea3cf0e607e6","file_sha256":"0f9c46ed4ced092667d0908a709745ebfce8fc041a7f90063f42367fa56b7d40","runtime_state":"disabled_410"},
+    "mobility-resolve": {"version":3,"verify_jwt":false,"ezbr_sha256":"08d70683c9c7544a6e030566b5ebda10f8c5c08474739cbe7113c33909de3ca6","file_sha256":"a22f99a889af2d50f80962a3b4b057394826fd14377da54f041162b8d6e1afaf","runtime_state":"active_logic_publishable_auth"}
+  }
+}
