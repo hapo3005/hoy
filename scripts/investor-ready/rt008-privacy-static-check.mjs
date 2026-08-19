@@ -2,28 +2,86 @@ import fs from 'node:fs';
 
 const analyticsPath='analytics-rpc-1.8.1.js';
 const controlsPath='supabase/release/rt008-dsar-retention-controls.sql';
+const configPath='privacy-config-2.47.js';
+const consentPath='privacy-consent-2.47.js';
+const indexPath='index.html';
+const testPath='tests/privacy-consent-2.47.spec.js';
 const analytics=fs.readFileSync(analyticsPath,'utf8');
 const controls=fs.readFileSync(controlsPath,'utf8');
+const config=fs.readFileSync(configPath,'utf8');
+const consent=fs.readFileSync(consentPath,'utf8');
+const index=fs.readFileSync(indexPath,'utf8');
+const browserTest=fs.readFileSync(testPath,'utf8');
 const fail=(msg)=>{console.error(`RT-008 FAIL: ${msg}`);process.exitCode=1};
 const pass=(msg)=>console.log(`RT-008 PASS: ${msg}`);
 
 const analyticsRequired=[
   ["CONSENT_KEY='hoy-analytics-consent-v1'",'dedicated analytics consent key exists'],
   ["localStorage.getItem(CONSENT_KEY)==='granted'",'production consent requires explicit granted value'],
-  ["if(productionHost()&&!analyticsConsentGranted())return Promise.resolve(false)",'production trackEvent exits before payload/identifier creation'],
+  ["window.hoyPrivacyProductionReady247?.()===true",'analytics reads independent privacy release gate'],
+  ["if(productionHost()&&(!privacyReleaseReady()||!analyticsConsentGranted()))return Promise.resolve(false)",'production trackEvent exits before payload/identifier creation if release or consent is absent'],
   ["if(!productionHost())",'raw local event history is restricted to non-production'],
   ["localStorage.removeItem(ANON_KEY)",'legacy persistent analytics identifier cleanup exists'],
   ["sessionStorage.removeItem(SESSION_KEY)",'legacy session analytics identifier cleanup exists'],
   ["window.hoyAnalyticsConsentGranted181=analyticsConsentGranted",'consent state is testable'],
+  ["window.hoyClearProductionAnalyticsStorage181=clearProductionAnalyticsStorage",'withdrawal can invoke deterministic analytics cleanup'],
 ];
 for(const [needle,label] of analyticsRequired){
   if(analytics.includes(needle))pass(label); else fail(label);
 }
 
-if(/return productionHost\(\)&&!qaRuntimeDetected\(\)&&analyticsConsentGranted\(\)/.test(analytics)){
-  pass('server transport gate includes analytics consent');
+if(/return privacyReleaseReady\(\)&&productionHost\(\)&&!qaRuntimeDetected\(\)&&analyticsConsentGranted\(\)/.test(analytics)){
+  pass('server transport requires both privacy release and explicit consent');
 }else{
-  fail('server transport gate does not prove analytics consent');
+  fail('server transport gate does not prove privacy release plus explicit consent');
+}
+
+const configRequired=[
+  ["noticeVersion:'rt008-draft-2026-08-19'",'versioned notice contract exists'],
+  ["releaseReady:false",'Production privacy release is fail-closed'],
+  ["analyticsEnabled:false",'Production analytics feature release is fail-closed'],
+  ["controllerName:''",'controller placeholder is not silently invented'],
+  ["privacyContact:''",'privacy-contact placeholder is not silently invented'],
+  ["analyticsRetentionDays:null",'retention period remains unset until approved'],
+  ["Number.isInteger(config.analyticsRetentionDays)", 'release readiness requires an explicit numeric retention period'],
+];
+for(const [needle,label] of configRequired){
+  if(config.includes(needle))pass(label); else fail(label);
+}
+
+if(/releaseReady\s*:\s*true/.test(config)||/analyticsEnabled\s*:\s*true/.test(config)){
+  fail('draft privacy config must not enable Production analytics');
+}else{
+  pass('draft privacy config contains no Production enablement');
+}
+
+const consentRequired=[
+  ["PREF_KEY='hoy-privacy-preference-v1'",'versioned privacy-preference record exists'],
+  ["choice,noticeVersion:cfg.noticeVersion",'choice is tied to notice version'],
+  ["decidedAt:new Date().toISOString()",'choice stores decision timestamp'],
+  ["class=\"hoy-privacy-choice\" data-privacy-reject",'reject is a first-level consent choice'],
+  ["class=\"hoy-privacy-choice\" data-privacy-accept",'accept is a first-level consent choice with the same prominence class'],
+  ["data-privacy-reject",'withdraw/reject control remains available in settings'],
+  ["clearAnalytics()",'rejection invokes local analytics cleanup'],
+  ["window.hoyPrivacyOpen247",'persistent privacy settings entry point is testable'],
+  ["window.hoyPrivacyChoice247",'privacy choice is testable'],
+];
+for(const [needle,label] of consentRequired){
+  if(consent.includes(needle))pass(label); else fail(label);
+}
+
+const configPos=index.indexOf('privacy-config-2.47.js?v=2.47.0');
+const analyticsPos=index.indexOf('analytics-rpc-1.8.1.js?v=2.47.1');
+const consentPos=index.indexOf('privacy-consent-2.47.js?v=2.47.0');
+if(configPos>=0&&analyticsPos>configPos&&consentPos>analyticsPos){
+  pass('privacy config loads before analytics and consent UI loads after analytics');
+}else{
+  fail('privacy script load order is not fail-closed');
+}
+if(index.includes('privacy-consent-2.47.css?v=2.47.0'))pass('privacy consent stylesheet is wired');else fail('privacy consent stylesheet is missing');
+
+for(const needle of ['Analytics ablehnen','Analytics zustimmen','Ablehnen / widerrufen','hoyPrivacyProductionReady247']){
+  if(browserTest.includes(needle))pass(`browser regression covers ${needle}`);else fail(`browser regression missing ${needle}`);
 }
 
 const controlRequired=[
