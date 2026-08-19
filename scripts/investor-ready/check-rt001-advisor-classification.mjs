@@ -1,0 +1,17 @@
+import fs from 'node:fs';
+const p='docs/investor-ready/rt001-advisor-classification-v1.json';
+const x=JSON.parse(fs.readFileSync(p,'utf8'));
+const fail=m=>{throw new Error(m)};
+if(x.advisorWarningCount!==7) fail('warning count');
+if(x.advisorWarningType!=='authenticated_security_definer_function_executable') fail('warning type');
+if(x.classification!=='INTENTIONAL_AUTHENTICATED_INTERFACE_ACCEPT_WITH_COMPENSATING_CONTROLS_PENDING_RT001_PRODUCTION_HARDENING') fail('classification');
+if(x.productionMutationPerformed!==false||x.productionApplyAuthorized!==false||x.canonicalMigrationCreated!==false) fail('production boundary');
+if(x.currentProductionFinding.anonExecuteRevokedForAllSeven!==true) fail('anon revoke');
+if(x.currentProductionFinding.authenticatedExecutePresentForAllSeven!==true) fail('authenticated api');
+if(x.currentProductionFinding.authUidGuardObservedForAllSeven!==true||x.currentProductionFinding.membershipOrOperatorGuardObservedForAllSeven!==true) fail('authorization guards');
+if(x.currentProductionFinding.currentSearchPathAlreadyHardenedToCandidate!==false) fail('must not claim production hardened');
+if(x.functions.length!==7) fail('function count');
+if(x.decision.switchToSecurityInvokerNow!==false||x.decision.revokeAuthenticatedExecuteNow!==false) fail('semantic redesign not authorized');
+for(const k of ['isolatedPostgres17Execution','pairedReadOnlyAudit','unauthenticatedNegative','foreignRestaurantIdorBolaNegative','ownTenantPositive','analyticsExecuteRevokedAfterCandidate']) if(!String(x.evidence[k]).startsWith('PASS_')) fail(`missing ${k}`);
+if(!x.closeCriteria.includes('Security Advisor after-state captured')) fail('after-state required');
+console.log('RT-001 advisor classification contract GREEN');

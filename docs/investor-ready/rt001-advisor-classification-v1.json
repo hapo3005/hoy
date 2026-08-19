@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "rt001-advisor-classification-v1",
+  "capturedAt": "2026-08-19T12:54:00+02:00",
+  "advisorWarningCount": 7,
+  "advisorWarningType": "authenticated_security_definer_function_executable",
+  "classification": "INTENTIONAL_AUTHENTICATED_INTERFACE_ACCEPT_WITH_COMPENSATING_CONTROLS_PENDING_RT001_PRODUCTION_HARDENING",
+  "productionMutationPerformed": false,
+  "productionApplyAuthorized": false,
+  "canonicalMigrationCreated": false,
+  "securityAdvisorAfterProductionApply": "NOT_AVAILABLE_BEFORE_APPLY",
+  "currentProductionFinding": {
+    "anonExecuteRevokedForAllSeven": true,
+    "authenticatedExecutePresentForAllSeven": true,
+    "authUidGuardObservedForAllSeven": true,
+    "membershipOrOperatorGuardObservedForAllSeven": true,
+    "currentSearchPathAlreadyHardenedToCandidate": false,
+    "candidateSearchPath": "pg_catalog, public, pg_temp"
+  },
+  "functions": [
+    "public.get_operator_workspace(bigint)",
+    "public.get_venue_media_review(bigint)",
+    "public.operator_archive_offer(uuid)",
+    "public.operator_publish_offer(uuid)",
+    "public.operator_request_upgrade(bigint,public.plan_code,text)",
+    "public.operator_submit_profile_change(bigint,jsonb,text)",
+    "public.review_venue_media_candidates(bigint,bigint[],bigint[],bigint[])"
+  ],
+  "evidence": {
+    "isolatedPostgres17Execution": "PASS_PR_154",
+    "pairedReadOnlyAudit": "PASS_PR_154",
+    "unauthenticatedNegative": "PASS_PR_154",
+    "foreignRestaurantIdorBolaNegative": "PASS_PR_154",
+    "ownTenantPositive": "PASS_PR_154",
+    "analyticsExecuteRevokedAfterCandidate": "PASS_PR_154"
+  },
+  "decision": {
+    "switchToSecurityInvokerNow": false,
+    "revokeAuthenticatedExecuteNow": false,
+    "reason": "These RPCs are deliberate authenticated operator/media APIs. Removing authenticated EXECUTE would break the intended client contract; switching to SECURITY INVOKER would be a semantic redesign requiring a separate authorization/RLS proof. The current chosen control is narrow authenticated exposure plus server-side identity/tenant guards and RT-001 search-path/grant hardening.",
+    "residualRisk": "Production still uses broader historical search_path values until the separately approved RT-001 candidate is applied. Advisor WARNs therefore remain visible by design until a later Production decision and after-state review."
+  },
+  "closeCriteria": [
+    "fresh Production RT-001 preflight matches expected baseline",
+    "separate explicit Production authorization",
+    "apply canonical reviewed hardening candidate",
+    "Security Advisor after-state captured",
+    "all seven warnings reclassified against actual after-state",
+    "analytics EXECUTE remains revoked"
+  ]
+}
