@@ -54,7 +54,7 @@ jobs:
           set -euo pipefail
           command -v psql
           psql --version
-          test "$(psql -X -qAt -c 'show server_version')" = '17.6'
+          test "$(psql -X -qAt -c 'show server_version_num')" = '170006'
       - name: Build production-shaped isolated baseline
         run: psql -X -v ON_ERROR_STOP=1 -f tests/fixtures/rt001-postgres17-production-baseline.sql
       - name: Execute exact RT-001 candidate on isolated PostgreSQL 17.6
