@@ -1,0 +1,32 @@
+name: G1 Edge Final Survivor
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'privacy-config-2.47.js'
+      - 'privacy-consent-2.47.js'
+      - 'edge-region-policy-2.48.js'
+      - 'tests/edge-region-policy-2.48.spec.js'
+      - 'supabase/functions/**'
+      - 'supabase/release/rt008-dsar-retention-controls.sql'
+      - 'docs/investor-ready/rt008-**'
+      - 'docs/investor-ready/g1-edge-**'
+      - 'scripts/investor-ready/check-g1-edge-**'
+      - '.github/workflows/g1-edge-final-survivor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  final-survivor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+      - name: Verify final composed Edge desired state
+        run: node scripts/investor-ready/check-g1-edge-final-survivor.mjs
