@@ -7,8 +7,7 @@ select count(*)::integer as registered_migrations,
        max(version)::text as latest_migration
 from supabase_migrations.schema_migrations;
 
--- 2) Untrusted roles must not be able to create shadow objects in any schema that
--- could influence the hardened search_path or qualified auth/private calls.
+-- 2) Untrusted roles must not be able to create shadow objects in any retained trusted schema.
 select n.nspname as schema_name,
        has_schema_privilege('public',n.oid,'CREATE') as public_create,
        has_schema_privilege('anon',n.oid,'CREATE') as anon_create,
@@ -40,7 +39,7 @@ order by n.nspname,p.proname,identity_args;
 
 -- Expected:
 -- * all ten remain SECURITY DEFINER until a separately tested SECURITY INVOKER design exists;
--- * every target has search_path=pg_catalog, public;
+-- * every target has search_path=pg_catalog, public, pg_temp (pg_temp explicitly last);
 -- * PUBLIC=false and anon=false for all ten;
 -- * authenticated=true for the nine operator/helper functions;
 -- * authenticated=false for log_analytics_event.
