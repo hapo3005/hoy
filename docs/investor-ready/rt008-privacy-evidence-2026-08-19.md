@@ -1,6 +1,6 @@
 # RT-008 Privacy Evidence — 2026-08-19
 
-Status: **TECHNICAL PRIVACY BASELINE STRONG / OPERATIONAL-LEGAL GATES STILL OPEN**
+Status: **TECHNICAL PRIVACY BASELINE STRONG / DSAR LOCATOR PASS / RETENTION MECHANISM FAIL-CLOSED / OPERATIONAL-LEGAL GATES STILL OPEN**
 
 ## 1. SECURITY DEFINER RPC abuse tests
 
@@ -22,7 +22,7 @@ Decision: current Supabase advisor warnings for these seven guarded RPCs are not
 
 ## 2. Production analytics fail-closed candidate
 
-Branch: `privacy/rt008-clean-candidate`
+Branch: `privacy/rt008-clean-candidate` / Draft PR #127.
 
 The current `main` version creates/persists analytics identifiers before any explicit analytics-consent gate. The candidate changes this so that on the production host:
 
@@ -33,15 +33,70 @@ The current `main` version creates/persists analytics identifiers before any exp
 - preview/QA remains testable without Production transport;
 - no consent UI is invented by this technical change.
 
-CI: `.github/workflows/rt008-privacy.yml` uses immutable `actions/checkout` commit SHA and runs the fail-closed static check.
+The dedicated Privacy Gate uses an immutable `actions/checkout` commit SHA and checks both analytics consent invariants and the DSAR/retention release controls.
 
-## 3. Legal-operational baseline
+## 3. Private DSAR subject locator — technical pass
+
+Migration applied to the Core project on 2026-08-19: `rt008_private_dsar_retention_controls`.
+
+`private.dd_subject_data_locator(uuid)` returns table/relationship counts plus erasure-behaviour metadata only. It does not return subject record contents and does not mutate data.
+
+- EXECUTE revoked from `public`, `anon` and `authenticated`;
+- EXECUTE granted only to `service_role`;
+- covers account, memberships, claims/review, menu intake, offers, upgrade/profile requests, service confirmations, media decisions, audit logs, promotions and media uploads;
+- classifies relationships as CASCADE, SET NULL, RESTRICT/review, or tombstone/delete review rather than pretending every link may be hard-deleted.
+
+A transaction-only locator fixture with one auth account, one membership and one operator-created offer returned exactly those three linked relationships. Rollback verification showed 0 fixture users, memberships and offers afterwards.
+
+A separate direct-delete rollback probe demonstrated that an operator-created offer can block `auth.users` deletion through `offers_created_by_fkey`. Therefore automatic one-click hard-delete is not claimed as complete or safe.
+
+## 4. Analytics retention — mechanism ready, policy open
+
+Private controls now exist for dry-run impact and fail-closed purge execution:
+
+- `private.dd_analytics_retention_preview(timestamptz)` — dry-run counts only;
+- `private.analytics_retention_policy` — explicit private approval gate;
+- `private.analytics_retention_runs` — execution evidence;
+- `private.execute_approved_analytics_retention(text)` — deletion function limited to `analytics_events` older than the approved cutoff.
+
+Current verification:
+
+- policy rows: **0**;
+- enabled policy rows: **0**;
+- retention run rows after the fail-closed probe: **0**;
+- `anon` / `authenticated` cannot execute locator or purge;
+- `service_role` is the only application role granted execution;
+- an attempted purge with no enabled policy correctly fails with `analytics_retention_policy_not_enabled`.
+
+Dry-run impact at the verification time:
+
+| Proposed age cutoff | Rows older | Distinct anonymous IDs | Distinct sessions |
+|---|---:|---:|---:|
+| 1 day | 27,828 | 19,196 | 19,218 |
+| 3 days | 15,667 | 12,277 | 12,291 |
+| 7 days | 2,809 | 2,591 | 2,600 |
+| 14 days | 0 | 0 | 0 |
+| 30 days | 0 | 0 | 0 |
+| 90 days | 0 | 0 | 0 |
+
+These are impact previews, **not approved retention periods**. No policy has been silently selected and no analytics row was deleted by this work.
+
+## 5. Live privacy baseline
+
+Core currently contains 28,897 historic analytics events, 19,832 distinct persistent anonymous IDs and 19,855 sessions, spanning 2026-08-09 to 2026-08-18. Observed analytics metadata keys are product/context fields; the current key inventory did not show obvious email/phone/address/name keys.
+
+`venue_sales_pipeline` has 168 rows, 57 with a named/direct contact field. All 168 remain send-locked and 0 are send-authorised.
+
+Core `auth.users` currently has 0 users. Works currently has 0 auth users, profiles, provider applications, work requests, request events and request photos.
+
+## 6. Legal-operational baseline
 
 Current official baseline reviewed 2026-08-19:
 
 - GDPR Article 5: purpose limitation, data minimisation, storage limitation, integrity/confidentiality and accountability.
 - GDPR Articles 13/14: privacy information includes purposes/legal basis, recipients/transfers and retention period/criteria; indirect collection has additional source/transparency duties.
 - GDPR Article 12: data-subject requests normally require action/information within one month; extension is possible only under the Regulation's conditions.
+- GDPR Article 17: erasure applies where the Regulation's conditions are met, subject to its exceptions; a technical locator is therefore separated from the legal erasure decision.
 - GDPR Article 32: risk-appropriate security and regular testing/evaluation of controls.
 - GDPR Article 33: qualifying personal-data breaches must be notified without undue delay and where feasible within 72 hours after awareness; breaches must be documented.
 
@@ -50,15 +105,15 @@ Official references:
 - https://www.aepd.es/derechos-y-deberes/ejerce-tus-derechos
 - https://www.aepd.es/derechos-y-deberes/cumple-tus-deberes/medidas-de-cumplimiento/brechas-de-datos-personales-notificacion
 
-## 4. Still open
+## 7. Still open
 
 - real consent UI + withdrawal path and privacy notice before analytics activation;
-- retention schedule approved and implemented for each processing activity;
-- DSAR/export/delete test against a representative synthetic/real authorised account path;
+- retention period/purpose schedule approved before enabling the purge policy;
+- reviewed erasure/redaction/tombstone workflow for non-cascading business/audit records and a full synthetic end-to-end erasure test;
 - Article 14 / legitimate-interest / Spanish marketing-law review for indirect B2B contacts before outreach;
 - processor/subprocessor/transfer evidence completion;
 - Works DPIA screen before real users/requests/photos;
 - breach tabletop with named roles/escalation once the contracting/controller entity exists;
 - company-controlled provider accounts/recovery after incorporation.
 
-No investor/business/user outreach is released by this evidence file.
+No investor/business/user outreach is released by this evidence file. No Production analytics or data-erasure release is authorised by this Draft PR.
