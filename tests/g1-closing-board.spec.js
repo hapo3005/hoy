@@ -8,10 +8,7 @@ const board = JSON.parse(fs.readFileSync(path.join(root, 'docs/investor-ready/g1
 const byId = Object.fromEntries(board.controls.map(c => [c.id, c]));
 
 test('G1 Closing Board fail-closed checker passes', async () => {
-  const output = execFileSync(process.execPath, [path.join(root, 'scripts/check-g1-closing-board.cjs')], {
-    cwd: root,
-    encoding: 'utf8'
-  });
+  const output = execFileSync(process.execPath, [path.join(root, 'scripts/check-g1-closing-board.cjs')], { cwd: root, encoding: 'utf8' });
   expect(output).toContain('PASS_FAIL_CLOSED');
 });
 
@@ -20,30 +17,24 @@ test('G1 Closing Board separates proof, executable packages, external decisions 
     acc[c.closingClass] = (acc[c.closingClass] || 0) + 1;
     return acc;
   }, {});
-  expect(counts).toEqual({
-    PROVEN: 9,
-    READY_TO_EXECUTE: 5,
-    EXTERNAL_REQUIRED: 6,
-    BLOCKED: 5
-  });
+  expect(counts).toEqual({ PROVEN: 9, READY_TO_EXECUTE: 5, EXTERNAL_REQUIRED: 6, BLOCKED: 5 });
   expect(board.overallStatus).toBe('IN_PROGRESS');
+  expect(board.baseMainSha).toBe('88bb9e77d50ccb9db96306f5e737e27bad6237ab');
 });
 
-test('G1 current-main authority does not regress to historical privacy/runtime survivors', async () => {
+test('G1 current-main authority records merged privacy runtime and newer survivor candidates', async () => {
+  expect(byId['G1-CB-01'].evidence.join(' ')).toContain('PR #128 merged');
   expect(byId['G1-CB-18'].closingClass).toBe('PROVEN');
-  expect(byId['G1-CB-18'].evidence.join(' ')).toContain('PR #128');
+  expect(byId['G1-CB-18'].scope).toContain('Current main includes merged PR #128');
   expect(byId['G1-CB-19'].evidence.join(' ')).toContain('PR #127');
   expect(byId['G1-CB-20'].evidence.join(' ')).toContain('PR #130');
-  expect(byId['G1-CB-02'].scope).toContain('predates current-main Privacy #127/#128 and Public Runtime #130');
+  expect(byId['G1-CB-02'].scope).toContain('predates the current-main #128 merge');
 });
 
 test('G1 legal and founder-independence controls cannot masquerade as technically proven', async () => {
-  expect(byId['G1-CB-07'].closingClass).toBe('EXTERNAL_REQUIRED');
-  expect(byId['G1-CB-08'].closingClass).toBe('EXTERNAL_REQUIRED');
-  expect(byId['G1-CB-17'].closingClass).toBe('EXTERNAL_REQUIRED');
-  expect(byId['G1-CB-19'].closingClass).toBe('EXTERNAL_REQUIRED');
-  expect(byId['G1-CB-21'].closingClass).toBe('EXTERNAL_REQUIRED');
-  expect(byId['G1-CB-23'].closingClass).toBe('EXTERNAL_REQUIRED');
+  for (const id of ['G1-CB-07', 'G1-CB-08', 'G1-CB-17', 'G1-CB-19', 'G1-CB-21', 'G1-CB-23']) {
+    expect(byId[id].closingClass).toBe('EXTERNAL_REQUIRED');
+  }
   expect(byId['G1-CB-23'].scope).toContain('no independent non-founder execution has passed');
 });
 
