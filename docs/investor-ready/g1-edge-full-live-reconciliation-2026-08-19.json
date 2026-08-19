@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "evidence_cut": "2026-08-19T04:50:35Z",
+  "project_ref": "zlscptisdxzxuvllogza",
+  "base_main": "f63978dad503427dabaa37f222bf10726deba645",
+  "active_live_count": 19,
+  "accounting": {
+    "captured_exact_in_repo": 10,
+    "repo_desired_state_ahead_of_live": 9,
+    "unaccounted": 0
+  },
+  "decision": "Preserve the hardened/updated repository survivor for the nine drifted functions. Do not overwrite it with older live source. Production redeploy, if later approved, must use the final composed G1 survivor and is outside this evidence PR.",
+  "existing_repo_survivors": {
+    "venue-media-approve": {
+      "live_version": 3,
+      "verify_jwt": true,
+      "live_ezbr_sha256": "f371ac64035962047fff4468a19c896c54422f2a0e22efffbd51639b8c30d313",
+      "repo_index_blob_sha": "0d28ee22b9218540ca600fefa67d56fef736efcb",
+      "repo_extra_files": {"deno.json": "7924af2bb6b7315c923997cfe2db122a92720eeb"},
+      "reconciliation": "DRIFT_CONFIRMED_REPO_AHEAD",
+      "minimum_observed_drift": "live uses unpinned functions-js edge-runtime and supabase-js @2; repo pins both to 2.111.0; deno.json content matched at capture",
+      "repo_probe": "jsr:@supabase/functions-js@2.111.0/edge-runtime.d.ts"
+    },
+    "admin-ops": {
+      "live_version": 5,
+      "verify_jwt": true,
+      "live_ezbr_sha256": "0e186094c96e376a06f6299b692b1e3087c8363d056dd5bfec2a39f7ed07e01c",
+      "repo_index_blob_sha": "a8952828feae39c905baa2f0bc91983a394f50bf",
+      "reconciliation": "DRIFT_CONFIRMED_REPO_AHEAD",
+      "minimum_observed_drift": "live uses npm:@supabase/supabase-js@2; repo pins 2.111.0",
+      "repo_probe": "npm:@supabase/supabase-js@2.111.0"
+    },
+    "menu-intake-process": {
+      "live_version": 5,
+      "verify_jwt": true,
+      "live_ezbr_sha256": "fcee5fe9737eab082484724c062d5de426c039b118e6a3340da4e46bda6e7a3f",
+      "repo_index_blob_sha": "40e945e12441e2423c8e6160d0a8d84c6041c6c7",
+      "reconciliation": "DRIFT_CONFIRMED_REPO_AHEAD",
+      "minimum_observed_drift": "live edge-runtime import unpinned; repo pins functions-js 2.111.0; @supabase/server remains 1.4.1",
+      "repo_probe": "jsr:@supabase/functions-js@2.111.0/edge-runtime.d.ts"
+    },
+    "promotion-insights": {
+      "live_version": 2,
+      "verify_jwt": true,
+      "live_ezbr_sha256": "18c4ced18bfa04b0acb61a3adcbacaa338581661569aa85afcaf663a5cda62ff",
+      "repo_index_blob_sha": "286a9edb9feb3ea2a31b00018f7b3a8c15dba842",
+      "reconciliation": "DRIFT_CONFIRMED_REPO_AHEAD",
+      "minimum_observed_drift": "live uses npm:@supabase/supabase-js@2; repo pins 2.111.0",
+      "repo_probe": "npm:@supabase/supabase-js@2.111.0"
+    },
+    "operator-hours-confirm": {
+      "live_version": 2,
+      "verify_jwt": true,
+      "live_ezbr_sha256": "7f01e2658654386ff6e95a87dea6516d8144625b29dad6552287c6ef7635daac",
+      "repo_index_blob_sha": "8283610ace0c115e93b1bdc58e49b853a6b7221f",
+      "reconciliation": "DRIFT_CONFIRMED_REPO_AHEAD",
+      "minimum_observed_drift": "live uses npm:@supabase/supabase-js@2; repo pins 2.111.0",
+      "repo_probe": "npm:@supabase/supabase-js@2.111.0"
+    },
+    "menu-discovery": {
+      "live_version": 4,
+      "verify_jwt": true,
+      "live_ezbr_sha256": "a6e04fe1a9ecbb57f85c52ef74233ed7d4dc938b612122433e4e033fd4399bce",
+      "repo_index_blob_sha": "a81d4e4da4704bf29d21c3add51997d3267b82d1",
+      "reconciliation": "DRIFT_CONFIRMED_REPO_AHEAD",
+      "minimum_observed_drift": "live uses npm:@supabase/supabase-js@2; repo pins 2.111.0",
+      "repo_probe": "npm:@supabase/supabase-js@2.111.0"
+    },
+    "menu-editorial-import": {
+      "live_version": 2,
+      "verify_jwt": true,
+      "live_ezbr_sha256": "1f16791cd59b3bafb4d51bd7e64e3fd2cc83bd9caea662aa1512c7170092043f",
+      "repo_index_blob_sha": "0717d2c1e6e835ff5c2e81bac8461ebc37d7d06a",
+      "reconciliation": "DRIFT_CONFIRMED_REPO_AHEAD_SUBSTANTIVE",
+      "minimum_observed_drift": "repo has pinned supabase-js plus later OpenAI Responses/model-selection hardening visible at file start; live bundle is older editorial-2.0 implementation",
+      "repo_probe": "const OPENAI_RESPONSES='https://api.openai.com/v1/responses'"
+    },
+    "menu-social-handoff": {
+      "live_version": 1,
+      "verify_jwt": true,
+      "live_ezbr_sha256": "b5d02541574644cfbd6fe8ae426f02d93fb5036ba8fc49e03ea33267cc8c7490",
+      "repo_index_blob_sha": "1705f36e142d06c9177902d5af5360501fd779a6",
+      "reconciliation": "DRIFT_CONFIRMED_REPO_AHEAD",
+      "minimum_observed_drift": "live uses unpinned supabase-js and contains an earlier UUIDISH declaration; repo begins with pinned client and cleaned current implementation",
+      "repo_probe": "npm:@supabase/supabase-js@2.111.0"
+    },
+    "operator-accessibility-confirm": {
+      "live_version": 1,
+      "verify_jwt": true,
+      "live_ezbr_sha256": "7ab26ef29d3e69ac7701bec9ee56313fbbb7b4fda32f953374878f990c2fde48",
+      "repo_index_blob_sha": "d30cb791b76036cd98f5a15c0c104a7c88412f36",
+      "reconciliation": "DRIFT_CONFIRMED_REPO_AHEAD",
+      "minimum_observed_drift": "live uses npm:@supabase/supabase-js@2; repo pins 2.111.0",
+      "repo_probe": "npm:@supabase/supabase-js@2.111.0"
+    }
+  },
+  "boundary": {
+    "no_production_deploy": true,
+    "no_supabase_redeploy": true,
+    "no_database_mutation": true,
+    "no_automatic_merge": true,
+    "production_equalization_required_now": false,
+    "why": "The repository survivor is intentionally newer/hardened for the nine drifted functions. Equality must be restored by a later controlled deploy from the final composed survivor, not by downgrading source control to older production code."
+  }
+}

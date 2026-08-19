@@ -1,0 +1,27 @@
+name: G1 Edge Full Live Reconciliation
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/**'
+      - 'docs/investor-ready/g1-edge-live-source-manifest-2026-08-19.json'
+      - 'docs/investor-ready/g1-edge-full-live-reconciliation-2026-08-19.json'
+      - 'scripts/investor-ready/check-g1-edge-source-parity.mjs'
+      - 'scripts/investor-ready/check-g1-edge-full-reconciliation.mjs'
+      - '.github/workflows/g1-edge-full-reconciliation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+      - name: Verify recovered-source parity
+        run: node scripts/investor-ready/check-g1-edge-source-parity.mjs
+      - name: Verify full 19-of-19 reconciliation
+        run: node scripts/investor-ready/check-g1-edge-full-reconciliation.mjs
