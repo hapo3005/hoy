@@ -1,0 +1,212 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "role": "G1-CB-14_ROLLBACK_BEFORE_STATE",
+  "basePreflight": {
+    "pr": 148,
+    "head": "7c6bfde60bd1c31b5d96ea017be5c61de75c5dba"
+  },
+  "sourceManifest": {
+    "path": "docs/investor-ready/rt007-prepared-replacements-v2.json",
+    "gitBlobSha": "44eac03dcb41fc21da58f660952235b397874d97",
+    "exactProductionMatchAtCapture": 36,
+    "driftAtCapture": 0,
+    "rule": "For every URL-only target, the exact rollback before-value is the pinned source manifest target.currentUrl, which matched Production 36/36 at capture. The rollback guard after-value is target.proposedUrl."
+  },
+  "productionMutationPerformed": false,
+  "productionApplyAuthorized": false,
+  "rollbackExecutionAuthorized": false,
+  "waves": [
+    {"wave":"source_url_wave1","count":12,"beforeStateSource":"sourceManifest.target.currentUrl","afterGuardSource":"sourceManifest.target.proposedUrl","signatureBeforeStateRequired":false},
+    {"wave":"signature_wave1","count":3,"beforeStateSource":"signatureBeforeState + sourceManifest.target.currentUrl","afterGuardSource":"sourceManifest.target.proposedUrl + proposedCopy","signatureBeforeStateRequired":true},
+    {"wave":"signature_wave2","count":9,"beforeStateSource":"signatureBeforeState + sourceManifest.target.currentUrl","afterGuardSource":"sourceManifest.target.proposedUrl + proposedCopy","signatureBeforeStateRequired":true},
+    {"wave":"location_wave1","count":4,"beforeStateSource":"sourceManifest.target.currentUrl","afterGuardSource":"sourceManifest.target.proposedUrl","signatureBeforeStateRequired":false},
+    {"wave":"location_wave2","count":2,"beforeStateSource":"sourceManifest.target.currentUrl","afterGuardSource":"sourceManifest.target.proposedUrl","signatureBeforeStateRequired":false},
+    {"wave":"location_wave3","count":4,"beforeStateSource":"sourceManifest.target.currentUrl","afterGuardSource":"sourceManifest.target.proposedUrl","signatureBeforeStateRequired":false},
+    {"wave":"location_wave4","count":2,"beforeStateSource":"sourceManifest.target.currentUrl","afterGuardSource":"sourceManifest.target.proposedUrl","signatureBeforeStateRequired":false}
+  ],
+  "targetAccounting": {
+    "all": 36,
+    "published": 34,
+    "unpublished": 2,
+    "urlOnlyTargets": 24,
+    "signatureTargets": 12
+  },
+  "signatureBeforeState": [
+    {
+      "restaurantId": 7,
+      "restaurantName": "Escuela de Pieter",
+      "published": true,
+      "signature_title": "Maritimes Setting für Reis & Seafood",
+      "signature_text": "Die Lage am Wasser ist ein wesentlicher Teil des Erlebnisses. Dazu kommen mediterrane Fisch- und Seafood-Küche sowie Reisgerichte – passend für einen langen Lunch oder Abend mit klarer La-Manga-Atmosphäre.",
+      "signature_tags": ["Am Wasser","Seafood","Arroces"],
+      "signature_status": "researched",
+      "signature_source_url": "https://www.tripadvisor.com/Restaurant_Review-g642228-d2225555-Reviews-Escuela_de_Pieter-La_Manga_del_Mar_Menor_Municipality_of_Cartagena.html",
+      "signature_source_label": "Tripadvisor · Profil und aktuelle Bewertungen",
+      "signature_checked_at": "2026-08-10",
+      "signature_confidence": "high"
+    },
+    {
+      "restaurantId": 8,
+      "restaurantName": "Collados Beach",
+      "published": true,
+      "signature_title": "Das „UFO“ von La Manga",
+      "signature_text": "Collados Beach ist schon wegen seines futuristischen Rundbaus von 1976 ein Ziel für sich. Dazu kommen Beach-Club-Atmosphäre, mediterrane Küche und Meerblick – eine Adresse für Gäste, die Architektur, Kulisse und Essen verbinden möchten.",
+      "signature_tags": ["Architektur-Ikone","Beach Club","Meerblick"],
+      "signature_status": "researched",
+      "signature_source_url": "https://elpais.com/elviajero/lonely-planet/2025-07-31/brutalismo-made-in-spain-las-paradas-que-no-te-puedes-perder-en-la-geografia-espanola.html",
+      "signature_source_label": "El País / Lonely Planet · Architektur; Tripadvisor · Gastronomie",
+      "signature_checked_at": "2026-08-09",
+      "signature_confidence": "high"
+    },
+    {
+      "restaurantId": 9,
+      "restaurantName": "Area Sunset",
+      "published": true,
+      "signature_title": "Terrasse mit Sunset-Faktor",
+      "signature_text": "Area Sunset lebt stark von seiner Lage und Atmosphäre: Meerblick, Terrasse und mediterran-spanische Küche mit Reis- und Fischgerichten. Besonders passend für spätes Mittagessen oder Abendessen mit Blick auf das Wasser.",
+      "signature_tags": ["Sunset","Meerterrasse","Mediterran"],
+      "signature_status": "researched",
+      "signature_source_url": "https://www.thefork.es/restaurante/area-sunset-r28285/opiniones",
+      "signature_source_label": "TheFork · verifizierte Gästebewertungen",
+      "signature_checked_at": "2026-08-09",
+      "signature_confidence": "high"
+    },
+    {
+      "restaurantId": 13,
+      "restaurantName": "El Rancho de Cabo de Palos",
+      "published": true,
+      "signature_title": "Die Adresse für Fleisch vom Grill",
+      "signature_text": "El Rancho positioniert sich klar als Fleisch- und Grillrestaurant. Aktuelle Bewertungen bestätigen vor allem Steaks, Gargrad und Service – ideal, wenn in Cabo de Palos bewusst einmal nicht Fisch und Reis im Mittelpunkt stehen sollen.",
+      "signature_tags": ["Steaks","Grill","Fleisch"],
+      "signature_status": "researched",
+      "signature_source_url": "https://www.tripadvisor.co/Restaurant_Review-g1087580-d4027214-Reviews-El_Rancho_de_Cabo_de_Palos-Cabo_de_Palos_Municipality_of_Cartagena.html",
+      "signature_source_label": "Tripadvisor · Betreiberprofil und aktuelle Bewertungen",
+      "signature_checked_at": "2026-08-09",
+      "signature_confidence": "high"
+    },
+    {
+      "restaurantId": 15,
+      "restaurantName": "Gran Torino",
+      "published": true,
+      "signature_title": "Handgemachtes Italien im Cabo",
+      "signature_text": "Gran Torino setzt bewusst auf italienische Küche mit handgemachten Pizzen, Pasta, Antipasti und Desserts. Die richtige Abwechslung, wenn du zwischen all der Küstenküche einen authentisch italienischen Abend suchst.",
+      "signature_tags": ["Italienisch","Pizza & Pasta","Hausgemacht"],
+      "signature_status": "researched",
+      "signature_source_url": "https://www.tripadvisor.de/Restaurant_Review-g1087580-d6594520-Reviews-Gran_Torino-Cabo_de_Palos_Municipality_of_Cartagena.html",
+      "signature_source_label": "Tripadvisor · Betreiberbeschreibung",
+      "signature_checked_at": "2026-08-09",
+      "signature_confidence": "high"
+    },
+    {
+      "restaurantId": 16,
+      "restaurantName": "Agua Salá",
+      "published": true,
+      "signature_title": "Mediterran mit modernerem Dreh",
+      "signature_text": "Agua Salá verbindet mediterrane Basis mit moderner Präsentation und kreativeren Gerichten. Eine gute Option für Gäste, die in Cabo de Palos regional essen möchten, aber nicht ausschließlich die klassische Fisch-und-Reis-Schiene suchen.",
+      "signature_tags": ["Mediterran","Modern","Kreative Gerichte"],
+      "signature_status": "researched",
+      "signature_source_url": "https://www.tripadvisor.co/Restaurant_Review-g1087580-d5864216-Reviews-Agua_Sala-Cabo_de_Palos_Municipality_of_Cartagena.html",
+      "signature_source_label": "Tripadvisor · Profil und Bewertungen",
+      "signature_checked_at": "2026-08-09",
+      "signature_confidence": "high"
+    },
+    {
+      "restaurantId": 17,
+      "restaurantName": "Restaurante Miramar",
+      "published": true,
+      "signature_title": "Klassische Fischküche in erster Reihe",
+      "signature_text": "Miramar ist ein klassischer Platz für maritime Küche direkt am Wasser: Reisgerichte, Fisch und Meeresfrüchte prägen die Karte. Besonders passend für einen traditionellen Cabo-de-Palos-Lunch mit Hafen- und Meerblick.",
+      "signature_tags": ["Fisch & Seafood","Arroces","Meerblick"],
+      "signature_status": "researched",
+      "signature_source_url": "https://www.tripadvisor.co/Restaurant_Review-g1087580-d4170522-Reviews-Restaurante_Miramar-Cabo_de_Palos_Municipality_of_Cartagena.html",
+      "signature_source_label": "Tripadvisor · Betreiberprofil und aktuelle Bewertungen",
+      "signature_checked_at": "2026-08-09",
+      "signature_confidence": "high"
+    },
+    {
+      "restaurantId": 18,
+      "restaurantName": "CP8 Restaurante",
+      "published": true,
+      "signature_title": "Caldero mit Blick aufs Wasser",
+      "signature_text": "CP8 kombiniert mediterran-spanische Küche mit einer schönen Lage am Wasser. Besonders Reisgerichte und Caldero werden von Gästen hervorgehoben; die Karte ist zugleich breit genug für Fleisch- und andere mediterrane Gerichte.",
+      "signature_tags": ["Caldero","Meerblick","Mediterran"],
+      "signature_status": "researched",
+      "signature_source_url": "https://www.tripadvisor.com/Restaurant_Review-g1087580-d23438095-Reviews-Cp8_Restaurante-Cabo_de_Palos_Municipality_of_Cartagena.html",
+      "signature_source_label": "Tripadvisor · Menü und Bewertungen",
+      "signature_checked_at": "2026-08-09",
+      "signature_confidence": "medium"
+    },
+    {
+      "restaurantId": 20,
+      "restaurantName": "Restaurante La Tana",
+      "published": true,
+      "signature_title": "Cabo-Klassiker für Caldero & Meeresfrüchte",
+      "signature_text": "La Tana gehört zu den langjährigen Hafenadressen von Cabo de Palos. Reis-Caldero, Fisch und Meeresfrüchte plus Terrasse am Wasser machen den Reiz aus – eher klassisch als inszeniert.",
+      "signature_tags": ["Caldero","Meeresfrüchte","Hafenklassiker"],
+      "signature_status": "researched",
+      "signature_source_url": "https://www.tripadvisor.co/Restaurant_Review-g1087580-d1804887-Reviews-Restaurante_La_Tana-Cabo_de_Palos_Municipality_of_Cartagena.html",
+      "signature_source_label": "Tripadvisor · Profil und aktuelle Bewertungen",
+      "signature_checked_at": "2026-08-09",
+      "signature_confidence": "high"
+    },
+    {
+      "restaurantId": 22,
+      "restaurantName": "Cala Reona Beach Club",
+      "published": true,
+      "signature_title": "Fisch, Arroces & Naturkulisse in Cala Reona",
+      "signature_text": "Direkt an der versteckten Cala Reona am Rand von Calblanque: mediterrane Fisch- und Seafood-Küche, mehrere Reisgerichte auf Bestellung und gelegentliche Live-Musik. Hier ist die Verbindung aus Naturkulisse und Restaurantgefühl das eigentliche Signature-Erlebnis.",
+      "signature_tags": ["Cala Reona","Arroces","Fisch & Seafood"],
+      "signature_status": "researched",
+      "signature_source_url": "https://elpais.com/gastronomia/el-comidista/2025-07-31/de-la-chipirona-al-el-saladero-20-chiringuitos-de-playa-y-montana-en-los-que-la-comida-no-defrauda.html",
+      "signature_source_label": "El País · El Comidista, Auswahl 2025",
+      "signature_checked_at": "2026-08-09",
+      "signature_confidence": "high"
+    },
+    {
+      "restaurantId": 135,
+      "restaurantName": "Annapurna Nepali Restaurant",
+      "published": true,
+      "signature_title": "Nepalesisch-indische Küche als frische Alternative in Los Belones",
+      "signature_text": "Annapurna bringt seit Sommer 2026 nepalesische und indische Aromen nach Los Belones. Im Fokus stehen Gewürze, Tandoor-Küche und vegane Optionen – eine klare Abwechslung zur sonst stark mediterranen Auswahl der Region.",
+      "signature_tags": ["Nepalesisch & indisch","Tandoor","Vegane Optionen"],
+      "signature_status": "researched",
+      "signature_source_url": "https://lasgastrocronicas.com/un-viaje-al-himalaya-en-el-mar-menor-annapurna-estrena-la-autentica-cocina-nepali-e-india-en-los-belones/",
+      "signature_source_label": "Las Gastrocrónicas · Eröffnung Juli 2026",
+      "signature_checked_at": "2026-08-10",
+      "signature_confidence": "medium"
+    },
+    {
+      "restaurantId": 215,
+      "restaurantName": "Cabo de Sal",
+      "published": true,
+      "signature_title": "Langer Lunch-und-Abend-Stopp an den Palangres",
+      "signature_text": "Cabo de Sal ergänzt die Gastronomie rund um die Calle los Palangres mit einem langen Tages- und Abendfenster. Küche und Profil werden weiter vertieft; die aktuellen Betriebsdaten sind jedoch bereits belastbar genug für einen nützlichen HOY-Grundeintrag.",
+      "signature_tags": ["Cabo de Palos","Lunch & Dinner","Palangres"],
+      "signature_status": "researched",
+      "signature_source_url": "https://www.tripadvisor.com/Restaurant_Review-g1087580-d34554854-Reviews-Cabo_de_Sal-Cabo_de_Palos_Municipality_of_Cartagena.html",
+      "signature_source_label": "Aktueller öffentlicher Restaurant-Eintrag",
+      "signature_checked_at": "2026-08-10",
+      "signature_confidence": "medium"
+    }
+  ],
+  "rollbackContract": {
+    "candidateMustMaterializeExactPerTargetRollbackPayload": true,
+    "eachWaveIndependentTransaction": true,
+    "rollbackMustBeExactAfterStateGuarded": true,
+    "rollbackMustAbortOnRowCountMismatch": true,
+    "rollbackMustNotOverwriteLaterLegitimateChange": true,
+    "signatureRollbackRestoresFullCapturedSignatureState": true,
+    "immediatePreApplyRecaptureRequired": true
+  },
+  "claimBoundary": {
+    "thisIsExecutableDml": false,
+    "productionMutationPerformed": false,
+    "productionApplyAuthorized": false,
+    "rollbackExecutionAuthorized": false,
+    "transferClearanceClaimed": false,
+    "wholeProfileClearanceClaimed": false,
+    "businessTermsStillRequired": true,
+    "contactFreezeChanged": false
+  }
+}
