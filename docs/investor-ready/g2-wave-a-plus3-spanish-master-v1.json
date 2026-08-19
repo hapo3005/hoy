@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "g2-wave-a-plus3-spanish-master-v1",
+  "status": "DRAFT_FOR_REVIEW_NOT_SENDABLE",
+  "contactFreeze": "ACTIVE",
+  "messages": [
+    {
+      "restaurantId": 11,
+      "name": "Chiringuito Playa Chica",
+      "subject": "Playa Chica en HOY — propuesta Founding Business",
+      "email": "Hola, somos HOY, una nueva plataforma local para descubrir dónde comer, qué hacer y qué está pasando hoy en la región del Mar Menor. Ya tenemos preparada la ficha de Chiringuito Playa Chica y nos gustaría enseñárosla para que podáis revisar los datos y decidir si queréis participar en la primera fase para negocios. La confirmación de los datos básicos es gratuita. Además, estamos preparando un pequeño programa Founding Business con herramientas para mantener información y contenidos del negocio más actualizados. Si os interesa, os explicamos el funcionamiento y el precio asignado al test antes de que decidáis nada. Sin compromiso y sin promesas de posiciones, reservas o ventas. ¿Os viene bien que os enviemos la información?",
+      "dm": "Hola 👋 Somos HOY, una nueva plataforma local del Mar Menor. Ya tenemos preparada la ficha de Playa Chica y nos gustaría que pudierais revisar gratis los datos básicos. También estamos preparando una primera fase Founding Business para algunos negocios de la zona. Si os interesa, os contamos cómo funciona y el precio del test antes de decidir nada. ¿Os podemos enviar la info?"
+    },
+    {
+      "restaurantId": 145,
+      "name": "Chiringuito La Sirena",
+      "subject": "Chiringuito La Sirena en HOY — propuesta Founding Business",
+      "email": "Hola, somos HOY, una nueva plataforma local para descubrir dónde comer, qué hacer y qué está pasando hoy en la región del Mar Menor. Ya tenemos preparada la ficha de Chiringuito La Sirena y nos gustaría enseñárosla para que podáis revisar los datos y decidir si queréis participar en la primera fase para negocios. La confirmación de los datos básicos es gratuita. Además, estamos preparando un pequeño programa Founding Business con herramientas para mantener información y contenidos del negocio más actualizados. Si os interesa, os explicamos el funcionamiento y el precio asignado al test antes de que decidáis nada. Sin compromiso y sin promesas de posiciones, reservas o ventas. ¿Os viene bien que os enviemos la información?",
+      "dm": "Hola 👋 Somos HOY, una nueva plataforma local del Mar Menor. Ya tenemos preparada la ficha de Chiringuito La Sirena y nos gustaría que pudierais revisar gratis los datos básicos. También estamos preparando una primera fase Founding Business para algunos negocios de la zona. Si os interesa, os contamos cómo funciona y el precio del test antes de decidir nada. ¿Os podemos enviar la info?"
+    },
+    {
+      "restaurantId": 159,
+      "name": "Maï Briza",
+      "subject": "Maï Briza en HOY — propuesta Founding Business",
+      "email": "Hola, somos HOY, una nueva plataforma local para descubrir dónde comer, qué hacer y qué está pasando hoy en la región del Mar Menor. Ya tenemos preparada la ficha de Maï Briza y nos gustaría enseñárosla para que podáis revisar los datos y decidir si queréis participar en la primera fase para negocios. La confirmación de los datos básicos es gratuita. Además, estamos preparando un pequeño programa Founding Business con herramientas para mantener información y contenidos del negocio más actualizados. Si os interesa, os explicamos el funcionamiento y el precio asignado al test antes de que decidáis nada. Sin compromiso y sin promesas de posiciones, reservas o ventas. ¿Os viene bien que os enviemos la información?",
+      "dm": "Hola 👋 Somos HOY, una nueva plataforma local del Mar Menor. Ya tenemos preparada la ficha de Maï Briza y nos gustaría que pudierais revisar gratis los datos básicos. También estamos preparando una primera fase Founding Business para algunos negocios de la zona. Si os interesa, os contamos cómo funciona y el precio del test antes de decidir nada. ¿Os podemos enviar la info?"
+    }
+  ],
+  "claimRules": [
+    "No ranking guarantee",
+    "No impression guarantee",
+    "No reservation guarantee",
+    "No revenue guarantee",
+    "Basic factual review remains free",
+    "Founding Business price must be disclosed before acceptance",
+    "No message may be sent while Contact Freeze is active"
+  ]
+}

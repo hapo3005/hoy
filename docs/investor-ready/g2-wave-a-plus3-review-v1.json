@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "g2-wave-a-plus3-review-v1",
+  "status": "READY_FOR_MASTER_REVIEW_NOT_APPLIED",
+  "capturedAt": "2026-08-19T10:54:00+02:00",
+  "contactFreeze": "ACTIVE",
+  "productionMutationPerformed": false,
+  "pipelineReviewApplied": false,
+  "outreachAuthorized": false,
+  "sendAuthorized": false,
+  "selectionRule": "Prefer current published Priority-A businesses with direct contact, High confidence, no send blocker, and fresh authoritative/first-party existence evidence. Do not lower quality to fill Wave A.",
+  "candidates": [
+    {
+      "restaurantId": 11,
+      "name": "Chiringuito Playa Chica",
+      "area": "La Manga del Mar Menor",
+      "leadScore": 92,
+      "currentReviewStatus": "not_reviewed",
+      "currentSendReadiness": "draft_ready_for_review",
+      "currentLocalizationStatus": "master_de",
+      "recommendedOutreachLanguage": "ES",
+      "evidence": [
+        {"url":"https://www.playachicalamanga.es/","type":"FIRST_PARTY_BUSINESS_WEBSITE","finding":"Current site identifies Playa Chica in La Manga, publishes opening hours, phone reservations, address and menu."}
+      ],
+      "masterReviewDecision": "PASS_CANDIDATE",
+      "remainingBeforePipelinePromotion": ["human/editorial approval of Spanish outreach master", "immediate contact-source recheck before any later outreach"]
+    },
+    {
+      "restaurantId": 145,
+      "name": "Chiringuito La Sirena",
+      "area": "Los Alcázares / Los Narejos",
+      "leadScore": 93,
+      "currentReviewStatus": "not_reviewed",
+      "currentSendReadiness": "draft_ready_for_review",
+      "currentLocalizationStatus": "master_de",
+      "recommendedOutreachLanguage": "ES",
+      "evidence": [
+        {"url":"https://www.turismoregiondemurcia.es/es/chiringuito/chiringuito-la-sirena--9048/","type":"OFFICIAL_REGIONAL_TOURISM","finding":"Current official Region Murcia tourism page identifies Chiringuito La Sirena in Los Narejos / Los Alcázares."},
+        {"url":"https://negocioslosalcazares.com/negocios/chiringuito-la-sirena/","type":"LOCAL_BUSINESS_DIRECTORY","finding":"Business listing provides matching beach-restaurant identity and established website/contact route."}
+      ],
+      "masterReviewDecision": "PASS_CANDIDATE",
+      "remainingBeforePipelinePromotion": ["human/editorial approval of Spanish outreach master", "immediate first-party contact-source recheck before any later outreach"]
+    },
+    {
+      "restaurantId": 159,
+      "name": "Maï Briza",
+      "area": "San Pedro del Pinatar / Lo Pagán",
+      "leadScore": 89,
+      "currentReviewStatus": "not_reviewed",
+      "currentSendReadiness": "draft_ready_for_review",
+      "currentLocalizationStatus": "master_de",
+      "recommendedOutreachLanguage": "ES",
+      "evidence": [
+        {"url":"https://www.marinadelassalinas.es/ocio-y-servicios/","type":"OFFICIAL_VENUE_OPERATOR_DIRECTORY","finding":"Current Marina de las Salinas site lists Maï Briza as a tapas/restaurant venue with direct phone/email and marina address."}
+      ],
+      "masterReviewDecision": "PASS_CANDIDATE",
+      "remainingBeforePipelinePromotion": ["human/editorial approval of Spanish outreach master", "immediate contact-source recheck before any later outreach"]
+    }
+  ],
+  "waveAImpact": {
+    "strictReadyBefore": 15,
+    "candidateAdds": 3,
+    "projectedStrictReadyAfterSeparateApprovedPipelinePromotion": 18,
+    "cohortFrozenNow": false,
+    "note": "Projection only. This package does not update Production pipeline state and does not freeze or authorize outreach."
+  }
+}
