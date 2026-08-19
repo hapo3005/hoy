@@ -6,12 +6,14 @@ const configPath='privacy-config-2.47.js';
 const consentPath='privacy-consent-2.47.js';
 const indexPath='index.html';
 const testPath='tests/privacy-consent-2.47.spec.js';
+const processorEvidencePath='docs/investor-ready/rt008-processor-transfer-evidence-2026-08-19.md';
 const analytics=fs.readFileSync(analyticsPath,'utf8');
 const controls=fs.readFileSync(controlsPath,'utf8');
 const config=fs.readFileSync(configPath,'utf8');
 const consent=fs.readFileSync(consentPath,'utf8');
 const index=fs.readFileSync(indexPath,'utf8');
 const browserTest=fs.readFileSync(testPath,'utf8');
+const processorEvidence=fs.readFileSync(processorEvidencePath,'utf8');
 const fail=(msg)=>{console.error(`RT-008 FAIL: ${msg}`);process.exitCode=1};
 const pass=(msg)=>console.log(`RT-008 PASS: ${msg}`);
 
@@ -111,6 +113,31 @@ if(/delete\s+from\s+auth\.users/i.test(controls)){
   fail('DSAR control file must not implement automatic hard-delete of auth users');
 }else{
   pass('DSAR control file contains no automatic auth-user hard delete');
+}
+
+const processorEvidenceRequired=[
+  ['**Supabase**','Supabase is explicitly registered'],
+  ['**OpenAI API**','OpenAI API is explicitly registered'],
+  ['`background:true, store:false`','current OpenAI background/store configuration is evidenced'],
+  ['not ZDR','OpenAI background mode is not mislabelled Zero Data Retention'],
+  ['**GitHub / GitHub Pages**','GitHub Pages is explicitly registered'],
+  ['**jsDelivr CDN**','jsDelivr browser recipient is explicitly registered'],
+  ['**OpenStreetMap Foundation standard tiles**','OSMF browser recipient is explicitly registered'],
+  ['**Wikimedia Commons / Wikimedia Foundation**','Wikimedia browser recipient is explicitly registered'],
+  ['**Independent Data Controller**','independent-controller classification is explicit where provider evidence supports it'],
+  ['current plan: `free`','current Supabase plan is captured rather than inferred'],
+  ['`eu-central-1`','active HOY Supabase project region is captured'],
+  ['No provider is marked contractually closed','public provider documentation is not confused with HOY-specific contract execution'],
+  ['Investor/business/user outreach remains blocked','processor evidence does not release outreach'],
+];
+for(const [needle,label] of processorEvidenceRequired){
+  if(processorEvidence.includes(needle))pass(label);else fail(label);
+}
+
+if(/OpenAI[^\n]{0,120}GREEN CONTRACTUAL/i.test(processorEvidence)||/Supabase[^\n]{0,120}GREEN CONTRACTUAL/i.test(processorEvidence)){
+  fail('provider register must not claim account-specific contractual closure without archived evidence');
+}else{
+  pass('provider register avoids unsupported contractual-green claims');
 }
 
 if(process.exitCode)process.exit(process.exitCode);
