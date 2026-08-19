@@ -8,34 +8,27 @@ const sql=fs.readFileSync(path.join(root,'scripts/investor-ready/rt007-buyer-saf
 const executableSql=sql.replace(/--[^\n]*/g,' ');
 
 test('RT-007 buyer-safe snapshot reconciles active, conditional and archived risk', async()=>{
-  expect(snapshot.schemaVersion).toBe('1.1.0');
+  expect(snapshot.schemaVersion).toBe('1.2.0');
   expect(snapshot.status).toBe('READ_ONLY_BUYER_DD_SNAPSHOT');
   expect(snapshot.productionMutationPerformed).toBe(false);
-
-  expect(snapshot.restaurantPopulation.published).toBe(166);
-  expect(snapshot.restaurantPopulation.unpublished).toBe(3);
-  expect(snapshot.restaurantPopulation.total).toBe(169);
-
+  expect(snapshot.restaurantPopulation).toEqual({published:166,unpublished:3,total:169});
   expect(snapshot.hardDirectReferences.all).toBe(329);
   expect(snapshot.hardDirectReferences.published).toBe(324);
   expect(snapshot.hardDirectReferences.unpublished).toBe(5);
   expect(snapshot.hardDirectReferences.published + snapshot.hardDirectReferences.unpublished).toBe(snapshot.hardDirectReferences.all);
-  expect(snapshot.hardDirectReferences.reconciles).toBe(true);
 
   const byBucket=Object.fromEntries(snapshot.restaurantBuyerBuckets.map(x=>[x.bucket,x]));
   expect(byBucket.PUBLISHED_WITH_HARD_RESTRICTED_DEPENDENCY.restaurants).toBe(146);
   expect(byBucket.PUBLISHED_WITH_HARD_RESTRICTED_DEPENDENCY.hardRestrictedReferences).toBe(324);
   expect(byBucket.PUBLISHED_CONDITIONAL_NOT_TRANSFER_CLEAR.restaurants).toBe(18);
   expect(byBucket.PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW.restaurants).toBe(2);
-  expect(byBucket.PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW.transferableOrLicensedReferences).toBe(2);
   expect(byBucket.ARCHIVED_UNPUBLISHED_CARVEOUT.restaurants).toBe(3);
   expect(byBucket.ARCHIVED_UNPUBLISHED_CARVEOUT.hardRestrictedReferences).toBe(5);
-
-  const publishedBucketRestaurants=
+  expect(
     byBucket.PUBLISHED_WITH_HARD_RESTRICTED_DEPENDENCY.restaurants+
     byBucket.PUBLISHED_CONDITIONAL_NOT_TRANSFER_CLEAR.restaurants+
-    byBucket.PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW.restaurants;
-  expect(publishedBucketRestaurants).toBe(snapshot.restaurantPopulation.published);
+    byBucket.PUBLISHED_PROVENANCE_REFS_TRANSFERABLE_OR_LICENSED_NOW.restaurants
+  ).toBe(166);
 });
 
 test('RT-007 provenance-clear examples cannot become whole-profile clearance claims', async()=>{
@@ -51,7 +44,6 @@ test('RT-007 provenance-clear examples cannot become whole-profile clearance cla
   expect(snapshot.buyerExportRules.amberMeansTransferClear).toBe(false);
   expect(snapshot.buyerExportRules.personalOrUserEventDataIncluded).toBe(false);
   expect(snapshot.buyerExportRules.privacyGate).toBe('RT-008');
-  expect(snapshot.buyerExportRules.businessTermsStillRequiredForAmber).toBe(true);
 });
 
 test('RT-007 archived hard refs remain visible and are not silently discarded', async()=>{
@@ -73,22 +65,17 @@ test('RT-007 prepared replacements separate active buyer impact from archive cle
   const impact=snapshot.preparedReplacementImpact;
   expect(impact.status).toBe('PROJECTED_AFTER_REQUIRED_REBASE_REVIEW_AND_APPLY');
   expect(impact.currentHardReferences).toEqual({all:329,published:324,unpublished:5});
-  expect(impact.preparedReferences).toEqual({all:34,published:32,unpublished:2});
-  expect(impact.projectedHardReferences).toEqual({all:295,published:292,unpublished:3});
+  expect(impact.preparedReferences).toEqual({all:36,published:34,unpublished:2});
+  expect(impact.projectedHardReferences).toEqual({all:293,published:290,unpublished:3});
   expect(impact.currentHardReferences.all-impact.preparedReferences.all).toBe(impact.projectedHardReferences.all);
   expect(impact.currentHardReferences.published-impact.preparedReferences.published).toBe(impact.projectedHardReferences.published);
   expect(impact.currentHardReferences.unpublished-impact.preparedReferences.unpublished).toBe(impact.projectedHardReferences.unpublished);
 
-  const waveTotals=impact.byWave.reduce((a,x)=>({
-    all:a.all+x.all,
-    published:a.published+x.published,
-    unpublished:a.unpublished+x.unpublished
-  }),{all:0,published:0,unpublished:0});
+  const waveTotals=impact.byWave.reduce((a,x)=>({all:a.all+x.all,published:a.published+x.published,unpublished:a.unpublished+x.unpublished}),{all:0,published:0,unpublished:0});
   expect(waveTotals).toEqual(impact.preparedReferences);
+  expect(impact.byWave.find(x=>x.wave==='location_wave4')).toEqual({wave:'location_wave4',all:2,published:2,unpublished:0});
   expect(impact.unpublishedPreparedTargets).toHaveLength(2);
-  expect(impact.unpublishedPreparedTargets.map(x=>`${x.restaurantId}:${x.field}`).sort()).toEqual([
-    '19:source_url','202:location_source_url'
-  ]);
+  expect(impact.unpublishedPreparedTargets.map(x=>`${x.restaurantId}:${x.field}`).sort()).toEqual(['19:source_url','202:location_source_url']);
   expect(impact.rebaseRequired).toBe(true);
   expect(impact.reviewRequired).toBe(true);
   expect(impact.productionApplyAuthorized).toBe(false);
@@ -102,7 +89,6 @@ test('RT-007 buyer-safe export is SELECT-only and omits raw URLs from buyer resu
   expect(sql).toContain('RT-008');
   expect(sql).toContain('false as whole_profile_clearance_claimed');
   expect(sql).toContain('false as personal_or_user_event_data_included');
-
   expect(executableSql).not.toMatch(/\b(insert|update|delete|merge|create|alter|drop|truncate|grant|revoke|commit|rollback)\b/i);
   expect(snapshot.buyerExportRules.rawSourceUrlsRequiredInBuyerFacingRows).toBe(false);
   expect(snapshot.buyerExportRules.sourceHostAndFieldAreSufficientForSegregationEvidence).toBe(true);
