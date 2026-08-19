@@ -217,6 +217,7 @@
     if(m?.integrity==='native_language_blocked')return c.languagePending;
     if(m?.integrity==='native_source_only')return c.preparing;
     if(m?.nativeMenu&&m?.localized)return m.integrity==='partial'?c.partial:c.menu;
+    if(hasExternalMenuSource248(m))return c.preparing;
     return baseLabel248(m);
   };
 
@@ -226,6 +227,7 @@
     if(m?.integrity==='native_language_blocked')return blockedPanel248(m,'language');
     if(m?.integrity==='native_source_only')return blockedPanel248(m,'source');
     if(m?.nativeMenu&&m?.localized&&Array.isArray(m.categories)&&m.categories.length)return nativeMenuPanel248(m);
+    if(hasExternalMenuSource248(m))return blockedPanel248(stripExternalPresentation248(m),'source');
     return basePanel248(p);
   };
 
