@@ -22,5 +22,7 @@ jobs:
           node-version: 22
       - name: Check G2 Founding Sales contract
         run: node scripts/investor-ready/check-g2-founding-sales-kit.mjs
+      - name: Check price-neutral EN localization drafts
+        run: node scripts/investor-ready/check-g2-wave-a-localization-drafts.mjs
       - name: Run G2 Founding Sales tests
         run: node --test tests/g2-founding-sales-kit.spec.js
