@@ -33,6 +33,10 @@ jobs:
         run: npm run qa:public-runtime
       - name: Run Edge Wave A preflight gate
         run: npm run qa:edge-wave-a
+      - name: Run Edge URL SSRF gate
+        run: npm run qa:edge-url-ssrf
+      - name: Run menu editorial import contract gate
+        run: npm run qa:menu-editorial-contract
       - name: Install Chromium with resilient dependency setup
         env:
           PLAYWRIGHT_INSTALL_ATTEMPTS: '2'
