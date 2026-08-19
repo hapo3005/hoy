@@ -14,7 +14,7 @@ function requireTrue(value, message) {
 requireTrue(data.role === 'G1-CB-14_READ_ONLY_PREFLIGHT', 'wrong role');
 requireTrue(data.productionMutationPerformed === false, 'Production mutation must remain false');
 requireTrue(data.productionApplyAuthorized === false, 'Production apply must remain unauthorized');
-requireTrue(data.applyDecision === 'BLOCKED_PENDING_SOURCE_REVIEW_AND_SEPARATE_PRODUCTION_APPROVAL', 'apply decision must stay blocked');
+requireTrue(data.applyDecision === 'SOURCE_RECHECK_PASS_PENDING_ROLLBACK_RELEASE_RECHECK_AND_SEPARATE_PRODUCTION_APPROVAL', 'apply decision boundary mismatch');
 
 const row = data.rowRecheck;
 requireTrue(row.targets === 36, 'expected 36 targets');
@@ -45,24 +45,19 @@ requireTrue(buyer.archivedRestaurants === 3, 'archived restaurant count drifted'
 
 const source = data.sourceRecheck;
 requireTrue(source.targets === 36, 'source recheck must cover 36 targets');
-requireTrue(source.pass === 32, 'expected 32 source-recheck passes');
-requireTrue(source.reviewRequired === 4, 'expected four review-required targets');
+requireTrue(source.pass === 36, 'expected 36 source-recheck passes');
+requireTrue(source.reviewRequired === 0, 'no unresolved source review may remain');
 requireTrue(source.pass + source.reviewRequired === source.targets, 'source-recheck accounting incomplete');
-requireTrue(Array.isArray(source.reviewTargets) && source.reviewTargets.length === 4, 'four review target records required');
-requireTrue(source.reviewTargets.every(t => t.applyEligible === false), 'review-required targets must not be apply eligible');
+requireTrue(Array.isArray(source.reviewTargets) && source.reviewTargets.length === 0, 'review target list must be empty');
+requireTrue(Array.isArray(source.resolvedFindings) && source.resolvedFindings.length === 4, 'four resolved findings must be retained as evidence');
 
-const expectedReviewKeys = new Set([
-  '7:signature_source_url',
-  '110:source_url',
-  '144:source_url',
-  '202:location_source_url'
-]);
-for (const target of source.reviewTargets) {
-  const key = `${target.restaurantId}:${target.field}`;
-  requireTrue(expectedReviewKeys.has(key), `unexpected review target ${key}`);
-  expectedReviewKeys.delete(key);
-}
-requireTrue(expectedReviewKeys.size === 0, 'missing expected review target');
+const resolved = new Map(source.resolvedFindings.map(t => [`${t.restaurantId}:${t.field}`, t.outcome]));
+requireTrue(resolved.get('7:signature_source_url') === 'PASS_WITH_INTEGRITY_NOTE', 'Escuela de Pieter integrity outcome missing');
+requireTrue(resolved.get('110:source_url') === 'PASS_BUSINESS_IDENTITY_MATCH', 'El Rincon business identity outcome missing');
+requireTrue(resolved.get('144:source_url') === 'PASS_DIRECT_FIRST_PARTY_FETCH', 'Isla Grosa direct-fetch outcome missing');
+requireTrue(resolved.get('202:location_source_url') === 'PASS_DIRECT_FIRST_PARTY_FETCH', 'Pescados direct-fetch outcome missing');
+
+requireTrue(Array.isArray(data.nextRequiredBeforeApplyCandidate) && data.nextRequiredBeforeApplyCandidate.length === 4, 'four pre-apply requirements must remain explicit');
 
 const boundary = data.claimBoundary;
 requireTrue(boundary.wholeProfileClearanceClaimed === false, 'whole-profile clearance must remain false');
