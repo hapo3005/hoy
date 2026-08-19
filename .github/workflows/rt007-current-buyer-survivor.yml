@@ -1,0 +1,31 @@
+name: RT-007 Current Buyer Survivor Gate
+
+on:
+  pull_request:
+    paths:
+      - 'docs/investor-ready/rt007-current-buyer-state-2026-08-19.json'
+      - 'docs/investor-ready/rt007-prepared-replacements-v2.json'
+      - 'docs/investor-ready/rt007-current-buyer-survivor.md'
+      - 'scripts/investor-ready/rt007-buyer-safe-export.sql'
+      - 'tests/rt007-current-buyer-survivor.spec.js'
+      - '.github/workflows/rt007-current-buyer-survivor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rt007-buyer-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked QA dependencies
+        run: npm ci --ignore-scripts
+      - name: Run RT-007 buyer-survivor contract
+        run: npx playwright test tests/rt007-current-buyer-survivor.spec.js --project=desktop-chromium --workers=1
