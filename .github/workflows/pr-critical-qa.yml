@@ -31,8 +31,11 @@ jobs:
         run: npm run qa:secrets
       - name: Run proprietary/public runtime boundary gate
         run: npm run qa:public-runtime
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install Chromium with resilient dependency setup
+        env:
+          PLAYWRIGHT_INSTALL_ATTEMPTS: '2'
+          PLAYWRIGHT_INSTALL_TIMEOUT: 5m
+        run: bash scripts/install-playwright-browser-resilient.sh chromium
       - name: Start branch server
         shell: bash
         run: |
@@ -101,8 +104,11 @@ jobs:
         run: npm run build:public-runtime
       - name: Verify public runtime boundary
         run: npm run qa:public-runtime
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install Chromium with resilient dependency setup
+        env:
+          PLAYWRIGHT_INSTALL_ATTEMPTS: '2'
+          PLAYWRIGHT_INSTALL_TIMEOUT: 4m
+        run: bash scripts/install-playwright-browser-resilient.sh chromium
       - name: Start deploy-only runtime preview
         shell: bash
         run: |
