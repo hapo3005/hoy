@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "qa:e2e": "playwright test",
-    "qa:e2e:report": "playwright show-report"
+    "qa:e2e:report": "playwright show-report",
+    "qa:public-runtime": "node scripts/check-ir02e-public-runtime.mjs",
+    "qa:secrets": "node scripts/check-no-critical-secrets.mjs",
+    "build:public-runtime": "node scripts/build-public-runtime.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.62.0"
