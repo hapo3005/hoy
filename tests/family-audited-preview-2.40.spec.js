@@ -7,7 +7,7 @@ async function ready(page){
   await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyPlaygroundsHardening240&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true&&window.hoyFamilyDataCompletion242?.state?.status==='ready',{timeout:30000});
 }
 
-test('audited Family preview exposes 19 research entries without leaking draft profiles into normal HOY',async({page})=>{
+test('live verified Family data takes precedence over the audited research preview without losing the research inventory',async({page})=>{
   await ready(page);
 
   const initial=await page.evaluate(()=>({
@@ -17,89 +17,69 @@ test('audited Family preview exposes 19 research entries without leaking draft p
     mode:window.hoyFamilyAuditedPreview240.state.mode,
     virtualInData:DATA.filter(x=>x.__family240_preview_profile===true).length,
     badStatus:window.hoyFamilyAuditedPreview240.state.entries.some(x=>x.verification==='hoy_verified'),
+    liveIds:DATA.filter(p=>window.hoyFamilyPlaygrounds240.hasPlay(window.hoyFamilyPlaygrounds240.familyFor(p))).map(p=>Number(p.id)),
     locked:window.hoyFamilyResearchStandard241.state.lockedCount
   }));
-  expect(initial.ready).toBe(19);
-  expect(initial.existing).toBe(4);
-  expect(initial.virtual).toBe(15);
-  expect(initial.mode).toBe('research');
+  expect(initial.ready).toBe(17);
+  expect(initial.existing).toBe(0);
+  expect(initial.virtual).toBe(0);
+  expect(initial.mode).toBe('live');
   expect(initial.virtualInData).toBe(0);
   expect(initial.badStatus).toBe(false);
+  expect(initial.liveIds).toEqual(expect.arrayContaining([96,101,132,218]));
   expect(initial.locked).toBe(3);
 
   await expect(page.locator('[data-family240-home-context]')).toBeVisible();
+  await expect(page.locator('[data-family240-preview-badge]')).toHaveCount(0);
   await page.locator('[data-family240-home-context]').click();
   await expect.poll(()=>page.evaluate(()=>state.family)).toBe('family');
-  await expect.poll(()=>page.evaluate(()=>DATA.filter(x=>x.__family240_preview_profile===true).length)).toBe(15);
-  await expect(page.locator('[data-result-count]')).toHaveText('19');
-  await expect(page.locator('[data-result-label]')).toContainText(/19|auditierte Family-Einträge|Research-Vorschau/);
-  await expect(page.locator('[data-result-label]')).toContainText('auditierte Family-Einträge');
-  await expect(page.locator('.family240-research-card')).toHaveCount(15);
-  await expect(page.locator('.family240-research-card [data-fav]')).toHaveCount(0);
-  await expect(page.locator('.family240-context-head small')).toContainText('keine Live-Veröffentlichung');
-
-  const draft=page.locator('.family240-research-card').first();
-  await expect(draft).toContainText('RESEARCH-DRAFT');
-  await draft.click();
-
-  const detail=page.locator('[data-family240-enriched-profile]');
-  const status=detail.locator('.family240-enriched-status');
-  const family=detail.locator('#family240-enriched-family');
-  await expect(detail).toBeVisible();
-  await expect(status).toBeVisible();
-  await expect(status).toContainText('Datenqualität');
-  await expect(status).toContainText('Kernprofil vollständig geprüft');
-  await expect(status).toContainText('Nicht veröffentlichte Services');
-  await expect(detail.locator('.family240-enriched-preview')).toHaveText('VORSCHAU');
-  await expect(detail.locator('#family240-enriched-overview')).toBeVisible();
-  await expect(detail.locator('#family240-enriched-menu')).toBeVisible();
-  await expect(family).toBeVisible();
-  await family.locator('summary').click();
-  await expect(family).toContainText(/Vom Betrieb bestätigt|Quelle geprüft|Community bestätigt/);
-  await expect(detail.locator('.family240-enriched-source').first()).toHaveAttribute('href',/^https:\/\//);
-  await page.locator('#detail [data-close]').click();
+  await expect.poll(()=>page.evaluate(()=>DATA.filter(x=>x.__family240_preview_profile===true).length)).toBe(0);
+  await expect(page.locator('[data-result-count]')).toHaveText('4');
+  await expect(page.locator('.family240-research-card')).toHaveCount(0);
+  await expect(page.locator('.list')).toContainText('Restaurante La Plaza');
 
   await page.locator('[data-decision="all"]').click();
   await expect.poll(()=>page.evaluate(()=>state.family)).toBe('all');
-  await expect.poll(()=>page.evaluate(()=>DATA.filter(x=>x.__family240_preview_profile===true).length)).toBe(0);
-  await expect(page.locator('.family240-research-card')).toHaveCount(0);
 });
 
-test('audited preview keeps unknown Family facts unknown instead of inventing geometry',async({page})=>{
+test('audited research inventory keeps unknown Family geometry unknown while remaining inert beside live data',async({page})=>{
   await ready(page);
-  await page.locator('[data-family240-home-context]').click();
   const facts=await page.evaluate(()=>{
-    const rows=(DATA||[]).filter(x=>x.family_features?.__family240_audited===true);
+    const rows=window.hoyFamilyAuditedPreview240.state.entries||[];
     return {
       total:rows.length,
-      unknownDistance:rows.filter(x=>x.family_features.playground_distance_m==null).length,
-      visibleTrue:rows.filter(x=>x.family_features.visible_from_seating===true).length,
-      visibleUnknown:rows.filter(x=>x.family_features.visible_from_seating==null).length,
-      inventedHoy:rows.some(x=>x.family_features.verification_status==='hoy_verified')
+      unknownDistance:rows.filter(x=>x.family?.playground_distance_m==null).length,
+      visibleTrue:rows.filter(x=>x.family?.visible_from_seating===true).length,
+      visibleUnknown:rows.filter(x=>x.family?.visible_from_seating==null).length,
+      inventedHoy:rows.some(x=>x.verification==='hoy_verified'),
+      injected:DATA.some(x=>x.family_features?.__family240_audited===true||x.__family240_preview_profile===true)
     };
   });
-  expect(facts.total).toBe(19);
-  expect(facts.unknownDistance).toBe(19);
+  expect(facts.total).toBe(17);
+  expect(facts.unknownDistance).toBe(17);
   expect(facts.visibleTrue).toBeGreaterThanOrEqual(1);
   expect(facts.visibleUnknown).toBeGreaterThan(0);
   expect(facts.inventedHoy).toBe(false);
+  expect(facts.injected).toBe(false);
 });
 
-test('Family preview stays active for the current browser session and can be explicitly switched off',async({page})=>{
+test('Family preview session remains reversible while live Production Family data stays authoritative',async({page})=>{
   await ready(page);
   await expect(page.locator('[data-family240-home-context]')).toBeVisible();
   expect(await page.evaluate(()=>sessionStorage.getItem('hoy_family_preview_session_240'))).toBe('1');
   expect(new URL(page.url()).searchParams.get('familyPreview')).toBe('1');
+  await expect(page.locator('[data-family240-preview-badge]')).toHaveCount(0);
 
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.hoyFamilyPreviewSession240?.enabled===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyProfileEnrichment240?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true&&window.hoyFamilyDataCompletion242?.state?.status==='ready',{timeout:30000});
+  await page.waitForFunction(()=>window.hoyFamilyPreviewSession240?.enabled===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyAuditedPreview240?.state?.mode==='live'&&window.hoyFamilyResearchStandard241?.state?.applied===true,{timeout:30000});
   expect(new URL(page.url()).searchParams.get('familyPreview')).toBe('1');
   await expect(page.locator('[data-family240-home-context]')).toBeVisible();
-  await expect(page.locator('[data-family240-preview-badge]')).toBeVisible();
+  await expect(page.locator('[data-family240-preview-badge]')).toHaveCount(0);
 
   await page.goto('./?familyPreview=0',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.hoyFamilyPreviewSession240?.enabled===false,{timeout:30000});
   expect(new URL(page.url()).searchParams.has('familyPreview')).toBe(false);
   expect(await page.evaluate(()=>sessionStorage.getItem('hoy_family_preview_session_240'))).toBeNull();
   await expect(page.locator('[data-family240-preview-badge]')).toHaveCount(0);
+  await expect(page.locator('[data-family240-home-context]')).toBeVisible();
 });
