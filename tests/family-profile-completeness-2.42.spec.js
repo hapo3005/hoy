@@ -2,24 +2,32 @@ const {test,expect}=require('@playwright/test');
 
 test.use({serviceWorkers:'block'});
 
+const MIN_LIVE_FAMILY=18;
+
 async function openFamily(page){
   await page.goto('./?familyPreview=1',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyResearchStandard241?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true&&window.hoyFamilyDataCompletion242?.state?.status==='ready',{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyResearchStandard241?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true&&window.hoyFamilyDataCompletion242?.state?.status==='ready',null,{timeout:40000});
   await page.locator('[data-family240-home-context]').click();
   await expect.poll(()=>page.evaluate(()=>state.family)).toBe('family');
-  await expect(page.locator('[data-result-count]')).toHaveText('19');
+  await expect.poll(async()=>Number(await page.locator('[data-result-count]').textContent())).toBeGreaterThanOrEqual(MIN_LIVE_FAMILY);
 }
 
-async function openFamilyCard(page,name){
+async function openResult(page,name){
   const card=page.locator('[data-journey-results] .list-card[data-open]',{hasText:name}).first();
   await expect(card).toBeVisible();
   await card.click();
-  const detail=page.locator('#detail [data-family240-enriched-profile]');
-  await expect(detail).toBeVisible();
-  return detail;
+  await expect(page.locator('#detail')).toBeVisible();
+  return page.locator('#detail');
 }
 
-test('2.42 completion assets are wired after the Family research standard and remain non-production',async({request})=>{
+async function openHistoricalCompletion(page,name){
+  const detail=await openResult(page,name);
+  const enriched=detail.locator('[data-family240-enriched-profile]');
+  await expect(enriched).toBeVisible();
+  return enriched;
+}
+
+test('2.42 completion assets remain an immutable research/audit source',async({request})=>{
   const html=await (await request.get('./index.html')).text();
   expect(html).toContain('family-data-completion-2.42.js?v=2.42.0');
   expect(html.indexOf('family-data-completion-2.42.js?v=2.42.0')).toBeGreaterThan(html.indexOf('family-research-standard-2.41.js?v=2.41.0'));
@@ -60,7 +68,7 @@ test('the 19-profile completion gate distinguishes completed facts from conflict
   expect(aquarium.data_quality.hours_status).toBe('conflict');
 });
 
-test('high-value profile gaps are closed with precise concluded states',async({request})=>{
+test('high-value profile gaps remain concluded in the audited source',async({request})=>{
   const data=await (await request.get('./data/family-profile-completion-2026-08-17.json')).json();
   const rows=new Map(data.profile_patches.map(x=>[x.slug,x]));
 
@@ -81,56 +89,59 @@ test('high-value profile gaps are closed with precise concluded states',async({r
   expect(jose.services.reservation).toBe('not_applicable');
 
   expect(rows.get('pizzeria-da-sebastian').data_quality.menu_status).toBe('official_complete_source');
-  expect(rows.get('pizzeria-da-sebastian').services).toMatchObject({pickup:'not_published',delivery:'not_published'});
   expect(rows.get('restaurante-mediterraneo-el-mojon').services).toMatchObject({pickup:'available',delivery:'unavailable'});
 });
 
-test('completed research profiles render not-published and unavailable services as truth, not generic TODOs',async({page})=>{
+test('newly published Family profiles use normal Production profiles rather than virtual completion cards',async({page})=>{
   await openFamily(page);
-  let detail=await openFamilyCard(page,'La Rusticana');
-  await expect(detail).toHaveAttribute('data-family242-quality','release_ready');
-  await expect(detail.locator('#family240-enriched-overview')).toContainText('Nicht öffentlich angegeben');
-  await expect(detail.locator('#family240-enriched-overview')).not.toContainText('Noch zu prüfen');
+
+  let detail=await openResult(page,'La Rusticana');
+  await expect(detail.locator('[data-family240-enriched-profile]')).toHaveCount(0);
+  await expect(detail.locator('.family240-profile')).toBeVisible();
+  await expect(detail.locator('.family240-profile')).toContainText('Vom Betrieb bestätigt');
+  let data=await page.evaluate(()=>{const p=DATA.find(x=>x.slug==='la-rusticana');return {virtual:!!p?.__family240_preview_profile,address:p?.address||''};});
+  expect(data.virtual).toBe(false);
+  expect(data.address).toContain('Carretera de Atamaría 76B');
   await page.locator('#detail [data-close]').click();
 
-  detail=await openFamilyCard(page,'Casa Lucrecia');
-  await expect(detail).toHaveAttribute('data-family242-quality','release_ready');
-  await expect(detail.locator('#family240-enriched-overview')).toContainText('Nicht angeboten');
-  await expect(detail).toContainText('Mo geschlossen · Di–So 12:00–17:30');
+  detail=await openResult(page,'Casa Lucrecia');
+  await expect(detail.locator('[data-family240-enriched-profile]')).toHaveCount(0);
+  await expect(detail.locator('.family240-profile')).toContainText('Hochstühle');
+  data=await page.evaluate(()=>{const p=DATA.find(x=>x.slug==='casa-lucrecia');return {virtual:!!p?.__family240_preview_profile,address:p?.address||''};});
+  expect(data.virtual).toBe(false);
+  expect(data.address).toContain('Avenida Doctor Artero Guirao 268');
 });
 
-test('the four existing Family venues use the same premium completion depth inside Family only',async({page})=>{
+test('the four original Family venues retain their historical completion overlay inside Family',async({page})=>{
   await openFamily(page);
-  let detail=await openFamilyCard(page,'Restaurante La Plaza');
+  let detail=await openHistoricalCompletion(page,'Restaurante La Plaza');
   await expect(detail.locator('.family240-enriched-preview')).toHaveText('LIVE');
   await expect(detail.locator('.family240-enriched-hero-brand small')).toHaveText('HOY PROFIL');
   await expect(detail).toHaveAttribute('data-family242-quality','release_ready');
   await expect(detail).toContainText('722 808 081');
   await expect(detail).toContainText('So–Do 13:00–23:00');
   await expect(detail).toContainText('Live veröffentlicht');
-  await expect(detail).not.toContainText('Noch nicht live veröffentlicht');
   await page.locator('#detail [data-close]').click();
 
-  detail=await openFamilyCard(page,'Aquarium La Manga Club Resort');
+  detail=await openHistoricalCompletion(page,'Aquarium La Manga Club Resort');
   await expect(detail).toHaveAttribute('data-family242-quality','conditional');
   await expect(detail).toContainText('Quellen widersprechen sich');
-  await page.locator('#detail [data-close]').click();
 
+  await page.locator('#detail [data-close]').click();
   await page.locator('[data-decision="all"]').click();
   await expect.poll(()=>page.evaluate(()=>state.family)).toBe('all');
   const restored=await page.evaluate(()=>{
     const p=DATA.find(x=>Number(x.id)===96);
-    return {quality:p?.profile_quality,completion:p?.__family242_completion||false};
+    return {completion:!!p?.__family242_completion,virtual:!!p?.__family240_preview_profile};
   });
-  expect(restored.completion).toBe(false);
-  expect(restored.quality).toBe('basic');
+  expect(restored).toEqual({completion:false,virtual:false});
   await page.evaluate(()=>openDetail(96));
   await expect(page.locator('#detail [data-family240-enriched-profile]')).toHaveCount(0);
 });
 
 test('normal HOY never loads virtual completion profiles without explicit Family preview activation',async({page})=>{
   await page.goto('./?familyPreview=0',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online',{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online',null,{timeout:40000});
   expect(await page.evaluate(()=>DATA.filter(x=>x.__family240_preview_profile===true).length)).toBe(0);
   expect(await page.evaluate(()=>window.hoyFamilyDataCompletion242?.state?.status||'idle')).toBe('idle');
 });

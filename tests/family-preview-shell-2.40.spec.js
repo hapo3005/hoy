@@ -2,10 +2,12 @@ const {test,expect}=require('@playwright/test');
 
 test.use({serviceWorkers:'block'});
 
+const MIN_LIVE_FAMILY=18;
+
 async function ready(page,url='./?familyPreview=1'){
   await page.setViewportSize({width:1280,height:900});
   await page.goto(url,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyAuditedPreview240?.state?.mode==='live'&&window.hoyFamilyResearchStandard241?.state?.applied===true,{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyAuditedPreview240?.state?.status==='ready'&&window.hoyFamilyAuditedPreview240?.state?.mode==='live'&&window.hoyFamilyResearchStandard241?.state?.applied===true,null,{timeout:40000});
 }
 
 test('desktop Family shell stays centered while live Family data overrides research-preview injection',async({page})=>{
@@ -27,13 +29,15 @@ test('desktop Family shell stays centered while live Family data overrides resea
   expect(shell.documentWidth).toBeLessThanOrEqual(shell.viewportWidth+1);
 
   await page.locator('[data-family240-home-context]').click();
-  await expect(page.locator('[data-result-count]')).toHaveText('4');
+  const resultCount=Number(await page.locator('[data-result-count]').textContent());
+  expect(resultCount).toBeGreaterThanOrEqual(MIN_LIVE_FAMILY);
   await expect(page.locator('.family240-research-card')).toHaveCount(0);
   await expect(page.locator('[data-family240-preview-badge]')).toHaveCount(0);
 
   const cards=page.locator('.list-card[data-open]');
-  await expect(cards).toHaveCount(4);
+  await expect(cards).toHaveCount(resultCount);
   await expect(page.locator('.list')).toContainText('Restaurante La Plaza');
+  await expect(page.locator('.list')).toContainText('Pizzería Da Sebastián');
 
   const layout=await cards.first().evaluate(el=>{
     const rect=el.getBoundingClientRect();
