@@ -13,12 +13,23 @@ test('production analytics require explicit consent before identifiers or local 
 });
 
 test('pilot attribution is not persisted without analytics storage permission', async () => {
-  expect(source).toMatch(/const storageAllowed=analyticsStorageAllowed\(\)/);
-  expect(source).toMatch(/const stored=storageAllowed\?pilotCode\(localStorage\.getItem\(PILOT_KEY\)\):null/);
-  expect(source).toMatch(/if\(incoming&&storageAllowed\)[\s\S]*?localStorage\.setItem\(PILOT_KEY,incoming\)/);
-  expect(source).toMatch(/return storageAllowed\?\(selected\|\|incoming\|\|null\):null/);
-  expect(source).toMatch(/schedulePilotEnrollment\(code,attempt=0\)[\s\S]*?if\(!code\|\|!analyticsStorageAllowed\(\)/);
-  expect(source).toMatch(/if\(hasPilotParam\)[\s\S]*?params\.delete\('pilot'\)/);
+  const match=source.match(/function capturePilotEnrollment\(\)\{([\s\S]*?)\n\s*\}\n\s*function schedulePilotEnrollment/);
+  expect(match, 'capturePilotEnrollment source must remain inspectable').toBeTruthy();
+  const capture=match[1];
+
+  expect(capture).toContain('const storageAllowed=analyticsStorageAllowed();');
+  const gateIndex=capture.indexOf('if(storageAllowed){');
+  expect(gateIndex, 'pilot storage must have an explicit permission gate').toBeGreaterThan(-1);
+
+  const beforeGate=capture.slice(0,gateIndex);
+  expect(beforeGate).not.toContain('localStorage.getItem(PILOT_KEY)');
+  expect(beforeGate).not.toContain('localStorage.setItem(PILOT_KEY');
+
+  const gatedBlock=capture.slice(gateIndex);
+  expect(gatedBlock).toMatch(/if\(storageAllowed\)\{[\s\S]*?localStorage\.getItem\(PILOT_KEY\)[\s\S]*?if\(incoming\)[\s\S]*?localStorage\.setItem\(PILOT_KEY,incoming\)/);
+  expect(capture).toMatch(/return storageAllowed\?\(selected\|\|incoming\|\|null\):null/);
+  expect(source).toMatch(/schedulePilotEnrollment\(code,attempt=0\)[\s\S]*?if\(!code\|\|!analyticsStorageAllowed\(\)\)return/);
+  expect(capture).toMatch(/if\(hasPilotParam\)[\s\S]*?params\.delete\('pilot'\)/);
 });
 
 test('deny or withdrawal clears analytics identifiers and history', async () => {
