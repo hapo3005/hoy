@@ -1,0 +1,26 @@
+name: RT-007 Rollback Evidence Gate
+
+on:
+  pull_request:
+    paths:
+      - 'docs/investor-ready/rt007-rollback-before-state-2026-08-19.json'
+      - 'scripts/investor-ready/check-rt007-rollback-before-state.cjs'
+      - '.github/workflows/rt007-rollback-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rollback-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate RT-007 rollback evidence contract
+        run: node scripts/investor-ready/check-rt007-rollback-before-state.cjs
+      - name: Emit SHA-256 evidence digest
+        run: sha256sum docs/investor-ready/rt007-rollback-before-state-2026-08-19.json
