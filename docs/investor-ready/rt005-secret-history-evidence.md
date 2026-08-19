@@ -1,24 +1,24 @@
 # RT-005 Secret History Audit Evidence
 
-Status: **HISTORICAL TECHNICAL REFERENCE GREEN / CLEAN CURRENT-MAIN REVALIDATION REQUIRED**  
+Status: **CLEAN CURRENT-MAIN TECHNICAL SNAPSHOT GREEN**  
 RT-005 overall: **IN PROGRESS**  
 Date: 2026-08-19
 
-## Historical successful execution
+## Current clean execution
 
-The original fail-closed audit executed successfully before this clean RT-005 split:
+The clean RT-005 split re-ran the fail-closed audit on its own implementation head rather than relying on the historical umbrella branch.
 
 - Workflow: `Investor Ready RT-005 Secret History Audit`
-- Successful run ID: `32185575422`
-- Audited branch head: `3f5d2d112a94933eb94ac76c1b44191808a6423a`
+- Successful run ID: `32194760001`
+- Audited controls/head: `014194e7c7e817d92c973442e87dbae06c97ae92`
 - Artifact name: `hoy-rt005-secret-history-audit`
-- Artifact ID: `9342313653`
-- Artifact SHA-256: `16f64661beb8a22c352a785f0c94b98578a954428e7aa251369f80cf63bca400`
+- Artifact ID: `9345455439`
+- Artifact SHA-256: `2a36647a0316a5f2c6fb57a9d18eb505e884254c7057618c32fd8e18aa751d3a`
 - Artifact retention at creation: 90 days
 
-The scanner first proved detector health with a synthetic canary. Raw scanner reports were deleted after sanitization so the retained DD artifact did not include detected secret values or matched source-line text.
+The workflow checked out the exact audit-control head, fetched every advertised branch/tag for Core/Gastro, Lifestyle and Works, and used a pinned Gitleaks image. A runtime-only synthetic canary first proved detector health. Raw scanner reports were deleted after sanitization; the retained DD artifact does not contain detected secret values or matched source-line text.
 
-## Historical result
+## Current result
 
 | Repository | Scanner findings | Unique commits |
 |---|---:|---:|
@@ -36,13 +36,21 @@ Exact classification result:
 - `REVIEW_REQUIRED`: **0**
 - stale classification entries: **0**
 
-The exact classifications are maintained in `rt005-secret-findings-classification.json`. A new fingerprint is not automatically accepted; it defaults to `REVIEW_REQUIRED`.
+Therefore the bounded technical sub-control `RT005-01 reachable_history_secret_scan` is closed for this audited implementation snapshot.
+
+The exact classifications remain in `rt005-secret-findings-classification.json`. Any new fingerprint defaults to `REVIEW_REQUIRED`; the workflow fails closed if even one unclassified finding appears.
+
+## Snapshot semantics
+
+This record is deliberately non-self-referential. Evidence-only commits made after the audited implementation head do not cause the historical run ID or SHA to be rewritten as if it had executed on a different commit.
+
+Before final merge or external acquired-state circulation, the workflow must run again on the then-current exact head. That later run can be attached to the PR/data-room evidence without falsifying the earlier snapshot.
 
 ## Claim boundary
 
-The historical result supports only this bounded statement:
+The current result supports only this bounded statement:
 
-> At the audited snapshot, no unclassified secret/credential finding remained in Git objects reachable through the advertised branches/tags of the three audited HOY repositories.
+> At the audited implementation snapshot, no unclassified secret/credential finding remained in Git objects reachable through the advertised branches/tags of the three audited HOY repositories.
 
 It does **not** prove:
 
@@ -52,21 +60,9 @@ It does **not** prove:
 - that rotation/recovery/backup drills are complete;
 - that RT-005 overall is closed.
 
-## Clean-candidate requirement
+## Historical reference
 
-The current clean RT-005 branch must re-run the all-history audit because the final acquired-state evidence must not rely only on a historical umbrella branch.
-
-The clean workflow:
-
-1. checks out its own exact PR head as audit controls;
-2. fetches all currently advertised branches/tags for Core/Gastro, Lifestyle and Works;
-3. scans reachable history with a pinned Gitleaks image;
-4. proves scanner health with a runtime-only synthetic canary;
-5. sanitizes finding metadata and deletes raw reports;
-6. applies exact-fingerprint classifications;
-7. fails if any new/unclassified fingerprint exists.
-
-After a successful clean run, the workflow run/artifact reference becomes the current technical RT-005 evidence. This document need not be rewritten merely to make a historical run appear current.
+The earlier umbrella-branch run `32185575422` remains historical supporting evidence only. It is not the canonical current technical snapshot now that the clean candidate has its own successful execution.
 
 ## RT-005 open controls
 
@@ -75,7 +71,7 @@ RT-005 remains open for company/transaction control of:
 - GitHub organization/repositories and recovery;
 - production infrastructure organization/billing;
 - domains/DNS/registrar;
-- business email/workspace and material social/vendor accounts;
+- material vendor/billing/recovery accounts;
 - privileged secret/vault ownership and rotation evidence;
 - two-admin/continuity coverage;
 - backup/recovery drills.
