@@ -1,0 +1,219 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "DESIGN_READY_NOT_LIVE",
+  "objective": "Measure consumer intent, merchant-attributable outcomes, repeat use and data freshness in a way that can support buyer-specific synergy analysis without overstating clicks as bookings or revenue.",
+  "productionAnalyticsActivated": false,
+  "rt008ReleaseRequiredBeforeProductionCapture": true,
+  "contactFreezeActive": true,
+  "outreachAuthorized": false,
+  "existingRuntimeAlignment": {
+    "privacyBaseline": "privacy/rt008-current-main-recomposed-v2",
+    "canonicalConsentKey": "hoy-privacy-analytics-consent-v1",
+    "productionRule": "No Production analytics payload or identifier before RT-008 privacy release-ready AND explicit analytics consent.",
+    "existingSponsoredAttributionModel": "sponsored_open_30m_same_venue",
+    "existingSponsoredWindowMinutes": 30,
+    "existingSponsoredSameVenueRequired": true,
+    "existingQualifiedActionVocabulary": [
+      "profile_view",
+      "route_start",
+      "service_open",
+      "website_open",
+      "reservation_start",
+      "reservation_submit",
+      "call_click",
+      "menu_open"
+    ]
+  },
+  "eventSemantics": [
+    {
+      "event": "profile_view",
+      "tier": "ENGAGEMENT",
+      "merchantOutcomeClaimAllowed": false,
+      "meaning": "Restaurant profile opened. Not a lead, booking or sale."
+    },
+    {
+      "event": "menu_open",
+      "tier": "CONSIDERATION",
+      "merchantOutcomeClaimAllowed": false,
+      "meaning": "Menu/content opened. Stronger consideration, not a commercial outcome."
+    },
+    {
+      "event": "service_open",
+      "tier": "CONSIDERATION",
+      "merchantOutcomeClaimAllowed": false,
+      "meaning": "A service/contact-related surface was opened; not proof the service was consumed."
+    },
+    {
+      "event": "route_start",
+      "tier": "HIGH_INTENT_ACTION",
+      "merchantOutcomeClaimAllowed": false,
+      "meaning": "User initiated route/directions. High-intent action, not proof of visit."
+    },
+    {
+      "event": "website_open",
+      "tier": "HIGH_INTENT_ACTION",
+      "merchantOutcomeClaimAllowed": false,
+      "meaning": "User opened merchant website. Handoff only."
+    },
+    {
+      "event": "call_click",
+      "tier": "HIGH_INTENT_ACTION",
+      "merchantOutcomeClaimAllowed": false,
+      "meaning": "Call action initiated. Not proof a call connected or converted."
+    },
+    {
+      "event": "reservation_start",
+      "tier": "HIGH_INTENT_ACTION",
+      "merchantOutcomeClaimAllowed": false,
+      "meaning": "Reservation flow/handoff started. Not a confirmed reservation."
+    },
+    {
+      "event": "reservation_submit",
+      "tier": "HIGH_INTENT_ACTION",
+      "merchantOutcomeClaimAllowed": false,
+      "meaning": "Reservation submission/handoff event. Not a confirmed reservation. It must never be reported as a confirmed booking without independent confirmation."
+    }
+  ],
+  "merchantOutcomeLadder": [
+    {
+      "level": "M0_NONE",
+      "verified": false,
+      "meaning": "No attributable merchant outcome evidence."
+    },
+    {
+      "level": "M1_HOY_INTENT_SIGNAL",
+      "verified": false,
+      "meaning": "HOY observed a consented high-intent action such as route, call, website or reservation handoff."
+    },
+    {
+      "level": "M2_MERCHANT_ACKNOWLEDGED_LEAD",
+      "verified": true,
+      "meaning": "Verified operator confirms an attributable inquiry/lead under a documented matching rule."
+    },
+    {
+      "level": "M3_MERCHANT_CONFIRMED_TRANSACTION",
+      "verified": true,
+      "meaning": "Verified operator confirms an attributable reservation/order/visit or other agreed transaction."
+    },
+    {
+      "level": "M4_MERCHANT_CONFIRMED_VALUE",
+      "verified": true,
+      "meaning": "Verified operator provides an attributable transaction value or bounded value range under an explicit evidence method."
+    }
+  ],
+  "attributionRules": {
+    "sponsored": {
+      "model": "sponsored_open_30m_same_venue",
+      "windowMinutes": 30,
+      "sameRestaurantRequired": true,
+      "aggregatedReportingOnly": true,
+      "claim": "Attributed HOY action, not incremental causality."
+    },
+    "organic": {
+      "model": "direct_hoy_action",
+      "sameRestaurantRequired": true,
+      "claim": "HOY-originated action signal, not proof of transaction."
+    },
+    "merchantConfirmed": {
+      "requiresVerifiedOperator": true,
+      "requiresEvidenceMethod": true,
+      "requiresOutcomeTimestampOrPeriod": true,
+      "noAutomaticRevenueInference": true
+    }
+  },
+  "coreBuyerValueMetrics": [
+    {
+      "id": "BVM-01",
+      "name": "paid_businesses",
+      "definition": "Distinct external businesses with at least one settled payment under ACQ-03.",
+      "buyerValue": "Validates merchant willingness to pay."
+    },
+    {
+      "id": "BVM-02",
+      "name": "recurring_mrr_eur",
+      "definition": "Active recurring monthly contracted value backed by settled external business payments; one-off Highlight spend excluded.",
+      "buyerValue": "Supports recurring economics and financial-buyer relevance."
+    },
+    {
+      "id": "BVM-03",
+      "name": "paid_business_retention_90d",
+      "definition": "Share of eligible paying businesses still in a paid relationship at >=90 days under a frozen cohort rule.",
+      "buyerValue": "Tests durable merchant value rather than first-payment curiosity."
+    },
+    {
+      "id": "BVM-04",
+      "name": "qualified_high_intent_action_sessions",
+      "definition": "Consented production sessions containing >=1 high-intent action; deduplicated by session and restaurant.",
+      "buyerValue": "Measures consumer commercial intent without pretending it is revenue."
+    },
+    {
+      "id": "BVM-05",
+      "name": "merchant_confirmed_outcomes",
+      "definition": "Count of M2+ outcomes confirmed by verified operators, separately reported by M2/M3/M4 level.",
+      "buyerValue": "Bridges product usage to merchant value."
+    },
+    {
+      "id": "BVM-06",
+      "name": "merchant_outcome_rate",
+      "definition": "M2+ confirmed outcomes divided by eligible attributable high-intent action groups under the same frozen attribution protocol.",
+      "buyerValue": "Tests whether HOY intent produces acknowledged merchant outcomes."
+    },
+    {
+      "id": "BVM-07",
+      "name": "activated_consumer_repeat_30d",
+      "definition": "Among consented users whose activation session contains >=1 high-intent action, share with another qualifying session on a different calendar day within 30 days. Report denominator and consent coverage; never extrapolate to all visitors.",
+      "buyerValue": "Tests repeat utility rather than vanity reach."
+    },
+    {
+      "id": "BVM-08",
+      "name": "merchant_first_party_confirmation_coverage",
+      "definition": "Share of launch-critical published merchant records whose defined critical fields have current business-confirmed or HOY-verified evidence under the relevant trust model.",
+      "buyerValue": "Supports defensible fresh supply/data value."
+    },
+    {
+      "id": "BVM-09",
+      "name": "critical_data_freshness_sla",
+      "definition": "Share of launch-critical fields inside their field-specific freshness window, reported by evidence class.",
+      "buyerValue": "Shows operational ability to maintain a trustworthy local graph."
+    },
+    {
+      "id": "BVM-10",
+      "name": "region_replication_efficiency",
+      "definition": "Region-2 launch effort/cost/time compared with frozen Region-1 baseline, explicitly separating reusable core from local acquisition/verification work.",
+      "buyerValue": "Tests whether HOY is a repeatable platform rather than a bespoke La Manga project."
+    }
+  ],
+  "antiVanityRules": [
+    "pageviews_do_not_count_as_paid_demand",
+    "profile_views_do_not_count_as_leads",
+    "clicks_do_not_count_as_bookings",
+    "reservation_submit_does_not_count_as_confirmed_reservation",
+    "route_start_does_not_count_as_visit",
+    "call_click_does_not_count_as_connected_call",
+    "merchant_confirmed_transaction_does_not_imply_value_without_value_evidence",
+    "one_off_highlight_revenue_is_not_mrr",
+    "free_businesses_are_not_paying_businesses",
+    "qa_or_preview_traffic_is_excluded_from_business_metrics",
+    "consented_repeat_cohort_is_not_extrapolated_to_nonconsenting_users"
+  ],
+  "privacyAndSecurity": {
+    "noPreConsentProductionPersistence": true,
+    "noNewRawLocalStorageAnalytics": true,
+    "noPreciseLocationInAnalytics": true,
+    "metadataPiiBlocked": true,
+    "consumerIdentityNotRequiredForMerchantReporting": true,
+    "merchantReportsAggregated": true,
+    "productionActivationBlockedUntilRt008Release": true,
+    "productionRpcCurrentlyAssumedDisabledUntilExplicitSecurityPrivacyRelease": true
+  },
+  "activationSequence": [
+    "rt008_release_ready_and_analytics_authorized",
+    "event_contract_reconciled_with_server_allowlist",
+    "qa_and_preview_exclusion_verified",
+    "merchant_outcome_confirmation_method_implemented_and_tested",
+    "data_dictionary_and_metric_queries_versioned",
+    "clean_cutover_timestamp_recorded",
+    "only_then_begin_g2_measurement"
+  ],
+  "claimBoundary": "This contract defines how HOY will measure buyer-relevant economic proof. It does not activate Production analytics, does not claim current merchant outcomes, and does not permit clicks or handoffs to be presented as confirmed transactions or revenue."
+}

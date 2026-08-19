@@ -1,0 +1,29 @@
+name: HOY ACQ-03-04 Paid Proof Gate
+
+on:
+  pull_request:
+    paths:
+      - 'docs/investor-ready/acq03-founding-paid-offer-v1.json'
+      - 'docs/investor-ready/acq04-buyer-value-measurement-v1.json'
+      - 'docs/investor-ready/acq03-acq04-paid-proof-and-measurement.md'
+      - 'scripts/investor-ready/check-acq03-acq04-proof-contract.mjs'
+      - 'tests/acq03-acq04-proof-contract.spec.js'
+      - '.github/workflows/acq03-acq04-paid-proof-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  paid-proof-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+      - name: Run fail-closed paid proof contract
+        run: node scripts/investor-ready/check-acq03-acq04-proof-contract.mjs
+      - name: Run ACQ-03/04 node tests
+        run: node --test tests/acq03-acq04-proof-contract.spec.js
