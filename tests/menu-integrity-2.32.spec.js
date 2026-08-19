@@ -7,65 +7,86 @@ test.use({serviceWorkers:'block'});
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
   await waitForData(page,1,30_000);
-  await page.waitForFunction(()=>window.hoyMenuIntegrityVersion==='2.37.0'&&window.hoyMenuBootstrap232?.integrity==='ready'&&cloud.status==='online',null,{timeout:40_000});
+  await page.waitForFunction(()=>window.hoyMenuIntegrityVersion==='2.37.0'&&window.hoyMenuBootstrap232?.integrity==='ready'&&window.hoyNativeMenuStandardVersion==='2.48.0'&&window.hoyNativeMenuState248?.state==='ready'&&cloud.status==='online',null,{timeout:40_000});
 }
 
-test('historical menu-integrity module remains wired to the current 2.37 runtime',async({request})=>{
-  const [js,css,pkg,index,worker]=await Promise.all([
-    request.get('./menu-integrity-2.32.js'),request.get('./menu-integrity-2.32.css'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')
+async function assertNativeOutcome(page,id,expectedItems=null){
+  const menu=await page.evaluate(id=>menuFor(DATA.find(x=>Number(x.id)===Number(id))),id);
+  expect(menu.nativeMenu).toBeTruthy();
+  expect(menu.displayMode).toBeFalsy();
+  expect(menu.pages).toBeFalsy();
+  if(expectedItems!==null)expect(menu.itemCount).toBe(expectedItems);
+  if(menu.languageCoverage?.complete){
+    expect(menu.integrity).toBe('complete');
+    expect(menu.status).toBe('structured');
+    expect(menu.localized).toBeTruthy();
+    expect(menu.locale).toBe('de');
+    expect(menu.guestAvailability).toBe('in_app_native');
+  }else if((menu.itemCount||0)>0){
+    expect(menu.integrity).toBe('native_language_blocked');
+    expect(menu.status).toBe('unavailable');
+    expect(menu.localized).toBeFalsy();
+    expect(menu.locale).toBeNull();
+    expect(menu.guestAvailability).toBe('blocked_until_locale_complete');
+  }else{
+    expect(menu.integrity).toBe('native_source_only');
+    expect(menu.status).toBe('source_only');
+    expect(menu.guestAvailability).toBe('blocked_until_structured');
+  }
+  return menu;
+}
+
+test('historical menu-integrity module remains wired beneath the final native authority',async({request})=>{
+  const [js,css,native,pkg,index,worker]=await Promise.all([
+    request.get('./menu-integrity-2.32.js'),request.get('./menu-integrity-2.32.css'),request.get('./menu-native-standard-2.48.js?v=2.48.0'),request.get('./package.json'),request.get('./index.html'),request.get('./service-worker.js')
   ]);
-  for(const r of [js,css,pkg,index,worker])expect(r.ok()).toBeTruthy();
+  for(const r of [js,css,native,pkg,index,worker])expect(r.ok()).toBeTruthy();
   expect((await pkg.json()).version).toBe(CURRENT_RELEASE);
   const html=await index.text(),sw=await worker.text();
   expect(html).toContain(`App ${CURRENT_RELEASE}`);
   expect(html).toContain('menu-integrity-2.32.css?v=2.32.0');
   expect(html).toContain('menu-integrity-2.32.js?v=2.37.0');
+  expect(html).toContain('menu-native-standard-2.48.js?v=2.48.0');
+  expect(html.indexOf('menu-native-standard-2.48.js')).toBeGreaterThan(html.indexOf('menu-integrity-2.32.js'));
   expect(sw).toContain(`const CACHE='hoy-v${CURRENT_RELEASE}'`);
   expect(sw).toContain('./menu-integrity-2.32.js');
   expect(sw).toContain('./menu-integrity-2.32.css');
+  expect(sw).toContain('./menu-native-standard-2.48.js');
 });
 
-test('Playa Chica is now complete and localized after the later menu-truth upgrades',async({page})=>{
+test('Playa Chica is complete and localized after the final menu authority',async({page})=>{
   await ready(page);
-  const menu=await page.evaluate(()=>menuFor(DATA.find(x=>Number(x.id)===11)));
-  expect(menu.integrity).toBe('complete');
-  expect(menu.status).toBe('structured');
-  expect(menu.itemCount).toBe(126);
-  expect(menu.localized).toBeTruthy();
-  expect(menu.languageCoverage).toMatchObject({total:126,ready:126,missing:0,complete:true});
+  const menu=await assertNativeOutcome(page,11,126);
+  expect(menu.languageCoverage).toMatchObject({locale:'de',total:126,ready:126,missing:0,complete:true});
 });
 
-test('Soul Kitchen remains a complete 12-page in-app image menu',async({page})=>{
+test('Soul Kitchen image source remains provenance-only until structured native content exists',async({page})=>{
   await ready(page);
-  const menu=await page.evaluate(()=>menuFor(DATA.find(x=>Number(x.id)===234)));
-  expect(menu.integrity).toBe('image_complete');
-  expect(menu.status).toBe('structured');
-  expect(menu.displayMode).toBe('image_pages');
-  expect(menu.pages).toHaveLength(12);
-  expect(menu.source).toBeFalsy();
+  const menu=await assertNativeOutcome(page,234);
+  expect(menu.nativeSourceIntegrity).toBe('image_complete');
   await page.evaluate(()=>openDetail(234));
   const menuTab=page.locator('#detail [data-tab="menu"]');if(await menuTab.count())await menuTab.click();
   const profileMenu=page.locator('#detail #profile-menu');
-  await expect(profileMenu.locator('.menu231-page img')).toHaveCount(12);
-  await expect(profileMenu.locator('a[href*="menurestauranteqr"]')).toHaveCount(0);
+  await expect(profileMenu.locator('.menu231-page img,.menu234-frame,iframe')).toHaveCount(0);
+  await expect(profileMenu.locator('a[target="_blank"]')).toHaveCount(0);
 });
 
-test('Bonobo current official main card is delivered as a complete in-app image menu',async({page})=>{
+test('Bonobo official image source cannot bypass native German completeness',async({page})=>{
   await ready(page);
-  const menu=await page.evaluate(()=>menuFor(DATA.find(x=>Number(x.id)===4)));
-  expect(menu.integrity).toBe('image_complete');
-  expect(menu.status).toBe('structured');
-  expect(menu.displayMode).toBe('image_pages');
-  expect(menu.pages).toHaveLength(3);
-  expect(menu.source).toBeFalsy();
+  const menu=await assertNativeOutcome(page,4);
+  expect(menu.nativeSourceIntegrity).toBe('image_complete');
+  expect(menu.displayMode).toBeFalsy();
+  expect(menu.pages).toBeFalsy();
 });
 
-test('El Rancho can be content-complete while its source import status remains cautious',async({page})=>{
+test('El Rancho content count is preserved but German guest delivery remains fail-closed until language coverage is complete',async({page})=>{
   await ready(page);
-  const result=await page.evaluate(()=>({menu:menuFor(DATA.find(x=>Number(x.id)===13)),sourceStatus:null}));
-  expect(result.menu.integrity).toBe('complete');
-  expect(result.menu.status).toBe('structured');
-  expect(result.menu.itemCount).toBe(81);
+  const menu=await assertNativeOutcome(page,13,81);
+  expect(menu.languageCoverage?.locale).toBe('de');
+  if(!menu.languageCoverage?.complete){
+    expect(menu.integrity).toBe('native_language_blocked');
+    expect(menu.categories).toHaveLength(0);
+  }
 });
 
 test('synthetic partial menu gets no HOY NOW menu bonus or availability reason',async({page})=>{
@@ -88,9 +109,12 @@ test('synthetic partial menu gets no HOY NOW menu bonus or availability reason',
   expect(result.complete.reasons.some(x=>x.label==='Speisekarte verfügbar')).toBeTruthy();
 });
 
-test('integrity module never exposes an external menu navigation CTA',()=>{
+test('integrity layers never expose an external menu navigation CTA',()=>{
   const js=fs.readFileSync('menu-integrity-2.32.js','utf8');
+  const native=fs.readFileSync('menu-native-standard-2.48.js','utf8');
   expect(js).toContain('completeness_status');
   expect(js).toContain("status:'integrity_partial'");
   expect(js).not.toMatch(/window\.open|target=["']_blank|Originalquelle öffnen|Offizielle Speisekarte öffnen/i);
+  expect(native).not.toMatch(/<img\b|<iframe\b|target=["']_blank/i);
+  expect(native).toContain("guestAvailability:'blocked_until_locale_complete'");
 });
