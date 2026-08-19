@@ -1,0 +1,52 @@
+const { test, expect } = require('@playwright/test');
+const fs=require('node:fs');
+const path=require('node:path');
+
+const root=path.resolve(__dirname,'..');
+const summary=JSON.parse(fs.readFileSync(path.join(root,'docs/investor-ready/rt007-first-party-replacement-opportunity-2026-08-19.json'),'utf8'));
+const live=JSON.parse(fs.readFileSync(path.join(root,'docs/investor-ready/rt007-live-rights-snapshot-2026-08-19.json'),'utf8'));
+const audit=fs.readFileSync(path.join(root,'scripts/investor-ready/rt007-first-party-replacement-opportunity-audit.sql'),'utf8');
+
+test('RT-007 first-party opportunity is screened, bounded and reconciled to current hard queue', async()=>{
+  expect(summary.status).toBe('SCREENED_NOT_APPROVED');
+  expect(summary.liveHardDirectReferences).toBe(live.direct_restaurant_provenance.hard_queue.field_references);
+  expect(summary.liveHardDirectReferences).toBe(329);
+
+  const total=Object.values(summary.byField).reduce((n,x)=>n+x.candidateReferences,0);
+  const prepared=Object.values(summary.byField).reduce((n,x)=>n+x.preparedDryRunReferences,0);
+  expect(total).toBe(64);
+  expect(prepared).toBe(15);
+  expect(summary.screenedCandidateReferences).toBe(total);
+  expect(summary.preparedDryRunReferences).toBe(prepared);
+  expect(summary.factVerificationStillRequired).toBe(total-prepared);
+  expect(summary.factVerificationStillRequired).toBe(49);
+
+  expect(summary.byField.source_url.candidateReferences).toBe(12);
+  expect(summary.byField.location_source_url.candidateReferences).toBe(24);
+  expect(summary.byField.hours_source_url.candidateReferences).toBe(12);
+  expect(summary.byField.signature_source_url.candidateReferences).toBe(16);
+});
+
+test('RT-007 opportunity ceiling cannot masquerade as approved rights or completed replacements', async()=>{
+  expect(summary.preparedCandidates.combinedAfterRequiredRebase.projectedHardQueue).toBe(314);
+  expect(summary.preparedCandidates.combinedAfterRequiredRebase.rebaseRequired).toBe(true);
+  expect(summary.opportunityCeiling.ifAll64CandidatesWereIndividuallyVerifiedAndApproved).toBe(265);
+  expect(summary.opportunityCeiling.isForecast).toBe(false);
+  expect(summary.opportunityCeiling.isPromise).toBe(false);
+
+  expect(summary.rightsBoundary.candidateRightsStatus).toBe('AMBER');
+  expect(summary.rightsBoundary.transferability).toBe('UNKNOWN');
+  expect(summary.rightsBoundary.businessTermsRequired).toBe(true);
+  expect(summary.rightsBoundary.transferClearReferencesCreatedByScreening).toBe(0);
+
+  expect(summary.safetyBoundary.productionMutationPerformed).toBe(false);
+  expect(summary.safetyBoundary.automaticReplacementAuthorized).toBe(false);
+  expect(summary.safetyBoundary.legalClearanceClaimed).toBe(false);
+  expect(summary.safetyBoundary.businessTermsActivated).toBe(false);
+  expect(summary.safetyBoundary.outreachAuthorized).toBe(false);
+
+  expect(audit).toContain('GENERIC_FIRST_PARTY_SWAP_CANDIDATE');
+  expect(audit).toContain('VERIFY_OFFICIAL_PAGE_SHOWS_LOCATION_OR_ADDRESS');
+  expect(audit).toContain('VERIFY_OFFICIAL_PAGE_SHOWS_CURRENT_HOURS');
+  expect(audit).toContain('VERIFY_AND_REWRITE_SIGNATURE_TO_SUPPORTED_FACTS');
+});
