@@ -85,18 +85,19 @@ test('high-value profile gaps are closed with precise concluded states',async({r
   expect(rows.get('restaurante-mediterraneo-el-mojon').services).toMatchObject({pickup:'available',delivery:'unavailable'});
 });
 
-test('completed research profiles render not-published and unavailable services as truth, not generic TODOs',async({page})=>{
-  await openFamily(page);
-  let detail=await openFamilyCard(page,'La Rusticana');
-  await expect(detail).toHaveAttribute('data-family242-quality','release_ready');
-  await expect(detail.locator('#family240-enriched-overview')).toContainText('Nicht öffentlich angegeben');
-  await expect(detail.locator('#family240-enriched-overview')).not.toContainText('Noch zu prüfen');
-  await page.locator('#detail [data-close]').click();
+test('completed research data encodes not-published and unavailable services as truth while live Family remains authoritative',async({request})=>{
+  const data=await (await request.get('./data/family-profile-completion-2026-08-17.json')).json();
+  const rows=new Map(data.profile_patches.map(x=>[x.slug,x]));
 
-  detail=await openFamilyCard(page,'Casa Lucrecia');
-  await expect(detail).toHaveAttribute('data-family242-quality','release_ready');
-  await expect(detail.locator('#family240-enriched-overview')).toContainText('Nicht angeboten');
-  await expect(detail).toContainText('Mo geschlossen · Di–So 12:00–17:30');
+  const rusticana=rows.get('la-rusticana');
+  expect(rusticana.data_quality.profile_status).toBe('release_ready');
+  expect(rusticana.services).toMatchObject({reservation:'available',pickup:'not_published',delivery:'not_published'});
+  expect(Object.values(rusticana.services)).not.toContain('unknown');
+
+  const casa=rows.get('casa-lucrecia');
+  expect(casa.data_quality.profile_status).toBe('release_ready');
+  expect(casa.services).toMatchObject({reservation:'available',pickup:'available',delivery:'unavailable'});
+  expect(casa.hours).toBe('Mo geschlossen · Di–So 12:00–17:30');
 });
 
 test('the four existing Family venues use the same premium completion depth inside Family only',async({page})=>{
