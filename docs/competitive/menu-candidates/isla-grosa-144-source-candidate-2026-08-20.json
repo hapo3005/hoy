@@ -2,47 +2,37 @@
   "snapshot_date": "2026-08-20",
   "restaurant_id": 144,
   "restaurant_name": "Restaurante Isla Grosa",
-  "candidate_status": "CAPTURE_PENDING_MANUAL_REVIEW",
+  "menu_source_id": "32aba1ee-23c6-4efb-9cd6-9aba07147f54",
+  "candidate_status": "VISUAL_EVIDENCE_CAPTURED_STRUCTURING_CANDIDATE",
   "production_mutation_performed": false,
   "first_party": {
     "website": "https://restauranteislagrosalamanga.es/",
     "menu_page": "https://restauranteislagrosalamanga.es/menu/",
     "identity_status": "CONFIRMED_FIRST_PARTY",
-    "menu_page_currently_public": true
+    "menu_page_currently_public": true,
+    "menu_page_http_status": 200
   },
-  "source_images": [
-    {
-      "url": "https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-01-copia-480x1024.jpg",
-      "filename_language_signal": "es",
-      "visual_review": "PENDING"
-    },
-    {
-      "url": "https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-02-copia-480x1024.jpg",
-      "filename_language_signal": "es",
-      "visual_review": "PENDING"
-    },
-    {
-      "url": "https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-04-copia-480x1024.jpg",
-      "filename_language_signal": "es",
-      "visual_review": "PENDING"
-    },
-    {
-      "url": "https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-INGLES-01-copia-480x1024.jpg",
-      "filename_language_signal": "en",
-      "visual_review": "PENDING"
-    },
-    {
-      "url": "https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-INGLES-02-copia-480x1024.jpg",
-      "filename_language_signal": "en",
-      "visual_review": "PENDING"
-    },
-    {
-      "url": "https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-INGLES-04-copia-480x1024.jpg",
-      "filename_language_signal": "en",
-      "visual_review": "PENDING"
-    }
-  ],
-  "language_note": "Filename signals are not treated as verified content-language coverage until image review confirms them.",
+  "capture": {
+    "gate": "HOY Competitive Menu Evidence",
+    "result": "PASS",
+    "spanish_images": 3,
+    "english_images": 3,
+    "total_images": 6,
+    "all_http_200": true,
+    "visual_review": "COMPLETED",
+    "published_set_note": "The currently published source set uses filenames 01, 02 and 04 in both languages. No missing 03 page is invented."
+  },
+  "structured_candidate": "docs/competitive/menu-candidates/isla-grosa-144-structured-menu-candidate-2026-08-20.json",
+  "review_result": {
+    "item_count": 38,
+    "category_count": 7,
+    "price_capture": "COMPLETE_FOR_VISIBLE_PUBLISHED_ITEMS",
+    "spanish_content": "REVIEWED",
+    "english_pair": "REVIEWED_AS_REFERENCE",
+    "german_translation": "EDITORIAL_CANDIDATE_CREATED",
+    "allergen_claims": "BLOCKED_PENDING_VERIFICATION",
+    "allergen_reason": "Printed allergen numbering is internally inconsistent with some ingredient descriptions; source codes are retained as evidence but not approved for guest claims."
+  },
   "production_source_state_observed": {
     "source_authority": "first_party",
     "source_format": "image_menu",
@@ -50,20 +40,18 @@
     "completeness_status": "image_complete",
     "structured_items": 0
   },
-  "required_before_structuring": [
-    "capture_exact_current_image_bytes",
-    "record_dimensions_and_hashes",
-    "manual_visual_completeness_review",
-    "confirm_es_en_page_pairing",
-    "transcribe_without_inventing_missing_text",
-    "reconcile_spanish_and_english_item_identity",
-    "create_german_editorial_translation",
-    "DE_ES_EN editorial_translation_review"
+  "required_before_production": [
+    "editorial review of all 38 ES names/descriptions/prices",
+    "DE and EN translation review",
+    "operator/editorial allergen reconciliation before any allergen-facing field is enabled",
+    "guarded SQL/import candidate review",
+    "explicit Production authorization"
   ],
   "hard_boundaries": {
     "auto_publish": false,
     "production_insert": false,
-    "trust_filename_language_without_visual_review": false,
+    "allergen_guest_claims": false,
+    "invent_missing_pages": false,
     "invent_unreadable_items": false
   }
 }
