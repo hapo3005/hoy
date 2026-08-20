@@ -1,0 +1,64 @@
+{
+  "version": "1.0",
+  "snapshot_date": "2026-08-20",
+  "scope": "Direct Region 1 guest/merchant attention competitors with publicly verified La Manga relevance",
+  "status": "READ_ONLY_VERIFIED_REGISTRY",
+  "competitors": [
+    {
+      "id": "viviendo-la-manga",
+      "name": "Viviendo La Manga",
+      "canonical_url": "https://viviendolamanga.es/",
+      "directory_url": "https://viviendolamanga.es/directorio/",
+      "type": ["local_editorial_guide", "local_directory", "restaurant_discovery"],
+      "public_snapshot": {
+        "claimed_verified_places": ">1400",
+        "restaurants_shown": 234,
+        "open_now_filter": true,
+        "ratings_reviews": true,
+        "editorial_content": true,
+        "merchant_add_business_route": true
+      },
+      "competitive_strength": "breadth_seo_local_editorial_trust",
+      "hoy_response": "Do not copy raw directory volume. Beat on decision-grade truth, native menus, multilingual utility, NOW, structured intent and merchant-controlled data.",
+      "confidence": "confirmed",
+      "evidence": [
+        "https://viviendolamanga.es/",
+        "https://viviendolamanga.es/directorio/",
+        "https://viviendolamanga.es/por-que-viviendo-la-manga/"
+      ]
+    },
+    {
+      "id": "tu-localidad-la-manga",
+      "name": "Tu Localidad",
+      "canonical_url": "https://portal.tulocalidad.es/",
+      "la_manga_menu_surface": "https://portal.tulocalidad.es/carta/la-manga",
+      "type": ["digital_menu_portal", "local_commerce_discovery", "merchant_onboarding"],
+      "public_snapshot": {
+        "la_manga_menu_search_surface": true,
+        "merchant_signup_route": true,
+        "merchant_menu_change_support": true,
+        "individual_menu_pages": true
+      },
+      "competitive_strength": "cross_business_digital_menu_discovery_and_merchant_service",
+      "hoy_response": "Close menu-depth parity but differentiate through native structured DE/ES/EN menus, cross-restaurant dish search, comparable prices, NOW/decision scoring and stronger source-truth gates.",
+      "confidence": "confirmed",
+      "evidence": [
+        "https://portal.tulocalidad.es/",
+        "https://portal.tulocalidad.es/carta/la-manga"
+      ],
+      "baseline_note": "The separate dated Region 1 benchmark records a previously observed advertised menu count of 65. Treat that value as a dated baseline until a fresh total is independently re-verified; do not silently promote it to a current live count."
+    }
+  ],
+  "interpretation": {
+    "viviendo_la_manga_primary_threat": "attention_and_discovery_breadth",
+    "tu_localidad_primary_threat": "menu_utility_and_merchant_relationship",
+    "hoy_target_moat": "decision_quality_plus_structured_truth",
+    "raw_listing_count_is_not_primary_kpi": true
+  },
+  "hard_boundaries": {
+    "copy_competitor_content": false,
+    "infer_unobserved_features": false,
+    "treat_dated_counts_as_live_without_recheck": false,
+    "automatic_product_change": false
+  }
+}
