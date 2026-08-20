@@ -1,10 +1,13 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs');
 const path=require('node:path');
+const crypto=require('node:crypto');
 
 const competitiveRoot=path.join(__dirname,'..','docs','competitive');
-const readJson=name=>JSON.parse(fs.readFileSync(path.join(competitiveRoot,'menu-candidates',name),'utf8'));
+const candidateRoot=path.join(competitiveRoot,'menu-candidates');
+const readJson=name=>JSON.parse(fs.readFileSync(path.join(candidateRoot,name),'utf8'));
 const readRootJson=name=>JSON.parse(fs.readFileSync(path.join(competitiveRoot,name),'utf8'));
+const sha256=buffer=>crypto.createHash('sha256').update(buffer).digest('hex');
 
 test('Isla Grosa structuring candidate is complete, multilingual and non-publishing',async()=>{
   const candidate=readJson('isla-grosa-144-structured-menu-candidate-2026-08-20.json');
@@ -26,10 +29,7 @@ test('Isla Grosa structuring candidate is complete, multilingual and non-publish
     expect(Number(price)).toBeGreaterThan(0);
     expect(nameEn.trim()).not.toBe('');
     expect(nameDe.trim()).not.toBe('');
-    if(description) {
-      expect(descriptionEn.trim()).not.toBe('');
-      expect(descriptionDe.trim()).not.toBe('');
-    }
+    if(description){expect(descriptionEn.trim()).not.toBe('');expect(descriptionDe.trim()).not.toBe('')}
     expect(Array.isArray(allergenCodes)).toBe(true);
     for(const code of allergenCodes)expect(Number(code)).toBeGreaterThanOrEqual(1);
     const key=`${category}\u0000${name}`;
@@ -52,23 +52,70 @@ test('Trastevere remains fail-closed while its primary first-party menu asset is
   expect(candidate.hard_boundaries.treat_404_asset_as_complete).toBe(false);
 });
 
-test('Soul Kitchen is a first-party 12-asset structuring candidate but never a finished guest menu',async()=>{
-  const candidate=readJson('soul-kitchen-234-source-candidate-2026-08-20.json');
-  expect(candidate.restaurant_id).toBe(234);
-  expect(candidate.candidate_status).toBe('FIRST_PARTY_HOSTED_IMAGE_SOURCE_CAPTURED_EDITORIAL_STRUCTURING_REQUIRED');
-  expect(candidate.production_import_allowed).toBe(false);
-  expect(candidate.production_mutation_performed).toBe(false);
-  expect(candidate.guest_publish_allowed).toBe(false);
-  expect(candidate.source.source_authority).toBe('first_party');
-  expect(candidate.source.coverage_scope).toBe('full_menu');
-  expect(candidate.source.completeness_status).toBe('image_complete');
-  expect(candidate.assets.expected_count).toBe(12);
-  expect(candidate.assets.urls).toHaveLength(12);
-  expect(new Set(candidate.assets.urls).size).toBe(12);
-  expect(candidate.assets.urls.every(url=>url.startsWith('https://menurestauranteqr.es/'))).toBe(true);
-  expect(candidate.hard_boundaries.image_source_is_finished_guest_menu).toBe(false);
-  expect(candidate.hard_boundaries.auto_publish).toBe(false);
-  expect(candidate.hard_boundaries.production_insert).toBe(false);
+test('Soul Kitchen full 12-page candidate is complete, hash-pinned, trilingual and non-publishing',async()=>{
+  const source=readJson('soul-kitchen-234-source-candidate-2026-08-20.json');
+  const manifest=readJson('soul-kitchen-234-structured-menu-candidate-2026-08-20.json');
+  expect(source.restaurant_id).toBe(234);
+  expect(source.candidate_status).toBe('STRUCTURED_TRILINGUAL_EDITORIAL_CANDIDATE_READY_FOR_HUMAN_REVIEW');
+  expect(source.production_import_allowed).toBe(false);
+  expect(source.production_mutation_performed).toBe(false);
+  expect(source.guest_publish_allowed).toBe(false);
+  expect(source.source.source_authority).toBe('first_party');
+  expect(source.source.completeness_status).toBe('image_complete');
+  expect(source.assets.expected_count).toBe(12);
+  expect(source.assets.urls).toHaveLength(12);
+  expect(source.structured_candidate.items).toBe(162);
+  expect(source.structured_candidate.assistant_draft_translation_rows).toBe(30);
+
+  expect(manifest.restaurant_id).toBe(234);
+  expect(manifest.candidate_status).toBe('STRUCTURED_TRILINGUAL_EDITORIAL_CANDIDATE_NOT_PRODUCTION_APPLIED');
+  expect(manifest.production_mutation_performed).toBe(false);
+  expect(manifest.guest_publish_allowed).toBe(false);
+  expect(manifest.counts).toEqual({items:162,food_and_dessert_items:61,beverage_items:101,sections:23,source_printed_or_proper_name_rows:132,rows_with_assistant_draft_translation:30});
+  expect(manifest.parts).toHaveLength(6);
+  expect(manifest.integrity.total_items_across_parts).toBe(162);
+  expect(Object.keys(manifest.source_image_sha256)).toHaveLength(12);
+  expect(manifest.allergen_policy.guest_claims_allowed).toBe(false);
+  expect(manifest.hard_boundaries.auto_publish).toBe(false);
+  expect(manifest.hard_boundaries.production_insert).toBe(false);
+  expect(manifest.hard_boundaries.assistant_translation_auto_curated).toBe(false);
+
+  const rows=[];
+  for(const meta of manifest.parts){
+    const raw=fs.readFileSync(path.join(candidateRoot,meta.file));
+    expect(sha256(raw),`${meta.file} content hash must stay pinned`).toBe(meta.sha256);
+    const part=JSON.parse(raw.toString('utf8'));
+    expect(part.restaurant_id).toBe(234);
+    expect(part.source_pages).toEqual(meta.source_pages);
+    expect(part.items).toHaveLength(meta.items);
+    rows.push(...part.items);
+  }
+  expect(rows).toHaveLength(162);
+
+  const seen=new Set(),sections=new Set();let drafts=0,sourceOrProper=0,food=0,drinks=0;
+  const allowedOrigins=new Set(['source_printed_trilingual','proper_name_source','assistant_draft_translation_requires_review']);
+  for(const row of rows){
+    expect(row).toHaveLength(13);
+    const [sectionEs,sectionDe,sectionEn,nameEs,nameDe,nameEn,detailsEs,detailsDe,detailsEn,price,serving,page,origin]=row;
+    for(const value of [sectionEs,sectionDe,sectionEn,nameEs,nameDe,nameEn])expect(String(value).trim()).not.toBe('');
+    expect(Number(price)).toBeGreaterThan(0);
+    expect(Number(page)).toBeGreaterThanOrEqual(1);expect(Number(page)).toBeLessThanOrEqual(12);
+    expect(allowedOrigins.has(origin)).toBe(true);
+    if(detailsEs){expect(String(detailsDe).trim()).not.toBe('');expect(String(detailsEn).trim()).not.toBe('')}
+    if(origin==='assistant_draft_translation_requires_review')drafts++;
+    else sourceOrProper++;
+    if(Number(page)<=6)food++;else drinks++;
+    sections.add(sectionEs);
+    const key=`${sectionEs}\u0000${nameEs}\u0000${price}\u0000${serving??''}`;
+    expect(seen.has(key),`duplicate Soul Kitchen candidate row ${key}`).toBe(false);
+    seen.add(key);
+  }
+  expect(seen.size).toBe(162);
+  expect(sections.size).toBe(23);
+  expect(drafts).toBe(30);
+  expect(sourceOrProper).toBe(132);
+  expect(food).toBe(61);
+  expect(drinks).toBe(101);
 });
 
 test('five new kids-menu facts stay granular and cannot fabricate Eat & Play geometry',async()=>{
