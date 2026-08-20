@@ -1,97 +1,143 @@
-# HOY Region 1 Competitive Watch Standard v1.0
+# HOY Region 1 Competitive Watch Standard v1.1
 
-Status: **ACTIVE OPERATING STANDARD — read-only intelligence, no automatic product or data mutation**
+**Status:** operational, read-only by default  
+**Region:** La Manga del Mar Menor / Cabo de Palos  
+**Purpose:** prevent competitive blind spots and turn external market movement into evidence-backed HOY decisions.
 
-Effective date: 2026-08-20
+## 1. Competitive scope
 
-## Purpose
+HOY does not define competition as “another app that looks like HOY”. The watch covers four layers:
 
-HOY must not make roadmap, coverage or exit-value decisions with an outdated view of the local competitive surface. Competitive intelligence is therefore a recurring operating input, not a one-off research task.
+1. **Product / decision competitors** — restaurant discovery, menus, dish search, price comparison, open-now, maps, reviews, reservations and live utility.
+2. **Attention / distribution competitors** — SEO guides, local editorial brands, creators and content funnels that own the user before a product decision begins.
+3. **Merchant infrastructure competitors** — business claims, self-service updates, digital menus, promotions, loyalty, events and merchant communication.
+4. **Institutional / local channels** — municipal, tourism and association apps or directories that can aggregate merchants and local attention.
 
-The standard exists to answer four questions with dated evidence:
+A new surface enters the registry when there is public evidence that it materially competes for Region-1 guest attention, merchant supply or local-distribution power.
 
-1. What can a guest do elsewhere today that HOY cannot yet do?
-2. What can HOY do materially better or more truthfully?
-3. Which competitor changes affect user acquisition, merchant acquisition, monetization or defensibility?
-4. Which observed gaps are important enough to change the HOY roadmap under the current exit gates?
+## 2. Two-moat model
 
-## Scope
+### A. Decision & Data Moat
 
-Primary scope is the direct La Manga del Mar Menor / Cabo de Palos decision surface. Adjacent regional directories may be observed when they materially compete for the same guest or merchant intent.
+HOY should win by making a better decision possible, not by copying a bigger directory.
 
-The canonical quantitative baseline is the dated file `region1-competitive-benchmark-2026-08-20.json`.
+Track:
+- source-bound identity, hours and provenance;
+- menu availability, completeness and freshness;
+- native complete ES/DE/EN menu coverage;
+- cross-restaurant dish and comparable-price search;
+- HOY NOW, closing-soon and explainable ranking;
+- Family facts separated into kids menu, highchairs, changing, stroller and actual play geometry;
+- Accessibility traits and trust status, never a vague universal percentage;
+- events, specials and other current intent signals;
+- operator correction/control without lowering evidence quality.
 
-## Required watch signals
+### B. Distribution Moat
 
-Every review should capture, where publicly observable:
+A better product is insufficient if incumbents own discovery and merchant relationships.
 
-- published venue / listing breadth;
-- menu availability and menu freshness;
-- cross-restaurant dish search;
-- visible price comparison or price discovery;
-- opening-hours / open-now capability;
-- live or near-live venue status;
-- DE / ES / EN language support;
-- Family / kids / playground discovery;
-- accessibility discovery and trust semantics;
-- events, specials and time-sensitive offers;
-- maps, routing and location UX;
-- merchant claim / onboarding flow;
-- merchant self-service data correction;
-- paid placement / sponsorship / subscription signals;
-- review / rating dependence;
-- data provenance and visible trust cues;
-- app / PWA / mobile experience changes;
-- new geographic coverage relevant to Region 1.
+Track:
+- organic-search visibility and indexable local decision pages;
+- local editorial/share-of-attention;
+- app installs or other visible adoption signals;
+- merchant-network density;
+- claim/self-service friction;
+- event/promotion/loyalty supply;
+- push or repeat-engagement channels;
+- creator/local-partner distribution;
+- municipal, tourism or association distribution;
+- observed external demand/query signals.
 
-## Evidence contract
+## 3. Evidence contract
 
-A competitive claim is usable only when it records:
+Every recorded competitor signal must contain:
+- `observed_at`;
+- canonical evidence URL;
+- fact versus third-party claim;
+- whether the value is a dated snapshot or a live recheck;
+- confidence;
+- HOY implication;
+- action or explicit no-action.
 
-- observation date;
-- source URL or source identifier;
-- observed capability or count;
-- whether the observation is direct, sampled or inferred;
-- confidence: `confirmed`, `sampled`, `uncertain`;
-- whether HOY parity is `ahead`, `parity`, `behind`, or `not_comparable`.
+Never convert a competitor claim into an internal HOY KPI. Example: a public claim of “1,100+ searches” is useful market evidence, but it is not HOY analytics.
 
-Never turn a sample into a total-market percentage. Never infer total overlap from a partial public name set. Never copy competitor or third-party menu content into HOY merely because it is publicly visible.
+## 4. Cadence
 
-## Roadmap trigger rule
+### Weekly light scan
+Check:
+- Viviendo La Manga;
+- Tu Localidad and its editorial/SEO distribution surfaces;
+- Restaurantes La Manga;
+- La Manga Activa / San Javier Activa;
+- newly surfaced local apps, directories, creators and tourism/merchant channels.
 
-A competitor observation may change HOY product priority only if at least one of the following is true:
+Look for material changes in menu count, search/filter utility, languages, open-now/live claims, merchant tools, pricing, promotions/events, adoption and geographic expansion.
 
-- it materially threatens HOY guest acquisition or retention;
-- it materially threatens merchant acquisition or willingness-to-pay;
-- it exposes a missing decision-grade capability that can create G2 market proof;
-- it weakens a claimed HOY moat or buyer narrative;
-- responding would directly raise realizable exit value;
-- responding reduces a material data, rights, trust or due-diligence risk.
+### Monthly full benchmark
+Refresh the Region-1 benchmark and compare HOY against the strongest observed competitor on:
+- menu coverage;
+- decision utility;
+- truth/freshness;
+- Family/Accessibility depth;
+- merchant control;
+- attention/distribution.
 
-Directory breadth by itself is **not** a trigger to copy volume. HOY should prefer decision quality, structured native menus, trustworthy NOW signals, multilingual delivery, merchant truth and reusable data infrastructure.
+### Immediate recheck
+Do not wait for cadence when a competitor launches:
+- cross-restaurant dish/price search;
+- a material menu-supply expansion;
+- a new live/open-now promise;
+- a new merchant self-service or pricing model;
+- a new local/municipal distribution channel;
+- a new app with visible adoption.
 
-## Decision record
+## 5. Roadmap gate
 
-Each material competitive review should leave one of four outcomes:
+External movement changes the roadmap only when at least one is true:
+1. material guest risk;
+2. material merchant/supply risk;
+3. external G2 demand or willingness-to-pay evidence;
+4. moat or buyer narrative materially improves;
+5. realisable exit value increases;
+6. DD/data/rights/security risk decreases.
 
-- `NO_ACTION_EVIDENCE_ONLY`
-- `CLOSE_PARITY_GAP`
-- `BUILD_DIFFERENTIATED_MOAT`
-- `ESCALATE_STRATEGIC_REVIEW`
+Raw listing volume alone is not a roadmap trigger.
 
-For any action outcome, record the expected G1/G2/G3/G4 impact before implementation.
+## 6. Menu-gap rule
 
-## Current operating decision
+Priority is:
+1. structured first-party editorial candidate;
+2. first-party hosted/image candidate with identity and completeness evidence;
+3. direct first-party source;
+4. operator confirmation;
+5. third-party reference only as a lead.
 
-The 2026-08-20 baseline does **not** justify chasing raw directory volume. The current priority remains closing decision-grade menu depth and making those menus more useful through cross-restaurant dish discovery, price visibility, NOW status and merchant-controlled truth.
+Third-party menus are never copied into HOY. A source-only or image menu never becomes a finished guest menu until native structured content and language-completeness gates pass.
 
-## Safety / rights boundary
+## 7. Family rule
 
-Competitive watch is read-only by default. It does not authorize:
+Generic “family friendly” is not enough.
 
-- production DDL or DML;
-- scraping or republishing protected menu content;
-- automated outreach;
-- merchant claims;
-- bypassing source-authority or translation gates;
-- creating false parity claims from incomplete competitor evidence.
+`kids_menu=true` may be published only with traceable evidence. It must never imply a playground. Play type, relationship, distance, visibility, road crossing, fencing, shade and supervision remain unknown until independently supported.
+
+## 8. Competitive response standard
+
+For every material competitor move, choose one:
+- **MATCH** — parity is necessary to avoid a material disadvantage.
+- **BEAT** — HOY can create a defensible decision/data advantage.
+- **DISTRIBUTE** — the gap is attention/merchant reach rather than product.
+- **PARTNER** — external distribution can improve G2 proof or merchant supply without harming control.
+- **IGNORE** — no material guest, merchant, moat, exit or DD consequence.
+
+Document the reason. Do not build features merely because a competitor has them.
+
+## 9. Hard boundaries
+
+- no competitor-content copying;
+- no automatic outreach;
+- no automatic Production writes;
+- no fabricated freshness, Family or Accessibility facts;
+- no unverified competitor counts promoted as live truth;
+- no Product roadmap changes solely from vanity metrics.
+
+The objective is not to imitate the local market. It is to maintain the strongest evidence-backed decision system and a distribution engine capable of making that advantage visible.

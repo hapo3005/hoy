@@ -1,8 +1,26 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "snapshot_date": "2026-08-20",
-  "scope": "Direct Region 1 guest/merchant attention competitors with publicly verified La Manga relevance",
+  "scope": "Region 1 product, attention, distribution and merchant-infrastructure competitors with publicly verified La Manga relevance",
   "status": "READ_ONLY_VERIFIED_REGISTRY",
+  "moat_model": {
+    "decision_data_moat": [
+      "source-bound truth and freshness",
+      "native complete DE/ES/EN menus",
+      "cross-restaurant dish and price discovery",
+      "HOY NOW and explainable decision ranking",
+      "granular Family and Accessibility facts with separate trust status",
+      "merchant-controlled corrections without lowering verification"
+    ],
+    "distribution_moat": [
+      "organic search and editorial discovery",
+      "local app adoption",
+      "merchant network density",
+      "events, promotions and loyalty channels",
+      "creator/local-partner distribution",
+      "repeatable region-launch playbook"
+    ]
+  },
   "competitors": [
     {
       "id": "viviendo-la-manga",
@@ -11,15 +29,17 @@
       "directory_url": "https://viviendolamanga.es/directorio/",
       "type": ["local_editorial_guide", "local_directory", "restaurant_discovery"],
       "public_snapshot": {
+        "observed_at": "2026-08-20",
         "claimed_verified_places": ">1400",
         "restaurants_shown": 234,
         "open_now_filter": true,
         "ratings_reviews": true,
         "editorial_content": true,
-        "merchant_add_business_route": true
+        "merchant_add_business_route": true,
+        "family_category_count": 5
       },
       "competitive_strength": "breadth_seo_local_editorial_trust",
-      "hoy_response": "Do not copy raw directory volume. Beat on decision-grade truth, native menus, multilingual utility, NOW, structured intent and merchant-controlled data.",
+      "hoy_response": "Do not chase raw listing volume. Win on decision-grade truth, native multilingual menus, structured intent, NOW, Family/Accessibility depth and merchant-controlled freshness.",
       "confidence": "confirmed",
       "evidence": [
         "https://viviendolamanga.es/",
@@ -32,33 +52,112 @@
       "name": "Tu Localidad",
       "canonical_url": "https://portal.tulocalidad.es/",
       "la_manga_menu_surface": "https://portal.tulocalidad.es/carta/la-manga",
-      "type": ["digital_menu_portal", "local_commerce_discovery", "merchant_onboarding"],
+      "type": ["digital_menu_portal", "cross_business_menu_discovery", "merchant_onboarding"],
       "public_snapshot": {
+        "observed_at": "2026-08-20",
         "la_manga_menu_search_surface": true,
         "merchant_signup_route": true,
         "merchant_menu_change_support": true,
-        "individual_menu_pages": true
+        "individual_menu_pages": true,
+        "advertised_menu_count_july_2026": 65,
+        "advertised_languages": 4,
+        "advertised_cheapest_first": true,
+        "advertised_open_now": true
       },
-      "competitive_strength": "cross_business_digital_menu_discovery_and_merchant_service",
-      "hoy_response": "Close menu-depth parity but differentiate through native structured DE/ES/EN menus, cross-restaurant dish search, comparable prices, NOW/decision scoring and stronger source-truth gates.",
-      "confidence": "confirmed",
+      "competitive_strength": "cross_business_menu_utility_and_merchant_relationship",
+      "hoy_response": "Close menu-depth parity quickly, then exceed it with source-provenance, native DE/ES/EN completeness, HOY NOW trust, explainable decision scoring, Family/Accessibility facts and operator control.",
+      "confidence": "confirmed_with_dated_claims",
       "evidence": [
         "https://portal.tulocalidad.es/",
-        "https://portal.tulocalidad.es/carta/la-manga"
+        "https://portal.tulocalidad.es/carta/la-manga",
+        "https://elpaladardelahuerta.es/donde-comer-la-manga-mar-menor-2026/"
       ],
-      "baseline_note": "The separate dated Region 1 benchmark records a previously observed advertised menu count of 65. Treat that value as a dated baseline until a fresh total is independently re-verified; do not silently promote it to a current live count."
+      "baseline_note": "65 menus, four languages, cheapest-first and open-now are externally advertised July-2026 capabilities. Re-verify current live coverage before treating the count as a current audited KPI."
+    },
+    {
+      "id": "restaurantes-la-manga",
+      "name": "Restaurantes La Manga",
+      "canonical_url": "https://restauranteslamanga.com/",
+      "directory_url": "https://restauranteslamanga.com/listado-de-locales/",
+      "map_url": "https://restauranteslamanga.com/mapa-de-busqueda/",
+      "type": ["restaurant_directory", "open_now_discovery", "map_discovery"],
+      "public_snapshot": {
+        "observed_at": "2026-08-20",
+        "listed_places": 132,
+        "open_now_status": true,
+        "map_surface": true,
+        "price_bands": true,
+        "cuisine_categories": true
+      },
+      "competitive_strength": "restaurant_discovery_breadth_and_open_now_surface",
+      "hoy_response": "Use source-bound hours and provenance as the differentiator. Track sampled first-party-vs-directory conflicts and never inherit directory status as HOY truth.",
+      "confidence": "confirmed",
+      "evidence": [
+        "https://restauranteslamanga.com/listado-de-locales/",
+        "https://restauranteslamanga.com/mapa-de-busqueda/"
+      ]
+    },
+    {
+      "id": "activa-neuromobile-region1",
+      "name": "La Manga Activa / San Javier Activa",
+      "canonical_url": "https://play.google.com/store/apps/details?id=io.neuromobile.lamangaactiva",
+      "type": ["local_mobile_app", "merchant_directory", "promotions", "events", "tourism_and_leisure"],
+      "public_snapshot": {
+        "observed_at": "2026-08-20",
+        "la_manga_activa_android_downloads_visible": "10+",
+        "la_manga_activa_last_update": "2026-05-18",
+        "san_javier_activa_android_downloads_visible": "5K+",
+        "establishments": true,
+        "promotions": true,
+        "festivals": true,
+        "activities_events": true,
+        "hospitality_tourism_scope": true,
+        "support_contact_suggests_san_javier_activa_adjacency": true,
+        "municipal_ownership_proven": false
+      },
+      "competitive_strength": "local_app_distribution_merchant_promotions_events",
+      "hoy_response": "Do not copy a generic city-app model. Build stronger decision utility while developing repeatable merchant distribution, event/promotion supply and local partnerships. Track adoption and municipal/association channels separately from product depth.",
+      "confidence": "confirmed_with_ownership_boundary",
+      "evidence": [
+        "https://play.google.com/store/apps/details?id=io.neuromobile.lamangaactiva",
+        "https://play.google.com/store/apps/details?id=io.neuromobile.sanjavier"
+      ]
+    }
+  ],
+  "distribution_ecosystems": [
+    {
+      "id": "el-paladar-tu-localidad-seo",
+      "name": "El Paladar de la Huerta → Tu Localidad",
+      "type": "seo_editorial_to_menu_comparator_funnel",
+      "observed_at": "2026-08-20",
+      "external_claims": {
+        "publication_date": "2026-07-25",
+        "menus_analyzed": 65,
+        "searches_first_month": "1100+",
+        "languages": 4,
+        "cheapest_first": true,
+        "open_now": true
+      },
+      "interpretation": "Material proof that cross-restaurant dish/price search has observed demand; claims are third-party stated and must not be treated as HOY-audited analytics.",
+      "evidence": ["https://elpaladardelahuerta.es/donde-comer-la-manga-mar-menor-2026/"]
     }
   ],
   "interpretation": {
     "viviendo_la_manga_primary_threat": "attention_and_discovery_breadth",
-    "tu_localidad_primary_threat": "menu_utility_and_merchant_relationship",
-    "hoy_target_moat": "decision_quality_plus_structured_truth",
-    "raw_listing_count_is_not_primary_kpi": true
+    "tu_localidad_primary_threat": "menu_utility_price_discovery_and_merchant_relationship",
+    "restaurantes_la_manga_primary_threat": "restaurant_directory_and_open_now_attention",
+    "activa_primary_threat": "merchant_distribution_promotions_events_and_local_app_channel",
+    "hoy_target_moat": "decision_quality_plus_structured_truth_plus_distribution",
+    "raw_listing_count_is_not_primary_kpi": true,
+    "menu_coverage_is_current_priority": true,
+    "distribution_is_a_first_class_competitive_dimension": true
   },
   "hard_boundaries": {
     "copy_competitor_content": false,
     "infer_unobserved_features": false,
     "treat_dated_counts_as_live_without_recheck": false,
-    "automatic_product_change": false
+    "treat_third_party_claims_as_hoy_analytics": false,
+    "automatic_product_change": false,
+    "automatic_outreach": false
   }
 }

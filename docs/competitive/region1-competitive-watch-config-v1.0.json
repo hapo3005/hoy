@@ -1,53 +1,85 @@
 {
-  "version": "1.0",
-  "effective_date": "2026-08-20",
-  "scope": "La Manga del Mar Menor / Cabo de Palos direct guest-and-merchant competitive surface",
-  "mode": "READ_ONLY_INTELLIGENCE",
-  "canonical_baseline": "region1-competitive-benchmark-2026-08-20.json",
+  "version": "1.1",
+  "region": "La Manga del Mar Menor / Cabo de Palos",
+  "cadence": {
+    "light_scan": "weekly",
+    "full_benchmark": "monthly",
+    "immediate_recheck_triggers": [
+      "new local discovery app or directory",
+      "new cross-restaurant dish or price search",
+      "material menu-count change",
+      "new open-now/live-status promise",
+      "new multilingual/menu translation capability",
+      "new merchant self-service/claim/pricing",
+      "new promotions/loyalty/events channel",
+      "material app adoption or municipal/tourism distribution signal"
+    ]
+  },
+  "moat_dimensions": {
+    "decision_data": [
+      "menu availability and completeness",
+      "menu freshness",
+      "cross-restaurant dish search",
+      "comparable prices",
+      "open-now and closing-soon accuracy",
+      "live status",
+      "DE/ES/EN native coverage",
+      "family facts",
+      "accessibility facts",
+      "events/specials",
+      "maps/routes",
+      "merchant corrections",
+      "provenance/trust"
+    ],
+    "distribution": [
+      "SEO/share of attention",
+      "organic editorial surfaces",
+      "content-to-product funnels",
+      "app installs/visible adoption",
+      "merchant network density",
+      "municipal/tourism/association channels",
+      "promotions/loyalty",
+      "push/notification channel",
+      "creator/local-partner distribution",
+      "observed demand/query signals"
+    ]
+  },
   "signals": [
-    "listing_breadth",
-    "menu_availability",
-    "menu_freshness",
-    "cross_restaurant_dish_search",
-    "price_discovery",
-    "open_now",
-    "live_status",
-    "language_de_es_en",
-    "family_playground_discovery",
-    "accessibility_discovery",
-    "events_specials",
-    "maps_routing",
-    "merchant_claim_onboarding",
-    "merchant_self_service",
-    "paid_placement_monetization",
-    "review_rating_dependence",
-    "provenance_trust",
-    "mobile_pwa",
-    "geographic_expansion"
+    "listing breadth", "menu availability", "menu freshness", "cross-restaurant dish search", "price comparison",
+    "open now", "live status", "languages", "family", "accessibility", "events specials", "maps routes",
+    "merchant claim/self service", "paid placement", "reviews", "provenance", "mobile app", "geographic expansion",
+    "seo share of attention", "content distribution funnel", "app installs visible adoption", "municipal tourism distribution",
+    "merchant network density", "loyalty rewards promotions", "push notification channel", "user demand queries",
+    "partner creator distribution", "first-party versus directory freshness conflicts"
   ],
-  "confidence_enum": ["confirmed", "sampled", "uncertain"],
-  "parity_enum": ["ahead", "parity", "behind", "not_comparable"],
-  "decision_enum": [
-    "NO_ACTION_EVIDENCE_ONLY",
-    "CLOSE_PARITY_GAP",
-    "BUILD_DIFFERENTIATED_MOAT",
-    "ESCALATE_STRATEGIC_REVIEW"
+  "competitor_seeds": [
+    "https://viviendolamanga.es/",
+    "https://portal.tulocalidad.es/",
+    "https://restauranteslamanga.com/",
+    "https://play.google.com/store/apps/details?id=io.neuromobile.lamangaactiva",
+    "https://play.google.com/store/apps/details?id=io.neuromobile.sanjavier",
+    "https://elpaladardelahuerta.es/donde-comer-la-manga-mar-menor-2026/"
   ],
-  "roadmap_trigger_requires_any": [
-    "material_guest_acquisition_or_retention_threat",
-    "material_merchant_acquisition_or_wtp_threat",
-    "g2_market_proof_opportunity",
-    "moat_or_buyer_narrative_threat",
-    "direct_realizable_exit_value_increase",
-    "material_data_rights_trust_or_dd_risk_reduction"
-  ],
-  "non_trigger": "raw_directory_volume_alone",
+  "decision_rules": {
+    "roadmap_change_requires_one_of": [
+      "material guest risk", "material merchant risk", "G2 demand or willingness-to-pay proof",
+      "moat/buyer narrative improvement", "realisable exit-value increase", "DD/data/rights/security risk reduction"
+    ],
+    "raw_listing_volume_alone_changes_roadmap": false,
+    "third_party_claim_is_not_internal_metric": true,
+    "sampled_data_conflict_must_be_recorded_not_generalized": true
+  },
+  "output_contract": {
+    "record_evidence_url": true,
+    "record_observed_at": true,
+    "separate_claim_from_verified_fact": true,
+    "record_hoy_implication": true,
+    "record_action_or_no_action": true
+  },
   "hard_boundaries": {
-    "production_mutation": false,
+    "copy_competitor_content": false,
     "automatic_outreach": false,
-    "copy_third_party_menu_content": false,
-    "infer_total_overlap_from_sample": false,
-    "bypass_source_authority_gate": false,
-    "bypass_translation_gate": false
+    "automatic_production_write": false,
+    "automatic_feature_build": false
   }
 }

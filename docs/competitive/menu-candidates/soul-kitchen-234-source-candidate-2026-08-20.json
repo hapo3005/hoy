@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "snapshot_date": "2026-08-20",
+  "restaurant_id": 234,
+  "name": "Soul Kitchen",
+  "candidate_status": "FIRST_PARTY_HOSTED_IMAGE_SOURCE_CAPTURED_EDITORIAL_STRUCTURING_REQUIRED",
+  "production_import_allowed": false,
+  "production_mutation_performed": false,
+  "guest_publish_allowed": false,
+  "source": {
+    "page_url": "https://menurestauranteqr.es/soulkitchen/",
+    "source_authority": "first_party",
+    "source_format": "image_menu",
+    "coverage_scope": "full_menu",
+    "completeness_status": "image_complete",
+    "identity_evidence": "HOY restaurant website/source URL and the existing menu-source record point to the same hosted Soul Kitchen menu surface."
+  },
+  "assets": {
+    "expected_count": 12,
+    "urls": [
+      "https://menurestauranteqr.es/wp-content/uploads/2026/05/01SOULa--scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2026/05/02SOULa--scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2026/05/03SOULa--scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2026/05/04SOULa-copia-scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2024/07/05SOULa-scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2026/05/06SOULab.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2026/05/06soulcafe-scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2026/07/01soulcervezz-scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2025/07/vinos06-scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2025/07/chupitosj-scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2024/07/03soulbebidav-scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2025/07/coctelsin.jpg"
+    ]
+  },
+  "qa_contract": {
+    "desktop_capture_required": true,
+    "all_assets_must_render": true,
+    "minimum_natural_width": 250,
+    "minimum_natural_height": 250,
+    "capture_artifact_path": "qa-screenshots/competitive-menus/soul-kitchen/",
+    "last_capture_result_before_candidate": "passed in desktop Chromium source-menu-capture on 2026-08-20"
+  },
+  "next_actions": [
+    "Capture and retain all 12 source images in focused competitive evidence QA.",
+    "Editorially structure complete menu content from the captured first-party images.",
+    "Create complete native ES menu, then complete DE and EN localizations.",
+    "Run completeness, language and source-truth gates before any guest activation."
+  ],
+  "hard_boundaries": {
+    "copy_third_party_menu": false,
+    "image_source_is_finished_guest_menu": false,
+    "auto_publish": false,
+    "production_insert": false,
+    "invent_missing_items_or_prices": false,
+    "allergen_claims_without_explicit_source_evidence": false
+  }
+}

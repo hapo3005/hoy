@@ -26,6 +26,17 @@ test('competitive queue keeps third-party ingestion fail closed',async()=>{
   expect(queue.rights_rule).toContain('No third-party menu content is copied into HOY');
   const escuela=queue.rows.find(row=>row.restaurant_id===7);
   expect(escuela.source_class).toBe('SOURCE_INTEGRITY_BLOCKED');
+
+  const soul=queue.rows.find(row=>row.restaurant_id===234);
+  expect(soul.source_class).toBe('FIRST_PARTY_HOSTED_IMAGE_CANDIDATE');
+  expect(soul.next_action).toContain('ES/DE/EN');
+
+  for(const id of [210,199]){
+    const row=queue.rows.find(x=>x.restaurant_id===id);
+    expect(row.source_class).toBe('THIRD_PARTY_REFERENCE');
+    expect(row.next_action.toLowerCase()).toContain('do not copy');
+  }
+
   for(const row of queue.rows.filter(row=>['THIRD_PARTY_REFERENCE','TRANSACTIONAL_THIRD_PARTY'].includes(row.source_class))){
     expect(row.next_action.toLowerCase()).toContain('do not copy');
   }
