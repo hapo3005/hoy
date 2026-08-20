@@ -1,0 +1,69 @@
+{
+  "snapshot_date": "2026-08-20",
+  "restaurant_id": 144,
+  "restaurant_name": "Restaurante Isla Grosa",
+  "candidate_status": "CAPTURE_PENDING_MANUAL_REVIEW",
+  "production_mutation_performed": false,
+  "first_party": {
+    "website": "https://restauranteislagrosalamanga.es/",
+    "menu_page": "https://restauranteislagrosalamanga.es/menu/",
+    "identity_status": "CONFIRMED_FIRST_PARTY",
+    "menu_page_currently_public": true
+  },
+  "source_images": [
+    {
+      "url": "https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-01-copia-480x1024.jpg",
+      "filename_language_signal": "es",
+      "visual_review": "PENDING"
+    },
+    {
+      "url": "https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-02-copia-480x1024.jpg",
+      "filename_language_signal": "es",
+      "visual_review": "PENDING"
+    },
+    {
+      "url": "https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-04-copia-480x1024.jpg",
+      "filename_language_signal": "es",
+      "visual_review": "PENDING"
+    },
+    {
+      "url": "https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-INGLES-01-copia-480x1024.jpg",
+      "filename_language_signal": "en",
+      "visual_review": "PENDING"
+    },
+    {
+      "url": "https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-INGLES-02-copia-480x1024.jpg",
+      "filename_language_signal": "en",
+      "visual_review": "PENDING"
+    },
+    {
+      "url": "https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-INGLES-04-copia-480x1024.jpg",
+      "filename_language_signal": "en",
+      "visual_review": "PENDING"
+    }
+  ],
+  "language_note": "Filename signals are not treated as verified content-language coverage until image review confirms them.",
+  "production_source_state_observed": {
+    "source_authority": "first_party",
+    "source_format": "image_menu",
+    "coverage_scope": "full_menu",
+    "completeness_status": "image_complete",
+    "structured_items": 0
+  },
+  "required_before_structuring": [
+    "capture_exact_current_image_bytes",
+    "record_dimensions_and_hashes",
+    "manual_visual_completeness_review",
+    "confirm_es_en_page_pairing",
+    "transcribe_without_inventing_missing_text",
+    "reconcile_spanish_and_english_item_identity",
+    "create_german_editorial_translation",
+    "DE_ES_EN editorial_translation_review"
+  ],
+  "hard_boundaries": {
+    "auto_publish": false,
+    "production_insert": false,
+    "trust_filename_language_without_visual_review": false,
+    "invent_unreadable_items": false
+  }
+}
