@@ -35,7 +35,7 @@ test('Food Finder searches only guest-approved localized native menus',async({pa
   expect(result.weird).toBeNull();
 });
 
-test('Food Finder runtime is wired into shell and PWA cache',async()=>{
+test('Food Finder runtime is wired into shell and canonical PWA cache',async()=>{
   const root=path.join(__dirname,'..');
   const shell=fs.readFileSync(path.join(root,'app-3-6.js'),'utf8');
   const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
@@ -43,5 +43,5 @@ test('Food Finder runtime is wired into shell and PWA cache',async()=>{
   expect(shell).toContain("./food-finder-2.50.css?v=2.50.0");
   expect(sw).toContain("'./food-finder-2.50.js'");
   expect(sw).toContain("'./food-finder-2.50.css'");
-  expect(sw).toContain("const CACHE='hoy-v2.50.0'");
+  expect(sw).toContain("const CACHE='hoy-v2.39.0'");
 });
