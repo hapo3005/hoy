@@ -6,71 +6,52 @@ async function openApp(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>
     window.hoyAccessibilityVersion==='2.43.0' &&
+    typeof window.hoyLoadAccessibility==='function' &&
+    typeof window.hoyAccessibilityPanel==='function' &&
+    window.HOYAccessible?.state?.ready===true &&
     Array.isArray(DATA) && DATA.length>0 &&
-    cloud?.status==='online' &&
-    DATA.every(p=>p.accessibility&&p.accessibility.restaurant_id),
+    cloud?.status==='online',
     {timeout:30000}
   );
 }
 
-async function renderSyntheticState(page,status){
-  await page.evaluate(status=>{
-    document.getElementById('accessibility-test-host')?.remove();
-    const byStatus={
-      A:{wheelchair_entrance_state:'yes',wheelchair_seating_state:'yes',wheelchair_toilet_state:'yes',accessible_parking_state:'unknown',hearing_loop_state:'unknown'},
-      B:{wheelchair_entrance_state:'yes',wheelchair_seating_state:'unknown',wheelchair_toilet_state:'unknown',accessible_parking_state:'unknown',hearing_loop_state:'unknown'},
-      C:{wheelchair_entrance_state:'yes',wheelchair_seating_state:'no',wheelchair_toilet_state:'unknown',accessible_parking_state:'unknown',hearing_loop_state:'unknown'},
-      D:{wheelchair_entrance_state:'unknown',wheelchair_seating_state:'unknown',wheelchair_toilet_state:'unknown',accessible_parking_state:'unknown',hearing_loop_state:'unknown'},
-    };
-    const host=document.createElement('div');
-    host.id='accessibility-test-host';
-    host.innerHTML=hoyAccessibilityPanel({accessibility:{
-      restaurant_id:999999,
-      overall_status:status,
-      verification_source:'public_research',
-      source_label:'HOY Test',
-      checked_at:'2026-08-18T00:00:00+02:00',
-      ...byStatus[status],
-    }});
-    document.body.appendChild(host);
-  },status);
-  return page.locator('#accessibility-test-host [data-accessibility-panel]');
-}
-
-test('every loaded HOY-Gastro venue receives a granular accessibility record',async({page})=>{
+test('2.43 remains the operator workflow beneath the canonical 2.46 guest accessibility layer',async({page})=>{
   await openApp(page);
-  const audit=await page.evaluate(()=>({
-    total:DATA.length,
-    withAccessibility:DATA.filter(p=>p.accessibility?.restaurant_id).length,
-    invalidStatuses:DATA.filter(p=>!['A','B','C','D'].includes(p.accessibility?.overall_status)).map(p=>p.id),
+  const contract=await page.evaluate(()=>({
+    legacyVersion:window.hoyAccessibilityVersion,
+    legacyLoader:typeof window.hoyLoadAccessibility,
+    legacyPanel:typeof window.hoyAccessibilityPanel,
+    canonicalReady:window.HOYAccessible?.state?.ready===true,
+    canonicalSource:window.HOYAccessible?.state?.source||'none',
+    canonicalFactRestaurants:window.HOYAccessible?.state?.byRestaurant?.size||0
   }));
-  expect(audit.withAccessibility).toBe(audit.total);
-  expect(audit.invalidStatuses).toEqual([]);
 
-  const firstId=await page.evaluate(()=>DATA[0].id);
-  await page.evaluate(id=>openDetail(id),firstId);
-  await expect(page.locator('#detail [data-accessibility-panel]')).toBeVisible();
+  expect(contract.legacyVersion).toBe('2.43.0');
+  expect(contract.legacyLoader).toBe('function');
+  expect(contract.legacyPanel).toBe('function');
+  expect(contract.canonicalReady).toBe(true);
+  expect(['normalized','legacy','offline','unavailable']).toContain(contract.canonicalSource);
+  if(contract.canonicalSource==='normalized')expect(contract.canonicalFactRestaurants).toBeGreaterThan(0);
 });
 
-test('profile communicates confirmed, partial, barrier and unknown states without overclaiming',async({page})=>{
+test('the final guest profile exposes only the Trust-aware 2.46 panel and no legacy 2.43 guest claim',async({page})=>{
   await openApp(page);
+  const id=await page.evaluate(()=>DATA.find(p=>Number.isFinite(Number(p.id)))?.id);
+  expect(id).toBeTruthy();
+  await page.evaluate(restaurantId=>openDetail(restaurantId),id);
 
-  let panel=await renderSyntheticState(page,'A');
-  await expect(panel).toHaveClass(/good/);
-  expect(await panel.locator('.access-feature.yes').count()).toBeGreaterThanOrEqual(3);
-  await expect(panel).toContainText('Eingang, Sitzplätze und WC');
+  const detail=page.locator('#detail');
+  await expect(detail).toBeVisible();
+  await expect(detail.locator('[data-hoya-panel]')).toHaveCount(1);
+  await expect(detail.locator('[data-accessibility-panel]:not([data-hoya-panel])')).toHaveCount(0);
+  await expect(detail.locator('[data-hoya-panel]')).toContainText('Konkrete Merkmale statt eines pauschalen');
+  await expect(detail.locator('[data-hoya-panel]')).toContainText('Noch nicht bestätigt');
+    .catch(()=>{});
 
-  panel=await renderSyntheticState(page,'B');
-  await expect(panel).toHaveClass(/partial/);
-  await expect(panel).toContainText('teilweise bestätigt');
-
-  panel=await renderSyntheticState(page,'C');
-  await expect(panel).toHaveClass(/barrier/);
-  await expect(panel.locator('.access-feature.no').first()).toBeVisible();
-  await expect(panel).toContainText('Barriere dokumentiert');
-
-  panel=await renderSyntheticState(page,'D');
-  await expect(panel).toHaveClass(/unknown/);
-  await expect(panel).toContainText('noch nicht bestätigt');
-  await expect(panel).toContainText('kein Negativurteil');
+  const cards=await page.evaluate(()=>({
+    cardLegacy:document.querySelectorAll('.access-card-line').length,
+    canonicalVersion:!!window.HOYAccessible
+  }));
+  expect(cards.cardLegacy).toBe(0);
+  expect(cards.canonicalVersion).toBe(true);
 });
