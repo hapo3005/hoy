@@ -1,0 +1,62 @@
+{
+  "version": "1.0",
+  "snapshot_date": "2026-08-20",
+  "restaurant_id": 10,
+  "name": "Restaurante Club Náutico Dos Mares",
+  "candidate_status": "FIRST_PARTY_RESTAURANT_CONFIRMED_FULL_MENU_SOURCE_NOT_FOUND",
+  "production_import_allowed": false,
+  "production_mutation_performed": false,
+  "guest_publish_allowed": false,
+  "source": {
+    "restaurant_page_url": "https://clubnauticodosmares.com/restaurante/",
+    "source_authority": "first_party",
+    "restaurant_identity_confirmed": true,
+    "restaurant_page_reachable": true,
+    "page_explicitly_mentions_carta": true,
+    "full_itemized_menu_found": false,
+    "prices_found": false,
+    "canonical_downloadable_menu_asset_found": false,
+    "named_editorial_examples": [
+      "Flor de alcachofa",
+      "Pulponeras",
+      "Sushi mix",
+      "Habichuelas"
+    ],
+    "category_or_concept_evidence": [
+      "gastronomía moderna",
+      "recetas tradicionales",
+      "arroces",
+      "cocktails",
+      "producto de proximidad / km 0"
+    ]
+  },
+  "reservation_evidence": {
+    "official_page_links_to_provider": true,
+    "provider_url": "https://clubnauticodosmares.myrestoo.net/es/reservar",
+    "provider_restaurant_identity_matches": true,
+    "displayed_meal_windows": [
+      "Comida 13:30-15:30",
+      "Cena 20:30-22:00"
+    ],
+    "treat_as_opening_hours_truth": false,
+    "reason": "Reservation-slot windows are transaction availability evidence, not a complete verified weekly opening-hours schedule."
+  },
+  "source_integrity_decision": {
+    "structured_menu_candidate_allowed": false,
+    "example_dishes_may_be_treated_as_complete_menu": false,
+    "reason": "The current first-party public surface confirms the restaurant and describes examples, but does not expose a complete itemized and priced menu that can be reconciled for HOY native-menu completeness."
+  },
+  "next_actions": [
+    "Locate or obtain a current first-party QR menu, PDF, itemized web menu or operator-confirmed complete menu.",
+    "Only then structure all menu items with source linkage and price completeness.",
+    "Localize to ES/DE/EN under the existing human-review and provenance gates before guest activation."
+  ],
+  "hard_boundaries": {
+    "invent_missing_items_or_prices": false,
+    "promote_editorial_examples_to_full_menu": false,
+    "infer_allergens": false,
+    "auto_publish": false,
+    "production_insert": false,
+    "treat_reservation_slots_as_opening_hours": false
+  }
+}
