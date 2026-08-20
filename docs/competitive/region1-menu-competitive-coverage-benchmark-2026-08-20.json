@@ -1,0 +1,116 @@
+{
+  "schema_version": "1.0",
+  "snapshot_date": "2026-08-20",
+  "benchmark_name": "HOY vs Tu Localidad / El Paladar — La Manga menu decision coverage",
+  "scope": {
+    "direct_comparison_area": "La Manga del Mar Menor",
+    "region1_is_reported_separately": true,
+    "reason": "Tu Localidad / El Paladar publishes a 65-menu claim specifically for La Manga; HOY Region 1 is larger and must not be used to inflate direct-comparison coverage."
+  },
+  "competitor_external_evidence": {
+    "provider": "Tu Localidad / El Paladar de la Huerta",
+    "as_of": "2026-07-25",
+    "complete_online_menus_claim": 65,
+    "languages_claim": 4,
+    "first_month_search_queries_claim_min": 1100,
+    "features_claimed": [
+      "dish-level price comparison",
+      "cheapest-first sorting",
+      "open-now filtering",
+      "call/reservation actions"
+    ],
+    "dish_coverage_examples": {
+      "marinera_venues": 27,
+      "hamburger_venues": 28,
+      "pizza_margarita_venues": 20,
+      "rice_any_venues": 23,
+      "caldero_venues": 12
+    },
+    "source_urls": [
+      "https://elpaladardelahuerta.es/donde-comer-la-manga-mar-menor-2026/",
+      "https://elpaladardelahuerta.es/arroces-y-paella-en-la-manga-del-mar-menor-guia-con-precios/",
+      "https://elpaladardelahuerta.es/la-marinera-en-la-manga-precios-reales-y-donde-tomar-la-mejor-tapa-murciana-frente-al-mar/"
+    ],
+    "claim_policy": "External provider claims are dated competitive evidence, not HOY analytics and not independently audited usage metrics."
+  },
+  "hoy_production_snapshot": {
+    "source": "read-only aggregate SQL against HOY La Manga Supabase production",
+    "as_of": "2026-08-20",
+    "la_manga": {
+      "published_restaurants": 44,
+      "restaurants_with_active_structured_menu": 10,
+      "active_structured_menu_items": 762,
+      "restaurants_with_all_active_items_priced": 10,
+      "restaurants_with_any_menu_source": 28,
+      "restaurants_with_first_party_menu_source": 16,
+      "restaurants_with_full_menu_complete_source": 13
+    },
+    "region1": {
+      "published_restaurants": 180,
+      "restaurants_with_active_structured_menu": 32,
+      "active_structured_menu_items": 2078,
+      "priced_active_menu_items": 2078,
+      "restaurants_with_any_menu_source": 68,
+      "restaurants_with_first_party_menu_source": 52,
+      "restaurants_with_full_menu_complete_source": 32
+    },
+    "translation_readiness_region1": {
+      "restaurants_complete_de_curated_or_operator_confirmed": 5,
+      "restaurants_complete_en_curated_or_operator_confirmed": 0,
+      "restaurants_complete_es_curated_or_operator_confirmed": 0,
+      "restaurants_complete_de_en_es_curated_or_operator_confirmed": 0,
+      "restaurants_complete_de_en_es_any_translation_status": 19
+    },
+    "merchant_freshness_region1": {
+      "operator_live_hours_rows": 0,
+      "operator_hours_confirmed_within_30_days": 0
+    }
+  },
+  "non_production_candidates_not_counted": {
+    "soul_kitchen": {"restaurants": 1, "items": 162},
+    "isla_grosa": {"restaurants": 1, "items": 38},
+    "rule": "Candidates, draft translations and source-only captures never increase production coverage until the existing human-review, completeness and activation gates pass."
+  },
+  "derived_gap": {
+    "competitor_menu_venues": 65,
+    "hoy_la_manga_active_structured_menu_venues": 10,
+    "venue_gap_to_parity": 55,
+    "venue_gap_to_one_ahead": 56,
+    "current_status": "BEHIND_ON_LA_MANGA_MENU_VENUE_COVERAGE",
+    "largest_quality_gaps": [
+      "production-ready ES/DE/EN completeness",
+      "operator-confirmed merchant freshness",
+      "La Manga venue/menu-source acquisition"
+    ]
+  },
+  "superiority_gate": {
+    "internal_status": "NOT_PASSED",
+    "public_superiority_claim_allowed": false,
+    "conditions": {
+      "la_manga_active_structured_menu_venues_min": 66,
+      "active_menu_item_price_completeness_pct_min": 100,
+      "la_manga_full_menu_source_coverage_for_structured_venues_pct_min": 100,
+      "la_manga_first_party_or_operator_confirmed_source_coverage_for_structured_venues_pct_min": 90,
+      "production_ready_required_locales": ["es", "de", "en"],
+      "production_ready_all_required_locales_venues_min": 66,
+      "operator_hours_confirmed_within_30_days_venues_min": 10,
+      "consumer_menu_or_dish_search_queries_30d_min_exclusive": 1100
+    },
+    "claim_boundary": "Passing internal thresholds may support a superiority hypothesis; public or buyer-facing superiority language still requires current external re-verification and comparable measurement definitions."
+  },
+  "priority_order_until_gate": [
+    "convert current complete first-party La Manga menu sources into reviewed native structured menus",
+    "replace third-party/reference menu sources with first-party or operator-confirmed sources",
+    "human-review ES/DE/EN coverage instead of promoting machine drafts",
+    "activate real merchant confirmation/freshness with first pilot businesses",
+    "measure real HOY menu/dish search demand once production analytics are authorized"
+  ],
+  "hard_boundaries": {
+    "count_candidates_as_production": false,
+    "count_machine_translation_as_human_ready": false,
+    "use_region1_total_to_claim_la_manga_parity": false,
+    "copy_competitor_menu_content": false,
+    "invent_competitor_usage": false,
+    "automatic_production_write": false
+  }
+}
