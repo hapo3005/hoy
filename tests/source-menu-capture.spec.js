@@ -20,7 +20,7 @@ test('capture official image menus for conservative manual review', async ({ pag
   const sources = [
     ['https://cabop.es/wp-content/uploads/2025/06/CARTA-ONLINE-GR-1024x768.png', 'cabop-food.png'],
     ['https://cabop.es/wp-content/uploads/2025/06/BEBIDAS-ONLINE-GR-878x1024.png', 'cabop-drinks.png'],
-    ['https://images.squarespace-cdn.com/content/v1/68764f54ec72312578ee3de5/e4681cd8-261d-4294-b163-bd420a57ec0e6/IMG_5636.jpeg', 'casa-india-daily-1.jpg'],
+    ['https://images.squarespace-cdn.com/content/v1/68764f54ec72312578ee3de5/e4681cd8-261d-4294-b163-bd420a57c0e6/IMG_5636.jpeg', 'casa-india-daily-1.jpg'],
     ['https://images.squarespace-cdn.com/content/v1/68764f54ec72312578ee3de5/9f719263-93de-4306-b91e-a07de6e12750/IMG_5637.jpeg', 'casa-india-daily-2.jpg'],
     ['https://menurestauranteqr.es/wp-content/uploads/2026/05/01SOULa--scaled.jpg', 'soul-01.jpg'],
     ['https://menurestauranteqr.es/wp-content/uploads/2026/05/02SOULa--scaled.jpg', 'soul-02.jpg'],
