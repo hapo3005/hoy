@@ -1,0 +1,53 @@
+{
+  "version": "1.0",
+  "effective_date": "2026-08-20",
+  "scope": "La Manga del Mar Menor / Cabo de Palos direct guest-and-merchant competitive surface",
+  "mode": "READ_ONLY_INTELLIGENCE",
+  "canonical_baseline": "region1-competitive-benchmark-2026-08-20.json",
+  "signals": [
+    "listing_breadth",
+    "menu_availability",
+    "menu_freshness",
+    "cross_restaurant_dish_search",
+    "price_discovery",
+    "open_now",
+    "live_status",
+    "language_de_es_en",
+    "family_playground_discovery",
+    "accessibility_discovery",
+    "events_specials",
+    "maps_routing",
+    "merchant_claim_onboarding",
+    "merchant_self_service",
+    "paid_placement_monetization",
+    "review_rating_dependence",
+    "provenance_trust",
+    "mobile_pwa",
+    "geographic_expansion"
+  ],
+  "confidence_enum": ["confirmed", "sampled", "uncertain"],
+  "parity_enum": ["ahead", "parity", "behind", "not_comparable"],
+  "decision_enum": [
+    "NO_ACTION_EVIDENCE_ONLY",
+    "CLOSE_PARITY_GAP",
+    "BUILD_DIFFERENTIATED_MOAT",
+    "ESCALATE_STRATEGIC_REVIEW"
+  ],
+  "roadmap_trigger_requires_any": [
+    "material_guest_acquisition_or_retention_threat",
+    "material_merchant_acquisition_or_wtp_threat",
+    "g2_market_proof_opportunity",
+    "moat_or_buyer_narrative_threat",
+    "direct_realizable_exit_value_increase",
+    "material_data_rights_trust_or_dd_risk_reduction"
+  ],
+  "non_trigger": "raw_directory_volume_alone",
+  "hard_boundaries": {
+    "production_mutation": false,
+    "automatic_outreach": false,
+    "copy_third_party_menu_content": false,
+    "infer_total_overlap_from_sample": false,
+    "bypass_source_authority_gate": false,
+    "bypass_translation_gate": false
+  }
+}
