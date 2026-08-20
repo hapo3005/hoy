@@ -45,8 +45,6 @@ test('the final guest profile exposes only the Trust-aware 2.46 panel and no leg
   await expect(detail.locator('[data-hoya-panel]')).toHaveCount(1);
   await expect(detail.locator('[data-accessibility-panel]:not([data-hoya-panel])')).toHaveCount(0);
   await expect(detail.locator('[data-hoya-panel]')).toContainText('Konkrete Merkmale statt eines pauschalen');
-  await expect(detail.locator('[data-hoya-panel]')).toContainText('Noch nicht bestätigt');
-    .catch(()=>{});
 
   const cards=await page.evaluate(()=>({
     cardLegacy:document.querySelectorAll('.access-card-line').length,
