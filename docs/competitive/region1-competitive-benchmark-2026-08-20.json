@@ -1,0 +1,36 @@
+{
+  "snapshot_date": "2026-08-20",
+  "scope": "La Manga del Mar Menor direct comparator slice; not whole Region 1",
+  "status": "READ_ONLY_COMPETITIVE_BASELINE",
+  "claims_boundary": {
+    "competitor_total_advertised_menus": 65,
+    "competitor_total_overlap_with_hoy": "UNKNOWN_UNTIL_FULL_NAME_SET_VERIFIED",
+    "verified_public_name_sample": 13,
+    "secure_hoy_matches_in_sample": 3,
+    "sample_is_not_total_overlap_rate": true
+  },
+  "hoy_la_manga_snapshot": {
+    "published_businesses": 44,
+    "with_menu_source": 28,
+    "with_structured_menu": 10,
+    "source_exists_but_zero_structured_items": 18,
+    "active_structured_items": 762,
+    "production_ready_de_items": 608
+  },
+  "verified_public_competitor_name_sample": [
+    {"name":"A Tu Aire Chiringuito","hoy_match":null},
+    {"name":"Aires de Jaloque","hoy_match":null},
+    {"name":"Bar Mortadelo","hoy_match":null},
+    {"name":"Chiringuito La Pepa","hoy_match":null},
+    {"name":"Ego's on the Beach","hoy_match":null},
+    {"name":"El Jardín","hoy_match":{"restaurant_id":5,"name":"Restaurante El Jardín"}},
+    {"name":"Hawai 5 Tapería","hoy_match":null},
+    {"name":"Isla Grosa","hoy_match":{"restaurant_id":144,"name":"Restaurante Isla Grosa"}},
+    {"name":"Los Pony's","hoy_match":null},
+    {"name":"Paquebote","hoy_match":null},
+    {"name":"Plaza Sabor","hoy_match":null},
+    {"name":"Restaurante Surfing","hoy_match":null},
+    {"name":"Umai Beach","hoy_match":{"restaurant_id":12,"name":"Umai Beach"}}
+  ],
+  "decision": "Do not chase directory volume. Close decision-grade menu depth, merchant truth and cross-restaurant dish search."
+}
