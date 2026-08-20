@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'tests/competitive-menu-evidence-2.50.spec.js'
+      - 'tests/competitive-menu-candidates-2.50.spec.js'
       - 'docs/competitive/menu-candidates/**'
       - '.github/workflows/pr-competitive-menu-evidence.yml'
   workflow_dispatch:
@@ -35,6 +36,8 @@ jobs:
           PLAYWRIGHT_INSTALL_ATTEMPTS: '2'
           PLAYWRIGHT_INSTALL_TIMEOUT: 6m
         run: bash scripts/install-playwright-browser-resilient.sh chromium
+      - name: Validate competitive menu candidate contracts
+        run: npx playwright test tests/competitive-menu-candidates-2.50.spec.js --project=desktop-chromium --workers=1 --retries=0
       - name: Capture competitive first-party menu candidates only
         run: npx playwright test tests/competitive-menu-evidence-2.50.spec.js --project=desktop-chromium --workers=1 --retries=0
       - name: Upload competitive menu evidence
