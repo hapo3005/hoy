@@ -6,7 +6,7 @@ test('capture official image menus for conservative manual review', async ({ pag
   test.skip(testInfo.project.name !== 'desktop-chromium', 'source capture only needs one browser');
   await page.setViewportSize({ width: 1800, height: 2400 });
 
-  const captureImage = async (url, filename) => {
+  const captureImage = async (url, filename, attach = false) => {
     await page.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#fff}img{display:block;max-width:none;width:auto;height:auto}</style></head><body><img id="menu" src="${url.replace(/&/g, '&amp;')}"></body></html>`, { waitUntil: 'domcontentloaded' });
     const img = page.locator('#menu');
     await expect(img).toBeVisible({ timeout: 30_000 });
@@ -14,7 +14,14 @@ test('capture official image menus for conservative manual review', async ({ pag
     const natural = await img.evaluate(el => ({ w: el.naturalWidth, h: el.naturalHeight }));
     expect(natural.w, `${url} should load a real image`).toBeGreaterThan(250);
     expect(natural.h, `${url} should load a real image`).toBeGreaterThan(250);
-    await img.screenshot({ path: `qa-screenshots/source-menus/${filename}`, animations: 'disabled' });
+    const target = `qa-screenshots/source-menus/${filename}`;
+    await img.screenshot({ path: target, animations: 'disabled' });
+    if (attach) {
+      await testInfo.attach(`source-menu-${filename}`, {
+        path: target,
+        contentType: /\.jpe?g$/i.test(filename) ? 'image/jpeg' : 'image/png'
+      });
+    }
   };
 
   const sources = [
@@ -33,10 +40,21 @@ test('capture official image menus for conservative manual review', async ({ pag
     ['https://menurestauranteqr.es/wp-content/uploads/2025/07/vinos06-scaled.jpg', 'soul-wine.jpg'],
     ['https://menurestauranteqr.es/wp-content/uploads/2025/07/chupitosj-scaled.jpg', 'soul-shots.jpg'],
     ['https://menurestauranteqr.es/wp-content/uploads/2024/07/03soulbebidav-scaled.jpg', 'soul-drinks.jpg'],
-    ['https://menurestauranteqr.es/wp-content/uploads/2025/07/coctelsin.jpg', 'soul-cocktails.jpg']
+    ['https://menurestauranteqr.es/wp-content/uploads/2025/07/coctelsin.jpg', 'soul-cocktails.jpg'],
+
+    // Competitive menu-gap candidates: exact first-party image URLs currently referenced
+    // by the operators' own menu pages. Attach them to the Playwright report for review.
+    ['https://trasteverelamanga.es/wp-content/uploads/2024/07/menunuevo.jpg', 'trastevere-menu-current.jpg', true],
+    ['https://trasteverelamanga.es/wp-content/uploads/2019/05/FABIMENUtras-.png', 'trastevere-menu-secondary.png', true],
+    ['https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-01-copia-480x1024.jpg', 'isla-grosa-es-01.jpg', true],
+    ['https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-02-copia-480x1024.jpg', 'isla-grosa-es-02.jpg', true],
+    ['https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-04-copia-480x1024.jpg', 'isla-grosa-es-04.jpg', true],
+    ['https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-INGLES-01-copia-480x1024.jpg', 'isla-grosa-en-01.jpg', true],
+    ['https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-INGLES-02-copia-480x1024.jpg', 'isla-grosa-en-02.jpg', true],
+    ['https://restauranteislagrosalamanga.es/wp-content/uploads/2026/03/ISLA-INGLES-04-copia-480x1024.jpg', 'isla-grosa-en-04.jpg', true]
   ];
 
-  for (const [url, filename] of sources) await captureImage(url, filename);
+  for (const [url, filename, attach] of sources) await captureImage(url, filename, attach === true);
 
   await page.goto('https://www.bonoboplaya.com/nuestra-carta/', { waitUntil: 'domcontentloaded', timeout: 45_000 });
   await page.waitForTimeout(2500);
