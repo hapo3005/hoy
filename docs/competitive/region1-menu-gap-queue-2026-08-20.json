@@ -1,0 +1,28 @@
+{
+  "snapshot_date":"2026-08-20",
+  "scope":"Published La Manga del Mar Menor businesses with >=1 existing menu source and 0 active structured menu items",
+  "count":18,
+  "production_mutation_performed":false,
+  "rights_rule":"No third-party menu content is copied into HOY from this queue. Each source must pass identity, provenance and rights/use review before an editorial/import candidate is approved.",
+  "priority_order":["FIRST_PARTY_DIRECT","HOSTED_MENU_VERIFY_CONTROL","TRANSACTIONAL_THIRD_PARTY","THIRD_PARTY_REFERENCE"],
+  "rows":[
+    {"restaurant_id":7,"name":"Escuela de Pieter","source_kind":"official_link","source_url":"https://escueladepieter5818.live-website.com/carta/","source_class":"FIRST_PARTY_DIRECT","next_action":"recheck identity/currentness; prepare structured editorial candidate"},
+    {"restaurant_id":116,"name":"Pizzeria Trattoria Trastevere","source_kind":"official_link","source_url":"https://trasteverelamanga.es/menu/","source_class":"FIRST_PARTY_DIRECT","next_action":"recheck identity/currentness; prepare structured editorial candidate"},
+    {"restaurant_id":10,"name":"Restaurante Club Náutico Dos Mares","source_kind":"html","source_url":"https://clubnauticodosmares.com/restaurante/","source_class":"FIRST_PARTY_DIRECT","next_action":"recheck menu completeness; prepare structured editorial candidate"},
+    {"restaurant_id":144,"name":"Restaurante Isla Grosa","source_kind":"official_link","source_url":"https://restauranteislagrosalamanga.es/menu/","source_class":"FIRST_PARTY_DIRECT","next_action":"recheck identity/currentness; prepare structured editorial candidate"},
+    {"restaurant_id":152,"name":"White Diamond Lounge Bar","source_kind":"html","source_url":"https://whitediamondloungebar.com/","source_class":"FIRST_PARTY_DIRECT","next_action":"locate canonical menu surface; recheck currentness"},
+    {"restaurant_id":234,"name":"Soul Kitchen","source_kind":"official_link","source_url":"https://menurestauranteqr.es/soulkitchen/","source_class":"HOSTED_MENU_VERIFY_CONTROL","next_action":"verify business control/identity and menu completeness before structuring"},
+    {"restaurant_id":210,"name":"Cafeteria DelPuerto","source_kind":"html","source_url":"https://cafeteria-delpuerto.menustic.com/","source_class":"HOSTED_MENU_VERIFY_CONTROL","next_action":"verify business control/identity and menu completeness before structuring"},
+    {"restaurant_id":199,"name":"Estacio Playa","source_kind":"html","source_url":"https://estacio-playa.res-menu.net/","source_class":"HOSTED_MENU_VERIFY_CONTROL","next_action":"verify business control/identity and menu completeness before structuring"},
+    {"restaurant_id":213,"name":"Munashi Go","source_kind":"official_link","source_url":"https://www.just-eat.es/restaurants-munashi-go-la-manga-la-manga/menu","source_class":"TRANSACTIONAL_THIRD_PARTY","next_action":"do not copy; seek first-party source or operator confirmation"},
+    {"restaurant_id":117,"name":"Asador argentino Mi refugio","source_kind":"manual","source_url":"https://todalainformacion.com/asador-argentino-mi-refugio-la-manga/","source_class":"THIRD_PARTY_REFERENCE","next_action":"do not copy; locate first-party source/operator confirmation"},
+    {"restaurant_id":162,"name":"Chiringuito de Lola","source_kind":"html","source_url":"https://es.restaurantguru.com/paellas-La-Manga-m6572/2","source_class":"THIRD_PARTY_REFERENCE","next_action":"do not copy; locate first-party source/operator confirmation"},
+    {"restaurant_id":157,"name":"Chiringuito Dos Mares Beach Club","source_kind":"html","source_url":"https://es.restaurantguru.com/Chiringuito-Dos-Mares-La-Manga/menu","source_class":"THIRD_PARTY_REFERENCE","next_action":"do not copy; locate first-party source/operator confirmation"},
+    {"restaurant_id":6,"name":"Chiringuito El Barón","source_kind":"manual","source_url":"https://es.restaurantguru.com/Chiringuito-El-Baron-La-Manga-2/menu","source_class":"THIRD_PARTY_REFERENCE","next_action":"do not copy; locate first-party source/operator confirmation"},
+    {"restaurant_id":148,"name":"Chiringuito El Mirador","source_kind":"manual","source_url":"https://es.restaurantguru.com/Chiringuito-El-Mirador-Spain/menu","source_class":"THIRD_PARTY_REFERENCE","next_action":"do not copy; locate first-party source/operator confirmation"},
+    {"restaurant_id":151,"name":"Chiringuito Mångata","source_kind":"html","source_url":"https://es.restaurantguru.com/Chiringuito-Mangata-La-Manga/menu","source_class":"THIRD_PARTY_REFERENCE","next_action":"do not copy; use listed business website/operator route to replace source"},
+    {"restaurant_id":180,"name":"Chiringuito Odesa Beach","source_kind":"html","source_url":"https://restaurantguru.com/Chiringuito-Odesa-Beach-La-Manga","source_class":"THIRD_PARTY_REFERENCE","next_action":"do not copy; locate first-party source/operator confirmation"},
+    {"restaurant_id":5,"name":"Restaurante El Jardín","source_kind":"manual","source_url":"https://menu02.restaurantguru.com/m1/menu-Restaurant-Restaurante-El-Jardin-5ti-4.jpg","source_class":"THIRD_PARTY_REFERENCE","next_action":"do not copy; replace with first-party/operator-confirmed source"},
+    {"restaurant_id":12,"name":"Umai Beach","source_kind":"html","source_url":"https://carta.menu/restaurants/la-manga/umai-beach","source_class":"THIRD_PARTY_REFERENCE","next_action":"do not copy; locate first-party source/operator confirmation"}
+  ]
+}
