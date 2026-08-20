@@ -131,7 +131,10 @@
   const baseHome250=home;
   home=function(){return inject(baseHome250())};
 
-  function rerender(){if(state?.view==='home'&&typeof render==='function')render()}
+  function rerender(){
+    const cloudReady=typeof cloud==='undefined'||cloud?.status==='online'||cloud?.status==='error';
+    if(cloudReady&&state?.view==='home'&&typeof render==='function')render();
+  }
   document.addEventListener('input',e=>{
     const input=e.target.closest?.('[data-food250-query]');if(!input)return;
     ui.query=input.value||'';rerender();
@@ -150,5 +153,5 @@
   window.addEventListener('hoy:menus-ready',()=>rerender());
 
   window.hoyFoodFinder250={version:'2.50.0',normalize,comparablePrice,menuEligible,catalog,search,state:ui,restaurantFor};
-  rerender();
+  if(typeof cloud==='undefined'||cloud?.status!=='connecting')rerender();
 })();
