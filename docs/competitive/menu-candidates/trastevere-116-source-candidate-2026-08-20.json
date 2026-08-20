@@ -2,46 +2,55 @@
   "snapshot_date": "2026-08-20",
   "restaurant_id": 116,
   "restaurant_name": "Pizzeria Trattoria Trastevere",
-  "candidate_status": "CAPTURE_PENDING_MANUAL_REVIEW",
+  "menu_source_id": "cb2981fa-6622-41a3-b64d-85cecd1dc013",
+  "candidate_status": "SOURCE_INTEGRITY_BLOCKED_PRIMARY_MENU_ASSET_404",
   "production_mutation_performed": false,
   "first_party": {
     "website": "https://trasteverelamanga.es/",
     "menu_page": "https://trasteverelamanga.es/menu/",
     "identity_status": "CONFIRMED_FIRST_PARTY",
-    "menu_page_currently_public": true
+    "menu_page_currently_public": true,
+    "menu_page_http_status": 200
   },
-  "source_images": [
-    {
+  "source_evidence": {
+    "capture_gate": "HOY Competitive Menu Evidence",
+    "capture_result": "PASS_AS_FAIL_CLOSED_CLASSIFICATION",
+    "primary_menu_asset": {
       "url": "https://trasteverelamanga.es/wp-content/uploads/2024/07/menunuevo.jpg",
-      "role": "primary_current_menu_candidate",
-      "visual_review": "PENDING"
+      "page_reference_present": true,
+      "http_status": 404,
+      "renderable": false,
+      "classification": "BROKEN_PRIMARY_MENU_ASSET"
     },
-    {
+    "2019_asset": {
       "url": "https://trasteverelamanga.es/wp-content/uploads/2019/05/FABIMENUtras-.png",
-      "role": "secondary_menu_asset_candidate",
-      "visual_review": "PENDING"
+      "http_status": 200,
+      "dimensions": "669x208",
+      "actual_role": "site_header_logo_media",
+      "menu_role": false,
+      "note": "Trace/DOM evidence identifies this as logo/header media; it must not substitute for the broken menu."
     }
-  ],
+  },
   "production_source_state_observed": {
     "source_authority": "first_party",
     "source_format": "image_menu",
     "coverage_scope": "full_menu",
     "completeness_status": "image_complete",
-    "structured_items": 0
+    "structured_items": 0,
+    "metadata_reconciliation_needed": true,
+    "reason": "Current first-party menu page is reachable but its actual primary menu image returns HTTP 404."
   },
-  "required_before_structuring": [
-    "capture_exact_current_image_bytes",
-    "record_dimensions_and_hashes",
-    "manual_visual_completeness_review",
-    "separate_primary_menu_from_secondary_or_legacy_asset",
-    "transcribe_without_inventing_missing_text",
-    "language_coverage_review",
-    "DE_ES_EN editorial_translation_review"
+  "next_action": [
+    "do_not_structure_or_publish_from_current_source",
+    "recheck_operator_page_for_repaired_or_replaced_menu_asset",
+    "seek_operator_confirmation_or_new_first_party_menu_source",
+    "reconcile_menu_sources completeness metadata after reviewed Production authorization"
   ],
   "hard_boundaries": {
     "auto_publish": false,
     "production_insert": false,
-    "treat_secondary_asset_as_current_without_review": false,
-    "invent_unreadable_items": false
+    "use_header_logo_as_menu": false,
+    "invent_menu_items": false,
+    "treat_404_asset_as_complete": false
   }
 }
