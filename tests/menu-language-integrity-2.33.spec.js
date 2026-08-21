@@ -58,23 +58,20 @@ test('La Finca renders all 19 current items in German on the German page version
   await expect(profile).not.toContainText('Breast of chicken');
 });
 
-test('page language and menu locale are coupled DE -> EN -> ES with fail-closed coverage',async({page})=>{
+test('page language and menu locale are coupled DE -> EN -> ES with complete curated La Finca coverage',async({page})=>{
   await ready(page);
-  const german=await page.evaluate(()=>{const m=menuFor(DATA.find(x=>Number(x.id)===216));return {page:state.lang,locale:m.locale,integrity:m.integrity,complete:m.languageCoverage?.complete}});
-  expect(german).toMatchObject({page:'de',locale:'de',complete:true});
+  const german=await page.evaluate(()=>{const m=menuFor(DATA.find(x=>Number(x.id)===216));return {page:state.lang,locale:m.locale,integrity:m.integrity,coverage:m.languageCoverage}});
+  expect(german).toMatchObject({page:'de',locale:'de',integrity:'complete'});
+  expect(german.coverage).toMatchObject({locale:'de',total:19,ready:19,missing:0,complete:true});
 
   const english=await page.evaluate(async()=>{state.lang='en';await window.hoyRefreshNativeMenus248();const m=menuFor(DATA.find(x=>Number(x.id)===216));return {page:state.lang,locale:m.locale,integrity:m.integrity,coverage:m.languageCoverage,state:window.hoyNativeMenuState248}});
-  expect(english.page).toBe('en');
-  expect(english.coverage.locale).toBe('en');
-  expect(english.integrity).toBe('native_language_blocked');
-  expect(english.locale).toBeNull();
+  expect(english).toMatchObject({page:'en',locale:'en',integrity:'complete'});
+  expect(english.coverage).toMatchObject({locale:'en',total:19,ready:19,missing:0,complete:true});
   expect(english.state.locale).toBe('en');
 
   const spanish=await page.evaluate(async()=>{state.lang='es';await window.hoyRefreshNativeMenus248();const m=menuFor(DATA.find(x=>Number(x.id)===216));return {page:state.lang,locale:m.locale,integrity:m.integrity,coverage:m.languageCoverage,state:window.hoyNativeMenuState248}});
-  expect(spanish.page).toBe('es');
-  expect(spanish.coverage.locale).toBe('es');
-  expect(spanish.integrity).toBe('native_language_blocked');
-  expect(spanish.locale).toBeNull();
+  expect(spanish).toMatchObject({page:'es',locale:'es',integrity:'complete'});
+  expect(spanish.coverage).toMatchObject({locale:'es',total:19,ready:19,missing:0,complete:true});
   expect(spanish.state.locale).toBe('es');
 });
 
