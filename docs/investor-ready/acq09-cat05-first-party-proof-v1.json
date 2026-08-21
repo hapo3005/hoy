@@ -1,0 +1,151 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "TECHNICALLY_READY_OPERATIONAL_PROOF_NOT_STARTED",
+  "verifiedAt": "2026-08-21",
+  "objective": "Connect CAT-05 first-party confirmation to CAT-02 freshness so verified merchant confirmations become dated, recurring, measurable product-trust evidence without conflating research recency, factual confirmation, commercial rights or market proof.",
+  "parent": {
+    "cat02Pr": 174,
+    "cat02Head": "6bf567381c5c7391644868a24f77ec4cd289f59b",
+    "cat02RuntimeOwner": "merchant-truth-freshness-2.50.js",
+    "existingF1Runtime": "operator-data-confirmation-2.29.js",
+    "separateRightsReceiptCandidatePr": 146
+  },
+  "claimBoundary": {
+    "contactFreezeActive": true,
+    "outreachAuthorized": false,
+    "productionMutationAuthorizedByThisArtifact": false,
+    "fakeOperatorConfirmationAllowed": false,
+    "researchFreshnessEqualsOperatorConfirmation": false,
+    "factualConfirmationEqualsRightsClearance": false,
+    "factualConfirmationEqualsPaidProof": false,
+    "singleConfirmationEqualsRecurringProof": false,
+    "singleBusinessEqualsMarketProof": false,
+    "rightsReceiptRequiredForFreeFactualConfirmation": false,
+    "rightsReceiptCandidateIsSeparateFromCat05FreshnessProof": true
+  },
+  "productionBaseline": {
+    "publishedGastroBusinesses": 180,
+    "preparedWeeklyHoursBusinesses": 25,
+    "restaurantMemberships": 0,
+    "verifiedMemberships": 0,
+    "verifiedBusinesses": 0,
+    "liveHoursRows": 0,
+    "liveHoursConfirmed": 0,
+    "liveHoursConfirmedWithin30d": 0,
+    "serviceRows": 48,
+    "servicesConfirmed": 0,
+    "accessibilityRows": 166,
+    "accessibilityOperatorConfirmed": 0,
+    "businessTermsVersions": 1,
+    "activeBusinessTermsVersions": 0,
+    "businessTermsAcceptances": 0,
+    "rightsBackedBusinessConfirmations": 0
+  },
+  "existingFactualConfirmationPaths": [
+    {
+      "fieldFamily": "weekly_hours",
+      "status": "IMPLEMENTED_MAIN",
+      "writeTarget": "public.restaurant_live_hours",
+      "proofTimestamp": "confirmed_at",
+      "verifiedOperatorRequired": true,
+      "cat02FreshnessUse": "same Madrid day may support today-confirmed wording; <=30d remains operator-maintained; stale/invalid loses NOW priority",
+      "rightsClaim": "NONE_FROM_F1_ALONE"
+    },
+    {
+      "fieldFamily": "services",
+      "status": "DATABASE_PATH_EXISTS_NO_CURRENT_PROOF",
+      "writeTarget": "public.restaurant_services",
+      "proofTimestamp": "confirmed_at",
+      "verifiedOperatorRequired": true,
+      "cat02FreshnessUse": "eligible for field-specific confirmation SLA once operational flow is reconciled",
+      "rightsClaim": "NONE_FROM_F1_ALONE"
+    },
+    {
+      "fieldFamily": "accessibility",
+      "status": "LEGACY_OPERATOR_CONFIRMATION_COLUMN_EXISTS_NO_CURRENT_PROOF",
+      "writeTarget": "public.restaurant_accessibility",
+      "proofTimestamp": "operator_confirmed_at",
+      "verifiedOperatorRequired": true,
+      "cat02FreshnessUse": "field-specific stale_after remains canonical for normalized facts; operator confirmation must not override unknown/disputed semantics",
+      "rightsClaim": "NONE_FROM_F1_ALONE"
+    }
+  ],
+  "excludedFromInitialRecurringProof": [
+    "menu_whole_profile_confirmation_until_exact_operator_write_and_rights_semantics_are_reconciled",
+    "media",
+    "offers",
+    "events",
+    "profile_core",
+    "live_status_beyond_existing_hours_path"
+  ],
+  "proofLadder": [
+    {
+      "id": "FPC0",
+      "name": "Technical confirmation-to-freshness path",
+      "status": "PASS",
+      "evidence": "Main contains verified-operator weekly-hours confirmation path and CAT-02 contains dated freshness semantics."
+    },
+    {
+      "id": "FPC1",
+      "name": "First independent merchant confirmation",
+      "status": "NOT_PROVEN",
+      "workingGate": "At least one verified external business produces a genuine F1 weekly-hours confirmation through the product flow."
+    },
+    {
+      "id": "FPC2",
+      "name": "Initial multi-merchant coverage",
+      "status": "NOT_PROVEN",
+      "workingGate": "At least five independent external businesses have genuine current F1 confirmations; founder/related-party or synthetic rows do not count."
+    },
+    {
+      "id": "FPC3",
+      "name": "Recurring confirmation behavior",
+      "status": "NOT_PROVEN",
+      "workingGate": "At least three independent businesses complete a second genuine confirmation cycle after their first confirmation; same-session duplicates do not count."
+    },
+    {
+      "id": "FPC4",
+      "name": "Operational freshness discipline",
+      "status": "NOT_PROVEN",
+      "workingGate": "For 30 consecutive days, at least 80% of businesses inside the explicitly enrolled confirmation cohort keep their confirmation-governed critical facts within the applicable SLA, with no stale operator fact retaining NOW priority."
+    }
+  ],
+  "metricDefinitions": [
+    {
+      "id": "merchant_factual_confirmation_coverage",
+      "numerator": "distinct enrolled external businesses with at least one current genuine F1 confirmation",
+      "denominator": "distinct businesses in the explicitly enrolled confirmation cohort",
+      "excludes": ["synthetic", "founder_or_related_party_when_used_as_market_proof", "unverified_membership"]
+    },
+    {
+      "id": "confirmation_freshness_within_sla",
+      "numerator": "confirmation-governed facts whose latest genuine confirmation timestamp is within the field-specific SLA",
+      "denominator": "confirmation-governed facts expected for the enrolled cohort",
+      "notes": "Missing facts remain missing/unknown; they are not silently counted as fresh."
+    },
+    {
+      "id": "merchant_reconfirmation_rate",
+      "numerator": "independent businesses with a second genuine confirmation cycle",
+      "denominator": "independent businesses whose first confirmation is old enough to be eligible for reconfirmation",
+      "notes": "Same-session repeated writes and automated refreshes do not count as reconfirmation."
+    }
+  ],
+  "operationalQueue": {
+    "currentState": "BLOCKED_BY_ZERO_VERIFIED_MEMBERSHIPS_AND_CONTACT_FREEZE",
+    "preOutreachWorkAllowed": [
+      "maintain prepared weekly-hours coverage",
+      "keep CAT-02 source freshness within internal SLA",
+      "run read-only confirmation audits",
+      "verify runtime and server-side membership gates",
+      "prepare cohort definitions and evidence templates"
+    ],
+    "requiresSeparateAuthorization": [
+      "merchant outreach",
+      "creating or verifying real memberships",
+      "activating Business Terms",
+      "production data mutation outside genuine operator product actions",
+      "using confirmations in buyer claims"
+    ]
+  },
+  "successCondition": "CAT-05 becomes evidence-bearing only through genuine verified external merchant behavior. Technical readiness alone remains FPC0 and must not be promoted into a market, retention or competitive-superiority claim."
+}
