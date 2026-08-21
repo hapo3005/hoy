@@ -2,9 +2,19 @@ const {test,expect}=require('@playwright/test');
 
 test.use({serviceWorkers:'block'});
 
+async function isolateResearchFamily(page){
+  await page.route('**/rest/v1/restaurant_family_features**',route=>route.fulfill({
+    status:200,
+    contentType:'application/json',
+    headers:{'access-control-allow-origin':'*'},
+    body:'[]'
+  }));
+}
+
 async function openFamily(page){
+  await isolateResearchFamily(page);
   await page.goto('./?familyPreview=1',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyResearchStandard241?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true&&window.hoyFamilyDataCompletion242?.state?.status==='ready',{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyAuditedPreview240?.state?.mode==='research'&&window.hoyFamilyAuditedPreview240?.state?.readyCount===19&&window.hoyFamilyResearchStandard241?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true&&window.hoyFamilyDataCompletion242?.state?.status==='ready',{timeout:30000});
   await page.locator('[data-family240-home-context]').click();
   await expect.poll(()=>page.evaluate(()=>state.family)).toBe('family');
   await expect(page.locator('[data-result-count]')).toHaveText('19');
@@ -85,18 +95,19 @@ test('high-value profile gaps are closed with precise concluded states',async({r
   expect(rows.get('restaurante-mediterraneo-el-mojon').services).toMatchObject({pickup:'available',delivery:'unavailable'});
 });
 
-test('completed research profiles render not-published and unavailable services as truth, not generic TODOs',async({page})=>{
-  await openFamily(page);
-  let detail=await openFamilyCard(page,'La Rusticana');
-  await expect(detail).toHaveAttribute('data-family242-quality','release_ready');
-  await expect(detail.locator('#family240-enriched-overview')).toContainText('Nicht öffentlich angegeben');
-  await expect(detail.locator('#family240-enriched-overview')).not.toContainText('Noch zu prüfen');
-  await page.locator('#detail [data-close]').click();
+test('completed research data encodes not-published and unavailable services as truth while live Family remains authoritative',async({request})=>{
+  const data=await (await request.get('./data/family-profile-completion-2026-08-17.json')).json();
+  const rows=new Map(data.profile_patches.map(x=>[x.slug,x]));
 
-  detail=await openFamilyCard(page,'Casa Lucrecia');
-  await expect(detail).toHaveAttribute('data-family242-quality','release_ready');
-  await expect(detail.locator('#family240-enriched-overview')).toContainText('Nicht angeboten');
-  await expect(detail).toContainText('Mo geschlossen · Di–So 12:00–17:30');
+  const rusticana=rows.get('la-rusticana');
+  expect(rusticana.data_quality.profile_status).toBe('release_ready');
+  expect(rusticana.services).toMatchObject({reservation:'available',pickup:'not_published',delivery:'not_published'});
+  expect(Object.values(rusticana.services)).not.toContain('unknown');
+
+  const casa=rows.get('casa-lucrecia');
+  expect(casa.data_quality.profile_status).toBe('release_ready');
+  expect(casa.services).toMatchObject({reservation:'available',pickup:'available',delivery:'unavailable'});
+  expect(casa.hours).toBe('Mo geschlossen · Di–So 12:00–17:30');
 });
 
 test('the four existing Family venues use the same premium completion depth inside Family only',async({page})=>{

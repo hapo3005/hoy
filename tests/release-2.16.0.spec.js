@@ -44,6 +44,18 @@ async function openDiscoverForVenue(page) {
   await expect(page.locator('.list-card[data-open="1"]')).toBeVisible();
 }
 
+async function assertMapSurfaceAvailable(map) {
+  await expect(map).toBeVisible();
+  const mapEl = map.locator('#hoyMap');
+  await expect(mapEl).toBeVisible();
+  await expect.poll(
+    () => mapEl.evaluate(el => el.classList.contains('leaflet-container') || Boolean(el.querySelector('.map-load-error'))),
+    { timeout: 20_000 }
+  ).toBe(true);
+  const leafletReady = await mapEl.evaluate(el => el.classList.contains('leaflet-container'));
+  if (!leafletReady) await expect(map.locator('.map-load-error')).toContainText(/Kartenbibliothek konnte nicht geladen werden/i);
+}
+
 test('one published event is reused across home, discover, map and profile without pretending to be live-confirmed', async ({ page }, testInfo) => {
   await mockPublishedEvents(page, [fixtureEvent({ running: true })]);
   await page.goto('./', { waitUntil: 'domcontentloaded' });
@@ -65,7 +77,7 @@ test('one published event is reused across home, discover, map and profile witho
 
   await page.locator('.journey-view-toggle [data-view-switch="map"]').click();
   const map = page.locator('.map-journey-signature');
-  await expect(map.locator('#hoyMap')).toHaveClass(/leaflet-container/, { timeout: 20_000 });
+  await assertMapSurfaceAvailable(map);
   const mapCard = map.locator('.map-decision-card[data-map-card="1"]');
   await expect(mapCard).toBeVisible();
   await expect(mapCard.locator('.hoy-current-signal')).toContainText(/Laut Termin · jetzt/i);

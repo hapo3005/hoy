@@ -15,4 +15,19 @@ initCloud();
   script.async=false;
   document.body.appendChild(script);
 })();
+(function loadHoyFoodFinder250(){
+  if(!document.querySelector('link[data-hoy-food-finder]')){
+    const style=document.createElement('link');
+    style.rel='stylesheet';
+    style.href='./food-finder-2.50.css?v=2.50.0';
+    style.dataset.hoyFoodFinder='true';
+    document.head.appendChild(style);
+  }
+  if(document.querySelector('script[data-hoy-food-finder]'))return;
+  const script=document.createElement('script');
+  script.src='./food-finder-2.50.js?v=2.50.0';
+  script.dataset.hoyFoodFinder='true';
+  script.async=false;
+  document.body.appendChild(script);
+})();
 if('serviceWorker' in navigator && location.protocol!=='file:')navigator.serviceWorker.register('./service-worker.js').catch(()=>{});

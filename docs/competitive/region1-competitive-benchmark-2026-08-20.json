@@ -1,0 +1,73 @@
+{
+  "version": "1.1",
+  "snapshot_date": "2026-08-20",
+  "scope": "HOY Gastro La Manga del Mar Menor versus observed Region 1 discovery/menu/distribution surfaces",
+  "status": "READ_ONLY_COMPETITIVE_BASELINE",
+  "claims_boundary": {
+    "external_counts_are_observed_public_claims_not_audited_by_hoy": true,
+    "tu_localidad_advertised_menus_july_2026": 65,
+    "el_paladar_claimed_searches_first_month": "1100+",
+    "viviendo_directory_claimed_places": ">1400",
+    "viviendo_restaurants_shown": 234,
+    "restaurantes_la_manga_listings": 132,
+    "san_javier_activa_android_downloads_visible": "5K+",
+    "la_manga_activa_android_downloads_visible": "10+"
+  },
+  "hoy_la_manga_snapshot": {
+    "published_businesses": 44,
+    "with_menu_source": 28,
+    "structured_menu_businesses": 10,
+    "source_but_zero_items": 18,
+    "active_menu_items": 762,
+    "production_ready_german_items": 608
+  },
+  "competitive_dimensions": {
+    "menu_breadth": {
+      "current_position": "behind advertised Tu Localidad breadth",
+      "response": "Close source-backed structured-menu gap; prioritize first-party candidates and block third-party copying."
+    },
+    "cross_restaurant_food_search": {
+      "current_position": "implemented as Food Finder 2.50 on guest-approved native menus",
+      "constraint": "Value scales with native menu coverage."
+    },
+    "truth_and_provenance": {
+      "current_position": "strategic HOY advantage",
+      "response": "Keep first-party/source authority, freshness and fail-closed publication as product features, not back-office metadata."
+    },
+    "family_and_accessibility": {
+      "current_position": "deeper structured model than generic category/service badges",
+      "response": "Increase verified coverage without collapsing unknown into yes/no claims."
+    },
+    "attention_and_seo": {
+      "current_position": "behind established local editorial/directory surfaces",
+      "response": "Build source-backed indexable decision pages and a distribution plan; do not rely on app quality alone."
+    },
+    "merchant_distribution": {
+      "current_position": "needs proof",
+      "response": "Use free claim/correction path, menu-control value, events/promotions and local partnerships to create merchant pull."
+    },
+    "multi_vertical_platform": {
+      "current_position": "potential HOY advantage, not yet market-proven",
+      "response": "Exploit shared truth/merchant/data infrastructure across Gastro and Lifestyle only where G2 proof or exit value improves."
+    }
+  },
+  "priority_gaps": [
+    {"rank": 1, "gap": "structured_native_menu_coverage", "reason": "Food Finder and price utility are coverage-constrained and Tu Localidad advertises materially broader menu supply."},
+    {"rank": 2, "gap": "distribution_share_of_attention", "reason": "Viviendo and editorial/Activa channels already aggregate local demand and merchants."},
+    {"rank": 3, "gap": "merchant_supply_flywheel", "reason": "Menu freshness, NOW, events and promotions require an operator update channel that is easier than updating multiple directories."},
+    {"rank": 4, "gap": "continuous_competitive_detection", "reason": "The Viviendo/Activa blindspots show that competitor discovery must be an operating process, not an ad-hoc audit."}
+  ],
+  "market_proof_signals": [
+    {
+      "signal": "cross_restaurant_menu_search",
+      "source": "El Paladar de la Huerta / referenced comparator",
+      "observed_claim": "1100+ searches in first month (June-July 2026)",
+      "hoy_use": "external demand signal only; not HOY analytics"
+    }
+  ],
+  "hard_boundaries": {
+    "no_competitor_content_copy": true,
+    "no_unverified_count_promotion": true,
+    "no_production_write_from_benchmark": true
+  }
+}

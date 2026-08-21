@@ -24,7 +24,7 @@ test('overnight schedules work while uncertain public hours stay deliberately si
 test('operator special hours may truthfully use a live label while current status stays on decision surfaces', async ({ page }) => {
   await page.goto('./', { waitUntil: 'domcontentloaded' });
   const operator = await page.evaluate(() => window.hoyNowStatus219For?.({ operator_special_hours: { service_date: '2026-08-11', intervals: [['10:00','14:00']], is_closed: false, updated_at: '2026-08-11T07:00:00Z' } }, new Date('2026-08-11T10:30:00Z')));
-  expect(operator).toMatchObject({ state: 'open', source: 'operator-special', operatorConfirmed: true, label: 'Jetzt geöffnet · bis 14:00', proof: 'Sonderzeit vom Betrieb' });
+  expect(operator).toMatchObject({ state: 'open', source: 'operator-special', operatorConfirmed: true, label: 'Jetzt geöffnet · bis 14:00', proof: 'Sonderzeit vom Betrieb · heute 09:00' });
 
   await page.locator('[data-btm="discover"]').click();
   await expect(page.locator('.journey-discover-signature')).toBeVisible();

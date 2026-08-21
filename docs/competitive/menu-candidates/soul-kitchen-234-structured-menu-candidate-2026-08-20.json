@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "snapshot_date": "2026-08-20",
+  "restaurant_id": 234,
+  "restaurant_name": "Soul Kitchen",
+  "menu_page": "https://menurestauranteqr.es/soulkitchen/",
+  "candidate_status": "STRUCTURED_TRILINGUAL_EDITORIAL_CANDIDATE_NOT_PRODUCTION_APPLIED",
+  "production_mutation_performed": false,
+  "guest_publish_allowed": false,
+  "source_authority": "first_party",
+  "source_format": "image_menu",
+  "coverage_scope": "full_menu_and_drinks",
+  "source_image_sha256": {
+    "01-01SOULa--scaled.jpg": "bab4d33e4cf0918cd3781bd7bf547d45b18c30f198ac5208003ce425d15b4bfe",
+    "02-02SOULa--scaled.jpg": "6823966c8fd5b6defc487368e3f3500629b1e0f2b9ac2b2c3e3e02d3739aeeac",
+    "03-03SOULa--scaled.jpg": "9e4479c24929853957833a6806b0ca5db4ef38cf32e16180da73a36ddebffc7c",
+    "04-04SOULa-copia-scaled.jpg": "4e12155fb33c47dde942da89b0b8211d28092deaee2e7a19ee6bbf30c4fc0949",
+    "05-05SOULa-scaled.jpg": "51ce41c924d17756131a1cb0677480e8c9221b482944a8bd18fb28fc2d6981e4",
+    "06-06SOULab.jpg": "8bf9a4bda4fb59e33f78c4464ce3e56a2a40fb6e351984e91190ef237b753ff1",
+    "07-06soulcafe-scaled.jpg": "26ed711a64ba0a79ce6ada8963188c1e32bde7e90fd0be361c3decfff3ee7d64",
+    "08-01soulcervezz-scaled.jpg": "c8872ff537b773d05ba88cff5702c9318f1baa625de15920cad0b2bc19162623",
+    "09-vinos06-scaled.jpg": "bf67c6af7f48c73e74ec25270ce701120a6aaeaf7623a0ad783ac37912eafd83",
+    "10-chupitosj-scaled.jpg": "3c0475b4259d8f4e0d89c060788a601c342a17199c6a9ffced54248c18128625",
+    "11-03soulbebidav-scaled.jpg": "92a487b96e2859751c27dae119a494c9340413d33cf50b607215228d984280bf",
+    "12-coctelsin.jpg": "0a6975fb6453d1a2ad8e4603d43ad123c46795ac195c9f0eda7fd691f78c0ef3"
+  },
+  "translation_policy": {
+    "printed_trilingual_text_preserved_verbatim_where_visible": true,
+    "assistant_draft_translation_requires_human_review": true,
+    "assistant_draft_is_production_ready": false,
+    "operator_or_editor_confirmation_required_before_locale_publish": true
+  },
+  "allergen_policy": {
+    "guest_claims_allowed": false,
+    "reason": "Allergen-style icons are visible on food pages but the captured evidence set does not contain a reliable legend mapping symbols to allergens. No allergen meaning is inferred."
+  },
+  "counts": {
+    "items": 162,
+    "food_and_dessert_items": 61,
+    "beverage_items": 101,
+    "sections": 23,
+    "source_printed_or_proper_name_rows": 132,
+    "rows_with_assistant_draft_translation": 30
+  },
+  "hard_boundaries": {
+    "auto_publish": false,
+    "production_insert": false,
+    "allergen_guest_claims": false,
+    "invent_missing_items_or_prices": false,
+    "assistant_translation_auto_curated": false,
+    "image_source_is_finished_guest_menu": false
+  },
+  "tuple_schema": [
+    "section_es",
+    "section_de",
+    "section_en",
+    "name_es",
+    "name_de",
+    "name_en",
+    "details_es",
+    "details_de",
+    "details_en",
+    "price_eur",
+    "serving",
+    "source_page",
+    "translation_origin"
+  ],
+  "parts": [
+    {
+      "file": "soul-kitchen-234-structured-menu-candidate-2026-08-20-part-1.json",
+      "source_pages": [1,2],
+      "items": 24,
+      "sha256": "772279fc816a7bcd7544fafc32045d00a93a46e4902ce8ef9122a007f431fb50"
+    },
+    {
+      "file": "soul-kitchen-234-structured-menu-candidate-2026-08-20-part-2.json",
+      "source_pages": [3,4],
+      "items": 18,
+      "sha256": "b5dc40948c11bacc70dce1a1d2e5de4bbc4e8af83dfd6f6355c77ea2afeb5838"
+    },
+    {
+      "file": "soul-kitchen-234-structured-menu-candidate-2026-08-20-part-3.json",
+      "source_pages": [5,6],
+      "items": 19,
+      "sha256": "d53451e97fe6f41b66e294a4aa5a1fb049c8bee33daefc4f8e856b19e8c571f9"
+    },
+    {
+      "file": "soul-kitchen-234-structured-menu-candidate-2026-08-20-part-4.json",
+      "source_pages": [7,8],
+      "items": 46,
+      "sha256": "b66d53b03bfd4ea92ed43b8df2a52c9a404c5eea6b5e0204469421903717802b"
+    },
+    {
+      "file": "soul-kitchen-234-structured-menu-candidate-2026-08-20-part-5.json",
+      "source_pages": [9,10],
+      "items": 30,
+      "sha256": "d4f933d599d7172f5f7e983d096ce7b4dc96292c6698a82e052e79e267ae4016"
+    },
+    {
+      "file": "soul-kitchen-234-structured-menu-candidate-2026-08-20-part-6.json",
+      "source_pages": [11,12],
+      "items": 25,
+      "sha256": "191d129dba2ceaa40ef275322c373b9d200e272f9b7b3a1c90fc8b5fe7068abf"
+    }
+  ],
+  "integrity": {
+    "total_items_across_parts": 162,
+    "part_files": 6,
+    "unique_item_key": "section_es + name_es + price_eur + serving"
+  }
+}

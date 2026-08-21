@@ -1,0 +1,52 @@
+{
+  "version": "1.0",
+  "snapshot_date": "2026-08-20",
+  "restaurant_id": 152,
+  "name": "White Diamond Lounge Bar",
+  "candidate_status": "FIRST_PARTY_RESTAURANT_CONFIRMED_FULL_MENU_SOURCE_NOT_FOUND",
+  "production_import_allowed": false,
+  "production_mutation_performed": false,
+  "guest_publish_allowed": false,
+  "source": {
+    "restaurant_page_url": "https://whitediamondloungebar.com/",
+    "english_page_url": "https://whitediamondloungebar.com/en/",
+    "source_authority": "first_party",
+    "restaurant_identity_confirmed": true,
+    "restaurant_page_reachable": true,
+    "bilingual_site_visible": true,
+    "page_explicitly_mentions_extensive_menu": true,
+    "full_itemized_menu_found": false,
+    "prices_found": false,
+    "canonical_downloadable_menu_asset_found": false,
+    "official_social_links_present": true,
+    "social_menu_evidence_verified_in_public_crawl": false
+  },
+  "contact_evidence": {
+    "contact_page_url": "https://whitediamondloungebar.com/en/contacto/",
+    "phone": "610 955 982",
+    "email": "contacto@whitediamondloungebar.com",
+    "displayed_time_text": "08:00 - 15:00",
+    "treat_displayed_time_as_verified_weekly_restaurant_hours": false,
+    "reason": "The contact page exposes a time range without a complete weekly restaurant-hours context; HOY must not turn it into a NOW schedule."
+  },
+  "source_integrity_decision": {
+    "structured_menu_candidate_allowed": false,
+    "website_menu_claim_may_be_treated_as_complete_menu": false,
+    "social_links_may_be_treated_as_menu_source_without_capture": false,
+    "reason": "The current first-party site confirms a broad food-and-drink menu but does not expose the itemized priced source needed for HOY native-menu completeness."
+  },
+  "next_actions": [
+    "Obtain or locate a current first-party QR menu, PDF, itemized menu page or operator-confirmed complete menu.",
+    "Use official social only when a concrete menu artifact can be captured and tied to the restaurant identity/currentness.",
+    "Structure complete ES data and DE/EN localizations under the existing provenance and human-review gates before guest activation."
+  ],
+  "hard_boundaries": {
+    "invent_missing_items_or_prices": false,
+    "promote_generic_menu_claim_to_full_menu": false,
+    "infer_allergens": false,
+    "auto_publish": false,
+    "production_insert": false,
+    "treat_contact_time_as_opening_hours": false,
+    "treat_uncaptured_social_content_as_menu_truth": false
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "version": "1.1",
+  "snapshot_date": "2026-08-20",
+  "restaurant_id": 234,
+  "name": "Soul Kitchen",
+  "candidate_status": "STRUCTURED_TRILINGUAL_EDITORIAL_CANDIDATE_READY_FOR_HUMAN_REVIEW",
+  "production_import_allowed": false,
+  "production_mutation_performed": false,
+  "guest_publish_allowed": false,
+  "source": {
+    "page_url": "https://menurestauranteqr.es/soulkitchen/",
+    "source_authority": "first_party",
+    "source_format": "image_menu",
+    "coverage_scope": "full_menu_and_drinks",
+    "completeness_status": "image_complete",
+    "identity_evidence": "HOY restaurant website/source URL and the existing menu-source record point to the same hosted Soul Kitchen menu surface."
+  },
+  "assets": {
+    "expected_count": 12,
+    "capture_status": "FOCUSED_COMPETITIVE_EVIDENCE_GATE_PASSED_2026-08-20",
+    "urls": [
+      "https://menurestauranteqr.es/wp-content/uploads/2026/05/01SOULa--scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2026/05/02SOULa--scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2026/05/03SOULa--scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2026/05/04SOULa-copia-scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2024/07/05SOULa-scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2026/05/06SOULab.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2026/05/06soulcafe-scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2026/07/01soulcervezz-scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2025/07/vinos06-scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2025/07/chupitosj-scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2024/07/03soulbebidav-scaled.jpg",
+      "https://menurestauranteqr.es/wp-content/uploads/2025/07/coctelsin.jpg"
+    ]
+  },
+  "structured_candidate": {
+    "manifest": "soul-kitchen-234-structured-menu-candidate-2026-08-20.json",
+    "part_files": 6,
+    "items": 162,
+    "food_and_dessert_items": 61,
+    "beverage_items": 101,
+    "sections": 23,
+    "source_printed_or_proper_name_rows": 132,
+    "assistant_draft_translation_rows": 30,
+    "allergen_guest_claims_allowed": false
+  },
+  "next_actions": [
+    "Human/editor review of the 30 assistant-draft DE/EN translations, especially drinks and cocktail ingredients.",
+    "Reconcile all 162 rows against the 12 SHA-pinned source images and preserve source-page linkage.",
+    "Prepare guarded inactive import only after translation review and menu completeness review pass.",
+    "Run native ES/DE/EN locale completeness and source-truth gates before any guest activation."
+  ],
+  "hard_boundaries": {
+    "copy_third_party_menu": false,
+    "image_source_is_finished_guest_menu": false,
+    "auto_publish": false,
+    "production_insert": false,
+    "invent_missing_items_or_prices": false,
+    "allergen_claims_without_explicit_source_legend": false,
+    "assistant_translation_auto_curated": false
+  }
+}

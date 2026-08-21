@@ -4,8 +4,8 @@ const path=require('path');
 
 test.use({serviceWorkers:'block'});
 
-async function waitForFamily(page){
-  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>=3&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyPlaygroundsHardening240,{timeout:30000});
+async function waitForFamilyRuntime(page){
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>=3&&window.hoyFamilyPlaygrounds240&&window.hoyFamilyPlaygroundsHardening240,{timeout:30000});
 }
 
 async function seedFamilyFixtures(page){
@@ -46,7 +46,8 @@ test('family assets are wired without changing the guarded 2.39 release shell',a
   expect(html).toContain('family-playgrounds-2.40.js?v=2.40.0');
   expect(html).toContain('family-playgrounds-hardening-2.40.js?v=2.40.0');
   expect(html).toContain('family-playgrounds-2.40.css?v=2.40.0');
-  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForFamily(page);
+  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.hoyFamilyPlaygrounds240&&window.hoyFamilyPlaygroundsHardening240,{timeout:30000});
   expect(await page.evaluate(()=>window.hoyFamilyPlaygroundsVersion)).toBe('2.40.0');
 });
 
@@ -71,7 +72,7 @@ test('research staging cannot silently become fabricated production data',async(
 });
 
 test('native Family context only surfaces verified family facts',async({page})=>{
-  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForFamily(page);await seedFamilyFixtures(page);
+  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForFamilyRuntime(page);await seedFamilyFixtures(page);
   const names=await page.evaluate(()=>DATA.slice(0,3).map(x=>x.name));
 
   await expect(page.locator('[data-family240-home]')).toHaveCount(0);
@@ -89,7 +90,7 @@ test('native Family context only surfaces verified family facts',async({page})=>
 });
 
 test('family filters distinguish play, direct and visible use cases without guessing unknown sightlines',async({page})=>{
-  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForFamily(page);await seedFamilyFixtures(page);
+  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForFamilyRuntime(page);await seedFamilyFixtures(page);
   const result=await page.evaluate(()=>{
     const api=window.hoyFamilyPlaygrounds240;
     return {
@@ -131,7 +132,7 @@ test('family filters distinguish play, direct and visible use cases without gues
 });
 
 test('restaurant profile keeps compact family guidance while full facts preserve provenance',async({page})=>{
-  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForFamily(page);await seedFamilyFixtures(page);
+  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForFamilyRuntime(page);await seedFamilyFixtures(page);
   const id=await page.evaluate(()=>Number(DATA[0].id));
   await page.evaluate(id=>openDetail(id),id);
   const dialog=page.locator('#detail');

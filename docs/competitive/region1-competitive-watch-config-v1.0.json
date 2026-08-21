@@ -1,0 +1,85 @@
+{
+  "version": "1.1",
+  "region": "La Manga del Mar Menor / Cabo de Palos",
+  "cadence": {
+    "light_scan": "weekly",
+    "full_benchmark": "monthly",
+    "immediate_recheck_triggers": [
+      "new local discovery app or directory",
+      "new cross-restaurant dish or price search",
+      "material menu-count change",
+      "new open-now/live-status promise",
+      "new multilingual/menu translation capability",
+      "new merchant self-service/claim/pricing",
+      "new promotions/loyalty/events channel",
+      "material app adoption or municipal/tourism distribution signal"
+    ]
+  },
+  "moat_dimensions": {
+    "decision_data": [
+      "menu availability and completeness",
+      "menu freshness",
+      "cross-restaurant dish search",
+      "comparable prices",
+      "open-now and closing-soon accuracy",
+      "live status",
+      "DE/ES/EN native coverage",
+      "family facts",
+      "accessibility facts",
+      "events/specials",
+      "maps/routes",
+      "merchant corrections",
+      "provenance/trust"
+    ],
+    "distribution": [
+      "SEO/share of attention",
+      "organic editorial surfaces",
+      "content-to-product funnels",
+      "app installs/visible adoption",
+      "merchant network density",
+      "municipal/tourism/association channels",
+      "promotions/loyalty",
+      "push/notification channel",
+      "creator/local-partner distribution",
+      "observed demand/query signals"
+    ]
+  },
+  "signals": [
+    "listing breadth", "menu availability", "menu freshness", "cross-restaurant dish search", "price comparison",
+    "open now", "live status", "languages", "family", "accessibility", "events specials", "maps routes",
+    "merchant claim/self service", "paid placement", "reviews", "provenance", "mobile app", "geographic expansion",
+    "seo share of attention", "content distribution funnel", "app installs visible adoption", "municipal tourism distribution",
+    "merchant network density", "loyalty rewards promotions", "push notification channel", "user demand queries",
+    "partner creator distribution", "first-party versus directory freshness conflicts"
+  ],
+  "competitor_seeds": [
+    "https://viviendolamanga.es/",
+    "https://portal.tulocalidad.es/",
+    "https://restauranteslamanga.com/",
+    "https://play.google.com/store/apps/details?id=io.neuromobile.lamangaactiva",
+    "https://play.google.com/store/apps/details?id=io.neuromobile.sanjavier",
+    "https://elpaladardelahuerta.es/donde-comer-la-manga-mar-menor-2026/"
+  ],
+  "decision_rules": {
+    "roadmap_change_requires_one_of": [
+      "material guest risk", "material merchant risk", "G2 demand or willingness-to-pay proof",
+      "moat/buyer narrative improvement", "realisable exit-value increase", "DD/data/rights/security risk reduction"
+    ],
+    "raw_listing_volume_alone_changes_roadmap": false,
+    "third_party_claim_is_not_internal_metric": true,
+    "sampled_data_conflict_must_be_recorded_not_generalized": true
+  },
+  "output_contract": {
+    "record_evidence_url": true,
+    "record_observed_at": true,
+    "separate_claim_from_verified_fact": true,
+    "record_hoy_implication": true,
+    "record_action_or_no_action": true
+  },
+  "hard_boundaries": {
+    "copy_competitor_content": false,
+    "automatic_outreach": false,
+    "automatic_production_write": false,
+    "automatic_feature_build": false
+  }
+}
