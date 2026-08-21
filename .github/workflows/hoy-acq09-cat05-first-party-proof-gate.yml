@@ -1,0 +1,34 @@
+name: HOY ACQ-09 CAT-05 First-Party Proof Gate
+
+on:
+  pull_request:
+    paths:
+      - 'docs/investor-ready/acq09-cat05-first-party-proof-v1.json'
+      - 'docs/investor-ready/acq09-cat05-first-party-proof-v1.md'
+      - 'scripts/investor-ready/acq09-cat05-first-party-proof-audit.sql'
+      - 'scripts/investor-ready/check-acq09-cat05-first-party-proof.mjs'
+      - 'operator-data-confirmation-2.29.js'
+      - 'merchant-truth-freshness-2.50.js'
+      - '.github/workflows/hoy-acq09-cat05-first-party-proof-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  first-party-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+      - name: Run fail-closed CAT-05 proof contract
+        run: node scripts/investor-ready/check-acq09-cat05-first-party-proof.mjs
+      - name: Verify audit remains read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -qi 'begin transaction read only;' scripts/investor-ready/acq09-cat05-first-party-proof-audit.sql
+          grep -qi 'rollback;' scripts/investor-ready/acq09-cat05-first-party-proof-audit.sql
