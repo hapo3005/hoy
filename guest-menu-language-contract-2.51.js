@@ -25,11 +25,13 @@
     const coverage=m?.languageCoverage||{};
     const total=Number(coverage.total)||0;
     const ready=Number(coverage.ready)||0;
+    const itemCount=Number(m?.itemCount)||0;
     return !!(
       m&&m.nativeMenu===true&&m.localized===true&&
+      m.status==='structured'&&m.integrity==='complete'&&
       m.guestAvailability==='in_app_native'&&m.locale===lang&&
       coverage.locale===lang&&coverage.complete===true&&total>0&&ready===total&&
-      rowsValid(m.categories)
+      (!itemCount||itemCount===total)&&rowsValid(m.categories)
     );
   }
 
@@ -39,6 +41,13 @@
     const id=Number(detail.dataset.restaurantId||0);
     const restaurant=(DATA||[]).find(x=>Number(x.id)===id)||null;
     return restaurant?{detail,restaurant}:null;
+  }
+
+  function removeMenuStatusSignals(detail){
+    detail?.querySelectorAll('.statusrow .pill').forEach(pill=>{
+      const text=String(pill.textContent||'').trim();
+      if(/Speisekarte|Karte wird|Menu is|Carta/i.test(text))pill.remove();
+    });
   }
 
   function enforceProfile(p,detail=document.getElementById('detail')){
@@ -52,6 +61,7 @@
     if(!ready){
       section?.remove();
       link?.remove();
+      removeMenuStatusSignals(detail);
       detail.classList.add('menu251-not-guest-ready');
       detail.querySelectorAll('.menu248-blocked').forEach(node=>node.remove());
       return false;
@@ -77,6 +87,12 @@
     baseOpen251(id);
     const p=(DATA||[]).find(x=>Number(x.id)===Number(id));
     if(p)enforceProfile(p);
+  };
+
+  const baseServiceFlow251=openServiceFlow;
+  openServiceFlow=function(p,kind){
+    baseServiceFlow251(p,kind);
+    if(!guestReady(menuFor(p)))document.getElementById('serviceFlow')?.querySelector('[data-menu-open]')?.remove();
   };
 
   function enforceCurrent(){
