@@ -2,9 +2,19 @@ const {test,expect}=require('@playwright/test');
 
 test.use({serviceWorkers:'block'});
 
+async function isolateResearchFamily(page){
+  await page.route('**/rest/v1/restaurant_family_features**',route=>route.fulfill({
+    status:200,
+    contentType:'application/json',
+    headers:{'access-control-allow-origin':'*'},
+    body:'[]'
+  }));
+}
+
 async function openFamily(page){
+  await isolateResearchFamily(page);
   await page.goto('./?familyPreview=1',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyResearchStandard241?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true&&window.hoyFamilyDataCompletion242?.state?.status==='ready',{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&cloud?.status==='online'&&window.hoyFamilyPlaygrounds240?.state?.loaded===true&&window.hoyFamilyAuditedPreview240?.state?.mode==='research'&&window.hoyFamilyAuditedPreview240?.state?.readyCount===19&&window.hoyFamilyResearchStandard241?.state?.status==='ready'&&window.hoyFamilyResearchStandard241?.state?.applied===true&&window.hoyFamilyDataCompletion242?.state?.status==='ready',{timeout:30000});
   await page.locator('[data-family240-home-context]').click();
   await expect.poll(()=>page.evaluate(()=>state.family)).toBe('family');
   await expect(page.locator('[data-result-count]')).toHaveText('19');
