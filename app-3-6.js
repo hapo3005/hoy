@@ -30,4 +30,12 @@ initCloud();
   script.async=false;
   document.body.appendChild(script);
 })();
+(function loadHoyGuestMenuLanguageContract251(){
+  if(document.querySelector('script[data-hoy-guest-menu-language-contract]'))return;
+  const script=document.createElement('script');
+  script.src='./guest-menu-language-contract-2.51.js?v=2.51.0';
+  script.dataset.hoyGuestMenuLanguageContract='true';
+  script.async=false;
+  document.body.appendChild(script);
+})();
 if('serviceWorker' in navigator && location.protocol!=='file:')navigator.serviceWorker.register('./service-worker.js').catch(()=>{});

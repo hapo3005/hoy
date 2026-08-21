@@ -4,7 +4,7 @@ test.use({serviceWorkers:'block'});
 
 async function ready(page){
   await page.goto('./',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&cloud?.status==='online'&&typeof window.hoyMenuInAppComplete238==='function'&&typeof window.hoyMenuInAppPartial238==='function',{timeout:30000});
+  await page.waitForFunction(()=>Array.isArray(DATA)&&DATA.length>0&&cloud?.status==='online'&&typeof window.hoyMenuInAppComplete238==='function'&&typeof window.hoyMenuInAppPartial238==='function'&&typeof window.hoyGuestMenuReady251==='function',{timeout:30000});
 }
 
 test('external menu authority never masquerades as a complete in-app HOY menu',async({page,request})=>{
@@ -36,89 +36,98 @@ test('external menu authority never masquerades as a complete in-app HOY menu',a
   expect(contract.transactional).toBe(false);
 });
 
-test('snapshot and ordering sources create no full-menu guest signal, raw PDF CTA, false HOY heading or venue-media inside the menu section',async({page})=>{
+test('snapshot and ordering sources create no guest menu section, raw source CTA or full-menu signal',async({page})=>{
   await ready(page);
   const id=await page.evaluate(()=>DATA[0].id);
 
   await page.evaluate(id=>{
     MENUS[id]={
-      status:'source_only',integrity:'verified_snapshot_complete',sourceCompleteness:'complete',guestAvailability:'external_reference',
-      officialMenuUrl:'https://example.com/current-menu.pdf',label:'Öffentliche Kartenaufnahme',checked:'2026-08-16',sourceAuthority:'verified_public_snapshot',localized:false,
+      nativeMenu:true,status:'source_only',integrity:'native_source_only',guestAvailability:'blocked_until_structured',
+      officialMenuUrl:null,categories:[],localized:false,locale:null,
+      languageCoverage:{locale:'de',total:0,ready:0,missing:0,complete:false},
       note:'Quellenreferenz, keine vollständige HOY-Speisekarte.'
     };
     openDetail(id);
   },id);
 
   const profile=page.locator('#detail');
-  const menu=profile.locator('#profile-menu');
-  const kicker=menu.locator(':scope > .profile-section-head small');
-  const title=menu.locator(':scope > .profile-section-head h3');
   await expect(profile).toBeVisible();
-  await expect(menu).toContainText('Quellenbeleg');
-  await expect(menu).not.toContainText('Speisekarte verfügbar');
-  await expect(kicker).toHaveText('KARTENQUELLE');
-  await expect(title).toHaveText('Speisekarten-Quelle');
-  await expect(menu.locator('a[href*=".pdf"]')).toHaveCount(0);
-  await expect(menu.locator('.detail-art, .media-photo, .profile-media-mark')).toHaveCount(0);
+  await expect(profile.locator('#profile-menu')).toHaveCount(0);
+  await expect(profile.locator('a[href="#profile-menu"]')).toHaveCount(0);
+  await expect(profile.locator('a[href*=".pdf"]')).toHaveCount(0);
+  await expect(profile).not.toContainText('Speisekarte wird in HOY aufbereitet');
+  await expect(profile).not.toContainText('Speisekarten-Quelle');
   const snapshotSignals=await page.evaluate(id=>window.hoyDecision280For(DATA.find(x=>Number(x.id)===Number(id))).reasons.map(x=>x.label),id);
   expect(snapshotSignals).not.toContain('Speisekarte verfügbar');
 
   await page.evaluate(id=>{
     document.getElementById('detail')?.close();
     MENUS[id]={
-      status:'integrity_partial',integrity:'transactional_complete',sourceCompleteness:'complete',guestAvailability:'external_reference',
-      officialMenuUrl:'https://example.com/order',label:'Bestellplattform',checked:'2026-08-16',sourceAuthority:'authorized_transactional',localized:false,
-      note:'Bestellquelle kann vom Vor-Ort-Angebot abweichen.'
+      nativeMenu:true,status:'integrity_partial',integrity:'transactional_complete',guestAvailability:'external_reference',
+      officialMenuUrl:'https://example.com/order',categories:[],localized:false,locale:null,
+      languageCoverage:{locale:'de',total:0,ready:0,missing:0,complete:false}
     };
     openDetail(id);
   },id);
-  await expect(menu).toContainText('Quellenbeleg');
-  await expect(menu).toContainText('Speisekarte wird in HOY aufbereitet');
-  await expect(menu).not.toContainText('Speisekarte verfügbar');
-  await expect(kicker).toHaveText('KARTENQUELLE');
-  await expect(title).toHaveText('Speisekarten-Quelle');
-  await expect(menu.locator('a[href="https://example.com/order"]')).toHaveCount(0);
+  await expect(profile.locator('#profile-menu')).toHaveCount(0);
+  await expect(profile).not.toContainText('Speisekarte wird in HOY aufbereitet');
+  await expect(profile.locator('a[href="https://example.com/order"]')).toHaveCount(0);
   const transactionalSignals=await page.evaluate(id=>window.hoyDecision280For(DATA.find(x=>Number(x.id)===Number(id))).reasons.map(x=>x.label),id);
   expect(transactionalSignals).not.toContain('Speisekarte verfügbar');
 });
 
-test('a real in-app partial menu stays a visible partial truth, never a full menu claim',async({page})=>{
+test('partial in-app menu data remains internal and is not exposed as a guest menu',async({page})=>{
   await ready(page);
   const id=await page.evaluate(()=>DATA[0].id);
   const result=await page.evaluate(id=>{
     const p=DATA.find(x=>Number(x.id)===Number(id));
-    MENUS[p.id]={status:'integrity_partial',integrity:'partial',categories:[['Hauptgerichte',[['Arroz','18 €']]]],localized:false,coverage:{text:'1 von 3 Kartenbereichen ist aktuell in HOY.'}};
+    MENUS[p.id]={
+      nativeMenu:true,status:'integrity_partial',integrity:'partial',guestAvailability:'blocked_until_locale_complete',
+      categories:[['Hauptgerichte',[['Arroz','18 €']]]],localized:false,locale:null,itemCount:3,
+      languageCoverage:{locale:'de',total:3,ready:1,missing:2,complete:false}
+    };
     openDetail(p.id);
     return {
       partial:window.hoyMenuInAppPartial238(MENUS[p.id]),
       complete:window.hoyMenuInAppComplete238(MENUS[p.id]),
+      guestReady:window.hoyGuestMenuReady251(MENUS[p.id],'de'),
       signals:window.hoyDecision280For(p).reasons.map(x=>x.label)
     };
   },id);
   expect(result.partial).toBe(true);
   expect(result.complete).toBe(false);
+  expect(result.guestReady).toBe(false);
   expect(result.signals).not.toContain('Speisekarte verfügbar');
-  const menu=page.locator('#detail #profile-menu');
-  await expect(menu).toContainText('Teilkarte – bewusst gekennzeichnet');
-  await expect(menu.locator(':scope > .profile-section-head small')).toHaveText('HOY · TEILSTAND');
-  await expect(menu.locator(':scope > .profile-section-head h3')).toHaveText('Erfasste Auswahl');
+  const profile=page.locator('#detail');
+  await expect(profile.locator('#profile-menu')).toHaveCount(0);
+  await expect(profile).not.toContainText('Teilkarte');
+  await expect(profile).not.toContainText('Erfasste Auswahl');
 });
 
-test('a genuinely complete in-app menu still earns the normal guest signal and HOY menu heading',async({page})=>{
+test('only a complete localized HOY-native menu earns the guest menu surface and normal signal',async({page})=>{
   await ready(page);
   const id=await page.evaluate(()=>DATA[0].id);
   const result=await page.evaluate(id=>{
+    state.lang='de';
     const p=DATA.find(x=>Number(x.id)===Number(id));
-    MENUS[p.id]={status:'structured',integrity:'complete',categories:[['Hauptgerichte',[['Arroz','18 €']]]],localized:false};
+    MENUS[p.id]={
+      nativeMenu:true,status:'structured',integrity:'complete',guestAvailability:'in_app_native',
+      categories:[['Hauptgerichte',[['Arroz','18 €','Arroz','Reisgericht']]]],localized:true,locale:'de',itemCount:1,
+      languageCoverage:{locale:'de',total:1,ready:1,missing:0,complete:true}
+    };
     openDetail(p.id);
     return {
       available:window.hoyMenuInAppComplete238(MENUS[p.id]),
+      guestReady:window.hoyGuestMenuReady251(MENUS[p.id],'de'),
       signals:window.hoyDecision280For(p).reasons.map(x=>x.label)
     };
   },id);
   expect(result.available).toBe(true);
+  expect(result.guestReady).toBe(true);
   expect(result.signals).toContain('Speisekarte verfügbar');
   const menu=page.locator('#detail #profile-menu');
+  await expect(menu).toBeVisible();
   await expect(menu.locator(':scope > .profile-section-head small')).toHaveText('HOY SPEISEKARTE');
-  await expect(menu.locator(':scope > .profile-section-head h3')).toHaveText('Speisekarte');
+  await expect(menu).toContainText('Hauptgerichte');
+  await expect(menu).toContainText('Reisgericht');
 });
