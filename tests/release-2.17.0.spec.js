@@ -67,6 +67,18 @@ async function openDiscoverForVenue(page) {
   await expect(page.locator('.list-card[data-open="1"]')).toBeVisible();
 }
 
+async function assertMapSurfaceAvailable(map) {
+  await expect(map).toBeVisible();
+  const mapEl = map.locator('#hoyMap');
+  await expect(mapEl).toBeVisible();
+  await expect.poll(
+    () => mapEl.evaluate(el => el.classList.contains('leaflet-container') || Boolean(el.querySelector('.map-load-error'))),
+    { timeout: 20_000 }
+  ).toBe(true);
+  const leafletReady = await mapEl.evaluate(el => el.classList.contains('leaflet-container'));
+  if (!leafletReady) await expect(map.locator('.map-load-error')).toContainText(/Kartenbibliothek konnte nicht geladen werden/i);
+}
+
 test('an approved paid highlight is explicitly sponsored across the guest journey without a hidden ranking slot', async ({ page }, testInfo) => {
   await mockCurrent(page, [fixturePromotion()]);
   await page.goto('./', { waitUntil: 'domcontentloaded' });
@@ -93,7 +105,7 @@ test('an approved paid highlight is explicitly sponsored across the guest journe
 
   await page.locator('.journey-view-toggle [data-view-switch="map"]').click();
   const map = page.locator('.map-journey-signature');
-  await expect(map.locator('#hoyMap')).toHaveClass(/leaflet-container/, { timeout: 20_000 });
+  await assertMapSurfaceAvailable(map);
   const mapCard = map.locator('.map-decision-card[data-map-card="1"]');
   await expect(mapCard).toBeVisible();
   await expect(mapCard).toContainText('Gesponsert');

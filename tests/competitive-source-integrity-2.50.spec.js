@@ -28,8 +28,11 @@ test('competitive queue keeps third-party ingestion fail closed',async()=>{
   expect(escuela.source_class).toBe('SOURCE_INTEGRITY_BLOCKED');
 
   const soul=queue.rows.find(row=>row.restaurant_id===234);
-  expect(soul.source_class).toBe('FIRST_PARTY_HOSTED_IMAGE_CANDIDATE');
-  expect(soul.next_action).toContain('ES/DE/EN');
+  expect(soul.source_class).toBe('STRUCTURED_EDITORIAL_CANDIDATE');
+  expect(soul.evidence_status).toContain('162 unique positions');
+  expect(soul.evidence_status).toContain('30 assistant-draft translation rows require human review');
+  expect(soul.next_action).toContain('human/editor review');
+  expect(soul.next_action).toContain('no Production apply without explicit authorization');
 
   for(const id of [210,199]){
     const row=queue.rows.find(x=>x.restaurant_id===id);
