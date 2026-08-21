@@ -46,7 +46,8 @@ test('family assets are wired without changing the guarded 2.39 release shell',a
   expect(html).toContain('family-playgrounds-2.40.js?v=2.40.0');
   expect(html).toContain('family-playgrounds-hardening-2.40.js?v=2.40.0');
   expect(html).toContain('family-playgrounds-2.40.css?v=2.40.0');
-  await page.goto('./',{waitUntil:'domcontentloaded'});await waitForFamily(page);
+  await page.goto('./',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.hoyFamilyPlaygroundsVersion==='2.40.0'&&Boolean(window.hoyFamilyPlaygroundsHardening240),{timeout:12000});
   expect(await page.evaluate(()=>window.hoyFamilyPlaygroundsVersion)).toBe('2.40.0');
 });
 
