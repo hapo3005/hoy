@@ -1,0 +1,27 @@
+name: HOY ACQ-09 CAT-02 Freshness Gate
+
+on:
+  pull_request:
+    paths:
+      - 'docs/investor-ready/acq09-cat02-freshness-baseline-v1.json'
+      - 'docs/investor-ready/acq09-cat02-freshness-baseline-v1.md'
+      - 'scripts/investor-ready/acq09-cat02-production-freshness-audit.sql'
+      - 'scripts/investor-ready/check-acq09-cat02-freshness.mjs'
+      - 'merchant-truth-freshness-2.50.js'
+      - '.github/workflows/hoy-acq09-cat02-freshness-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  freshness-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+      - name: Run fail-closed CAT-02 freshness contract
+        run: node scripts/investor-ready/check-acq09-cat02-freshness.mjs

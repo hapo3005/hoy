@@ -1,0 +1,165 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "BASELINE_CAPTURED_PROOF_NOT_YET_EARNED",
+  "verifiedAt": "2026-08-21",
+  "track": "ACQ-09_CAT-02_FRESHNESS_HOY_NOW",
+  "objective": "Turn freshness from a UI feature into an auditable operating advantage: volatile facts must be dated, stale operator claims must lose NOW priority, and source freshness must never be confused with first-party confirmation.",
+  "claimBoundary": {
+    "competitiveFreshnessAdvantageProven": false,
+    "competitorFreshnessMetricsKnown": false,
+    "sourceFreshnessEqualsOperatorConfirmation": false,
+    "freshnessEqualsRightsClearance": false,
+    "freshnessEqualsAccuracy": false,
+    "freshnessEqualsLiveStatus": false,
+    "staleOperatorDataMayReceiveNowPriority": false,
+    "todayConfirmedRequiresSameDayOperatorEvidence": true,
+    "productionMutationAuthorizedByThisArtifact": false,
+    "outreachAuthorizedByThisArtifact": false
+  },
+  "existingRuntimeControl": {
+    "file": "merchant-truth-freshness-2.50.js",
+    "version": "2.50.0",
+    "operatorStandardStaleAfterDays": 30,
+    "todayConfirmedRequiresSameMadridDate": true,
+    "staleOrInvalidOperatorHoursFallbackToVerifiedBase": true,
+    "recentButNotTodayOperatorHoursAreNotLiveConfirmed": true
+  },
+  "operatingSla": {
+    "status": "INTERNAL_OPERATING_POLICY_NOT_MARKET_STANDARD",
+    "classes": [
+      {
+        "id": "FRESH-01",
+        "class": "operator_today_claim",
+        "maxAge": "same Madrid calendar date",
+        "rule": "Only same-day operator evidence may be presented as today confirmed."
+      },
+      {
+        "id": "FRESH-02",
+        "class": "operator_standard_hours",
+        "maxAgeDays": 30,
+        "rule": "After 30 days operator hours lose NOW priority and fall back to the verified base path."
+      },
+      {
+        "id": "FRESH-03",
+        "class": "high_volatility_editorial_hours_or_menu_source",
+        "maxAgeDays": 30,
+        "rule": "Use as an internal source-review SLA; this does not convert source research into operator confirmation."
+      },
+      {
+        "id": "FRESH-04",
+        "class": "core_profile_or_location_provenance",
+        "maxAgeDays": 90,
+        "rule": "Use as an internal recheck SLA for launch-critical identity/location provenance."
+      },
+      {
+        "id": "FRESH-05",
+        "class": "accessibility_fact",
+        "maxAge": "field stale_after",
+        "rule": "Respect each fact's explicit stale_after; do not replace feature-level freshness with a global age."
+      },
+      {
+        "id": "FRESH-06",
+        "class": "offers_events_specials",
+        "maxAge": "validity-window-and-source-specific",
+        "rule": "Lifecycle validity and source timestamps govern; generic age alone must not keep expired content live."
+      }
+    ]
+  },
+  "productionSnapshot": {
+    "publishedRestaurants": 180,
+    "coreProfileProvenance": {
+      "dated": 180,
+      "within90d": 180
+    },
+    "locationProvenance": {
+      "dated": 180,
+      "within90d": 180
+    },
+    "restaurantHours": {
+      "checkedWithin30d": 104,
+      "weeklyHoursPresent": 25,
+      "hoursStatusVerified": 27,
+      "hoursStatusConditional": 8,
+      "otherOrUnknown": 145
+    },
+    "hoursSources": {
+      "restaurantsWithSource": 90,
+      "restaurantsWithin30d": 90,
+      "sourceRows": 167,
+      "sourceRowsWithin30d": 167
+    },
+    "operatorLiveHours": {
+      "rows": 0,
+      "confirmed": 0,
+      "confirmedWithin30d": 0,
+      "confirmedToday": 0
+    },
+    "menuSources": {
+      "restaurantsWithDatedSource": 67,
+      "restaurantsWithin30d": 67,
+      "sourceRowsDated": 81,
+      "sourceRowsWithin30d": 81
+    },
+    "accessibility": {
+      "restaurantsWithLegacyResearchRow": 166,
+      "legacyVerificationSource": "public_research",
+      "operatorConfirmedRestaurants": 0,
+      "currentFacts": 668,
+      "datedCurrentFacts": 668,
+      "notStaleCurrentFacts": 668,
+      "staleCurrentFacts": 0
+    },
+    "services": {
+      "rows": 47,
+      "operatorConfirmedRows": 0,
+      "operatorConfirmedWithin30d": 0
+    }
+  },
+  "derivedReadout": {
+    "profileCoreWithinSlaPct": 100.0,
+    "locationWithinSlaPct": 100.0,
+    "hoursCheckedWithin30dPctOfPublished": 57.78,
+    "hoursSourceCoveragePctOfPublished": 50.0,
+    "menuSourceCoveragePctOfPublished": 37.22,
+    "operatorLiveHoursCoveragePctOfPublished": 0.0,
+    "interpretation": "Editorial/source recency is strong where evidence exists, but first-party live freshness is currently zero. CAT-02 therefore targets confirmation coverage and operating discipline, not a cosmetic freshness badge."
+  },
+  "proofConditions": {
+    "cat02ImplementationReadyWhen": [
+      "all volatile public claims carry an auditable timestamp or explicit unknown state",
+      "stale operator hours never receive operator NOW priority",
+      "same-day operator evidence is the only basis for a today-confirmed claim",
+      "freshness coverage is reported separately for source research and operator confirmation",
+      "the production freshness audit is reproducible and SELECT-only"
+    ],
+    "cp2FreshnessTrustAdvantageMayBePromotedOnlyWhen": [
+      "a representative real-business cohort has recurring first-party confirmations rather than one-off setup evidence",
+      "measured operator-confirmed facts remain within the frozen SLA across an observation period",
+      "zero known stale operator facts receive NOW priority in audited production behavior",
+      "consumer-facing provenance/freshness language matches the actual evidence level",
+      "a dated competitor benchmark exists for the compared mechanism; absence of competitor data cannot be treated as superiority"
+    ]
+  },
+  "nextExecution": [
+    {
+      "priority": "P0",
+      "action": "Create a recurring SELECT-only freshness audit across core, location, hours, menu, accessibility and operator-confirmed services."
+    },
+    {
+      "priority": "P0",
+      "action": "Use existing merchant-truth-freshness 2.50 as the canonical hours runtime; do not create a second freshness engine."
+    },
+    {
+      "priority": "P0",
+      "action": "Increase first-party operator confirmation coverage only after the existing contact/terms/release gates permit outreach and operator activation."
+    },
+    {
+      "priority": "P1",
+      "action": "Extend field-specific first-party confirmation beyond weekly hours only through the existing ACQ-05 rights/confirmation architecture."
+    },
+    {
+      "priority": "P1",
+      "action": "Refresh the external competitive benchmark before any comparative freshness-superiority claim."
+    }
+  ]
+}
