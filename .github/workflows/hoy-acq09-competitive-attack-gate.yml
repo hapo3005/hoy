@@ -1,0 +1,25 @@
+name: HOY ACQ-09 Competitive Attack Gate
+
+on:
+  pull_request:
+    paths:
+      - 'docs/investor-ready/acq09-competitive-attack-v1.json'
+      - 'docs/investor-ready/acq09-competitive-attack-v1.md'
+      - 'scripts/investor-ready/check-acq09-competitive-attack.mjs'
+      - '.github/workflows/hoy-acq09-competitive-attack-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  competitive-attack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+      - name: Run fail-closed ACQ-09 competitive contract
+        run: node scripts/investor-ready/check-acq09-competitive-attack.mjs
