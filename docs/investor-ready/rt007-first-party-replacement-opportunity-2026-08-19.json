@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "1.4.0",
+  "snapshotDate": "2026-08-19",
+  "status": "SCREENED_NOT_APPROVED",
+  "liveHardDirectReferences": 329,
+  "screenedCandidateReferences": 67,
+  "screenedCandidateShare": 0.2036,
+  "preparedDryRunReferences": 36,
+  "factVerificationStillRequired": 31,
+  "driftNote": "Registry coverage changed at 2026-08-19T01:41:47Z: the formerly NO_REGISTRY publisher/platform hosts are now fail-closed REVIEW_REQUIRED, and chibichanga.com is now a first-party AMBER host. Hard direct references remain 329.",
+  "byField": {
+    "source_url": {
+      "candidateReferences": 13,
+      "verificationMode": "GENERIC_FIRST_PARTY_SWAP_CANDIDATE",
+      "preparedDryRunReferences": 12,
+      "remainingReferences": 1
+    },
+    "location_source_url": {
+      "candidateReferences": 25,
+      "verificationMode": "VERIFY_OFFICIAL_PAGE_SHOWS_LOCATION_OR_ADDRESS",
+      "preparedDryRunReferences": 12,
+      "remainingReferences": 13
+    },
+    "hours_source_url": {
+      "candidateReferences": 13,
+      "verificationMode": "VERIFY_OFFICIAL_PAGE_SHOWS_CURRENT_HOURS",
+      "preparedDryRunReferences": 0,
+      "remainingReferences": 13,
+      "pass2Decision": "NO_NEW_HOURS_REPLACEMENTS"
+    },
+    "signature_source_url": {
+      "candidateReferences": 16,
+      "verificationMode": "VERIFY_AND_REWRITE_SIGNATURE_TO_SUPPORTED_FACTS",
+      "preparedDryRunReferences": 12,
+      "remainingReferences": 4
+    }
+  },
+  "preparedCandidates": {
+    "genericSourceUrlWave1": {
+      "references": 12,
+      "projectedHardQueueIfAppliedAlone": 317,
+      "artifact": "docs/investor-ready/rt007-source-url-first-party-wave1-candidate-2026-08-19.json"
+    },
+    "signatureWave1": {
+      "references": 3,
+      "projectedHardQueueIfAppliedAlone": 326,
+      "artifact": "docs/investor-ready/rt007-signature-first-party-replacement-candidate-2026-08-19.json"
+    },
+    "signatureWave2": {
+      "references": 9,
+      "projectedHardQueueIfAppliedAlone": 320,
+      "artifact": "docs/investor-ready/rt007-signature-first-party-wave2-candidate-2026-08-19.json",
+      "pageContentRecheckBeforeApplyRequired": true
+    },
+    "locationWave1": {
+      "references": 4,
+      "projectedHardQueueIfAppliedAlone": 325,
+      "artifact": "docs/investor-ready/rt007-location-first-party-wave1-candidate-2026-08-19.json"
+    },
+    "locationWave2": {
+      "references": 2,
+      "projectedHardQueueIfAppliedAlone": 327,
+      "artifact": "docs/investor-ready/rt007-location-first-party-wave2-candidate-2026-08-19.json",
+      "pageContentRecheckBeforeApplyRequired": true
+    },
+    "locationWave3": {
+      "references": 4,
+      "projectedHardQueueIfAppliedAlone": 325,
+      "artifact": "docs/investor-ready/rt007-location-first-party-wave3-candidate-2026-08-19.json",
+      "pageContentRecheckBeforeApplyRequired": true
+    },
+    "locationWave4": {
+      "references": 2,
+      "publishedReferences": 2,
+      "unpublishedReferences": 0,
+      "projectedHardQueueIfAppliedAlone": 327,
+      "projectedPublishedHardQueueIfAppliedAlone": 322,
+      "artifact": "docs/investor-ready/rt007-location-first-party-wave4-candidate-2026-08-19.json",
+      "pageContentRecheckBeforeApplyRequired": true
+    },
+    "combinedAfterRequiredRebase": {
+      "references": 36,
+      "publishedReferences": 34,
+      "unpublishedReferences": 2,
+      "projectedHardQueue": 293,
+      "projectedPublishedHardQueue": 290,
+      "projectedUnpublishedHardQueue": 3,
+      "rebaseRequired": true
+    }
+  },
+  "verificationPasses": {
+    "pass2": "docs/investor-ready/rt007-first-party-verification-pass2-2026-08-19.json",
+    "pass3": "docs/investor-ready/rt007-first-party-verification-pass3-2026-08-19.json"
+  },
+  "opportunityCeiling": {
+    "ifAll67CandidatesWereIndividuallyVerifiedAndApproved": 262,
+    "isForecast": false,
+    "isPromise": false,
+    "qualification": "This is only an arithmetic screening ceiling. Location, hours and signature candidates remain hard references unless the specific official evidence proves the exact fact and the replacement is separately reviewed/applied."
+  },
+  "rightsBoundary": {
+    "candidateRightsStatus": "AMBER",
+    "candidateSourceClass": "FIRST_PARTY_BUSINESS_REFERENCE",
+    "factualVerificationAllowed": true,
+    "transferability": "UNKNOWN",
+    "businessTermsRequired": true,
+    "transferClearReferencesCreatedByScreening": 0
+  },
+  "safetyBoundary": {
+    "productionMutationPerformed": false,
+    "automaticReplacementAuthorized": false,
+    "legalClearanceClaimed": false,
+    "businessTermsActivated": false,
+    "outreachAuthorized": false
+  }
+}

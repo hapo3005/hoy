@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0.1",
+  "snapshotDate": "2026-08-19",
+  "status": "DRY_RUN_CANDIDATE_NOT_APPLIED",
+  "productionMutationPerformed": false,
+  "purpose": "Replace three restricted direct signature provenance references with conservative first-party factual references while rewriting the signature copy to only what those first-party sources support.",
+  "baseline": {
+    "liveSnapshot": "docs/investor-ready/rt007-live-rights-snapshot-2026-08-19.json",
+    "hardDirectProvenanceQueue": 329,
+    "hardDirectProvenanceRestaurants": 149,
+    "candidateRestrictedSignatureReferences": 3,
+    "candidateRestaurants": [8, 9, 22],
+    "firstPartyRightsState": "AMBER",
+    "firstPartyFactualVerificationAllowed": true,
+    "firstPartyReplacementRequired": false,
+    "firstPartyTransferability": "UNKNOWN",
+    "businessTermsStillRequired": true
+  },
+  "replacements": [
+    {
+      "restaurantId": 8,
+      "restaurantName": "Collados Beach",
+      "oldHost": "elpais.com",
+      "oldClaimRemoved": "UFO / 1976 historical architecture framing",
+      "newSourceUrl": "https://colladosbeach.com/",
+      "newSourceHost": "colladosbeach.com",
+      "newTitle": "Dünenformen, Beach Club & Mittelmeer",
+      "newTags": ["Architektur", "Beach Club", "Mittelmeer"],
+      "newClaimScope": "Rounded dune-like architecture, environmental integration, Beach Club, restaurant and Mediterranean setting as stated by the official venue site."
+    },
+    {
+      "restaurantId": 9,
+      "restaurantName": "Area Sunset",
+      "oldHost": "www.thefork.es",
+      "oldClaimRemoved": "review-derived atmosphere framing",
+      "newSourceUrl": "https://areasunset.es/restaurante/",
+      "newSourceHost": "areasunset.es",
+      "newTitle": "Terrasse mit Sonnenuntergang",
+      "newTags": ["Sonnenuntergang", "Terrasse", "Mediterran"],
+      "newClaimScope": "Mediterranean cuisine and terrace with sunsets as stated by the official venue site."
+    },
+    {
+      "restaurantId": 22,
+      "restaurantName": "Cala Reona Beach Club",
+      "oldHost": "elpais.com",
+      "oldClaimRemoved": "publisher selection, nature and live-music framing",
+      "newSourceUrl": "https://calareonabeach.com/nuestra-carta/",
+      "newSourceHost": "calareonabeach.com",
+      "newTitle": "Seafood, Fisch & Arroces",
+      "newTags": ["Arroces", "Fisch", "Seafood"],
+      "newClaimScope": "Seafood, fish and multiple rice dishes directly supported by the official venue menu."
+    }
+  ],
+  "expectedIfLaterApprovedAndApplied": {
+    "hardDirectProvenanceQueueBefore": 329,
+    "hardDirectProvenanceQueueAfter": 326,
+    "hardQueueReduction": 3,
+    "noRegistryDirectReferencesAfter": 0,
+    "newFirstPartyAmberReferences": 3,
+    "transferClearReferencesCreated": 0,
+    "reason": "The replacement removes three currently hard NO_REGISTRY signature references from the direct provenance queue, but the resulting AMBER first-party references still require business terms for broader reuse/transfer rights."
+  },
+  "approvalBoundary": {
+    "copyPreservedWithoutSourceSupport": false,
+    "legalClearanceClaimed": false,
+    "businessTermsActivated": false,
+    "canonicalMigrationCreated": false,
+    "productionApplyAuthorized": false,
+    "outreachAuthorized": false
+  }
+}

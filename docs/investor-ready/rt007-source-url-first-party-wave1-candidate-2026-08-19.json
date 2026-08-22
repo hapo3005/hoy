@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "status": "DRY_RUN_CANDIDATE_NOT_APPLIED",
+  "productionMutationPerformed": false,
+  "baseline": {
+    "liveSnapshot": "docs/investor-ready/rt007-live-rights-snapshot-2026-08-19.json",
+    "hardDirectProvenanceQueue": 329,
+    "candidateSourceUrlReferences": 12,
+    "firstPartyRightsState": "AMBER",
+    "firstPartySourceClass": "FIRST_PARTY_BUSINESS_REFERENCE",
+    "firstPartyFactualVerificationAllowed": true,
+    "firstPartyReplacementRequired": false,
+    "firstPartyTransferability": "UNKNOWN",
+    "businessTermsStillRequired": true
+  },
+  "restaurants": [
+    {"id":18,"name":"CP8 Restaurante","oldHost":"www.tripadvisor.com","newHost":"cp8restaurante.com"},
+    {"id":19,"name":"Restaurante El Pez Rojo","oldHost":"murciaplaza.com","newHost":"elpezrojocabodepalos.wordpress.com"},
+    {"id":98,"name":"Currys Nepali","oldHost":"www.google.com","newHost":"www.currysnepali.com"},
+    {"id":110,"name":"El Rincón de la Hormiga","oldHost":"www.google.com","newHost":"elrincondelahormiga.com"},
+    {"id":116,"name":"Pizzeria Trattoria Trastevere","oldHost":"www.google.com","newHost":"trasteverelamanga.es"},
+    {"id":133,"name":"La cangreja","oldHost":"www.google.com","newHost":"lacangreja.com"},
+    {"id":135,"name":"Annapurna Nepali Restaurant","oldHost":"lasgastrocronicas.com","newHost":"www.annapurnanepali.com"},
+    {"id":144,"name":"Restaurante Isla Grosa","oldHost":"www.google.com","newHost":"restauranteislagrosalamanga.es"},
+    {"id":192,"name":"Pizzeria la Rucola","oldHost":"www.google.com","newHost":"www.larucola.info"},
+    {"id":196,"name":"Pizzería Diavola","oldHost":"www.google.com","newHost":"pizzeriadiavolalosbelones.es"},
+    {"id":203,"name":"La Oliva Restaurante","oldHost":"www.google.com","newHost":"restaurantelaoliva.com"},
+    {"id":215,"name":"Cabo de Sal","oldHost":"www.tripadvisor.com","newHost":"cabodesal.com"}
+  ],
+  "expectedIfLaterApprovedAndAppliedAlone": {
+    "hardDirectProvenanceQueueBefore": 329,
+    "hardDirectProvenanceQueueAfter": 317,
+    "hardQueueReduction": 12,
+    "newFirstPartyAmberReferences": 12,
+    "transferClearReferencesCreated": 0
+  },
+  "combinedWavePotential": {
+    "withThreeSignatureReplacementCandidate": true,
+    "independentCandidatesMustBeRebasedBeforeCombinedApply": true,
+    "projectedHardQueueIfBothWereReconciledAndApproved": 314,
+    "projectedTotalReduction": 15
+  },
+  "claimBoundary": "Replacing a RED/REVIEW_REQUIRED generic source_url with an already-registered first-party AMBER business reference improves provenance quality but does not create transferable/licensed proprietary rights. Business Terms remain required where broader reuse/transfer rights are needed.",
+  "approvalBoundary": {
+    "legalClearanceClaimed": false,
+    "businessTermsActivated": false,
+    "canonicalMigrationCreated": false,
+    "productionApplyAuthorized": false,
+    "outreachAuthorized": false
+  }
+}

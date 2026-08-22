@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "status": "DRY_RUN_CANDIDATE_NOT_APPLIED",
+  "productionMutationPerformed": false,
+  "baseline": {
+    "sourceRightsRegistryExistingCandidateHosts": 0,
+    "directNoRegistryFieldReferences": 3,
+    "directNoRegistryRestaurants": 3,
+    "hosts": ["www.thefork.es", "elpais.com"]
+  },
+  "candidates": [
+    {
+      "host": "www.thefork.es",
+      "sourceClass": "PLATFORM_RESTRICTED",
+      "rightsStatus": "RED",
+      "useAsLead": true,
+      "factualVerificationAllowed": false,
+      "persistentCopyAllowed": false,
+      "publicReuseAllowed": false,
+      "derivativeUseAllowed": false,
+      "commercialUseAllowed": false,
+      "automatedCollectionAllowed": false,
+      "replacementRequired": true,
+      "transferability": "NO",
+      "legalReviewStatus": "TERMS_REVIEWED_RESTRICTED",
+      "termsReference": "https://www.thefork.com/legal",
+      "termsCheckedAt": "2026-08-19",
+      "officialTermsLastUpdated": "2025-06-10",
+      "affectedDirectReferences": 1,
+      "affectedRestaurants": [9],
+      "claimBoundary": "Provenance lead/reference only; not transferable HOY content or evidence without separate permission."
+    },
+    {
+      "host": "elpais.com",
+      "sourceClass": "PUBLISHER_RESTRICTED",
+      "rightsStatus": "RED",
+      "useAsLead": true,
+      "factualVerificationAllowed": false,
+      "persistentCopyAllowed": false,
+      "publicReuseAllowed": false,
+      "derivativeUseAllowed": false,
+      "commercialUseAllowed": false,
+      "automatedCollectionAllowed": false,
+      "replacementRequired": true,
+      "transferability": "NO",
+      "legalReviewStatus": "TERMS_REVIEWED_RESTRICTED",
+      "termsReference": "https://elpais.com/suscripciones/condiciones-servicios/empresas/",
+      "termsCheckedAt": "2026-08-19",
+      "affectedDirectReferences": 2,
+      "affectedRestaurants": [8, 22],
+      "claimBoundary": "Article URL may remain provenance lead/reference only; publisher content is not transferable HOY evidence without written authorization."
+    }
+  ],
+  "expectedIfLaterApprovedAndApplied": {
+    "candidateHostNoRegistryReferences": 0,
+    "candidateHostRedReferences": 3,
+    "overallProblemQueueReduction": 0,
+    "reason": "This resolves classification coverage only. The same three references remain restricted/replacement-required and therefore remain inside the buyer closing queue."
+  },
+  "approvalBoundary": {
+    "legalClearanceClaimed": false,
+    "canonicalMigrationCreated": false,
+    "productionApplyAuthorized": false,
+    "sourceReplacementPerformed": false,
+    "businessOrInvestorOutreachAuthorized": false
+  }
+}

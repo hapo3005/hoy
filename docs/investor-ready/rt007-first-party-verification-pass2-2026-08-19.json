@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAt": "2026-08-19T01:46:47.212266Z",
+  "status": "VERIFICATION_PASS_COMPLETE_CANDIDATES_NOT_APPLIED",
+  "productionMutationPerformed": false,
+  "liveHardDirectReferences": 329,
+  "registryDrift": {
+    "noRegistryDirectReferences": 0,
+    "reviewRequiredDirectReferences": 16,
+    "hardQueueChanged": false,
+    "chibichangaFirstPartyRegistryAdded": true,
+    "effectOnScreening": "The live first-party opportunity set increased from 64 to 67 candidates without reducing the hard queue."
+  },
+  "liveScreening": {
+    "totalCandidateReferences": 67,
+    "byField": {
+      "source_url": 13,
+      "location_source_url": 25,
+      "hours_source_url": 13,
+      "signature_source_url": 16
+    }
+  },
+  "hoursReview": {
+    "candidateReferencesReviewed": 13,
+    "newPreparedReferences": 0,
+    "officialEvidenceRowsPresent": 9,
+    "noOfficialEvidenceRow": 4,
+    "decision": "NO_NEW_HOURS_REPLACEMENTS",
+    "reason": "Official evidence was insufficient for a complete current weekly schedule, represented reservation/service windows rather than opening hours, or conflicted with other current evidence. No hard hours provenance was re-routed on incomplete evidence."
+  },
+  "locationReview": {
+    "liveCandidateReferences": 25,
+    "preparedBeforePass": 4,
+    "newPreparedReferences": 2,
+    "preparedAfterPass": 6,
+    "remainingForFactSpecificReview": 19,
+    "newPreparedRestaurants": [208, 211],
+    "selectionRule": "Production already stores an explicit official first-party contact/find-us URL plus source label and checked date. Candidate changes provenance routing only and requires page-content recheck before any real apply.",
+    "notableDeferredExample": {
+      "restaurantId": 111,
+      "reason": "Stored HOY address and official-site address wording conflict; this is a data reconciliation case, not a provenance-only swap."
+    }
+  },
+  "sourceUrlReview": {
+    "liveCandidateReferences": 13,
+    "preparedReferences": 12,
+    "remainingForReview": 1,
+    "remainingRestaurantId": 97,
+    "reason": "Chibichanga became a new candidate after the first-party registry update and was not silently appended to the older dry-run wave."
+  },
+  "signatureReview": {
+    "liveCandidateReferences": 16,
+    "preparedReferences": 3,
+    "remainingForFactSpecificReview": 13
+  },
+  "preparedStateAfterPass": {
+    "genericSourceUrlWave1": 12,
+    "signatureWave1": 3,
+    "locationWave1": 4,
+    "locationWave2": 2,
+    "totalPreparedReferences": 21,
+    "remainingCandidateReferences": 46,
+    "projectedHardQueueAfterRequiredRebaseIfAllPreparedWereLaterApproved": 308,
+    "isCurrentProductionState": false,
+    "isForecast": false
+  },
+  "rightsBoundary": {
+    "preparedReplacementRightsStatus": "AMBER",
+    "factualVerificationAllowed": true,
+    "transferability": "UNKNOWN",
+    "businessTermsRequired": true,
+    "transferClearReferencesCreated": 0
+  },
+  "safetyBoundary": {
+    "dryRunsExecutedAgainstProduction": false,
+    "automaticReplacementAuthorized": false,
+    "legalClearanceClaimed": false,
+    "businessTermsActivated": false,
+    "outreachAuthorized": false
+  }
+}

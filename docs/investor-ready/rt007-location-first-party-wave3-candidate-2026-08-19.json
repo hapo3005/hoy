@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "1.0.0",
+  "snapshotDate": "2026-08-19",
+  "status": "DRY_RUN_CANDIDATE_NOT_APPLIED",
+  "productionMutationPerformed": false,
+  "baseline": {
+    "liveSnapshot": "docs/investor-ready/rt007-live-rights-snapshot-2026-08-19.json",
+    "hardDirectProvenanceQueue": 329,
+    "candidateLocationReferences": 4,
+    "candidateRule": "Only records whose current official first-party website visibly publishes a location matching the stored HOY address core are included. The candidate changes provenance routing only; it does not alter address, coordinates, location status or precision.",
+    "firstPartyRightsState": "AMBER",
+    "firstPartyFactualVerificationAllowed": true,
+    "firstPartyTransferability": "UNKNOWN",
+    "businessTermsStillRequired": true
+  },
+  "replacements": [
+    {
+      "restaurantId": 181,
+      "restaurantName": "Flute Lounge Bar",
+      "storedAddress": "Las Sabinas 1, 30389 La Manga Club",
+      "oldLocationHost": "www.google.com",
+      "newLocationSourceUrl": "https://www.fluteloungebar.com/",
+      "newLocationHost": "www.fluteloungebar.com",
+      "officialPageEvidence": "las sabinas 1 · calle de la salud · la manga club",
+      "evidenceCheckedAt": "2026-08-19",
+      "locationPrecisionUnchanged": "venue_complex"
+    },
+    {
+      "restaurantId": 185,
+      "restaurantName": "Taberna Siroco",
+      "storedAddress": "Pl. Cala Flores, Local 21, 30370 Cabo de Palos",
+      "oldLocationHost": "www.google.com",
+      "newLocationSourceUrl": "https://tabernasiroco.com/",
+      "newLocationHost": "tabernasiroco.com",
+      "officialPageEvidence": "Pl. Cala Flores, Local 21 · 30370 Cabo de Palos, Murcia",
+      "evidenceCheckedAt": "2026-08-19",
+      "locationPrecisionUnchanged": "venue_complex"
+    },
+    {
+      "restaurantId": 187,
+      "restaurantName": "Casa India Restaurante",
+      "storedAddress": "Pl. Miguel de Cervantes, 17, 30710 Los Alcázares",
+      "oldLocationHost": "www.google.com",
+      "newLocationSourceUrl": "https://casaindiarestaurant.com/",
+      "newLocationHost": "casaindiarestaurant.com",
+      "officialPageEvidence": "Pl. Miguel de Cervantes, 17, 30710 Los Alcázares, Murcia",
+      "evidenceCheckedAt": "2026-08-19",
+      "locationPrecisionUnchanged": "approximate"
+    },
+    {
+      "restaurantId": 202,
+      "restaurantName": "Pescados Cabo de Palos I",
+      "storedAddress": "C. Sirio, 23, 30370 Cabo de Palos",
+      "oldLocationHost": "www.google.com",
+      "newLocationSourceUrl": "https://pescadoscabodepalos.es/",
+      "newLocationHost": "pescadoscabodepalos.es",
+      "officialPageEvidence": "Calle Sirio 23, 30370 Cabo de Palos",
+      "evidenceCheckedAt": "2026-08-19",
+      "locationPrecisionUnchanged": "approximate"
+    }
+  ],
+  "excludedBoundaryExamples": [
+    {
+      "restaurantId": 111,
+      "restaurantName": "La Taberna del Puerto de Cabo de Palos",
+      "reason": "Official site publishes C/ del Faro 2 while HOY stores P.º de la Barra 2; this is a data reconciliation case, not a source-only replacement."
+    },
+    {
+      "restaurantId": 105,
+      "restaurantName": "The Last Drop Bar",
+      "reason": "Official site publishes La Plaza, La Manga Club, 30389 Los Belones while HOY stores La Manga Club Resort, Calle Golf, 30385 Atamaría; source-only replacement is not exact enough."
+    },
+    {
+      "restaurantId": 116,
+      "restaurantName": "Pizzeria Trattoria Trastevere",
+      "reason": "Official site confirms Urbanización Manga Beach but not HOY's full Km 6 detail."
+    },
+    {
+      "restaurantId": 132,
+      "restaurantName": "Aquarium La Manga Club Resort",
+      "reason": "Official site publishes Paraje Atamaria 33 while HOY stores C.C. Atamaría Golf; requires data reconciliation."
+    },
+    {
+      "restaurantId": 216,
+      "restaurantName": "La Finca Restaurant",
+      "reason": "Official site confirms La Manga Club / Paraje Atamaria but not HOY's stored number 14."
+    }
+  ],
+  "expectedIfLaterApprovedAndAppliedAlone": {
+    "hardDirectProvenanceQueueBefore": 329,
+    "hardDirectProvenanceQueueAfter": 325,
+    "hardQueueReduction": 4,
+    "newFirstPartyAmberReferences": 4,
+    "transferClearReferencesCreated": 0
+  },
+  "combinedPreparedPotential": {
+    "genericSourceUrlWave1": 12,
+    "signatureWave1": 3,
+    "locationWave1": 4,
+    "locationWave2": 2,
+    "locationWave3": 4,
+    "totalPreparedReferences": 25,
+    "projectedHardQueueAfterRequiredRebase": 304,
+    "rebaseRequired": true
+  },
+  "approvalBoundary": {
+    "pageContentRecheckBeforeApplyRequired": true,
+    "legalClearanceClaimed": false,
+    "businessTermsActivated": false,
+    "canonicalMigrationCreated": false,
+    "productionApplyAuthorized": false,
+    "outreachAuthorized": false
+  }
+}

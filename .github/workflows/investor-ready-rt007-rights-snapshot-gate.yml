@@ -1,0 +1,24 @@
+name: Investor Ready RT-007 Rights Snapshot Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/investor-ready/rt007-**'
+      - 'scripts/investor-ready/check-rt007-rights-snapshot.mjs'
+      - 'scripts/investor-ready/rt007-**'
+      - '.github/workflows/investor-ready-rt007-rights-snapshot-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fail-closed-rights-snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Reconcile live-evidence snapshot and claim boundaries
+        run: node scripts/investor-ready/check-rt007-rights-snapshot.mjs
